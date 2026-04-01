@@ -1,0 +1,128 @@
+[gd_scene format=3 uid="uid://1sfbm60f4wjd"]
+
+[ext_resource type="Script" uid="uid://doi0plsppyb1o" path="res://scripts/ui/desktop.gd" id="1_2pwep"]
+[ext_resource type="Script" uid="uid://b2kr16bkp27ck" path="res://scripts/resources/app_resource.gd" id="2_yw0nm"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="3_6yas7"]
+[ext_resource type="PackedScene" uid="uid://dcoqma7h6c75u" path="res://scenes/apps/app_browser.tscn" id="4_q8u6i"]
+[ext_resource type="PackedScene" uid="uid://b2jukdy0iqin4" path="res://scenes/apps/app_navigator.tscn" id="5_6yas7"]
+
+[sub_resource type="Resource" id="Resource_uadmx"]
+script = ExtResource("2_yw0nm")
+app_id = "browser"
+app_name = "Browser"
+app_icon = ExtResource("3_6yas7")
+app_scene = ExtResource("4_q8u6i")
+metadata/_custom_type_script = "uid://b2kr16bkp27ck"
+
+[sub_resource type="Resource" id="Resource_ll2ol"]
+script = ExtResource("2_yw0nm")
+app_id = "navigator"
+app_name = "Navigator"
+app_icon = ExtResource("3_6yas7")
+app_scene = ExtResource("5_6yas7")
+metadata/_custom_type_script = "uid://b2kr16bkp27ck"
+
+[node name="Desktop" type="Control" unique_id=1892252627]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_2pwep")
+installed_apps = Array[ExtResource("2_yw0nm")]([SubResource("Resource_uadmx"), SubResource("Resource_ll2ol")])
+
+[node name="Background" type="ColorRect" parent="." unique_id=1101823804]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.10384637, 0.16315666, 0.4597081, 1)
+
+[node name="TopBarHBox" type="HBoxContainer" parent="." unique_id=1514375072]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -335.5
+offset_top = -68.5
+offset_right = 335.5
+offset_bottom = 68.5
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="ClockContainer" type="VBoxContainer" parent="TopBarHBox" unique_id=14701623]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TopRow" type="HBoxContainer" parent="TopBarHBox/ClockContainer" unique_id=319440990]
+layout_mode = 2
+alignment = 1
+
+[node name="PeriodLabel" type="Label" parent="TopBarHBox/ClockContainer/TopRow" unique_id=1752006140]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 80
+text = "OVOXCELENTE"
+
+[node name="Spacer" type="Control" parent="TopBarHBox/ClockContainer/TopRow" unique_id=3276150]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="DateStack" type="VBoxContainer" parent="TopBarHBox/ClockContainer/TopRow" unique_id=1718888914]
+layout_mode = 2
+theme_override_constants/separation = -4
+
+[node name="DayLabel" type="Label" parent="TopBarHBox/ClockContainer/TopRow/DateStack" unique_id=1972762778]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "mondo"
+
+[node name="MonthLabel" type="Label" parent="TopBarHBox/ClockContainer/TopRow/DateStack" unique_id=112264624]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "grosso"
+
+[node name="BottomRow" type="HBoxContainer" parent="TopBarHBox/ClockContainer" unique_id=477191052]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="DaysPassedLabel" type="Label" parent="TopBarHBox/ClockContainer/BottomRow" unique_id=1190002433]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Eu sou"
+
+[node name="DebugTimeButton" type="Button" parent="TopBarHBox" unique_id=1918941758]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+text = "Debug: Passar tempo"
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=199957382]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -40.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_bottom = 30
+
+[node name="IconGrid" type="HBoxContainer" parent="MarginContainer" unique_id=1280513195]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 15
+alignment = 1

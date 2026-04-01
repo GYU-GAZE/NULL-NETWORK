@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="CharacterLoadout" format=3 uid="uid://c6qnhguv6agkv"]
+
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_ciynl"]
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://scripts/resources/module_data.gd" id="1_o473y"]
+[ext_resource type="Script" uid="uid://d1ggms7hchm4m" path="res://scripts/resources/character_loadout.gd" id="2_3epa5"]
+[ext_resource type="Resource" uid="uid://d0de40r3qxfd8" path="res://resources/combat/modules/heavy_attack.tres" id="2_3t63e"]
+[ext_resource type="Resource" uid="uid://douy6r2teyyce" path="res://resources/combat/modules/basic_attack.tres" id="3_ciynl"]
+[ext_resource type="Resource" uid="uid://dl8fv6g3sl3u3" path="res://resources/combat/modules/idle.tres" id="4_3kfrp"]
+[ext_resource type="Resource" uid="uid://c08m7l3e4oail" path="res://resources/combat/modules/basic_defense.tres" id="5_2cghp"]
+[ext_resource type="Resource" uid="uid://bdb5bnnhx1o76" path="res://resources/combat/modules/basic_dodge.tres" id="6_snalx"]
+[ext_resource type="Resource" uid="uid://dc21a0ovikmof" path="res://resources/combat/modules/basic_heal.tres" id="7_pkmmg"]
+
+[resource]
+script = ExtResource("2_3epa5")
+char_name = "Rattildus"
+combat_icon = ExtResource("1_ciynl")
+equipped_modules = Array[ExtResource("1_o473y")]([ExtResource("5_2cghp"), ExtResource("7_pkmmg"), ExtResource("5_2cghp"), ExtResource("7_pkmmg")])
+module_pool = Array[ExtResource("1_o473y")]([ExtResource("3_ciynl"), ExtResource("5_2cghp"), ExtResource("6_snalx"), ExtResource("7_pkmmg"), ExtResource("2_3t63e"), ExtResource("4_3kfrp")])
+metadata/_custom_type_script = "uid://d1ggms7hchm4m"

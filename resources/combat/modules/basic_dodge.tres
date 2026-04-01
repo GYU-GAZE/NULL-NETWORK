@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://bdb5bnnhx1o76"]
+
+[ext_resource type="Script" uid="uid://0ancnq2edet1" path="res://scripts/resources/status_effect.gd" id="1_3pwyn"]
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://scripts/resources/module_data.gd" id="1_gb4rw"]
+
+[resource]
+script = ExtResource("1_gb4rw")
+module_name = "Dodge"
+module_type = "Support"
+stability_cost = 30
+target_type = "Self"
+metadata/_custom_type_script = "uid://c5i2yudu22p4m"

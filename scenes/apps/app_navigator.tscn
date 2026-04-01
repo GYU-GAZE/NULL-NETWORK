@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://b2jukdy0iqin4"]
+
+[ext_resource type="Script" uid="uid://ckvkd6ckteaqr" path="res://scenes/apps/app_navigator.gd" id="1_bqhse"]
+[ext_resource type="Script" uid="uid://c81tcrqrtfpb5" path="res://scripts/resources/map_location.gd" id="2_h65ck"]
+[ext_resource type="Resource" uid="uid://csosrd43b0u55" path="res://resources/encounters/AkihabaraLocation.tres" id="3_plepu"]
+
+[node name="AppNavigator" type="Panel" unique_id=2140236202]
+script = ExtResource("1_bqhse")
+all_locations = Array[ExtResource("2_h65ck")]([ExtResource("3_plepu")])
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1314679755]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="LocationList" type="VBoxContainer" parent="HBoxContainer" unique_id=714431656]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LocationDetails" type="VBoxContainer" parent="HBoxContainer" unique_id=1410831204]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="HBoxContainer/LocationDetails" unique_id=294352643]
+layout_mode = 2
+
+[node name="BtnScan" type="Button" parent="HBoxContainer/LocationDetails" unique_id=865560310]
+unique_name_in_owner = true
+layout_mode = 2

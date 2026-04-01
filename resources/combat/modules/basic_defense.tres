@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://c08m7l3e4oail"]
+
+[ext_resource type="Script" uid="uid://0ancnq2edet1" path="res://scripts/resources/status_effect.gd" id="1_hvnd1"]
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://scripts/resources/module_data.gd" id="1_jgtdn"]
+
+[resource]
+script = ExtResource("1_jgtdn")
+module_name = "Defend"
+module_type = "Defend"
+power = 15
+stability_cost = 20
+target_type = "Self"
+scaling_stat = "NONE"
+scaling_factor = 0.0
+metadata/_custom_type_script = "uid://c5i2yudu22p4m"

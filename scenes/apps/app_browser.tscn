@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://dcoqma7h6c75u"]
+
+[ext_resource type="Script" uid="uid://cwms4o3bngg47" path="res://scripts/apps/browser.gd" id="1_mufrk"]
+
+[node name="BrowserApp" type="Panel" unique_id=1373929234]
+custom_minimum_size = Vector2(1200, 900)
+script = ExtResource("1_mufrk")
+
+[node name="MainVBox" type="VBoxContainer" parent="." unique_id=1051088920]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AddressBarMargin" type="MarginContainer" parent="MainVBox" unique_id=237390264]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 0
+
+[node name="AddressBarHBox" type="HBoxContainer" parent="MainVBox/AddressBarMargin" unique_id=1593441352]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="BrowserBackBtn" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=2070172410]
+unique_name_in_owner = true
+layout_mode = 2
+text = "<"
+
+[node name="UrlLineEdit" type="LineEdit" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=93702499]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GoButton" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=645379301]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Ir"
+
+[node name="Divider" type="HSeparator" parent="MainVBox" unique_id=831126565]
+layout_mode = 2
+
+[node name="ContentArea" type="MarginContainer" parent="MainVBox" unique_id=1789936585]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="NormalSiteScroll" type="ScrollContainer" parent="MainVBox/ContentArea" unique_id=175349413]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="NormalSiteContent" type="VBoxContainer" parent="MainVBox/ContentArea/NormalSiteScroll" unique_id=1631711902]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CustomSiteContainer" type="MarginContainer" parent="MainVBox/ContentArea" unique_id=1185931622]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2

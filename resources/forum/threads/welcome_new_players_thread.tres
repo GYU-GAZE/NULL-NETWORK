@@ -1,0 +1,112 @@
+[gd_resource type="Resource" script_class="ForumThread" format=3 uid="uid://ccatgheetv76k"]
+
+[ext_resource type="Script" uid="uid://blxdqibocgs5x" path="res://scripts/resources/forum_post.gd" id="1_wjhpy"]
+[ext_resource type="Script" uid="uid://csyarr4wn3qlx" path="res://scripts/resources/forum_thread.gd" id="2_fv5a7"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="3_gk5kf"]
+
+[sub_resource type="Resource" id="Resource_gk5kf"]
+script = ExtResource("1_wjhpy")
+avatar = ExtResource("3_gk5kf")
+username = "LORDSAVIOUR"
+user_title = "Moderator"
+location = "Tokyo, Japan"
+text_content = "Hi, everyone! With the RIP Morris meme unfortunately becoming more and more real, I was (democratically, I promise!!) graced with the title of Super Pretty Queen of the Cobalt Blue Message Board for the time being. While most of you already know me, we have been receiving an unusual amount of traffic lately, and I found it good and responsible to make a new post to help our new friends situate themselves!
+
+First things first: I'm GoGo_FroYo, everyone's big sister. I have been playing the game for six years, and even though life has gotten a little busier for all of us, I still try to make as much time as possible to play it. You might be wondering, what makes this Pokémon GO/Digimon/SMT rip-off so special for me? Well! Once you get the hang of it, it's a lovely and deceptively complex game with an incredible close-knit community! ⸜(｡˃ ᵕ ˂ )⸝♡
+
+Now, like every community, we have a few rules that are semi-strictly enforced to ensure a good experience for all of us. Nothing too complicated. Basically, don't be a jerk, and you should be fine!
+
+RULE #1! Be kind to one another!
+
+The game can get a little competitive sometimes, and the fact that it is PvP-enabled may cause some tension among the players! But at the end of the day this is still just a game. Everybody should be able to play and have fun while doing so. If you have any issues with another player, try to settle it privately with them. We do not tolerate hate threads!
+
+RULE #2! Always be careful when planning meet-ups!
+
+Due to a recent tragedy, I think it's important to stress that, ultimately, most of us are still strangers on the internet hiding behind an avatar and an username. You don't know our names, our ages, our interests, our favorite food, or the color of our underwear! Never go alone to a rendezvous with an user you don't absolutely trust!
+
+RULE #3! When in Rome, do as Romans do!
+
+At the end of the day, we are a VERY colorful community of people who are comfortable enough with each other to let steam off and act a little eccentric. As I said, animosity is an unfortunately inevitable part of the game, but you shouldn't harass other users for not conforming to your notions! Try to keep an open head and learn from them!
+
+RULE #4! Check the guide board before asking questions!
+
+There is nothing wrong with asking us any questions, but our previous chief moderator implemented a pretty harsh automod in here. We're working on making it a bit more lenient, but for now, just give the site a little read to double-check if your question is necessary, okay?
+
+RULE #5! Do not sell anything in here!
+
+There is an in-game market now where you can put most of anything for sale, so any money threads will be deleted. Unfortunately, Morris never added an in-game currency, so we mostly just use real-world cash... I'm sorry. (ㅠ﹏ㅠ)
+
+RULE #6! Learn who's who!
+
+We're a pretty flashy site, I know, and it can be a little difficult to navigate if you're new. Here's a cheat cheat for you!
+
+    This icon means the user is a Top 3 Player!
+    This icon means the user is a Top 25 Player!
+    A pink name box means the user is a Moderator!
+    A red name box means the user is Banned!
+    A green name box means the user is ...an User!
+    A yellow name box means the user is a VIP!
+    A blue name box means the user is a New Friend!
+
+RULE #7! HAVE FUN! ♥
+
+Yes, that is a rule. Fun not-havers shall be punished swiftly by GoGo-nee-sama's magical hammer! (ෆ˙ᵕ˙ෆ)♡ "
+metadata/_custom_type_script = "uid://blxdqibocgs5x"
+
+[sub_resource type="Resource" id="Resource_fv5a7"]
+script = ExtResource("1_wjhpy")
+avatar = ExtResource("3_gk5kf")
+username = "Dark."
+user_title = "Top #2 Ranker"
+location = "Tokyo, Japan"
+text_content = "Well, it’s that time of year where somebody starts spamming the site URL across the internet and we get a mild influx of new users. I would say ‘welcome’, but you are not. Ask redundant questions without using the search function and the auto-moderator will cuck you to death, as is deserved. Consider this an FAQ:
+
+1. I installed the game and set up my character. Why can’t I find any enemies?
+
+This is an AR game that requires you to ACTUALLY go outside. If you’re trying to spoof your location with GPS shenanigans, then I’m sorry to inform you that doesn’t work. Might as well uninstall now, you basement dwelling f*****. You get the highest frequency of encounters at night. Not ‘I covered my phone with a blanket’. Or ‘I changed the time on my mobile device to midnight’. Walk outside when the sun goes down and wait for the blue screen to pop up.
+If you’re playing this on Nox, Bluestacks, LDPlayer, Nemu, etc. kill yourself.
+
+2. Should I keep my starting partner?
+
+No. Also, do not take any guide written by GoGo_FroYo seriously.
+
+    She's a woman.
+    She's retarded.
+
+The starters are shit. Their stat lines are shit. Their passives are shit. If you use one, you are a shit player. Swap as soon as possible.
+
+3. I’m having trouble logging in/out. Why is that?
+
+Connectivity is spotty and unreliable. It may correlate to the area you’re in. It’s not uncommon to lose access for days at a time. Cry about it.
+Logging out can be done at any time from the menu, except when the player is in combat. The aggro range of viruses is deceptively large. Prepare for Minecraft levels of YOU MAY NOT REST NOW, THERE ARE MONSTERS NEARBY.
+Also, never force quit. You can try if you’d like to.
+
+4. Do viruses have elemental affinities? If so, how do they work?
+
+Sometimes. Figure it out yourself. If your parents let you play Pokemon as a child you should be fine. If you can’t grasp basic type match-ups, you’re too stupid to be playing this game anyway.
+
+5. What are the drawbacks of absorbing too many viruses?
+
+The answer to this is player-dependent. This game has many playstyles, both Whitehat and Blackhat. If you lean towards one side then suddenly switch, the side-effects will be more apparent and stunt your progress. People who walk the indecisive gray path are trash and generally weak willed.
+
+6. What’s the objective of this game?
+
+There isn’t one. It’s a massive time sink. Purify everything. Kill everything. It’s just mindless grinding and the occasional procedurally generated dungeon. Beat the boss, unlock a new area that looks just like the last one, but tinted a different color. This game is shitty and overrated, but I’m good at it so I keep playing.
+
+7. I saw someone talking about some weird term that isn't in Morris' guide. What does that mean?
+
+Probably something. Sometimes it's nothing and it's just some of the numerous assholes we've got in here trolling noobs like you for fun. The game has a shit ton of hidden mechanics and tidbits that you have no way of figuring out until you come across them yourself and that's kind of the only actually good thing it's got going for it. Most People won't give this kind of info for free to a literally who, and if you have half a functioning braincell, neither should you.
+
+8. I saw like 50 threads titled RIP Morris or RIP So-and-so. Are they dead?
+
+No. That is a meme. It is posted whenever Morris drops out of the top 25 scorers. When a player character dies, they’re erased from the leaderboard so his presence fluctuates. Whenever someone at the top of the leaderboard loses their character, we have a funeral thread. That’s it.
+
+If there’s anything else you want to ask, a guide probably already exists for it. "
+metadata/_custom_type_script = "uid://blxdqibocgs5x"
+
+[resource]
+script = ExtResource("2_fv5a7")
+board_name = "FIXED] [GUIDE"
+thread_title = "WELCOME, NEW PLAYERS"
+posts = Array[ExtResource("1_wjhpy")]([SubResource("Resource_gk5kf"), SubResource("Resource_fv5a7")])
+metadata/_custom_type_script = "uid://csyarr4wn3qlx"

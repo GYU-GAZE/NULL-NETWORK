@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CombatEncounter" format=3 uid="uid://i24s2c766jts"]
+
+[ext_resource type="Script" uid="uid://d1ggms7hchm4m" path="res://scripts/resources/character_loadout.gd" id="1_j51na"]
+[ext_resource type="Resource" uid="uid://bqndw73t6o3d3" path="res://resources/combat/loadouts/main_character.tres" id="2_d2p86"]
+[ext_resource type="Script" uid="uid://cpylubw8n7yf8" path="res://scripts/resources/combat_encounter.gd" id="2_owbw0"]
+[ext_resource type="Resource" uid="uid://c6qnhguv6agkv" path="res://resources/combat/loadouts/enemy_rattus.tres" id="3_sxvmy"]
+
+[resource]
+script = ExtResource("2_owbw0")
+allies = Array[ExtResource("1_j51na")]([ExtResource("2_d2p86")])
+enemies = Array[ExtResource("1_j51na")]([ExtResource("3_sxvmy"), ExtResource("3_sxvmy"), ExtResource("3_sxvmy")])
+metadata/_custom_type_script = "uid://cpylubw8n7yf8"

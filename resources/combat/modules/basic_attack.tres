@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://douy6r2teyyce"]
+
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://scripts/resources/module_data.gd" id="1_ju63g"]
+
+[resource]
+script = ExtResource("1_ju63g")
+module_name = "Attack"
+power = 15
+metadata/_custom_type_script = "uid://c5i2yudu22p4m"

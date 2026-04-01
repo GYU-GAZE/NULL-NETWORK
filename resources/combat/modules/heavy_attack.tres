@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://d0de40r3qxfd8"]
+
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://scripts/resources/module_data.gd" id="1_ddtjk"]
+[ext_resource type="Script" uid="uid://0ancnq2edet1" path="res://scripts/resources/status_effect.gd" id="1_wd7mj"]
+
+[resource]
+script = ExtResource("1_ddtjk")
+module_name = "Break"
+power = 50
+stability_cost = 35
+scaling_factor = 1.5
+metadata/_custom_type_script = "uid://c5i2yudu22p4m"

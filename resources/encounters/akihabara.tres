@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SpawnTable" format=3 uid="uid://d2c5qbnpgb6xw"]
+
+[ext_resource type="Script" uid="uid://dwrqagfrtf3or" path="res://scripts/resources/spawn_entry.gd" id="1_nt00n"]
+[ext_resource type="Resource" uid="uid://cdxjje47qsri2" path="res://resources/combat/1v1.tres" id="2_a5olv"]
+[ext_resource type="Script" uid="uid://so6qxui71jiq" path="res://scripts/resources/spawn_table.gd" id="2_ycvl3"]
+[ext_resource type="Resource" uid="uid://i24s2c766jts" path="res://resources/combat/3v1.tres" id="3_6mr0l"]
+
+[sub_resource type="Resource" id="Resource_ye60b"]
+script = ExtResource("1_nt00n")
+encounter = ExtResource("2_a5olv")
+weight = 70
+metadata/_custom_type_script = "uid://dwrqagfrtf3or"
+
+[sub_resource type="Resource" id="Resource_4ae75"]
+script = ExtResource("1_nt00n")
+encounter = ExtResource("3_6mr0l")
+weight = 30
+metadata/_custom_type_script = "uid://dwrqagfrtf3or"
+
+[resource]
+script = ExtResource("2_ycvl3")
+entries = Array[ExtResource("1_nt00n")]([SubResource("Resource_ye60b"), SubResource("Resource_4ae75")])
+metadata/_custom_type_script = "uid://so6qxui71jiq"

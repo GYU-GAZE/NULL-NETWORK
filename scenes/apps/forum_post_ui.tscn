@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://c1eml51sqyj5c"]
+
+[ext_resource type="Script" uid="uid://cbh0iplcjal7t" path="res://scripts/apps/forum_post_ui.gd" id="1_c64ud"]
+
+[node name="PostUi" type="PanelContainer" unique_id=94172056]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_c64ud")
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=237471960]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="MainHBox" type="HBoxContainer" parent="Margin" unique_id=827933404]
+layout_mode = 2
+
+[node name="ProfileVBox" type="VBoxContainer" parent="Margin/MainHBox" unique_id=1258659162]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+
+[node name="AvatarRect" type="TextureRect" parent="Margin/MainHBox/ProfileVBox" unique_id=984234090]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(124, 124)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+expand_mode = 1
+
+[node name="UsernameLabel" type="Label" parent="Margin/MainHBox/ProfileVBox" unique_id=1554245317]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Margin/MainHBox/ProfileVBox" unique_id=539185310]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LocationLabel" type="Label" parent="Margin/MainHBox/ProfileVBox" unique_id=688615149]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ContentVBox" type="VBoxContainer" parent="Margin/MainHBox" unique_id=564451217]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TextContent" type="RichTextLabel" parent="Margin/MainHBox/ContentVBox" unique_id=1615083238]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+size_flags_vertical = 3
+fit_content = true
+scroll_active = false
+autowrap_mode = 2
+
+[node name="ImageContent" type="TextureRect" parent="Margin/MainHBox/ContentVBox" unique_id=1018726603]
+unique_name_in_owner = true
+layout_mode = 2

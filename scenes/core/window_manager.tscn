@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dbcmrbcstca3l"]
+
+[ext_resource type="Script" uid="uid://wnqx1vd6tdxs" path="res://scenes/ui/window_manager.gd" id="1_uq54c"]
+[ext_resource type="PackedScene" uid="uid://cseroyflpgr45" path="res://scenes/ui/window_base.tscn" id="2_mospc"]
+
+[node name="WindowManager" type="Control" unique_id=1818255721]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_uq54c")
+window_base_scene = ExtResource("2_mospc")

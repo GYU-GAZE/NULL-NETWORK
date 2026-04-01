@@ -1,0 +1,108 @@
+[gd_scene format=3 uid="uid://d2wc20x3ldl5k"]
+
+[ext_resource type="Script" uid="uid://bxkoo8h0n8e23" path="res://scripts/apps/forum_app.gd" id="1_goqfn"]
+[ext_resource type="Script" uid="uid://dgyj7kryn0aau" path="res://scripts/resources/thread_button_data.gd" id="2_gsky1"]
+[ext_resource type="Resource" uid="uid://ccatgheetv76k" path="res://resources/forum/threads/welcome_new_players_thread.tres" id="3_gsky1"]
+[ext_resource type="PackedScene" uid="uid://c1eml51sqyj5c" path="res://scenes/apps/forum_post_ui.tscn" id="4_2d478"]
+
+[sub_resource type="Resource" id="Resource_2d478"]
+script = ExtResource("2_gsky1")
+thread_ref = ExtResource("3_gsky1")
+metadata/_custom_type_script = "uid://dgyj7kryn0aau"
+
+[node name="ForumApp" type="PanelContainer" unique_id=1643493238]
+offset_right = 1200.0
+offset_bottom = 900.0
+script = ExtResource("1_goqfn")
+thread_list = Array[ExtResource("2_gsky1")]([SubResource("Resource_2d478")])
+post_ui_scene = ExtResource("4_2d478")
+
+[node name="MasterScroll" type="ScrollContainer" parent="." unique_id=1604201622]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="PageVBox" type="VBoxContainer" parent="MasterScroll" unique_id=24340731]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="HeaderBanner" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=388077512]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(500, 80)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="BannerText" type="Label" parent="MasterScroll/PageVBox/HeaderBanner" unique_id=2110584523]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+text = "/null/ CHANNEL"
+horizontal_alignment = 1
+
+[node name="NavBarPanel" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=494262737]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(800, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="NavBarMargin" type="MarginContainer" parent="MasterScroll/PageVBox/NavBarPanel" unique_id=236034356]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="NavbarHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/NavBarPanel/NavBarMargin" unique_id=537395990]
+modulate = Color(0.25765854, 0.25765854, 0.25765854, 1)
+self_modulate = Color(0.22352941, 0.22352941, 0.22352941, 1)
+layout_mode = 2
+alignment = 1
+
+[node name="ThreadsBtn" type="Button" parent="MasterScroll/PageVBox/NavBarPanel/NavBarMargin/NavbarHBox" unique_id=1598627230]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Thread List
+"
+
+[node name="UpdatesBtn" type="Button" parent="MasterScroll/PageVBox/NavBarPanel/NavBarMargin/NavbarHBox" unique_id=1440624438]
+layout_mode = 2
+text = "Changelog
+"
+
+[node name="RankingsBtn" type="Button" parent="MasterScroll/PageVBox/NavBarPanel/NavBarMargin/NavbarHBox" unique_id=5661677]
+layout_mode = 2
+text = "Global Ranking
+"
+
+[node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=1833793142]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 100
+
+[node name="ThreadList" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=345993463]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ReaderContainer" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=547838893]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ReaderTitleLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=91619794]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PostList" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=637423438]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TopNav" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=342336655]
+layout_mode = 2

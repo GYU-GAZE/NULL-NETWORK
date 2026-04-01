@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://bptitsuqumy4e"]
+
+[ext_resource type="Script" uid="uid://1xdf2ppqaxl7" path="res://scripts/autoloads/simulated_dns.gd" id="1_dmleo"]
+[ext_resource type="Script" uid="uid://duyokyo5xmy6y" path="res://scripts/resources/website_page.gd" id="2_d1bob"]
+[ext_resource type="Resource" uid="uid://o6b4b04yql0" path="res://resources/apps/browser/null_channel.tres" id="3_o7uul"]
+
+[node name="SimulatedDNS" type="Node" unique_id=1524678864]
+script = ExtResource("1_dmleo")
+registered_sites = Array[ExtResource("2_d1bob")]([ExtResource("3_o7uul")])

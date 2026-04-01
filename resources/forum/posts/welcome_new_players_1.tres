@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="ForumPost" format=3 uid="uid://u0x02afnupca"]
+
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_6pjld"]
+[ext_resource type="Script" uid="uid://blxdqibocgs5x" path="res://scripts/resources/forum_post.gd" id="1_igv06"]
+
+[resource]
+script = ExtResource("1_igv06")
+avatar = ExtResource("1_6pjld")
+username = "LORDSAVIOUR"
+user_title = "Moderator"
+location = "Tokyo, Japan"
+text_content = "Hi, everyone! With the RIP Morris meme unfortunately becoming more and more real, I was (democratically, I promise!!) graced with the title of Super Pretty Queen of the Cobalt Blue Message Board for the time being. While most of you already know me, we have been receiving an unusual amount of traffic lately, and I found it good and responsible to make a new post to help our new friends situate themselves!
+
+First things first: I'm GoGo_FroYo, everyone's big sister. I have been playing the game for six years, and even though life has gotten a little busier for all of us, I still try to make as much time as possible to play it. You might be wondering, what makes this Pokémon GO/Digimon/SMT rip-off so special for me? Well! Once you get the hang of it, it's a lovely and deceptively complex game with an incredible close-knit community! ⸜(｡˃ ᵕ ˂ )⸝♡
+
+Now, like every community, we have a few rules that are semi-strictly enforced to ensure a good experience for all of us. Nothing too complicated. Basically, don't be a jerk, and you should be fine!
+
+RULE #1! Be kind to one another!
+
+The game can get a little competitive sometimes, and the fact that it is PvP-enabled may cause some tension among the players! But at the end of the day this is still just a game. Everybody should be able to play and have fun while doing so. If you have any issues with another player, try to settle it privately with them. We do not tolerate hate threads!
+
+RULE #2! Always be careful when planning meet-ups!
+
+Due to a recent tragedy, I think it's important to stress that, ultimately, most of us are still strangers on the internet hiding behind an avatar and an username. You don't know our names, our ages, our interests, our favorite food, or the color of our underwear! Never go alone to a rendezvous with an user you don't absolutely trust!
+
+RULE #3! When in Rome, do as Romans do!
+
+At the end of the day, we are a VERY colorful community of people who are comfortable enough with each other to let steam off and act a little eccentric. As I said, animosity is an unfortunately inevitable part of the game, but you shouldn't harass other users for not conforming to your notions! Try to keep an open head and learn from them!
+
+RULE #4! Check the guide board before asking questions!
+
+There is nothing wrong with asking us any questions, but our previous chief moderator implemented a pretty harsh automod in here. We're working on making it a bit more lenient, but for now, just give the site a little read to double-check if your question is necessary, okay?
+
+RULE #5! Do not sell anything in here!
+
+There is an in-game market now where you can put most of anything for sale, so any money threads will be deleted. Unfortunately, Morris never added an in-game currency, so we mostly just use real-world cash... I'm sorry. (ㅠ﹏ㅠ)
+
+RULE #6! Learn who's who!
+
+We're a pretty flashy site, I know, and it can be a little difficult to navigate if you're new. Here's a cheat cheat for you!
+
+    This icon means the user is a Top 3 Player!
+    This icon means the user is a Top 25 Player!
+    A pink name box means the user is a Moderator!
+    A red name box means the user is Banned!
+    A green name box means the user is ...an User!
+    A yellow name box means the user is a VIP!
+    A blue name box means the user is a New Friend!
+
+RULE #7! HAVE FUN! ♥
+
+Yes, that is a rule. Fun not-havers shall be punished swiftly by GoGo-nee-sama's magical hammer! (ෆ˙ᵕ˙ෆ)♡ "
+image_content = ExtResource("1_6pjld")
+metadata/_custom_type_script = "uid://blxdqibocgs5x"

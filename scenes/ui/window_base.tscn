@@ -1,0 +1,37 @@
+[gd_scene load_steps=2 format=3 uid="uid://cseroyflpgr45"]
+
+[ext_resource type="Script" uid="uid://blqtxemaoenof" path="res://scripts/ui/window_base.gd" id="1_ok15t"]
+
+[node name="WindowBase" type="MarginContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_ok15t")
+
+[node name="Background" type="PanelContainer" parent="."]
+modulate = Color(0.47397572, 0.47397572, 0.47397572, 1)
+layout_mode = 2
+
+[node name="MainVBox" type="VBoxContainer" parent="Background"]
+layout_mode = 2
+
+[node name="TopBar" type="PanelContainer" parent="Background/MainVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TopBarHBox" type="HBoxContainer" parent="Background/MainVBox/TopBar"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Background/MainVBox/TopBar/TopBarHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="Background/MainVBox/TopBar/TopBarHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "X"
+
+[node name="ContentContainer" type="MarginContainer" parent="Background/MainVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
