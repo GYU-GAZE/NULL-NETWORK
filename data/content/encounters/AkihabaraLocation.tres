@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="MapLocation" format=3 uid="uid://csosrd43b0u55"]
 
 [ext_resource type="Script" uid="uid://c81tcrqrtfpb5" path="res://data/templates/map_location.gd" id="1_pl7wp"]
-[ext_resource type="Resource" uid="uid://d2c5qbnpgb6xw" path="res://resources/encounters/akihabara.tres" id="2_1dvhy"]
+[ext_resource type="Resource" uid="uid://d2c5qbnpgb6xw" path="res://data/content/encounters/akihabara.tres" id="2_1dvhy"]
 
 [resource]
 script = ExtResource("1_pl7wp")

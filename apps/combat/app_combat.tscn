@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c7acibtxdt54a"]
 
 [ext_resource type="Script" uid="uid://d8jvy70iy3nu" path="res://apps/combat/app_combat.gd" id="1_5vrdx"]
-[ext_resource type="Resource" uid="uid://i24s2c766jts" path="res://resources/combat/3v1.tres" id="2_smmxw"]
+[ext_resource type="Resource" uid="uid://i24s2c766jts" path="res://data/content/combat/3v1.tres" id="2_smmxw"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_smmxw"]
 bg_color = Color(0, 0, 0, 0.8)

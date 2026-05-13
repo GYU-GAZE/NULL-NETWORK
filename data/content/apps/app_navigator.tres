@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="AppResource" format=3 uid="uid://c1rtqiahmygmm"]
 
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_jveos"]
-[ext_resource type="PackedScene" uid="uid://b2jukdy0iqin4" path="res://scenes/apps/app_navigator.tscn" id="2_4j6fk"]
+[ext_resource type="PackedScene" uid="uid://b2jukdy0iqin4" path="res://apps/navigator/app_navigator.tscn" id="2_4j6fk"]
 [ext_resource type="Script" uid="uid://b2kr16bkp27ck" path="res://data/templates/app_resource.gd" id="3_khd0v"]
 
 [resource]

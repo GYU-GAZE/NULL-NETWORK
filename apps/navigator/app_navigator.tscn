@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://b2jukdy0iqin4"]
 
-[ext_resource type="Script" uid="uid://ckvkd6ckteaqr" path="res://scenes/apps/app_navigator.gd" id="1_bqhse"]
+[ext_resource type="Script" uid="uid://ckvkd6ckteaqr" path="res://apps/navigator/app_navigator.gd" id="1_bqhse"]
 [ext_resource type="Script" uid="uid://c81tcrqrtfpb5" path="res://data/templates/map_location.gd" id="2_h65ck"]
-[ext_resource type="Resource" uid="uid://csosrd43b0u55" path="res://resources/encounters/AkihabaraLocation.tres" id="3_plepu"]
+[ext_resource type="Resource" uid="uid://csosrd43b0u55" path="res://data/content/encounters/AkihabaraLocation.tres" id="3_plepu"]
 
 [node name="AppNavigator" type="Panel" unique_id=2140236202]
 script = ExtResource("1_bqhse")
