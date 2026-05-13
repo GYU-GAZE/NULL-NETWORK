@@ -1,19 +1,26 @@
 extends Node
 
 @export var registered_sites: Array[WebsitePage] = []
+# Se quiser um 403 padrão, exporte aqui:
+@export var error_403_page: WebsitePage 
 
-# Busca a URL no banco de dados com Sanitização de String (UX Friendly)
-func resolve_url(target_url: String) -> WebsitePage:
-	# 1. Limpa o que o jogador digitou (joga tudo pra minúsculo e arranca o www.)
-	var clean_target: String = target_url.to_lower().trim_prefix("www.")
+# A mágica da limpeza:
+func _sanitize_url(raw_url: String) -> String:
+	var clean_url = raw_url.to_lower().strip_edges()
+	clean_url = clean_url.trim_prefix("https://")
+	clean_url = clean_url.trim_prefix("http://")
+	clean_url = clean_url.trim_prefix("www.")
+	return clean_url
+
+# A busca real que o Browser vai chamar:
+func fetch_page(url: String) -> WebsitePage:
+	var target_url = _sanitize_url(url)
 	
 	for site in registered_sites:
-		if site != null:
-			# 2. Limpa o que o Game Designer cadastrou no .tres (pelo mesmo motivo)
-			var clean_site_url: String = site.url.to_lower().trim_prefix("www.")
+		if _sanitize_url(site.url) == target_url:
+			return site
 			
-			# 3. Compara as versões limpas
-			if clean_site_url == clean_target:
-				return site
-				
+	# Se não achou nada, devolve o 403 ou nulo
+	if error_403_page:
+		return error_403_page
 	return null
