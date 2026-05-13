@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ForumPost" format=3 uid="uid://c20k8cvq45pcp"]
 
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_1vw37"]
-[ext_resource type="Script" uid="uid://blxdqibocgs5x" path="res://scripts/resources/forum_post.gd" id="1_m83wh"]
+[ext_resource type="Script" uid="uid://blxdqibocgs5x" path="res://data/templates/forum_post.gd" id="1_m83wh"]
 
 [resource]
 script = ExtResource("1_m83wh")

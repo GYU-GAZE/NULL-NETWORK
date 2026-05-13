@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="CombatEncounter" format=3 uid="uid://cdxjje47qsri2"]
 
-[ext_resource type="Script" uid="uid://d1ggms7hchm4m" path="res://scripts/resources/character_loadout.gd" id="1_s2opg"]
+[ext_resource type="Script" uid="uid://d1ggms7hchm4m" path="res://data/templates/character_loadout.gd" id="1_s2opg"]
 [ext_resource type="Resource" uid="uid://bqndw73t6o3d3" path="res://resources/combat/loadouts/main_character.tres" id="2_ke8py"]
-[ext_resource type="Script" uid="uid://cpylubw8n7yf8" path="res://scripts/resources/combat_encounter.gd" id="2_lgnc6"]
+[ext_resource type="Script" uid="uid://cpylubw8n7yf8" path="res://data/templates/combat_encounter.gd" id="2_lgnc6"]
 [ext_resource type="Resource" uid="uid://c6qnhguv6agkv" path="res://resources/combat/loadouts/enemy_rattus.tres" id="3_03h4k"]
 
 [resource]

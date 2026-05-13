@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://dc21a0ovikmof"]
 
-[ext_resource type="Script" uid="uid://0ancnq2edet1" path="res://scripts/resources/status_effect.gd" id="1_2qyps"]
-[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://scripts/resources/module_data.gd" id="1_e45vu"]
+[ext_resource type="Script" uid="uid://0ancnq2edet1" path="res://data/templates/status_effect.gd" id="1_2qyps"]
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="1_e45vu"]
 
 [resource]
 script = ExtResource("1_e45vu")

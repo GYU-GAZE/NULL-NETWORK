@@ -58,9 +58,7 @@ func _create_desktop_icon(app: AppResource, index: int) -> void:
 	
 	# O BLOCKER RESOLVIDO: O uso da função Lambda "func():"
 	# Isso garante que os parâmetros passados no loop sejam "congelados" para este botão específico.
-	btn.pressed.connect(func():
-		GlobalSignals.request_open_app.emit(app.app_id, app.app_name, app.app_scene)
-	)
+	btn.gui_input.connect(_on_icon_gui_input.bind(app))
 	
 	# THE JUICE: Animação de entrada dos ícones
 	# Escondemos o botão inicialmente
@@ -96,3 +94,10 @@ func _animate_time_change() -> void:
 	var tween: Tween = create_tween().set_parallel(true)
 	tween.tween_property(clock_container, "scale", Vector2.ONE, time_tween_duration).set_trans(Tween.TRANS_BOUNCE)
 	tween.tween_property(clock_container, "modulate", Color.WHITE, time_tween_duration)
+
+func _on_icon_gui_input(event: InputEvent, app: AppResource) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if event.double_click:
+			GlobalSignals.request_close_app.emit(app.app_id) # Duplo Clique Fechar
+		else:
+			GlobalSignals.request_open_app.emit(app.app_id, app.app_name, app.app_scene) # Clique simples Foca/Abre

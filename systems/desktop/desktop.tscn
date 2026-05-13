@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://1sfbm60f4wjd"]
 
-[ext_resource type="Script" uid="uid://doi0plsppyb1o" path="res://scripts/ui/desktop.gd" id="1_2pwep"]
-[ext_resource type="Script" uid="uid://b2kr16bkp27ck" path="res://scripts/resources/app_resource.gd" id="2_yw0nm"]
+[ext_resource type="Script" uid="uid://doi0plsppyb1o" path="res://systems/desktop/desktop.gd" id="1_2pwep"]
+[ext_resource type="Script" uid="uid://b2kr16bkp27ck" path="res://data/templates/app_resource.gd" id="2_yw0nm"]
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="3_6yas7"]
-[ext_resource type="PackedScene" uid="uid://dcoqma7h6c75u" path="res://scenes/apps/app_browser.tscn" id="4_q8u6i"]
+[ext_resource type="PackedScene" uid="uid://dcoqma7h6c75u" path="res://apps/browser/app_browser.tscn" id="4_q8u6i"]
 [ext_resource type="PackedScene" uid="uid://b2jukdy0iqin4" path="res://scenes/apps/app_navigator.tscn" id="5_6yas7"]
 
 [sub_resource type="Resource" id="Resource_uadmx"]

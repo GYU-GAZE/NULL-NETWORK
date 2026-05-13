@@ -21,8 +21,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-GlobalSignals="*res://scripts/autoloads/global_signals.gd"
-TimeManager="*res://scripts/autoloads/time_manager.gd"
+GlobalSignals="*res://core/autoloads/global_signals.gd"
+TimeManager="*res://core/autoloads/time_manager.gd"
 SimulatedDNS="*uid://bptitsuqumy4e"
 CombatManager="*uid://dya47f8vc1y21"
 

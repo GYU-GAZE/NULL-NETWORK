@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c1eml51sqyj5c"]
 
-[ext_resource type="Script" uid="uid://cbh0iplcjal7t" path="res://scripts/apps/forum_post_ui.gd" id="1_c64ud"]
+[ext_resource type="Script" uid="uid://cbh0iplcjal7t" path="res://apps/forum/forum_post_ui.gd" id="1_c64ud"]
 
 [node name="PostUi" type="PanelContainer" unique_id=94172056]
 anchors_preset = 15

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ThreadButtonData" format=3 uid="uid://c000rcbslv3ig"]
 
-[ext_resource type="Script" uid="uid://dgyj7kryn0aau" path="res://scripts/resources/thread_button_data.gd" id="1_nsysv"]
+[ext_resource type="Script" uid="uid://dgyj7kryn0aau" path="res://data/templates/thread_button_data.gd" id="1_nsysv"]
 [ext_resource type="Resource" uid="uid://ccatgheetv76k" path="res://resources/forum/threads/welcome_new_players_thread.tres" id="2_t03rw"]
 
 [resource]

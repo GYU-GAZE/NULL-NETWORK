@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dcoqma7h6c75u"]
 
-[ext_resource type="Script" uid="uid://cwms4o3bngg47" path="res://scripts/apps/browser.gd" id="1_mufrk"]
+[ext_resource type="Script" uid="uid://cwms4o3bngg47" path="res://apps/browser/browser.gd" id="1_mufrk"]
 
 [node name="BrowserApp" type="Panel" unique_id=1373929234]
 custom_minimum_size = Vector2(1200, 900)

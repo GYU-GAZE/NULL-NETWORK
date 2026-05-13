@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://d2wc20x3ldl5k"]
 
-[ext_resource type="Script" uid="uid://bxkoo8h0n8e23" path="res://scripts/apps/forum_app.gd" id="1_goqfn"]
-[ext_resource type="Script" uid="uid://dgyj7kryn0aau" path="res://scripts/resources/thread_button_data.gd" id="2_gsky1"]
+[ext_resource type="Script" uid="uid://bxkoo8h0n8e23" path="res://apps/forum/forum_app.gd" id="1_goqfn"]
+[ext_resource type="Script" uid="uid://dgyj7kryn0aau" path="res://data/templates/thread_button_data.gd" id="2_gsky1"]
 [ext_resource type="Resource" uid="uid://ccatgheetv76k" path="res://resources/forum/threads/welcome_new_players_thread.tres" id="3_gsky1"]
-[ext_resource type="PackedScene" uid="uid://c1eml51sqyj5c" path="res://scenes/apps/forum_post_ui.tscn" id="4_2d478"]
+[ext_resource type="PackedScene" uid="uid://c1eml51sqyj5c" path="res://apps/forum/forum_post_ui.tscn" id="4_2d478"]
 
 [sub_resource type="Resource" id="Resource_2d478"]
 script = ExtResource("2_gsky1")
