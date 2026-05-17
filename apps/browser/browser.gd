@@ -90,6 +90,9 @@ func _render_custom_site(scene: PackedScene) -> void:
 	var instance = scene.instantiate()
 	custom_site_container.add_child(instance)
 
+	if instance.has_signal("browser_navigation_requested"):
+		instance.browser_navigation_requested.connect(_load_page)
+
 func _render_normal_site(page: WebsitePage) -> void:
 	custom_site_container.hide()
 	normal_site_scroll.show()
@@ -149,6 +152,8 @@ func _build_block(block: PageBlock, parent_node: Control) -> void:
 			
 		PageBlock.BlockType.TEXT:
 			var text_label = RichTextLabel.new()
+			text_label.bbcode_enabled = true
+			text_label.meta_clicked.connect(_on_bbcode_link_clicked)
 			text_label.text = block.text_content
 			text_label.fit_content = true
 			text_label.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -200,3 +205,11 @@ func _handle_block_button(block: PageBlock) -> void:
 			if not block.story_flag.is_empty():
 				var current_value: bool = GameState.story_flags.get(block.story_flag, false)
 				GameState.story_flags[block.story_flag] = not current_value
+
+func _on_bbcode_link_clicked(meta: Variant) -> void:
+	var target_url := str(meta)
+
+	if target_url.is_empty():
+		return
+
+	_load_page(target_url)

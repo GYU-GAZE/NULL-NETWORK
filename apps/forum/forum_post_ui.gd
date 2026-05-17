@@ -9,6 +9,8 @@ class_name ForumPostUI
 @onready var text_content: RichTextLabel = %TextContent
 @onready var image_content: TextureRect = %ImageContent
 
+signal link_clicked(url: String)
+
 func setup(data: ForumPost) -> void:
 	# Perfil
 	if data.avatar:
@@ -19,6 +21,9 @@ func setup(data: ForumPost) -> void:
 	
 	# Conteúdo
 	text_content.text = data.text_content
+	text_content.bbcode_enabled = true
+	if not text_content.meta_clicked.is_connected(_on_meta_clicked):
+		text_content.meta_clicked.connect(_on_meta_clicked)
 	
 	# Lógica da imagem opcional
 	if data.image_content:
@@ -26,3 +31,11 @@ func setup(data: ForumPost) -> void:
 		image_content.show()
 	else:
 		image_content.hide()
+
+func _on_meta_clicked(meta: Variant) -> void:
+	var target_url := str(meta)
+
+	if target_url.is_empty():
+		return
+
+	link_clicked.emit(target_url)

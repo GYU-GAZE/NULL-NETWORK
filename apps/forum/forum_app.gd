@@ -1,6 +1,7 @@
 extends Control
 class_name ForumApp
 
+signal browser_navigation_requested(url: String)
 @export_category("Forum Database")
 @export var thread_list: Array[ThreadButtonData] = []
 @export var post_ui_scene: PackedScene 
@@ -51,6 +52,7 @@ func _open_thread(thread: ForumThread) -> void:
 			continue
 		var post_instance: ForumPostUI = post_ui_scene.instantiate() as ForumPostUI
 		post_list.add_child(post_instance)
+		post_instance.link_clicked.connect(_on_post_link_clicked)
 		post_instance.setup(post) 
 	
 	# Transição: Esconde a lista e mostra os posts
@@ -82,3 +84,6 @@ func handle_browser_back() -> bool:
 	else:
 		# Se já estamos na lista de threads, não temos para onde voltar no fórum
 		return false # Avisa o Browser: "Pode voltar a URL aí, chefe!"
+
+func _on_post_link_clicked(url: String) -> void:
+	browser_navigation_requested.emit(url)
