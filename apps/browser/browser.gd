@@ -32,7 +32,7 @@ func _load_page(target_url: String, is_history_nav: bool = false) -> void:
 			url_history.push_back(target_url)
 	
 	_clear_containers()
-	var page: WebsitePage = SimulatedDNS.resolve_url(target_url)
+	var page: WebsitePage = SimulatedDNS.fetch_page(target_url)
 	
 	if page == null:
 		_render_403_error()
@@ -159,21 +159,3 @@ func _build_block(block: PageBlock, parent_node: Control) -> void:
 		if block.block_type == "Row" or block.block_type == "Column":
 			for child_block in block.child_blocks:
 				_build_block(child_block, new_node)
-
-func load_url(raw_url: String):
-	var clean_url = SimulatedDns._sanitize_url(raw_url) # Aquela função de limpeza que criamos
-	%UrlLineEdit.text = clean_url
-	
-	var page_data = SimulatedDns.fetch_page(clean_url)
-	
-	if page_data:
-		_render_page(page_data)
-		url_history.append(clean_url) # Sistema de histórico "antigo"
-	else:
-		_render_error_403()
-
-func _on_back_button_pressed():
-	if url_history.size() > 1:
-		url_history.pop_back() # Remove a atual
-		var previous_url = url_history.pop_back() # Pega a anterior
-		load_url(previous_url)

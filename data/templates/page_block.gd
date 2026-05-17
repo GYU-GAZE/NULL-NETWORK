@@ -1,16 +1,34 @@
-# data/templates/page_block.gd
 extends Resource
 class_name PageBlock
 
-enum BlockType { TEXT, IMAGE, BUTTON, SPACING }
+enum BlockType {
+	ROW,
+	COLUMN,
+	TEXT,
+	IMAGE,
+	BUTTON,
+	SPACING
+}
+
+enum ButtonAction {
+	NONE,
+	NAVIGATE,
+	SET_FLAG,
+	TOGGLE_FLAG
+}
 
 @export var type: BlockType = BlockType.TEXT
 
-@export_group("Conteúdo")
-@export_multiline var text_content: String
-@export var image_content: Texture2D
+@export_group("Layout")
+@export var child_blocks: Array[PageBlock] = []
 
-@export_group("Ações de Botão")
-@export var target_url: String = "" # Se for para navegar
-@export var story_flag: String = ""  # Nome da variável bool (ex: "aceitou_termos")
-@export var flag_value: bool = true  # Vai para true ou false?
+@export_group("Conteúdo")
+@export_multiline var text_content: String = ""
+@export var image_content: Texture2D
+@export var spacing_size: int = 16
+
+@export_group("Botão")
+@export var button_action: ButtonAction = ButtonAction.NONE
+@export var target_url: String = ""
+@export var story_flag: String = ""
+@export var flag_value: bool = true
