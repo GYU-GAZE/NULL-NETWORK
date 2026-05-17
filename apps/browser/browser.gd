@@ -95,13 +95,21 @@ func _render_normal_site(page: WebsitePage) -> void:
 	normal_site_scroll.show()
 	
 	# 1. Constrói o Header
-	if page.header_image:
-		var header_rect = TextureRect.new()
-		header_rect.texture = page.header_image
-		header_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		header_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		header_rect.custom_minimum_size.y = 150 # Altura fixa do banner
-		normal_site_content.add_child(header_rect)
+	match page.header_type:
+		WebsitePage.HeaderType.TEXT:
+			var header_label := Label.new()
+			header_label.text = page.header_text
+			header_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			normal_site_content.add_child(header_label)
+
+		WebsitePage.HeaderType.IMAGE:
+			if page.header_image:
+				var header_rect := TextureRect.new()
+				header_rect.texture = page.header_image
+				header_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				header_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+				header_rect.custom_minimum_size.y = 150
+				normal_site_content.add_child(header_rect)
 		
 	# 2. Constrói a Navbar
 	if not page.navbar_links.is_empty():
@@ -125,37 +133,70 @@ func _render_normal_site(page: WebsitePage) -> void:
 
 # O Motor Recursivo Perigoso!
 func _build_block(block: PageBlock, parent_node: Control) -> void:
-	if block == null: return
+	if block == null:
+		return
 	
 	var new_node: Control = null
 	
-	match block.block_type:
-		"Row":
+	match block.type:
+		PageBlock.BlockType.ROW:
 			new_node = HBoxContainer.new()
 			new_node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		"Column":
+			
+		PageBlock.BlockType.COLUMN:
 			new_node = VBoxContainer.new()
 			new_node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		"Text":
+			
+		PageBlock.BlockType.TEXT:
 			var text_label = RichTextLabel.new()
 			text_label.text = block.text_content
 			text_label.fit_content = true
 			text_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 			text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			text_label.custom_minimum_size.x = 10 # O hack de Sênior ataca novamente!
+			text_label.custom_minimum_size.x = 10
 			new_node = text_label
-		"Image":
+			
+		PageBlock.BlockType.IMAGE:
 			var img_rect = TextureRect.new()
 			img_rect.texture = block.image_content
 			img_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			img_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			img_rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			img_rect.custom_minimum_size.y = 200 # Altura base, mas vai respeitar o aspecto
+			img_rect.custom_minimum_size.y = 200
 			new_node = img_rect
 			
+		PageBlock.BlockType.BUTTON:
+			var btn = Button.new()
+			btn.text = block.text_content
+			btn.pressed.connect(func(): _handle_block_button(block))
+			new_node = btn
+			
+		PageBlock.BlockType.SPACING:
+			var spacer = Control.new()
+			spacer.custom_minimum_size.y = block.spacing_size
+			new_node = spacer
+	
 	if new_node != null:
 		parent_node.add_child(new_node)
-		# A Mágica Recursiva: Se for Row ou Column, manda os filhos nascerem DENTRO do new_node
-		if block.block_type == "Row" or block.block_type == "Column":
+		
+		if block.type == PageBlock.BlockType.ROW or block.type == PageBlock.BlockType.COLUMN:
 			for child_block in block.child_blocks:
 				_build_block(child_block, new_node)
+
+func _handle_block_button(block: PageBlock) -> void:
+	match block.button_action:
+		PageBlock.ButtonAction.NONE:
+			return
+			
+		PageBlock.ButtonAction.NAVIGATE:
+			if not block.target_url.is_empty():
+				_load_page(block.target_url)
+			
+		PageBlock.ButtonAction.SET_FLAG:
+			if not block.story_flag.is_empty():
+				GameState.story_flags[block.story_flag] = block.flag_value
+			
+		PageBlock.ButtonAction.TOGGLE_FLAG:
+			if not block.story_flag.is_empty():
+				var current_value: bool = GameState.story_flags.get(block.story_flag, false)
+				GameState.story_flags[block.story_flag] = not current_value

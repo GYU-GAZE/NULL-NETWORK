@@ -25,6 +25,7 @@ GlobalSignals="*res://core/autoloads/global_signals.gd"
 TimeManager="*res://core/autoloads/time_manager.gd"
 SimulatedDNS="*uid://bptitsuqumy4e"
 CombatManager="*uid://dya47f8vc1y21"
+GameState="*uid://bcrfrujoy08hd"
 
 [display]
 

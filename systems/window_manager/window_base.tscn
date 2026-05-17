@@ -2,36 +2,36 @@
 
 [ext_resource type="Script" uid="uid://blqtxemaoenof" path="res://systems/window_manager/window_base.gd" id="1_ok15t"]
 
-[node name="WindowBase" type="MarginContainer"]
+[node name="WindowBase" type="MarginContainer" unique_id=1082699294]
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("1_ok15t")
 
-[node name="Background" type="PanelContainer" parent="."]
+[node name="Background" type="PanelContainer" parent="." unique_id=76806708]
 modulate = Color(0.47397572, 0.47397572, 0.47397572, 1)
 layout_mode = 2
 
-[node name="MainVBox" type="VBoxContainer" parent="Background"]
+[node name="MainVBox" type="VBoxContainer" parent="Background" unique_id=1965733341]
 layout_mode = 2
 
-[node name="TopBar" type="PanelContainer" parent="Background/MainVBox"]
+[node name="TopBar" type="PanelContainer" parent="Background/MainVBox" unique_id=73891259]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="TopBarHBox" type="HBoxContainer" parent="Background/MainVBox/TopBar"]
+[node name="TopBarHBox" type="HBoxContainer" parent="Background/MainVBox/TopBar" unique_id=452692183]
 layout_mode = 2
 
-[node name="TitleLabel" type="Label" parent="Background/MainVBox/TopBar/TopBarHBox"]
+[node name="TitleLabel" type="Label" parent="Background/MainVBox/TopBar/TopBarHBox" unique_id=1921216842]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="CloseButton" type="Button" parent="Background/MainVBox/TopBar/TopBarHBox"]
+[node name="CloseButton" type="Button" parent="Background/MainVBox/TopBar/TopBarHBox" unique_id=1703673678]
 unique_name_in_owner = true
 layout_mode = 2
 text = "X"
 
-[node name="ContentContainer" type="MarginContainer" parent="Background/MainVBox"]
+[node name="ContentContainer" type="MarginContainer" parent="Background/MainVBox" unique_id=1333449598]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
