@@ -31,7 +31,10 @@ func _generate_thread_list() -> void:
 		child.queue_free()
 		
 	for data in thread_list:
-		if data == null or not data.is_visible or data.thread_ref == null:
+		if data == null or data.thread_ref == null:
+			continue
+
+		if not data.are_conditions_met():
 			continue
 			
 		var btn: Button = Button.new()

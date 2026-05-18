@@ -192,19 +192,20 @@ func _handle_block_button(block: PageBlock) -> void:
 	match block.button_action:
 		PageBlock.ButtonAction.NONE:
 			return
-			
+
 		PageBlock.ButtonAction.NAVIGATE:
 			if not block.target_url.is_empty():
 				_load_page(block.target_url)
-			
-		PageBlock.ButtonAction.SET_FLAG:
-			if not block.story_flag.is_empty():
-				GameState.story_flags[block.story_flag] = block.flag_value
-			
-		PageBlock.ButtonAction.TOGGLE_FLAG:
-			if not block.story_flag.is_empty():
-				var current_value: bool = GameState.story_flags.get(block.story_flag, false)
-				GameState.story_flags[block.story_flag] = not current_value
+
+		PageBlock.ButtonAction.APPLY_EFFECTS:
+			_apply_block_effects(block)
+
+func _apply_block_effects(block: PageBlock) -> void:
+	for effect in block.effects:
+		if effect == null:
+			continue
+
+		effect.apply()
 
 func _on_bbcode_link_clicked(meta: Variant) -> void:
 	var target_url := str(meta)

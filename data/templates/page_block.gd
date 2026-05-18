@@ -13,8 +13,7 @@ enum BlockType {
 enum ButtonAction {
 	NONE,
 	NAVIGATE,
-	SET_FLAG,
-	TOGGLE_FLAG
+	APPLY_EFFECTS
 }
 
 @export var type: BlockType = BlockType.TEXT
@@ -30,5 +29,4 @@ enum ButtonAction {
 @export_group("Botão")
 @export var button_action: ButtonAction = ButtonAction.NONE
 @export var target_url: String = ""
-@export var story_flag: String = ""
-@export var flag_value: bool = true
+@export var effects: Array[EffectData] = []

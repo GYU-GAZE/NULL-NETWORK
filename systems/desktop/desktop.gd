@@ -70,19 +70,29 @@ func _create_desktop_icon(app: AppResource, index: int) -> void:
 
 
 func _on_debug_time_pressed() -> void:
-	print("1. O botão registrou o clique!") # <--- ADICIONE AQUI
-	TimeManager.advance_time()
+	TimeManager.advance_action()
 
 # Recebe os dados destrinchados do sinal global
 func _on_time_advanced(period: int, days_passed: int, cal_day: int, cal_month: String) -> void:
-	print("2. O sinal bateu e voltou pro Desktop!")
-	
-	period_label.text = TimeManager.get_period_name(period as TimeManager.TimePeriod)
+	var period_name := TimeManager.get_period_name(period as TimeManager.TimePeriod)
+	var current_block := TimeManager.current_action_block
+	var total_blocks := TimeManager.ACTION_BLOCKS_PER_PERIOD
+	var actions_left := TimeManager.get_actions_left_in_period()
+
+	period_label.text = "%s %d/%d" % [
+		period_name,
+		current_block + 1,
+		total_blocks
+	]
+
 	day_label.text = str(cal_day)
 	month_label.text = cal_month
-	
-	days_passed_label.text = "Dia %d" % days_passed
-	
+
+	days_passed_label.text = "Dia %d | Ações restantes: %d" % [
+		days_passed,
+		actions_left
+	]
+
 	_animate_time_change()
 
 # O Juice (Game Feel) aplicado no container inteiro
