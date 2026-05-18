@@ -28,9 +28,11 @@ func _ready() -> void:
 	close_button.pressed.connect(close)
 	top_bar.gui_input.connect(_on_top_bar_gui_input)
 
-func setup(id: String, window_name: String) -> void:
+func setup(id: String, window_name: String, window_size: Vector2) -> void:
 	app_id = id
 	title_label.text = window_name
+	custom_minimum_size = window_size
+	size = window_size
 
 # Captura cliques na janela inteira para "Puxar pra frente"
 func _gui_input(event: InputEvent) -> void:

@@ -106,6 +106,7 @@ metadata/_custom_type_script = "uid://blxdqibocgs5x"
 
 [resource]
 script = ExtResource("2_fv5a7")
+thread_id = "welcome_new_players"
 board_name = "FIXED] [GUIDE"
 thread_title = "WELCOME, NEW PLAYERS"
 posts = Array[ExtResource("1_wjhpy")]([SubResource("Resource_gk5kf"), SubResource("Resource_fv5a7")])

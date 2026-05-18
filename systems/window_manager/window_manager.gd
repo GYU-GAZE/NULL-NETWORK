@@ -31,7 +31,13 @@ func _on_request_open_app(app_id: String, app_name: String, app_scene: PackedSce
 	var new_window: WindowBase = window_base_scene.instantiate() as WindowBase
 	add_child(new_window)
 	
-	new_window.setup(app_id, app_name)
+	var app_data := _find_app_data(app_id)
+	var window_size := Vector2(900, 600)
+
+	if app_data != null:
+		window_size = app_data.default_window_size
+
+	new_window.setup(app_id, app_name, window_size)
 	open_windows[app_id] = new_window
 	
 	# 3. Injetamos o App de fato dentro do corpo da janela
@@ -80,3 +86,12 @@ func cycle_windows() -> void:
 			child.move_to_front()
 			child.pulse()
 			break
+
+func _find_app_data(app_id: String) -> AppResource:
+	for child in get_tree().get_nodes_in_group("desktop"):
+		if child is Desktop:
+			for app in child.installed_apps:
+				if app != null and app.app_id == app_id:
+					return app
+
+	return null

@@ -94,3 +94,11 @@ func is_day() -> bool:
 
 func is_night() -> bool:
 	return current_period == TimePeriod.NIGHT
+
+func get_total_action_index() -> int:
+	var period_offset := 0
+
+	if current_period == TimePeriod.NIGHT:
+		period_offset = ACTION_BLOCKS_PER_PERIOD
+
+	return ((days_passed - 1) * ACTION_BLOCKS_PER_PERIOD * 2) + period_offset + current_action_block

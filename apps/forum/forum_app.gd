@@ -29,22 +29,61 @@ func _ready() -> void:
 func _generate_thread_list() -> void:
 	for child in thread_list_container.get_children():
 		child.queue_free()
-		
+
+	var active_threads: Array[ThreadButtonData] = []
+	var archived_threads: Array[ThreadButtonData] = []
+
 	for data in thread_list:
 		if data == null or data.thread_ref == null:
 			continue
 
-		if not data.are_conditions_met():
+		if not data.is_visible():
 			continue
-			
-		var btn: Button = Button.new()
-		btn.text = "[%s] %s" % [data.thread_ref.board_name, data.thread_ref.thread_title]
+
+		if data.is_archived():
+			archived_threads.append(data)
+		else:
+			active_threads.append(data)
+
+	_add_thread_section("ATIVAS", active_threads)
+	_add_thread_section("ARQUIVADAS", archived_threads)
+
+func _add_thread_section(section_title: String, threads: Array[ThreadButtonData]) -> void:
+	if threads.is_empty():
+		return
+
+	var title_label := Label.new()
+	title_label.text = section_title
+	thread_list_container.add_child(title_label)
+
+	for data in threads:
+		var btn := Button.new()
+
+		var new_prefix := ""
+
+		if not GameState.has_read_thread(data.thread_ref.thread_id):
+			new_prefix = "[NEW!] "
+
+		btn.text = "%s[%s] %s" % [
+			new_prefix,
+			data.thread_ref.board_name,
+			data.thread_ref.thread_title
+		]
+
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		
+
 		thread_list_container.add_child(btn)
 		btn.pressed.connect(func(): _open_thread(data.thread_ref))
 
+	thread_list_container.add_child(HSeparator.new())
+
+func _on_time_advanced(_period: int, _days_passed: int, _cal_day: int, _cal_month: String) -> void:
+	_generate_thread_list()
+
 func _open_thread(thread: ForumThread) -> void:
+	GameState.mark_thread_as_read(thread.thread_id)
+	_generate_thread_list()
+	
 	reader_title_label.text = "[%s] %s" % [thread.board_name, thread.thread_title]
 	
 	for child in post_list.get_children():

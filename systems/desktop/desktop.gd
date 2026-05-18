@@ -23,6 +23,7 @@ class_name Desktop
 @onready var debug_time_button: Button = %DebugTimeButton
 
 func _ready() -> void:
+	add_to_group("desktop")
 	_boot_desktop()
 	debug_time_button.pressed.connect(_on_debug_time_pressed)
 	GlobalSignals.time_advanced.connect(_on_time_advanced)
