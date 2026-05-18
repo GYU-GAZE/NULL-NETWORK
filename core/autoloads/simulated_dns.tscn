@@ -3,7 +3,8 @@
 [ext_resource type="Script" uid="uid://1xdf2ppqaxl7" path="res://core/autoloads/simulated_dns.gd" id="1_dmleo"]
 [ext_resource type="Script" uid="uid://duyokyo5xmy6y" path="res://data/templates/website_page.gd" id="2_d1bob"]
 [ext_resource type="Resource" uid="uid://o6b4b04yql0" path="res://data/content/apps/null_channel.tres" id="3_o7uul"]
+[ext_resource type="Resource" uid="uid://c8lr6y5qegfk8" path="res://data/content/sites/67chan/sixsevenchan.tres" id="4_tvil6"]
 
 [node name="SimulatedDNS" type="Node" unique_id=1524678864]
 script = ExtResource("1_dmleo")
-registered_sites = Array[ExtResource("2_d1bob")]([ExtResource("3_o7uul")])
+registered_sites = Array[ExtResource("2_d1bob")]([ExtResource("3_o7uul"), ExtResource("4_tvil6")])

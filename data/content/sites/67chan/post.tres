@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PageBlock" format=3 uid="uid://drhx3vyn7lebv"]
+
+[ext_resource type="Script" uid="uid://bdeqm6m4tdmrs" path="res://data/templates/page_block.gd" id="1_j84hw"]
+[ext_resource type="Script" uid="uid://bn54doxav1knk" path="res://data/templates/effect_data.gd" id="2_ibppk"]
+
+[resource]
+script = ExtResource("1_j84hw")
+type = 4
+text_content = "Advance Time"
+button_action = 2
+metadata/_custom_type_script = "uid://bdeqm6m4tdmrs"
