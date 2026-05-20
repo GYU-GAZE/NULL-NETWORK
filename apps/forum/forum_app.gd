@@ -26,6 +26,9 @@ func _ready() -> void:
 	threads_btn.pressed.connect(_on_threads_btn_pressed)
 	_generate_thread_list()
 
+	if not GlobalSignals.time_advanced.is_connected(_on_time_advanced):
+		GlobalSignals.time_advanced.connect(_on_time_advanced)
+
 func _generate_thread_list() -> void:
 	for child in thread_list_container.get_children():
 		child.queue_free()

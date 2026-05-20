@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://b5xe5jmx3xf86"]
+
+[ext_resource type="Script" uid="uid://0ancnq2edet1" path="res://data/templates/status_effect.gd" id="1_1p2sx"]
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="1_nslet"]
+[ext_resource type="Script" uid="uid://d1ggms7hchm4m" path="res://data/templates/character_loadout.gd" id="2_1p2sx"]
+[ext_resource type="Script" uid="uid://rnthl5gqx7w1" path="res://data/templates/combat_effect_data.gd" id="2_6s4ll"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="3_ok4x7"]
+
+[sub_resource type="Resource" id="Resource_7ifab"]
+script = ExtResource("2_1p2sx")
+char_name = "Torreta"
+combat_icon = ExtResource("3_ok4x7")
+apk_type = "XSELF"
+metadata/_custom_type_script = "uid://d1ggms7hchm4m"
+
+[sub_resource type="Resource" id="Resource_2wyw5"]
+script = ExtResource("2_6s4ll")
+effect_type = 2
+dummy_loadout = SubResource("Resource_7ifab")
+metadata/_custom_type_script = "uid://rnthl5gqx7w1"
+
+[resource]
+script = ExtResource("1_nslet")
+module_name = "Dummy Turret"
+module_type = 1
+target_type = 0
+combat_effects = Array[ExtResource("2_6s4ll")]([SubResource("Resource_2wyw5")])
+metadata/_custom_type_script = "uid://c5i2yudu22p4m"

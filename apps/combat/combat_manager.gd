@@ -37,7 +37,12 @@ func _create_combatant_dict(data: CharacterLoadout, is_ally: bool, is_player: bo
 		"stability": data.max_stability, "max_stability": data.max_stability,
 		"atk": data.base_atk, "def": data.base_def, "dodge": data.dodge_chance,
 		"modules": data.equipped_modules.duplicate(),
-		"is_ally": is_ally, "is_player": is_player, "active_effects": []
+		"is_ally": is_ally,
+		"is_player": is_player,
+		"combat_behavior": data.combat_behavior,
+		"is_dummy": data.combat_behavior == CharacterLoadout.CombatBehavior.DUMMY,
+		"active_effects": [],
+		"active_combat_effects": []
 	}
 
 func _build_timeline() -> void:
@@ -63,21 +68,87 @@ func _build_timeline() -> void:
 func _get_target(actor: Dictionary, mod: ModuleData):
 	var team = ally_team if actor.is_ally else enemy_team
 	var opposing = enemy_team if actor.is_ally else ally_team
-	
-	var my_index = team.find(actor)
-	if my_index == -1: return null # Se não achou no array, ignora
 
-	if mod.target_type == "SingleEnemy":
-		return opposing[my_index] # Ataque Reto: Slot X ataca Slot X (pode ser null se estiver vazio!)
-		
-	elif mod.target_type == "Ally":
-		var target_idx = (my_index + 1) % 4 # A Magia Modular: Slot X cura Slot X+1. Se for 3, vira 0!
-		return team[target_idx] 
-		
-	elif mod.target_type == "Self":
-		return actor
-		
+	var my_index = team.find(actor)
+	if my_index == -1:
+		return null
+
+	match mod.target_type:
+		ModuleData.TargetType.SINGLE_ENEMY:
+			return _get_single_enemy_target(my_index, opposing)
+
+		ModuleData.TargetType.ALL_ENEMIES:
+			return _get_alive_targets(opposing)
+
+		ModuleData.TargetType.ALLY:
+			return _get_ally_target(my_index, team)
+
+		ModuleData.TargetType.ALL_ALLIES:
+			return _get_alive_targets(team)
+
+		ModuleData.TargetType.SELF:
+			return actor
+
 	return null
+
+func _get_single_enemy_target(attacker_index: int, opposing_team: Array):
+	var alive_targets := _get_alive_targets(opposing_team)
+
+	if alive_targets.is_empty():
+		return null
+
+	if alive_targets.size() == 1:
+		return alive_targets[0]
+
+	if alive_targets.size() == 2:
+		if attacker_index <= 1:
+			return alive_targets[0]
+		else:
+			return alive_targets[1]
+
+	if alive_targets.size() == 3:
+		return _get_closest_target_by_slot(attacker_index, opposing_team)
+
+	return opposing_team[attacker_index]
+
+
+func _get_closest_target_by_slot(attacker_index: int, opposing_team: Array):
+	var closest_target = null
+	var closest_distance := 999
+
+	for i in range(opposing_team.size()):
+		var target = opposing_team[i]
+
+		if target == null or target.hp <= 0:
+			continue
+
+		var distance = abs(attacker_index - i)
+
+		if distance < closest_distance:
+			closest_distance = distance
+			closest_target = target
+
+	return closest_target
+
+
+func _get_ally_target(actor_index: int, team: Array):
+	var target_idx = (actor_index + 1) % 4
+	var target = team[target_idx]
+
+	if target != null and target.hp > 0:
+		return target
+
+	return _get_closest_target_by_slot(actor_index, team)
+
+
+func _get_alive_targets(team: Array) -> Array:
+	var alive_targets := []
+
+	for actor in team:
+		if actor != null and actor.hp > 0:
+			alive_targets.append(actor)
+
+	return alive_targets
 
 func execute_cycle() -> void:
 	var base_wait: float = 1.0
@@ -88,39 +159,22 @@ func execute_cycle() -> void:
 		var actor = action.actor
 		var mod = action.module
 		var target = action.target
-		
+		target = _get_target(actor, mod)
+		action.target = target
+
 		if actor.hp > 0 and actor.stability >= mod.stability_cost:
 			actor.stability -= mod.stability_cost
 			combat_log_added.emit("[color=cyan]%s[/color] ativou [b]%s[/b]." % [actor.name, mod.module_name])
-			
-			# Aplica Buffs/Debuffs (Inclusive o Buff de DEF das habilidades de Suporte/Defesa!)
-			for effect in mod.applied_effects:
-				if effect != null:
-					var new_eff = effect.duplicate()
-					var target_to_apply = actor if new_eff.effect_type == "Buff" else target
-					if target_to_apply != null:
-						target_to_apply.active_effects.append(new_eff)
-			
-			if mod.module_type == "Attack":
-				if target != null and target.hp > 0:
-					var dynamic_atk = _get_stat(actor, mod.scaling_stat)
-					var raw_damage = mod.power + ((dynamic_atk * mod.scaling_factor) if mod.scaling_stat != "NONE" else 0)
-					
-					# Calcula a DEF dinâmica do alvo (Respeitando os Buffs/Debuffs!)
-					var target_def = _get_stat(target, "def")
-					var final_damage = max(1, raw_damage - target_def) 
-					
-					target.hp = max(0, target.hp - final_damage)
-					floating_text_requested.emit(target, "-" + str(final_damage), Color.CRIMSON)
-					combat_log_added.emit("> Dano causado: " + str(final_damage))
-				else:
-					combat_log_added.emit("> O ataque de " + actor.name + " acertou o VAZIO!")
-					floating_text_requested.emit(actor, "MISS!", Color.GRAY)
-					
+
+			if not mod.combat_effects.is_empty():
+				_apply_combat_effects(actor, mod, target)
+			else:
+				_apply_legacy_module_effects(actor, mod, target)
+
 			action_executed.emit(i, action)
 			stats_updated.emit()
-			
-		await get_tree().create_timer(base_wait).timeout 
+
+		await get_tree().create_timer(base_wait).timeout
 		base_wait = max(0.15, base_wait * 0.70)
 
 	_end_cycle_cleanup()
@@ -146,15 +200,19 @@ func _end_cycle_cleanup() -> void:
 func _get_stat(actor: Dictionary, stat_name: String) -> int:
 	var base_val: int = actor.get(stat_name.to_lower(), 0)
 	var modifier: int = 0
-	
+
 	for effect in actor.active_effects:
-		if effect.target_stat.to_lower() == stat_name.to_lower():
-			if effect.effect_type == "Buff":
-				modifier += effect.flat_value
-			elif effect.effect_type == "Debuff":
-				modifier -= effect.flat_value
-				
-	return max(0, base_val + modifier) # Garante que o status não fique negativo
+		var effect_stat := _target_stat_to_string(effect.target_stat)
+
+		if effect_stat == stat_name.to_lower():
+			match effect.effect_type:
+				StatusEffect.EffectType.BUFF:
+					modifier += effect.flat_value
+
+				StatusEffect.EffectType.DEBUFF:
+					modifier -= effect.flat_value
+
+	return max(0, base_val + modifier)
 	
 func _check_combat_state() -> void:
 	var all_enemies_dead = true
@@ -204,12 +262,12 @@ func _get_timeline_actors(team: Array) -> Array:
 	var main_actor = null
 	
 	# 1. Identifica o "Rei" (Quem está no Slot Principal - Índice 1 / Slot 2)
-	if team[1] != null and team[1].hp > 0:
+	if team[1] != null and team[1].hp > 0 and not team[1].is_dummy:
 		main_actor = team[1]
 		
 	# 2. Identifica os "Súditos" (Os outros vivos, varrendo da esquerda pra direita)
 	for i in range(4):
-		if team[i] != null and team[i].hp > 0 and team[i] != main_actor:
+		if team[i] != null and team[i].hp > 0 and team[i] != main_actor and not team[i].is_dummy:
 			alive.append(team[i])
 			
 	# 3. Proteção: Se o Slot Principal estiver vazio (morto ou sem ninguém), 
@@ -239,3 +297,249 @@ func _get_timeline_actors(team: Array) -> Array:
 		return [main_actor, alive[0], alive[1], alive[2]]
 		
 	return []
+
+func _scaling_stat_to_string(scaling_stat: ModuleData.ScalingStat) -> String:
+	match scaling_stat:
+		ModuleData.ScalingStat.ATK:
+			return "atk"
+
+		ModuleData.ScalingStat.DEF:
+			return "def"
+
+		ModuleData.ScalingStat.MAX_HP:
+			return "max_hp"
+
+		ModuleData.ScalingStat.NONE:
+			return "none"
+
+	return "none"
+
+func _target_stat_to_string(target_stat: StatusEffect.TargetStat) -> String:
+	match target_stat:
+		StatusEffect.TargetStat.ATK:
+			return "atk"
+
+		StatusEffect.TargetStat.DEF:
+			return "def"
+
+		StatusEffect.TargetStat.DODGE:
+			return "dodge"
+
+		StatusEffect.TargetStat.STABILITY:
+			return "stability"
+
+	return ""
+
+func _apply_legacy_module_effects(actor: Dictionary, mod: ModuleData, target) -> void:
+	for effect in mod.applied_effects:
+		if effect != null:
+			var new_eff = effect.duplicate()
+			var target_to_apply = actor if new_eff.effect_type == StatusEffect.EffectType.BUFF else target
+
+			if target_to_apply != null:
+				target_to_apply.active_effects.append(new_eff)
+
+	if mod.module_type == ModuleData.ModuleType.ATTACK:
+		_apply_damage(actor, mod.power, mod.scaling_stat, mod.scaling_factor, target)
+
+
+func _apply_combat_effects(actor: Dictionary, mod: ModuleData, target) -> void:
+	for effect in mod.combat_effects:
+		if effect == null:
+			continue
+
+		match effect.effect_type:
+			CombatEffectData.EffectType.DAMAGE:
+				_apply_damage(
+					actor,
+					effect.power,
+					effect.scaling_stat,
+					effect.scaling_factor,
+					target
+				)
+
+			CombatEffectData.EffectType.APPLY_STATUS:
+				_apply_status_effect(actor, target, effect.status_effect)
+
+			CombatEffectData.EffectType.SPAWN_DUMMY:
+				_spawn_dummy(actor, effect)
+
+			CombatEffectData.EffectType.REDIRECT_NEXT_ATTACK:
+				_apply_redirect_next_attack(actor, target, effect)
+
+
+func _apply_damage(actor: Dictionary, power: int, scaling_stat: ModuleData.ScalingStat, scaling_factor: float, target) -> void:
+	target = _resolve_redirect_target(target)
+
+	if target == null:
+		combat_log_added.emit("> O ataque de " + actor.name + " acertou o VAZIO!")
+		floating_text_requested.emit(actor, "MISS!", Color.GRAY)
+		return
+
+	if target is Array:
+		for single_target in target:
+			_apply_damage(actor, power, scaling_stat, scaling_factor, single_target)
+		return
+
+	if target.hp <= 0:
+		return
+
+	var scaling_stat_name := _scaling_stat_to_string(scaling_stat)
+	var dynamic_atk := _get_stat(actor, scaling_stat_name)
+
+	var raw_damage = power
+
+	if scaling_stat != ModuleData.ScalingStat.NONE:
+		raw_damage += dynamic_atk * scaling_factor
+
+	var target_def = _get_stat(target, "def")
+	var final_damage = max(1, raw_damage - target_def)
+
+	target.hp = max(0, target.hp - final_damage)
+
+	floating_text_requested.emit(target, "-" + str(final_damage), Color.CRIMSON)
+	combat_log_added.emit("> Dano causado: " + str(final_damage))
+
+	if target.hp <= 0:
+		_remove_defeated_actor_from_grid(target)
+
+
+func _apply_status_effect(actor: Dictionary, target, status_effect: StatusEffect) -> void:
+	if status_effect == null:
+		return
+
+	if target == null:
+		return
+
+	if target is Array:
+		for single_target in target:
+			_apply_status_effect(actor, single_target, status_effect)
+		return
+
+	var new_eff := status_effect.duplicate()
+	var target_to_apply = actor if new_eff.effect_type == StatusEffect.EffectType.BUFF else target
+
+	if target_to_apply != null:
+		target_to_apply.active_effects.append(new_eff)
+		combat_log_added.emit("> Status aplicado: " + new_eff.effect_name)
+
+
+func _spawn_dummy(actor: Dictionary, effect: CombatEffectData) -> void:
+	if effect.dummy_loadout == null:
+		_fail_combat_effect(actor, "Dummy inválido: nenhum loadout configurado.")
+		return
+
+	var team = ally_team if actor.is_ally else enemy_team
+	var spawn_index := _find_dummy_spawn_slot(actor, team, effect.spawn_slot_rule)
+
+	if spawn_index == -1:
+		_fail_combat_effect(actor, "Não há slot livre para spawnar dummy.")
+		return
+
+	var dummy := _create_combatant_dict(effect.dummy_loadout, actor.is_ally, false)
+	dummy.is_dummy = true
+
+	team[spawn_index] = dummy
+
+	combat_log_added.emit("> Dummy criado no slot " + str(spawn_index + 1) + ": " + dummy.name)
+	stats_updated.emit()
+
+
+func _find_dummy_spawn_slot(actor: Dictionary, team: Array, rule: CombatEffectData.SpawnSlotRule) -> int:
+	match rule:
+		CombatEffectData.SpawnSlotRule.FIRST_EMPTY:
+			for i in range(team.size()):
+				if team[i] == null:
+					return i
+
+		CombatEffectData.SpawnSlotRule.LEFTMOST_EMPTY:
+			for i in range(team.size()):
+				if team[i] == null:
+					return i
+
+		CombatEffectData.SpawnSlotRule.RIGHTMOST_EMPTY:
+			for i in range(team.size() - 1, -1, -1):
+				if team[i] == null:
+					return i
+
+		CombatEffectData.SpawnSlotRule.SAME_SLOT_AS_USER:
+			var actor_index = team.find(actor)
+
+			if actor_index != -1 and team[actor_index] == null:
+				return actor_index
+
+			for i in range(team.size()):
+				if team[i] == null:
+					return i
+
+	return -1
+
+
+func _apply_redirect_next_attack(actor: Dictionary, target, effect: CombatEffectData) -> void:
+	if target == null:
+		return
+
+	if target is Array:
+		return
+
+	target.active_combat_effects.append({
+		"type": "redirect_next_attack",
+		"redirect_to_uid": actor.uid,
+		"remaining_actions": effect.redirect_duration_actions
+	})
+
+	combat_log_added.emit("> " + target.name + " agora redireciona o próximo ataque para " + actor.name)
+
+
+func _resolve_redirect_target(original_target):
+	if original_target == null:
+		return null
+
+	if original_target is Array:
+		return original_target
+
+	if not original_target.has("active_combat_effects"):
+		return original_target
+
+	for i in range(original_target.active_combat_effects.size() - 1, -1, -1):
+		var effect = original_target.active_combat_effects[i]
+
+		if effect.get("type", "") != "redirect_next_attack":
+			continue
+
+		var redirect_uid = effect.get("redirect_to_uid", -1)
+		var redirect_target = _find_combatant_by_uid(redirect_uid)
+
+		original_target.active_combat_effects.remove_at(i)
+
+		if redirect_target != null and redirect_target.hp > 0:
+			combat_log_added.emit("> Ataque redirecionado para " + redirect_target.name)
+			return redirect_target
+
+	return original_target
+
+
+func _find_combatant_by_uid(uid: int):
+	for team in [ally_team, enemy_team]:
+		for actor in team:
+			if actor != null and actor.uid == uid:
+				return actor
+
+	return null
+
+func _remove_defeated_actor_from_grid(actor: Dictionary) -> void:
+	for i in range(ally_team.size()):
+		if ally_team[i] == actor:
+			ally_team[i] = null
+			stats_updated.emit()
+			return
+
+	for i in range(enemy_team.size()):
+		if enemy_team[i] == actor:
+			enemy_team[i] = null
+			stats_updated.emit()
+			return
+
+func _fail_combat_effect(actor: Dictionary, message: String) -> void:
+	combat_log_added.emit("> FALHA: " + message)
+	floating_text_requested.emit(actor, "FAIL!", Color.GRAY)

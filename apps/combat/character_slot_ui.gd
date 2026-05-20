@@ -224,19 +224,40 @@ func _hide_ghost_preview() -> void:
 # FEEDBACK PREDITIVO DA TIMELINE
 # ==========================================
 func preview_timeline_action(action: Dictionary) -> void:
-	if is_queued_for_deletion() or current_actor == null: return
+	if is_queued_for_deletion() or current_actor == null:
+		return
 	
 	if typeof(action.target) == TYPE_DICTIONARY and action.target.get("uid") == current_actor.get("uid"):
-		if preview_tween: preview_tween.kill()
+		if preview_tween:
+			preview_tween.kill()
+
 		preview_tween = create_tween().set_loops()
 		preview_tween.tween_property(icon_rect, "modulate", Color(2, 2, 2, 1), 0.3)
 		preview_tween.tween_property(icon_rect, "modulate", Color.WHITE, 0.3)
 		
 		hp_bar.get_theme_stylebox("fill").bg_color = Color.ORANGE
 		
-		if action.module.module_type == "Attack":
-			var atk_stat = action.actor.get(action.module.scaling_stat.to_lower(), 0)
-			var raw_dmg = action.module.power + (atk_stat * action.module.scaling_factor)
+		if action.module.module_type == ModuleData.ModuleType.ATTACK:
+			var atk_stat := 0
+
+			match action.module.scaling_stat:
+				ModuleData.ScalingStat.ATK:
+					atk_stat = action.actor.get("atk", 0)
+
+				ModuleData.ScalingStat.DEF:
+					atk_stat = action.actor.get("def", 0)
+
+				ModuleData.ScalingStat.MAX_HP:
+					atk_stat = action.actor.get("max_hp", 0)
+
+				ModuleData.ScalingStat.NONE:
+					atk_stat = 0
+
+			var raw_dmg = action.module.power
+
+			if action.module.scaling_stat != ModuleData.ScalingStat.NONE:
+				raw_dmg += atk_stat * action.module.scaling_factor
+
 			var def_stat = current_actor.get("def", 0)
 			var final_dmg = max(1, raw_dmg - def_stat)
 			

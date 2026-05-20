@@ -1,10 +1,20 @@
 extends Resource
 class_name CharacterLoadout
 
+enum CombatBehavior {
+	NORMAL,
+	DUMMY
+}
+
 @export var char_name: String = "Entidade"
-@export var combat_icon: Texture2D # A NOVA IMAGEM!
+@export var combat_icon: Texture2D
 @export var level: int = 1
 @export_enum("INIT", "VALOUR", "LOGIC", "SYNC", "SELF", "BALANCED", "null", "XVALOUR", "XLOGIC", "XSYNC", "XSELF") var apk_type: String = "INIT"
+
+@export_category("Combat Behavior")
+@export var combat_behavior: CombatBehavior = CombatBehavior.NORMAL
+
+@export_category("Stats")
 @export var max_hp: int = 100
 @export var max_stability: int = 100
 

@@ -9,10 +9,12 @@
 [ext_resource type="Resource" uid="uid://dl8fv6g3sl3u3" path="res://data/content/combat/modules/idle.tres" id="5_08afi"]
 [ext_resource type="Resource" uid="uid://bdb5bnnhx1o76" path="res://data/content/combat/modules/basic_dodge.tres" id="6_nbt0u"]
 [ext_resource type="Resource" uid="uid://dc21a0ovikmof" path="res://data/content/combat/modules/basic_heal.tres" id="7_p7h4i"]
+[ext_resource type="Resource" uid="uid://b5xe5jmx3xf86" path="res://data/content/combat/modules/dummy_turret.tres" id="9_o0o3l"]
+[ext_resource type="Resource" uid="uid://k83w864ymr75" path="res://data/content/combat/modules/new_attack.tres" id="10_tt75o"]
 
 [resource]
 script = ExtResource("2_5vvwj")
 combat_icon = ExtResource("1_l2to7")
 equipped_modules = Array[ExtResource("1_bqh7e")]([ExtResource("2_kvqxh"), ExtResource("4_7emh7"), ExtResource("2_kvqxh"), ExtResource("4_7emh7")])
-module_pool = Array[ExtResource("1_bqh7e")]([ExtResource("2_kvqxh"), ExtResource("3_l2to7"), ExtResource("6_nbt0u"), ExtResource("7_p7h4i"), ExtResource("4_7emh7"), ExtResource("5_08afi")])
+module_pool = Array[ExtResource("1_bqh7e")]([ExtResource("2_kvqxh"), ExtResource("3_l2to7"), ExtResource("6_nbt0u"), ExtResource("7_p7h4i"), ExtResource("4_7emh7"), ExtResource("5_08afi"), ExtResource("9_o0o3l"), ExtResource("10_tt75o")])
 metadata/_custom_type_script = "uid://d1ggms7hchm4m"
