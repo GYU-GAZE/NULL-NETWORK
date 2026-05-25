@@ -166,10 +166,10 @@ func execute_cycle() -> void:
 			actor.stability -= mod.stability_cost
 			combat_log_added.emit("[color=cyan]%s[/color] ativou [b]%s[/b]." % [actor.name, mod.module_name])
 
-			if not mod.combat_effects.is_empty():
-				_apply_combat_effects(actor, mod, target)
+			if mod.combat_effects.is_empty():
+				_fail_combat_effect(actor, "Module sem CombatEffectData configurado.")
 			else:
-				_apply_legacy_module_effects(actor, mod, target)
+				_apply_combat_effects(actor, mod, target)
 
 			action_executed.emit(i, action)
 			stats_updated.emit()
@@ -330,18 +330,6 @@ func _target_stat_to_string(target_stat: StatusEffect.TargetStat) -> String:
 
 	return ""
 
-func _apply_legacy_module_effects(actor: Dictionary, mod: ModuleData, target) -> void:
-	for effect in mod.applied_effects:
-		if effect != null:
-			var new_eff = effect.duplicate()
-			var target_to_apply = actor if new_eff.effect_type == StatusEffect.EffectType.BUFF else target
-
-			if target_to_apply != null:
-				target_to_apply.active_effects.append(new_eff)
-
-	if mod.module_type == ModuleData.ModuleType.ATTACK:
-		_apply_damage(actor, mod.power, mod.scaling_stat, mod.scaling_factor, target)
-
 
 func _apply_combat_effects(actor: Dictionary, mod: ModuleData, target) -> void:
 	for effect in mod.combat_effects:
@@ -355,7 +343,8 @@ func _apply_combat_effects(actor: Dictionary, mod: ModuleData, target) -> void:
 					effect.power,
 					effect.scaling_stat,
 					effect.scaling_factor,
-					target
+					target,
+					mod.accuracy
 				)
 
 			CombatEffectData.EffectType.APPLY_STATUS:
@@ -368,7 +357,7 @@ func _apply_combat_effects(actor: Dictionary, mod: ModuleData, target) -> void:
 				_apply_redirect_next_attack(actor, target, effect)
 
 
-func _apply_damage(actor: Dictionary, power: int, scaling_stat: ModuleData.ScalingStat, scaling_factor: float, target) -> void:
+func _apply_damage(actor: Dictionary, power: int, scaling_stat: ModuleData.ScalingStat, scaling_factor: float, target, accuracy: float = 1.0) -> void:
 	target = _resolve_redirect_target(target)
 
 	if target == null:
@@ -378,10 +367,15 @@ func _apply_damage(actor: Dictionary, power: int, scaling_stat: ModuleData.Scali
 
 	if target is Array:
 		for single_target in target:
-			_apply_damage(actor, power, scaling_stat, scaling_factor, single_target)
+			_apply_damage(actor, power, scaling_stat, scaling_factor, single_target, accuracy)
 		return
 
 	if target.hp <= 0:
+		return
+
+	if not _roll_accuracy(actor, target, accuracy):
+		combat_log_added.emit("> " + actor.name + " errou o ataque contra " + target.name + ".")
+		floating_text_requested.emit(target, "MISS!", Color.GRAY)
 		return
 
 	var scaling_stat_name := _scaling_stat_to_string(scaling_stat)
@@ -543,3 +537,11 @@ func _remove_defeated_actor_from_grid(actor: Dictionary) -> void:
 func _fail_combat_effect(actor: Dictionary, message: String) -> void:
 	combat_log_added.emit("> FALHA: " + message)
 	floating_text_requested.emit(actor, "FAIL!", Color.GRAY)
+
+func _roll_accuracy(actor: Dictionary, target: Dictionary, accuracy: float) -> bool:
+	var clamped_accuracy = clamp(accuracy, 0.0, 1.0)
+	var target_dodge = clamp(_get_stat(target, "dodge"), 0.0, 1.0)
+
+	var final_hit_chance = clamp(clamped_accuracy - target_dodge, 0.05, 1.0)
+
+	return randf() <= final_hit_chance

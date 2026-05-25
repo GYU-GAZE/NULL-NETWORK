@@ -28,14 +28,9 @@ enum ScalingStat {
 
 @export_category("Core")
 @export var module_type: ModuleType = ModuleType.ATTACK
-@export var power: int = 10
 @export var stability_cost: int = 10
+@export_range(0.0, 1.0, 0.01) var accuracy: float = 1.0
 @export var target_type: TargetType = TargetType.SINGLE_ENEMY
-
-@export_category("Scaling & Effects")
-@export var scaling_stat: ScalingStat = ScalingStat.ATK
-@export var scaling_factor: float = 1.0
-@export var applied_effects: Array[StatusEffect] = []
 
 @export_category("Combat Effects")
 @export var combat_effects: Array[CombatEffectData] = []
