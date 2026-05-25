@@ -17,7 +17,6 @@ enum CombatBehavior {
 @export_category("Stats")
 @export var max_hp: int = 100
 @export var max_stability: int = 100
-@export var crit_chance: float = 0.05
 
 @export_category("Core Stats")
 @export var base_atk: int = 10

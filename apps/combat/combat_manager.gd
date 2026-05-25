@@ -39,7 +39,6 @@ func _create_combatant_dict(data: CharacterLoadout, is_ally: bool, is_player: bo
 		"def": data.base_def,
 		"dodge": data.dodge_chance,
 		"crit": data.crit_chance,
-		"unstable": false,
 		"modules": data.equipped_modules.duplicate(),
 		"is_ally": is_ally,
 		"is_player": is_player,
@@ -168,6 +167,11 @@ func execute_cycle() -> void:
 
 		if actor.hp > 0 and actor.stability >= mod.stability_cost:
 			actor.stability -= mod.stability_cost
+			actor.stability = max(0, actor.stability)
+
+			if actor.stability <= 0:
+				_apply_unstability(actor)
+				
 			combat_log_added.emit("[color=cyan]%s[/color] ativou [b]%s[/b]." % [actor.name, mod.module_name])
 
 			if mod.combat_effects.is_empty():
@@ -355,7 +359,18 @@ func _apply_combat_effects(actor: Dictionary, mod: ModuleData, target) -> void:
 				)
 
 			CombatEffectData.EffectType.APPLY_STATUS:
-				_apply_status_effect(actor, target, effect.status_effect)
+				var status_crit := false
+
+				if effect.can_crit and _roll_crit(actor):
+					status_crit = true
+
+					if effect.applies_unstability_on_crit:
+						_apply_unstability(target)
+
+				_apply_status_effect(actor, target, effect.status_effect, status_crit)
+
+				if status_crit:
+					combat_log_added.emit("> CRITICAL STATUS!")
 
 			CombatEffectData.EffectType.SPAWN_DUMMY:
 				_spawn_dummy(actor, effect)
@@ -416,10 +431,8 @@ func _apply_damage(
 	var target_def = _get_stat(target, "def")
 	var final_damage = max(1, raw_damage - target_def)
 
-	if target.get("unstable", false):
-		final_damage *= 2
-		target.unstable = false
-		combat_log_added.emit("> UNSTABILITY amplificou o dano!")
+	final_damage = _apply_damage_dealt_modifiers(actor, final_damage)
+	final_damage = _apply_damage_taken_modifiers(target, final_damage)
 
 	var did_crit := false
 
@@ -428,7 +441,7 @@ func _apply_damage(
 		final_damage = int(final_damage * crit_multiplier)
 
 		if applies_unstability_on_crit:
-			target.unstable = true
+			_apply_unstability(target)
 
 	target.hp = max(0, target.hp - final_damage)
 
@@ -443,7 +456,7 @@ func _apply_damage(
 		_remove_defeated_actor_from_grid(target)
 
 
-func _apply_status_effect(actor: Dictionary, target, status_effect: StatusEffect) -> void:
+func _apply_status_effect(actor: Dictionary, target, status_effect: StatusEffect, force_crit: bool = false) -> void:
 	if status_effect == null:
 		return
 
@@ -452,10 +465,14 @@ func _apply_status_effect(actor: Dictionary, target, status_effect: StatusEffect
 
 	if target is Array:
 		for single_target in target:
-			_apply_status_effect(actor, single_target, status_effect)
+			_apply_status_effect(actor, single_target, status_effect, force_crit)
 		return
 
 	var new_eff := status_effect.duplicate()
+
+	if force_crit:
+		new_eff.flat_value *= 3
+
 	var target_to_apply = actor if new_eff.effect_type == StatusEffect.EffectType.BUFF else target
 
 	if target_to_apply != null:
@@ -594,3 +611,75 @@ func _roll_accuracy(actor: Dictionary, target: Dictionary, accuracy: float) -> b
 func _roll_crit(actor: Dictionary) -> bool:
 	var crit_chance = clamp(_get_stat(actor, "crit"), 0.0, 1.0)
 	return randf() <= crit_chance
+
+func _apply_unstability(target) -> void:
+	if target == null:
+		return
+
+	if target is Array:
+		for single_target in target:
+			_apply_unstability(single_target)
+		return
+
+	if _has_status_effect(target, "UNSTABILITY"):
+		return
+
+	var unstable_effect := StatusEffect.new()
+	unstable_effect.effect_name = "UNSTABILITY"
+	unstable_effect.effect_type = StatusEffect.EffectType.SPECIAL
+	unstable_effect.target_stat = StatusEffect.TargetStat.NONE
+	unstable_effect.trigger_timing = StatusEffect.TriggerTiming.ON_TAKE_DAMAGE
+	unstable_effect.damage_taken_multiplier = 2.0
+	unstable_effect.duration_cycles = 1
+	unstable_effect.remove_after_trigger = true
+
+	target.active_effects.append(unstable_effect)
+
+	combat_log_added.emit("> " + target.name + " entrou em UNSTABILITY!")
+	floating_text_requested.emit(target, "UNSTABLE!", Color.MEDIUM_PURPLE)
+
+
+func _has_status_effect(actor: Dictionary, effect_name: String) -> bool:
+	for effect in actor.active_effects:
+		if effect.effect_name == effect_name:
+			return true
+
+	return false
+
+
+func _apply_damage_taken_modifiers(target: Dictionary, damage: int) -> int:
+	var final_damage := damage
+
+	for i in range(target.active_effects.size() - 1, -1, -1):
+		var effect = target.active_effects[i]
+
+		if effect.trigger_timing != StatusEffect.TriggerTiming.ON_TAKE_DAMAGE:
+			continue
+
+		if effect.damage_taken_multiplier != 1.0:
+			final_damage = int(final_damage * effect.damage_taken_multiplier)
+			combat_log_added.emit("> " + effect.effect_name + " modificou o dano recebido.")
+
+		if effect.remove_after_trigger:
+			target.active_effects.remove_at(i)
+
+	return max(1, final_damage)
+
+
+func _apply_damage_dealt_modifiers(actor: Dictionary, damage: int) -> int:
+	var final_damage := damage
+
+	for i in range(actor.active_effects.size() - 1, -1, -1):
+		var effect = actor.active_effects[i]
+
+		if effect.trigger_timing != StatusEffect.TriggerTiming.ON_DEAL_DAMAGE:
+			continue
+
+		if effect.damage_dealt_multiplier != 1.0:
+			final_damage = int(final_damage * effect.damage_dealt_multiplier)
+			combat_log_added.emit("> " + effect.effect_name + " modificou o dano causado.")
+
+		if effect.remove_after_trigger:
+			actor.active_effects.remove_at(i)
+
+	return max(1, final_damage)
