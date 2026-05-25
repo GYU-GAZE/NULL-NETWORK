@@ -35,7 +35,11 @@ func _create_combatant_dict(data: CharacterLoadout, is_ally: bool, is_player: bo
 		"level": data.level, "type": data.apk_type,
 		"hp": data.max_hp, "max_hp": data.max_hp,
 		"stability": data.max_stability, "max_stability": data.max_stability,
-		"atk": data.base_atk, "def": data.base_def, "dodge": data.dodge_chance,
+		"atk": data.base_atk,
+		"def": data.base_def,
+		"dodge": data.dodge_chance,
+		"crit": data.crit_chance,
+		"unstable": false,
 		"modules": data.equipped_modules.duplicate(),
 		"is_ally": is_ally,
 		"is_player": is_player,
@@ -344,7 +348,10 @@ func _apply_combat_effects(actor: Dictionary, mod: ModuleData, target) -> void:
 					effect.scaling_stat,
 					effect.scaling_factor,
 					target,
-					mod.accuracy
+					mod.accuracy,
+					effect.can_crit,
+					effect.crit_multiplier,
+					effect.applies_unstability_on_crit
 				)
 
 			CombatEffectData.EffectType.APPLY_STATUS:
@@ -357,7 +364,17 @@ func _apply_combat_effects(actor: Dictionary, mod: ModuleData, target) -> void:
 				_apply_redirect_next_attack(actor, target, effect)
 
 
-func _apply_damage(actor: Dictionary, power: int, scaling_stat: ModuleData.ScalingStat, scaling_factor: float, target, accuracy: float = 1.0) -> void:
+func _apply_damage(
+	actor: Dictionary,
+	power: int,
+	scaling_stat: ModuleData.ScalingStat,
+	scaling_factor: float,
+	target,
+	accuracy: float = 1.0,
+	can_crit: bool = true,
+	crit_multiplier: float = 3.0,
+	applies_unstability_on_crit: bool = true
+) -> void:
 	target = _resolve_redirect_target(target)
 
 	if target == null:
@@ -367,7 +384,17 @@ func _apply_damage(actor: Dictionary, power: int, scaling_stat: ModuleData.Scali
 
 	if target is Array:
 		for single_target in target:
-			_apply_damage(actor, power, scaling_stat, scaling_factor, single_target, accuracy)
+			_apply_damage(
+				actor,
+				power,
+				scaling_stat,
+				scaling_factor,
+				single_target,
+				accuracy,
+				can_crit,
+				crit_multiplier,
+				applies_unstability_on_crit
+			)
 		return
 
 	if target.hp <= 0:
@@ -389,10 +416,28 @@ func _apply_damage(actor: Dictionary, power: int, scaling_stat: ModuleData.Scali
 	var target_def = _get_stat(target, "def")
 	var final_damage = max(1, raw_damage - target_def)
 
+	if target.get("unstable", false):
+		final_damage *= 2
+		target.unstable = false
+		combat_log_added.emit("> UNSTABILITY amplificou o dano!")
+
+	var did_crit := false
+
+	if can_crit and _roll_crit(actor):
+		did_crit = true
+		final_damage = int(final_damage * crit_multiplier)
+
+		if applies_unstability_on_crit:
+			target.unstable = true
+
 	target.hp = max(0, target.hp - final_damage)
 
-	floating_text_requested.emit(target, "-" + str(final_damage), Color.CRIMSON)
-	combat_log_added.emit("> Dano causado: " + str(final_damage))
+	if did_crit:
+		floating_text_requested.emit(target, "CRIT! -" + str(final_damage), Color.ORANGE_RED)
+		combat_log_added.emit("> CRITICAL HIT! Dano causado: " + str(final_damage))
+	else:
+		floating_text_requested.emit(target, "-" + str(final_damage), Color.CRIMSON)
+		combat_log_added.emit("> Dano causado: " + str(final_damage))
 
 	if target.hp <= 0:
 		_remove_defeated_actor_from_grid(target)
@@ -542,6 +587,10 @@ func _roll_accuracy(actor: Dictionary, target: Dictionary, accuracy: float) -> b
 	var clamped_accuracy = clamp(accuracy, 0.0, 1.0)
 	var target_dodge = clamp(_get_stat(target, "dodge"), 0.0, 1.0)
 
-	var final_hit_chance = clamp(clamped_accuracy - target_dodge, 0.05, 1.0)
+	var final_hit_chance = clamp(clamped_accuracy - (target_dodge * 0.5), 0.05, 1.0)
 
 	return randf() <= final_hit_chance
+
+func _roll_crit(actor: Dictionary) -> bool:
+	var crit_chance = clamp(_get_stat(actor, "crit"), 0.0, 1.0)
+	return randf() <= crit_chance

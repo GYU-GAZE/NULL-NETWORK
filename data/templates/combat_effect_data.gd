@@ -21,6 +21,9 @@ enum SpawnSlotRule {
 @export var power: int = 10
 @export var scaling_stat: ModuleData.ScalingStat = ModuleData.ScalingStat.ATK
 @export var scaling_factor: float = 1.0
+@export var can_crit: bool = true
+@export var crit_multiplier: float = 3.0
+@export var applies_unstability_on_crit: bool = true
 
 @export_category("Status")
 @export var status_effect: StatusEffect
