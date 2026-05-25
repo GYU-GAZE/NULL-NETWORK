@@ -16,17 +16,41 @@ var current_cycle_actions: Array = []
 func load_encounter(encounter: CombatEncounter) -> void:
 	ally_team = [null, null, null, null]
 	enemy_team = [null, null, null, null]
-	
-	for i in range(min(4, encounter.allies.size())):
-		if encounter.allies[i] != null:
-			ally_team[i] = _create_combatant_dict(encounter.allies[i], true, i == 0)
-			
-	for i in range(min(4, encounter.enemies.size())):
-		if encounter.enemies[i] != null:
-			enemy_team[i] = _create_combatant_dict(encounter.enemies[i], false, false)
-			
+
+	if encounter == null:
+		return
+
+	if encounter.uses_slot_layout():
+		_load_team_from_slots(encounter.ally_slots, ally_team, true)
+		_load_team_from_slots(encounter.enemy_slots, enemy_team, false)
+	else:
+		_load_team_from_legacy_array(encounter.allies, ally_team, true)
+		_load_team_from_legacy_array(encounter.enemies, enemy_team, false)
+
 	stats_updated.emit()
 	_build_timeline()
+
+func _load_team_from_slots(slot_data_list: Array[CombatSlotData], target_team: Array, is_ally: bool) -> void:
+	for slot_data in slot_data_list:
+		if slot_data == null:
+			continue
+
+		if not slot_data.is_available():
+			continue
+
+		var index = clamp(slot_data.slot_index, 0, 3)
+		var is_player := is_ally and index == 0
+
+		target_team[index] = _create_combatant_dict(slot_data.character, is_ally, is_player)
+
+
+func _load_team_from_legacy_array(source_array: Array[CharacterLoadout], target_team: Array, is_ally: bool) -> void:
+	for i in range(min(4, source_array.size())):
+		if source_array[i] == null:
+			continue
+
+		var is_player := is_ally and i == 0
+		target_team[i] = _create_combatant_dict(source_array[i], is_ally, is_player)
 
 func _create_combatant_dict(data: CharacterLoadout, is_ally: bool, is_player: bool = false) -> Dictionary:
 	return {
@@ -171,7 +195,7 @@ func execute_cycle() -> void:
 
 			if actor.stability <= 0:
 				_apply_unstability(actor)
-				
+
 			combat_log_added.emit("[color=cyan]%s[/color] ativou [b]%s[/b]." % [actor.name, mod.module_name])
 
 			if mod.combat_effects.is_empty():
@@ -336,7 +360,13 @@ func _target_stat_to_string(target_stat: StatusEffect.TargetStat) -> String:
 		StatusEffect.TargetStat.STABILITY:
 			return "stability"
 
-	return ""
+		StatusEffect.TargetStat.CRIT:
+			return "crit"
+
+		StatusEffect.TargetStat.NONE:
+			return "none"
+
+	return "none"
 
 
 func _apply_combat_effects(actor: Dictionary, mod: ModuleData, target) -> void:
