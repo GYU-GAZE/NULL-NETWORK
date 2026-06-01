@@ -20,12 +20,8 @@ func load_encounter(encounter: CombatEncounter) -> void:
 	if encounter == null:
 		return
 
-	if encounter.uses_slot_layout():
-		_load_team_from_slots(encounter.ally_slots, ally_team, true)
-		_load_team_from_slots(encounter.enemy_slots, enemy_team, false)
-	else:
-		_load_team_from_legacy_array(encounter.allies, ally_team, true)
-		_load_team_from_legacy_array(encounter.enemies, enemy_team, false)
+	_load_team_from_slots(encounter.ally_slots, ally_team, true)
+	_load_team_from_slots(encounter.enemy_slots, enemy_team, false)
 
 	stats_updated.emit()
 	_build_timeline()
@@ -39,18 +35,9 @@ func _load_team_from_slots(slot_data_list: Array[CombatSlotData], target_team: A
 			continue
 
 		var index = clamp(slot_data.slot_index, 0, 3)
-		var is_player := is_ally and index == 0
+		var is_player: bool = is_ally and index == 0
 
 		target_team[index] = _create_combatant_dict(slot_data.character, is_ally, is_player)
-
-
-func _load_team_from_legacy_array(source_array: Array[CharacterLoadout], target_team: Array, is_ally: bool) -> void:
-	for i in range(min(4, source_array.size())):
-		if source_array[i] == null:
-			continue
-
-		var is_player := is_ally and i == 0
-		target_team[i] = _create_combatant_dict(source_array[i], is_ally, is_player)
 
 func _create_combatant_dict(data: CharacterLoadout, is_ally: bool, is_player: bool = false) -> Dictionary:
 	return {
