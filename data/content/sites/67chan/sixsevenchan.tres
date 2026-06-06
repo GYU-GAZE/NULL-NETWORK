@@ -5,6 +5,16 @@
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="2_i1q7d"]
 [ext_resource type="Script" uid="uid://duyokyo5xmy6y" path="res://data/templates/website_page.gd" id="3_f7rgj"]
 
+[sub_resource type="Resource" id="Resource_56qiq"]
+script = ExtResource("1_f1qyd")
+metadata/_custom_type_script = "uid://bdeqm6m4tdmrs"
+
+[sub_resource type="Resource" id="Resource_f7rgj"]
+script = ExtResource("1_f1qyd")
+child_blocks = Array[ExtResource("1_f1qyd")]([SubResource("Resource_56qiq"), null])
+text_content = "/ku/ Kubu OS General"
+metadata/_custom_type_script = "uid://bdeqm6m4tdmrs"
+
 [sub_resource type="Resource" id="Resource_i1q7d"]
 script = ExtResource("2_f7rgj")
 effect_type = 2
@@ -22,7 +32,8 @@ metadata/_custom_type_script = "uid://bdeqm6m4tdmrs"
 [resource]
 script = ExtResource("3_f7rgj")
 url = "www.67chan.net"
+page_title = "67chan!"
 header_text = "67 Channel"
 header_image = ExtResource("2_i1q7d")
-content_blocks = Array[ExtResource("1_f1qyd")]([SubResource("Resource_rqbc4")])
+content_blocks = Array[ExtResource("1_f1qyd")]([SubResource("Resource_f7rgj"), null, SubResource("Resource_rqbc4")])
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"
