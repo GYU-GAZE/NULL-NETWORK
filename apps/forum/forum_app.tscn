@@ -109,6 +109,11 @@ self_modulate = Color(0.22352941, 0.22352941, 0.22352941, 1)
 layout_mode = 2
 alignment = 1
 
+[node name="HomeBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=162773071]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Home"
+
 [node name="ThreadsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1598627230]
 unique_name_in_owner = true
 layout_mode = 2
@@ -116,11 +121,13 @@ text = "Thread List
 "
 
 [node name="UpdatesBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1440624438]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Changelog
 "
 
 [node name="RankingsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=5661677]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Global Ranking
 "
