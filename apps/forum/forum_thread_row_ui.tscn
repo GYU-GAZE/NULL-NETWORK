@@ -9,10 +9,28 @@ script = ExtResource("1_bcyb7")
 [node name="MainHBox" type="HBoxContainer" parent="." unique_id=1612900916]
 layout_mode = 2
 
-[node name="TopicButton" type="Button" parent="MainHBox" unique_id=2144835771]
+[node name="TypeIconButton" type="Button" parent="MainHBox" unique_id=2144835771]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="ThreadInfoVBox" type="VBoxContainer" parent="MainHBox" unique_id=874912642]
+layout_mode = 2
+
+[node name="ThreadTitleHBox" type="HBoxContainer" parent="MainHBox/ThreadInfoVBox" unique_id=913076663]
+layout_mode = 2
+
+[node name="ThreadLabelBadge" type="Label" parent="MainHBox/ThreadInfoVBox/ThreadTitleHBox" unique_id=816276528]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ThreadTitleButton" type="Button" parent="MainHBox/ThreadInfoVBox/ThreadTitleHBox" unique_id=1585354798]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ThreadSummaryLabel" type="Label" parent="MainHBox/ThreadInfoVBox" unique_id=1766106854]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="AuthorLabel" type="Label" parent="MainHBox" unique_id=633843472]
 unique_name_in_owner = true
