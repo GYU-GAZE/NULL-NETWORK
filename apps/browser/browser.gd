@@ -18,7 +18,7 @@ class_name BrowserApp
 
 var tabs: Array[BrowserTabData] = []
 var current_tab_index: int = -1
-
+var last_known_size: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	go_button.pressed.connect(_on_go_pressed)
@@ -97,14 +97,7 @@ func _refresh_tab_buttons() -> void:
 		child.queue_free()
 
 	var tab_width: float = 160.0
-	var new_tab_button_width: float = 36.0
-	var tab_bar_margin: float = 24.0
-
-	var total_tabs_width: float = tab_width * float(tabs.size())
-	var max_scroll_width: float = max(200.0, size.x - new_tab_button_width - tab_bar_margin)
-
-	tab_scroll.custom_minimum_size.x = min(total_tabs_width, max_scroll_width)
-	tab_scroll.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_refresh_tab_layout_only()
 
 	for i in range(tabs.size()):
 		var tab := tabs[i]
@@ -124,7 +117,7 @@ func _refresh_tab_buttons() -> void:
 		tab_button.tab_close_requested.connect(_close_tab)
 
 	var new_tab_button := new_tab_button_scene.instantiate() as Button
-	new_tab_button.custom_minimum_size.x = new_tab_button_width
+	new_tab_button.custom_minimum_size.x = 36.0
 	new_tab_button.pressed.connect(func(): _create_tab("null.net"))
 	new_tab_button_holder.add_child(new_tab_button)
 
@@ -382,3 +375,24 @@ func _on_bbcode_link_clicked(meta: Variant) -> void:
 		return
 
 	_load_page(target_url)
+
+func _process(_delta: float) -> void:
+	if size == last_known_size:
+		return
+
+	last_known_size = size
+	_refresh_tab_layout_only()
+	
+func _refresh_tab_layout_only() -> void:
+	if not is_instance_valid(tab_scroll):
+		return
+
+	var tab_width: float = 160.0
+	var new_tab_button_width: float = 36.0
+	var tab_bar_margin: float = 24.0
+
+	var total_tabs_width: float = tab_width * float(tabs.size())
+	var max_scroll_width: float = max(200.0, size.x - new_tab_button_width - tab_bar_margin)
+
+	tab_scroll.custom_minimum_size.x = min(total_tabs_width, max_scroll_width)
+	tab_scroll.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
