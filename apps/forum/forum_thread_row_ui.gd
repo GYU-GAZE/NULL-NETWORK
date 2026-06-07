@@ -3,16 +3,22 @@ class_name ForumThreadRowUI
 
 signal thread_selected(thread: ForumThread)
 
-@onready var topic_button: Button = %TopicButton
-@onready var author_label: Label = %AuthorLabel
+@onready var type_icon_button: Button = %TypeIconButton
+@onready var thread_label_badge: Label = %ThreadLabelBadge
+@onready var thread_title_button: Button = %ThreadTitleButton
+@onready var new_badge: Control = %NewBadge
+@onready var thread_summary_label: Label = %ThreadSummaryLabel
+
 @onready var replies_label: Label = %RepliesLabel
 @onready var last_reply_label: Label = %LastReplyLabel
+@onready var author_label: Label = %AuthorLabel
 
 var thread_data: ThreadButtonData
 
 
 func _ready() -> void:
-	topic_button.pressed.connect(_on_topic_pressed)
+	type_icon_button.pressed.connect(_on_thread_pressed)
+	thread_title_button.pressed.connect(_on_thread_pressed)
 
 
 func setup(data: ThreadButtonData) -> void:
@@ -29,53 +35,69 @@ func setup(data: ThreadButtonData) -> void:
 
 	var thread: ForumThread = thread_data.thread_ref
 
-	topic_button.text = _build_topic_text(thread)
-	topic_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	topic_button.custom_minimum_size.x = 0
-	topic_button.clip_text = true
+	_setup_type_icon(thread)
+	_setup_thread_info(thread)
+	_setup_activity_columns(thread)
+	_setup_new_badge(thread)
+	_apply_visual_state(thread)
 
-	author_label.text = thread.get_thread_author()
-	author_label.custom_minimum_size.x = 110
-	author_label.clip_text = true
 
+func _setup_type_icon(thread: ForumThread) -> void:
+	type_icon_button.text = thread.get_category_icon_text()
+	type_icon_button.tooltip_text = thread.get_category_label()
+	type_icon_button.custom_minimum_size.x = 90
+
+
+func _setup_thread_info(thread: ForumThread) -> void:
+	var label_text: String = thread.get_thread_label_text()
+
+	thread_label_badge.text = label_text
+	thread_label_badge.visible = not label_text.is_empty()
+
+	thread_title_button.text = thread.thread_title
+	thread_title_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	thread_title_button.custom_minimum_size.x = 0
+	thread_title_button.clip_text = true
+	thread_title_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+
+	var preview: String = thread.get_preview_text()
+
+	if preview.length() > 140:
+		preview = preview.substr(0, 140) + "..."
+
+	thread_summary_label.text = preview
+	thread_summary_label.visible = not preview.is_empty()
+	thread_summary_label.clip_text = true
+
+
+func _setup_activity_columns(thread: ForumThread) -> void:
 	replies_label.text = str(thread.get_reply_count())
-	replies_label.custom_minimum_size.x = 60
+	replies_label.custom_minimum_size.x = 70
+	replies_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 	last_reply_label.text = "%s\n%s" % [
 		thread.get_last_reply_author(),
 		thread.get_last_reply_time_label()
 	]
-	last_reply_label.custom_minimum_size.x = 130
+	last_reply_label.custom_minimum_size.x = 140
 	last_reply_label.clip_text = true
 
-	_apply_visual_state(thread)
+	author_label.text = thread.get_thread_author()
+	author_label.custom_minimum_size.x = 120
+	author_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	author_label.clip_text = true
 
 
-func _build_topic_text(thread: ForumThread) -> String:
-	var prefixes: Array[String] = []
+func _setup_new_badge(thread: ForumThread) -> void:
+	new_badge.visible = thread.has_unread_content()
 
-	if not GameState.has_read_thread(thread.thread_id):
-		prefixes.append("NEW")
+	if not new_badge.visible:
+		return
 
-	if thread_data.is_pinned():
-		prefixes.append("PINNED")
+	new_badge.scale = Vector2(0.75, 0.75)
 
-	if thread_data.is_locked():
-		prefixes.append("LOCKED")
-
-	if thread_data.is_archived():
-		prefixes.append("ARCHIVED")
-
-	var prefix_text: String = ""
-
-	if not prefixes.is_empty():
-		prefix_text = "[%s] " % " / ".join(prefixes)
-
-	return "%s[%s] %s" % [
-		prefix_text,
-		thread.get_category_label(),
-		thread.thread_title
-	]
+	var tween: Tween = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(new_badge, "scale", Vector2.ONE, 0.18)
 
 
 func _apply_visual_state(thread: ForumThread) -> void:
@@ -94,7 +116,7 @@ func _apply_visual_state(thread: ForumThread) -> void:
 	modulate = Color.WHITE
 
 
-func _on_topic_pressed() -> void:
+func _on_thread_pressed() -> void:
 	if thread_data == null or thread_data.thread_ref == null:
 		return
 

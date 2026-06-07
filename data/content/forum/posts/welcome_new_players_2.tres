@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_1vw37"]
 [ext_resource type="Script" uid="uid://blxdqibocgs5x" path="res://data/templates/forum_post.gd" id="1_m83wh"]
+[ext_resource type="Script" uid="uid://cgcematgxdayk" path="res://data/templates/condition_data.gd" id="2_fgylj"]
 
 [resource]
 script = ExtResource("1_m83wh")
@@ -13,6 +14,7 @@ location = "Tokyo, Japan"
 post_id = "2"
 time_label = "Today, 12PM"
 edited_label = "Seilaqueisso"
+release_action_block = 1
 text_content = "Well, it’s that time of year where somebody starts spamming the site URL across the internet and we get a mild influx of new users. I would say ‘welcome’, but you are not. Ask redundant questions without using the search function and the auto-moderator will cuck you to death, as is deserved. Consider this an FAQ:
 
 1. I installed the game and set up my character. Why can’t I find any enemies?

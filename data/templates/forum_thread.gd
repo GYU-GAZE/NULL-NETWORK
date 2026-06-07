@@ -11,6 +11,7 @@ enum ThreadCategory {
 @export_category("Identity")
 @export var thread_id: String = ""
 @export var thread_title: String = "Novo Tópico"
+@export var thread_label: String = ""
 @export var thread_category: ThreadCategory = ThreadCategory.SOCIAL
 @export var thread_tags: Array[String] = []
 
@@ -54,26 +55,62 @@ func get_category_label() -> String:
 	return "SOCIAL"
 
 
-func get_author_post() -> ForumPost:
-	for post in posts:
-		if post != null and post.is_op:
-			return post
+func get_category_icon_text() -> String:
+	match thread_category:
+		ThreadCategory.GUIDE:
+			return "GDE"
+		ThreadCategory.RUMOR:
+			return "RMR"
+		ThreadCategory.HELP:
+			return "HLP"
+		ThreadCategory.SOCIAL:
+			return "SOC"
+
+	return "SOC"
+
+
+func get_thread_label_text() -> String:
+	var clean_label: String = thread_label.strip_edges()
+
+	if clean_label.is_empty():
+		return ""
+
+	return "[%s]" % clean_label
+
+
+func get_visible_posts() -> Array[ForumPost]:
+	var result: Array[ForumPost] = []
 
 	for post in posts:
-		if post != null:
+		if post == null:
+			continue
+
+		if post.is_visible():
+			result.append(post)
+
+	return result
+
+
+func get_author_post() -> ForumPost:
+	var visible_posts: Array[ForumPost] = get_visible_posts()
+
+	for post in visible_posts:
+		if post.is_op:
 			return post
+
+	if not visible_posts.is_empty():
+		return visible_posts[0]
 
 	return null
 
 
 func get_last_post() -> ForumPost:
-	for i in range(posts.size() - 1, -1, -1):
-		var post: ForumPost = posts[i]
+	var visible_posts: Array[ForumPost] = get_visible_posts()
 
-		if post != null:
-			return post
+	if visible_posts.is_empty():
+		return null
 
-	return null
+	return visible_posts[visible_posts.size() - 1]
 
 
 func get_thread_author() -> String:
@@ -98,10 +135,15 @@ func get_thread_author_title() -> String:
 
 
 func get_reply_count() -> int:
+	var visible_posts: Array[ForumPost] = get_visible_posts()
+
+	if not visible_posts.is_empty():
+		return max(0, visible_posts.size() - 1)
+
 	if reply_count > 0:
 		return reply_count
 
-	return max(0, posts.size() - 1)
+	return 0
 
 
 func get_last_reply_author() -> String:
@@ -130,16 +172,37 @@ func get_last_reply_time_label() -> String:
 
 func get_preview_text() -> String:
 	if not thread_preview.is_empty():
-		return thread_preview
+		return thread_preview.strip_edges()
 
-	for post in posts:
-		if post == null:
-			continue
+	var visible_posts: Array[ForumPost] = get_visible_posts()
 
+	for post in visible_posts:
 		if not post.text_content.is_empty():
 			return post.text_content.strip_edges()
 
 	return ""
+
+
+func has_unread_content() -> bool:
+	if thread_id.is_empty():
+		return false
+
+	return not GameState.has_read_thread(thread_id)
+
+
+func get_visibility_signature() -> String:
+	var visible_posts: Array[ForumPost] = get_visible_posts()
+	var parts: Array[String] = []
+
+	for i in range(visible_posts.size()):
+		var post: ForumPost = visible_posts[i]
+
+		if post.post_id.is_empty():
+			parts.append("idx_%d" % i)
+		else:
+			parts.append(post.post_id)
+
+	return "|".join(parts)
 
 
 func matches_search(query: String) -> bool:
@@ -149,6 +212,9 @@ func matches_search(query: String) -> bool:
 		return true
 
 	if thread_title.to_lower().contains(normalized_query):
+		return true
+
+	if thread_label.to_lower().contains(normalized_query):
 		return true
 
 	if get_category_label().to_lower().contains(normalized_query):
@@ -164,8 +230,8 @@ func matches_search(query: String) -> bool:
 		if tag.to_lower().contains(normalized_query):
 			return true
 
-	for post in posts:
-		if post != null and post.matches_search(normalized_query):
+	for post in get_visible_posts():
+		if post.matches_search(normalized_query):
 			return true
 
 	return false

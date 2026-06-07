@@ -98,9 +98,9 @@ layout_mode = 2
 
 [node name="NavBarMargin" type="MarginContainer" parent="MasterScroll/PageVBox/MainNavBarPanel" unique_id=236034356]
 layout_mode = 2
-theme_override_constants/margin_left = 5
+theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
+theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 5
 
 [node name="NavbarHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin" unique_id=537395990]
@@ -141,13 +141,21 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Alerts"
 
+[node name="AlertsNotificationBadge" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox/AlertsBtn" unique_id=990522405]
+unique_name_in_owner = true
+layout_direction = 3
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+icon_alignment = 2
+
 [node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=1833793142]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 16
+theme_override_constants/margin_left = 100
 theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 50
 
 [node name="ThreadListPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=1195254683]
 unique_name_in_owner = true
@@ -265,9 +273,21 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="ReaderTitleLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=91619794]
+[node name="ReaderTopBar" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=1970215264]
+layout_mode = 2
+
+[node name="ReaderTitleLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderTopBar" unique_id=91619794]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="ReaderSpacer" type="Control" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderTopBar" unique_id=1189386675]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WatchThreadBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderTopBar" unique_id=255008541]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Watch Thread"
 
 [node name="PostList" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=637423438]
 unique_name_in_owner = true
