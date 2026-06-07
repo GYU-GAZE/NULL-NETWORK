@@ -1,9 +1,11 @@
 [gd_resource type="Resource" script_class="ThreadButtonData" format=3 uid="uid://c000rcbslv3ig"]
 
+[ext_resource type="Script" uid="uid://cgcematgxdayk" path="res://data/templates/condition_data.gd" id="1_7m187"]
 [ext_resource type="Script" uid="uid://dgyj7kryn0aau" path="res://data/templates/thread_button_data.gd" id="1_nsysv"]
 [ext_resource type="Resource" uid="uid://ccatgheetv76k" path="res://data/content/forum/threads/welcome_new_players_thread.tres" id="2_t03rw"]
 
 [resource]
 script = ExtResource("1_nsysv")
 thread_ref = ExtResource("2_t03rw")
+force_pinned = true
 metadata/_custom_type_script = "uid://dgyj7kryn0aau"

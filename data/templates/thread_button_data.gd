@@ -6,6 +6,7 @@ enum ThreadPeriod {
 	NIGHT
 }
 
+@export_category("Thread")
 @export var thread_ref: ForumThread
 @export var conditions: Array[ConditionData] = []
 
@@ -13,8 +14,12 @@ enum ThreadPeriod {
 @export var release_day: int = 1
 @export var release_period: ThreadPeriod = ThreadPeriod.DAY
 @export_range(0, 5) var release_action_block: int = 0
-
 @export var archive_after_actions: int = -1
+
+@export_category("Visibility Overrides")
+@export var force_hidden: bool = false
+@export var force_pinned: bool = false
+@export var force_archived: bool = false
 
 
 func are_conditions_met() -> bool:
@@ -33,18 +38,51 @@ func is_released() -> bool:
 
 
 func is_visible() -> bool:
+	if force_hidden:
+		return false
+
 	return is_released() and are_conditions_met()
 
 
 func is_archived() -> bool:
+	if force_archived:
+		return true
+
+	if thread_ref != null and thread_ref.is_archived:
+		return true
+
 	if archive_after_actions < 0:
 		return false
 
 	return TimeManager.get_total_action_index() >= get_release_action_index() + archive_after_actions
 
 
+func is_pinned() -> bool:
+	if force_pinned:
+		return true
+
+	if thread_ref == null:
+		return false
+
+	return thread_ref.is_pinned
+
+
+func is_locked() -> bool:
+	if thread_ref == null:
+		return false
+
+	return thread_ref.is_locked
+
+
 func is_active() -> bool:
 	return is_visible() and not is_archived()
+
+
+func matches_search(query: String) -> bool:
+	if thread_ref == null:
+		return false
+
+	return thread_ref.matches_search(query)
 
 
 func get_release_action_index() -> int:

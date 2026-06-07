@@ -6,9 +6,13 @@
 [resource]
 script = ExtResource("1_m83wh")
 avatar = ExtResource("1_1vw37")
-username = "Dark."
-user_title = "Top #2 Ranker"
+username = "DarkNess..."
+user_rank = "#2 Worldwide"
+user_title = "Veteran User"
 location = "Tokyo, Japan"
+post_id = "2"
+time_label = "Today, 12PM"
+edited_label = "Seilaqueisso"
 text_content = "Well, it’s that time of year where somebody starts spamming the site URL across the internet and we get a mild influx of new users. I would say ‘welcome’, but you are not. Ask redundant questions without using the search function and the auto-moderator will cuck you to death, as is deserved. Consider this an FAQ:
 
 1. I installed the game and set up my character. Why can’t I find any enemies?
@@ -52,4 +56,5 @@ Probably something. Sometimes it's nothing and it's just some of the numerous as
 No. That is a meme. It is posted whenever Morris drops out of the top 25 scorers. When a player character dies, they’re erased from the leaderboard so his presence fluctuates. Whenever someone at the top of the leaderboard loses their character, we have a funeral thread. That’s it.
 
 If there’s anything else you want to ask, a guide probably already exists for it. "
+image_content = ExtResource("1_1vw37")
 metadata/_custom_type_script = "uid://blxdqibocgs5x"
