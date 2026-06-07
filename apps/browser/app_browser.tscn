@@ -5,7 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://br0t7kf5rrafw" path="res://apps/browser/browser_new_tab_button.tscn" id="3_fx11j"]
 
 [node name="BrowserApp" type="Panel" unique_id=1373929234]
-custom_minimum_size = Vector2(1200, 900)
 script = ExtResource("1_mufrk")
 tab_button_scene = ExtResource("2_4noms")
 new_tab_button_scene = ExtResource("3_fx11j")

@@ -109,6 +109,6 @@ func _animate_time_change() -> void:
 func _on_icon_gui_input(event: InputEvent, app: AppResource) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		if event.double_click:
-			GlobalSignals.request_close_app.emit(app.app_id) # Duplo Clique Fechar
+			GlobalSignals.request_close_app.emit(app.app_id)
 		else:
-			GlobalSignals.request_open_app.emit(app.app_id, app.app_name, app.app_scene) # Clique simples Foca/Abre
+			GlobalSignals.request_open_app.emit(app)

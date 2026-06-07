@@ -2,14 +2,18 @@
 
 [ext_resource type="Script" uid="uid://blqtxemaoenof" path="res://systems/window_manager/window_base.gd" id="1_ok15t"]
 
-[node name="WindowBase" type="MarginContainer" unique_id=1082699294]
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="WindowBase" type="Control" unique_id=2099198820]
+layout_mode = 3
 script = ExtResource("1_ok15t")
 
 [node name="Background" type="PanelContainer" parent="." unique_id=76806708]
 modulate = Color(0.47397572, 0.47397572, 0.47397572, 1)
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="MainVBox" type="VBoxContainer" parent="Background" unique_id=1965733341]
 layout_mode = 2
