@@ -143,10 +143,12 @@ text = "Alerts"
 
 [node name="AlertsNotificationBadge" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox/AlertsBtn" unique_id=990522405]
 unique_name_in_owner = true
+visible = false
 layout_direction = 3
 layout_mode = 0
 offset_right = 8.0
 offset_bottom = 8.0
+text = "!"
 icon_alignment = 2
 
 [node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=1833793142]

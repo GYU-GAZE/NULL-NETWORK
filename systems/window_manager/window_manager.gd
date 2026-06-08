@@ -9,6 +9,13 @@ var saved_window_states: Dictionary = {} # app_id -> Dictionary { position, size
 
 
 func _ready() -> void:
+	# HOTFIX:
+	# WindowManager fica em Full Rect por cima do Desktop.
+	# Se ele consumir mouse, ele bloqueia botões/ícones do desktop fora das janelas.
+	# Com IGNORE, áreas vazias passam clique para o Desktop,
+	# mas as janelas filhas continuam recebendo input normalmente.
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 	GlobalSignals.request_open_app.connect(_on_request_open_app)
 	GlobalSignals.request_close_app.connect(close_window)
 
@@ -23,16 +30,15 @@ func _on_request_open_app(app: AppResource) -> void:
 	if app == null:
 		return
 
-
-	var app_id := app.app_id
+	var app_id: String = app.app_id
 
 	if open_windows.has(app_id):
 		focus_window(app_id)
 		return
 
-	var window_size := app.default_window_size
-	var min_window_size := app.min_window_size
-	var can_resize := app.can_resize
+	var window_size: Vector2 = app.default_window_size
+	var min_window_size: Vector2 = app.min_window_size
+	var can_resize: bool = app.can_resize
 
 	var new_window: WindowBase = window_base_scene.instantiate() as WindowBase
 	add_child(new_window)
@@ -48,7 +54,7 @@ func _on_request_open_app(app: AppResource) -> void:
 	open_windows[app_id] = new_window
 
 	if app.app_scene:
-		var app_instance = app.app_scene.instantiate()
+		var app_instance: Node = app.app_scene.instantiate()
 		new_window.content_container.add_child(app_instance)
 
 	_apply_saved_or_default_window_state(app_id, new_window)
@@ -130,12 +136,12 @@ func _save_window_state(app_id: String, window: WindowBase) -> void:
 
 
 func _clamp_window_to_screen(window: WindowBase) -> void:
-	var parent_size := size
+	var parent_size: Vector2 = size
 
 	if parent_size.x <= 0 or parent_size.y <= 0:
 		parent_size = get_viewport_rect().size
 
-	var max_position := Vector2(
+	var max_position: Vector2 = Vector2(
 		max(0.0, parent_size.x - window.size.x),
 		max(0.0, parent_size.y - window.size.y)
 	)

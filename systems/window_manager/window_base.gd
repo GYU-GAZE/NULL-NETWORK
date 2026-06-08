@@ -73,7 +73,7 @@ func setup(id: String, window_name: String, window_size: Vector2, minimum_size: 
 	)
 
 	resize_border.visible = can_resize
-	resize_border.mouse_filter = Control.MOUSE_FILTER_STOP if can_resize else Control.MOUSE_FILTER_IGNORE
+	resize_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resize_border.border_size = border_size
 
 
@@ -147,72 +147,14 @@ func _on_resize_border_gui_input(event: InputEvent) -> void:
 				return
 
 			is_resizing = true
+			resize_border.force_capture = true
+
 			resize_start_mouse = get_global_mouse_position()
 			resize_start_size = size
 			resize_start_position = position
 
 			window_focused.emit()
 			accept_event()
-		else:
-			if is_resizing:
-				is_resizing = false
-				resize_mode = ResizeMode.NONE
-				window_resized.emit()
-				accept_event()
-
-	elif event is InputEventMouseMotion:
-		if not is_resizing:
-			return
-
-		var delta: Vector2 = get_global_mouse_position() - resize_start_mouse
-
-		match resize_mode:
-			ResizeMode.RIGHT:
-				size.x = max(min_window_size.x, resize_start_size.x + delta.x)
-
-			ResizeMode.BOTTOM:
-				size.y = max(min_window_size.y, resize_start_size.y + delta.y)
-
-			ResizeMode.BOTTOM_RIGHT:
-				size.x = max(min_window_size.x, resize_start_size.x + delta.x)
-				size.y = max(min_window_size.y, resize_start_size.y + delta.y)
-
-			ResizeMode.LEFT:
-				var new_width: float = max(min_window_size.x, resize_start_size.x - delta.x)
-				position.x = resize_start_position.x + (resize_start_size.x - new_width)
-				size.x = new_width
-
-			ResizeMode.TOP:
-				var new_height: float = max(min_window_size.y, resize_start_size.y - delta.y)
-				position.y = resize_start_position.y + (resize_start_size.y - new_height)
-				size.y = new_height
-
-			ResizeMode.TOP_LEFT:
-				var new_width: float = max(min_window_size.x, resize_start_size.x - delta.x)
-				var new_height: float = max(min_window_size.y, resize_start_size.y - delta.y)
-
-				position.x = resize_start_position.x + (resize_start_size.x - new_width)
-				position.y = resize_start_position.y + (resize_start_size.y - new_height)
-
-				size.x = new_width
-				size.y = new_height
-
-			ResizeMode.TOP_RIGHT:
-				size.x = max(min_window_size.x, resize_start_size.x + delta.x)
-
-				var new_height: float = max(min_window_size.y, resize_start_size.y - delta.y)
-				position.y = resize_start_position.y + (resize_start_size.y - new_height)
-				size.y = new_height
-
-			ResizeMode.BOTTOM_LEFT:
-				var new_width: float = max(min_window_size.x, resize_start_size.x - delta.x)
-
-				position.x = resize_start_position.x + (resize_start_size.x - new_width)
-				size.x = new_width
-				size.y = max(min_window_size.y, resize_start_size.y + delta.y)
-
-		window_resized.emit()
-		accept_event()
 
 
 func pulse() -> void:
@@ -229,3 +171,70 @@ func close() -> void:
 	tween.tween_property(self, "modulate:a", 0.0, tween_duration)
 
 	tween.chain().tween_callback(window_closed.emit)
+	
+func _input(event: InputEvent) -> void:
+	if not is_resizing:
+		return
+
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if not event.pressed:
+			is_resizing = false
+			resize_mode = ResizeMode.NONE
+			resize_border.force_capture = false
+			window_resized.emit()
+			get_viewport().set_input_as_handled()
+			return
+
+	if event is InputEventMouseMotion:
+		_apply_resize_from_mouse()
+		get_viewport().set_input_as_handled()
+
+func _apply_resize_from_mouse() -> void:
+	var delta: Vector2 = get_global_mouse_position() - resize_start_mouse
+
+	match resize_mode:
+		ResizeMode.RIGHT:
+			size.x = max(min_window_size.x, resize_start_size.x + delta.x)
+
+		ResizeMode.BOTTOM:
+			size.y = max(min_window_size.y, resize_start_size.y + delta.y)
+
+		ResizeMode.BOTTOM_RIGHT:
+			size.x = max(min_window_size.x, resize_start_size.x + delta.x)
+			size.y = max(min_window_size.y, resize_start_size.y + delta.y)
+
+		ResizeMode.LEFT:
+			var new_width: float = max(min_window_size.x, resize_start_size.x - delta.x)
+			position.x = resize_start_position.x + (resize_start_size.x - new_width)
+			size.x = new_width
+
+		ResizeMode.TOP:
+			var new_height: float = max(min_window_size.y, resize_start_size.y - delta.y)
+			position.y = resize_start_position.y + (resize_start_size.y - new_height)
+			size.y = new_height
+
+		ResizeMode.TOP_LEFT:
+			var new_width: float = max(min_window_size.x, resize_start_size.x - delta.x)
+			var new_height: float = max(min_window_size.y, resize_start_size.y - delta.y)
+
+			position.x = resize_start_position.x + (resize_start_size.x - new_width)
+			position.y = resize_start_position.y + (resize_start_size.y - new_height)
+
+			size.x = new_width
+			size.y = new_height
+
+		ResizeMode.TOP_RIGHT:
+			size.x = max(min_window_size.x, resize_start_size.x + delta.x)
+
+			var new_height: float = max(min_window_size.y, resize_start_size.y - delta.y)
+			position.y = resize_start_position.y + (resize_start_size.y - new_height)
+			size.y = new_height
+
+		ResizeMode.BOTTOM_LEFT:
+			var new_width: float = max(min_window_size.x, resize_start_size.x - delta.x)
+
+			position.x = resize_start_position.x + (resize_start_size.x - new_width)
+			size.x = new_width
+			size.y = max(min_window_size.y, resize_start_size.y + delta.y)
+
+	window_resized.emit()

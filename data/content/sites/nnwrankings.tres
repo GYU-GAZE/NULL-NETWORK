@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="WebsitePage" format=3 uid="uid://javnvjk0igy7"]
+
+[ext_resource type="Script" uid="uid://bdeqm6m4tdmrs" path="res://data/templates/page_block.gd" id="1_yp356"]
+[ext_resource type="PackedScene" uid="uid://cscpajwjirfbu" path="res://apps/forum/rankings/rankings_app.tscn" id="2_ky0bx"]
+[ext_resource type="Script" uid="uid://duyokyo5xmy6y" path="res://data/templates/website_page.gd" id="2_ob0f1"]
+
+[resource]
+script = ExtResource("2_ob0f1")
+url = "null.net/rankings"
+page_title = "Global Ranking"
+custom_site_scene = ExtResource("2_ky0bx")
+metadata/_custom_type_script = "uid://duyokyo5xmy6y"

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="NetworkUserData" format=3 uid="uid://cmfowidu6no38"]
+
+[ext_resource type="Script" uid="uid://dtfyctp720emx" path="res://data/templates/network_user_data.gd" id="1_fv8de"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="2_l20v6"]
+
+[resource]
+script = ExtResource("1_fv8de")
+user_id = "Neetzsche."
+display_name = "Neetzsche."
+avatar = ExtResource("2_l20v6")
+title = "Better than you."
+rank_label = "TOP #4 WORLDWIDE"
+location = "Tokyo, Japan"
+global_rank = 4
+score = 4398521
+level = 50
+partner_apk_name = "MORGUE"
+server_name = "Japan"
+server_flag_icon = ExtResource("2_l20v6")
+is_player = true
+is_known_to_player = false
+bio = "My anus is peenus weanus"
+metadata/_custom_type_script = "uid://dtfyctp720emx"

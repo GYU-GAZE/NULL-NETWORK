@@ -117,7 +117,7 @@ func get_thread_author() -> String:
 	var author_post: ForumPost = get_author_post()
 
 	if author_post != null:
-		return author_post.username
+		return author_post.get_username()
 
 	return thread_author
 
@@ -150,7 +150,7 @@ func get_last_reply_author() -> String:
 	var last_post: ForumPost = get_last_post()
 
 	if last_post != null:
-		return last_post.username
+		return last_post.get_username()
 
 	if not last_reply_author.is_empty():
 		return last_reply_author
@@ -161,8 +161,8 @@ func get_last_reply_author() -> String:
 func get_last_reply_time_label() -> String:
 	var last_post: ForumPost = get_last_post()
 
-	if last_post != null and not last_post.time_label.is_empty():
-		return last_post.time_label
+	if last_post != null:
+		return last_post.get_time_label()
 
 	if not last_reply_time_label.is_empty():
 		return last_reply_time_label

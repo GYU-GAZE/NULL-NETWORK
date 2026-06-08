@@ -6,7 +6,10 @@ enum ThreadPeriod {
 	NIGHT
 }
 
-@export_category("User Profile")
+@export_category("Author")
+@export var author: NetworkUserData
+
+@export_category("Legacy User Profile Fallback")
 @export var avatar: Texture2D
 @export var username: String = "Anonymous"
 @export var user_rank: String = "Newbie"
@@ -15,13 +18,13 @@ enum ThreadPeriod {
 
 @export_category("Post Metadata")
 @export var post_id: String = ""
-@export var time_label: String = ""
+@export var time_label_override: String = ""
 @export var edited_label: String = ""
 @export var is_op: bool = false
 @export var is_moderator: bool = false
 @export var is_system_post: bool = false
 
-@export_category("Post Lifecycle")
+@export_category("Post Lifecycle / Timestamp")
 @export var release_day: int = 1
 @export var release_period: ThreadPeriod = ThreadPeriod.DAY
 @export_range(0, 5) var release_action_block: int = 0
@@ -33,18 +36,74 @@ enum ThreadPeriod {
 @export var image_content: Texture2D
 
 
+func get_avatar() -> Texture2D:
+	if author != null and author.avatar != null:
+		return author.avatar
+
+	return avatar
+
+
+func get_username() -> String:
+	if author != null:
+		return author.display_name
+
+	return username
+
+
+func get_user_location() -> String:
+	if author != null:
+		return author.location
+
+	return location
+
+
 func get_display_title() -> String:
-	if user_rank.is_empty():
-		return user_title
+	if author != null:
+		return author.get_display_title()
 
-	if user_title.is_empty() or user_title == user_rank:
-		return user_rank
+	var lines: Array[String] = []
 
-	return "%s | %s" % [user_rank, user_title]
+	if not user_title.is_empty():
+		lines.append(user_title)
+
+	if not user_rank.is_empty() and user_rank != user_title:
+		lines.append(user_rank)
+
+	if lines.is_empty():
+		return "Newbie"
+
+	return "\n".join(lines)
+
+
+func is_author_moderator() -> bool:
+	if is_moderator:
+		return true
+
+	if author != null:
+		return author.is_moderator()
+
+	return false
+
+
+func is_author_system() -> bool:
+	if is_system_post:
+		return true
+
+	if author != null:
+		return author.is_system()
+
+	return false
 
 
 func get_time_label() -> String:
-	return time_label
+	if not time_label_override.is_empty():
+		return time_label_override
+
+	return TimeManager.format_forum_timestamp(
+		release_day,
+		release_period,
+		release_action_block
+	)
 
 
 func are_conditions_met() -> bool:
@@ -70,12 +129,11 @@ func is_visible() -> bool:
 
 
 func get_release_action_index() -> int:
-	var period_offset: int = 0
-
-	if release_period == ThreadPeriod.NIGHT:
-		period_offset = TimeManager.ACTION_BLOCKS_PER_PERIOD
-
-	return ((release_day - 1) * TimeManager.ACTION_BLOCKS_PER_PERIOD * 2) + period_offset + release_action_block
+	return TimeManager.get_action_index_for_game_time(
+		release_day,
+		release_period,
+		release_action_block
+	)
 
 
 func matches_search(query: String) -> bool:
@@ -84,16 +142,13 @@ func matches_search(query: String) -> bool:
 	if normalized_query.is_empty():
 		return true
 
-	if username.to_lower().contains(normalized_query):
+	if get_username().to_lower().contains(normalized_query):
 		return true
 
-	if user_rank.to_lower().contains(normalized_query):
+	if get_display_title().to_lower().contains(normalized_query):
 		return true
 
-	if user_title.to_lower().contains(normalized_query):
-		return true
-
-	if location.to_lower().contains(normalized_query):
+	if get_user_location().to_lower().contains(normalized_query):
 		return true
 
 	if text_content.to_lower().contains(normalized_query):

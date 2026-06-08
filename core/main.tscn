@@ -25,6 +25,7 @@ app_name = "Navigator"
 app_icon = ExtResource("3_brq4u")
 app_scene = ExtResource("5_xhu5d")
 default_window_size = Vector2(500, 500)
+can_resize = true
 metadata/_custom_type_script = "uid://b2kr16bkp27ck"
 
 [node name="Main" type="Node" unique_id=977689112]

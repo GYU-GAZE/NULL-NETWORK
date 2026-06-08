@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="NetworkUserData" format=3 uid="uid://bdh72b0wuxe67"]
+
+[ext_resource type="Script" uid="uid://dtfyctp720emx" path="res://data/templates/network_user_data.gd" id="1_ork3h"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_y6wqw"]
+
+[resource]
+script = ExtResource("1_ork3h")
+user_id = "penguinsenior"
+display_name = "penguinsenior"
+avatar = ExtResource("1_y6wqw")
+title = "aka pensen"
+rank_label = "TOP #1 WORLDWIDE"
+location = "Arctic"
+global_rank = 1
+score = 9734628
+level = 50
+partner_apk_name = "Lil Linus"
+server_name = "Arctic"
+server_flag_icon = ExtResource("1_y6wqw")
+metadata/_custom_type_script = "uid://dtfyctp720emx"

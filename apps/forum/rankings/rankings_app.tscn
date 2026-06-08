@@ -1,0 +1,126 @@
+[gd_scene format=3 uid="uid://cscpajwjirfbu"]
+
+[ext_resource type="Script" uid="uid://c3v2mkc1kn8ap" path="res://apps/forum/rankings/rankings_app.gd" id="1_us3t6"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_qejth"]
+font_size = 28
+
+[node name="RankingsApp" type="PanelContainer" unique_id=1798714629]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_us3t6")
+
+[node name="MainMargin" type="MarginContainer" parent="." unique_id=1991023602]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="MainVBox" type="VBoxContainer" parent="MainMargin" unique_id=1470626676]
+layout_mode = 2
+
+[node name="HeaderPanel" type="PanelContainer" parent="MainMargin/MainVBox" unique_id=485330717]
+layout_mode = 2
+
+[node name="HeaderVBox" type="VBoxContainer" parent="MainMargin/MainVBox/HeaderPanel" unique_id=1895924477]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="MainMargin/MainVBox/HeaderPanel/HeaderVBox" unique_id=2131144465]
+unique_name_in_owner = true
+layout_mode = 2
+text = "GLOBAL PLAYER RANKINGS"
+label_settings = SubResource("LabelSettings_qejth")
+horizontal_alignment = 1
+
+[node name="DescriptionLabel" type="Label" parent="MainMargin/MainVBox/HeaderPanel/HeaderVBox" unique_id=576250047]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="NavBar" type="HBoxContainer" parent="MainMargin/MainVBox" unique_id=1561893122]
+layout_mode = 2
+alignment = 1
+
+[node name="ForumsBtn" type="Button" parent="MainMargin/MainVBox/NavBar" unique_id=116814896]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Thread List"
+
+[node name="UpdatesBtn" type="Button" parent="MainMargin/MainVBox/NavBar" unique_id=294024056]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Updates"
+
+[node name="RefreshBtn" type="Button" parent="MainMargin/MainVBox/NavBar" unique_id=481483092]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Refresh"
+
+[node name="HomeBtn" type="Button" parent="MainMargin/MainVBox/NavBar" unique_id=1150553626]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Thread List"
+
+[node name="ListHeader" type="HBoxContainer" parent="MainMargin/MainVBox" unique_id=232633144]
+layout_mode = 2
+
+[node name="RankHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=1121916358]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+text = "RANK"
+
+[node name="PlayerHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=476262310]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "PLAYER"
+
+[node name="ScoreHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=516959359]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "SCORE"
+
+[node name="LevelHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=934596260]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+text = "LEVEL"
+
+[node name="PartnerAPKHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=1444996139]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "PARTNER APK"
+
+[node name="ServerHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=145786757]
+custom_minimum_size = Vector2(130, 0)
+layout_mode = 2
+text = "SERVER"
+
+[node name="RankingScroll" type="ScrollContainer" parent="MainMargin/MainVBox" unique_id=1984215323]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="RankingList" type="VBoxContainer" parent="MainMargin/MainVBox/RankingScroll" unique_id=1185650541]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlayerSeparator" type="HSeparator" parent="MainMargin" unique_id=1375847594]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PlayerRankTitle" type="Label" parent="MainMargin" unique_id=1739781184]
+unique_name_in_owner = true
+layout_mode = 2
+text = "YOUR CURRENT RANK"
+horizontal_alignment = 1
+
+[node name="PlayerRankContainer" type="VBoxContainer" parent="MainMargin" unique_id=1123222141]
+unique_name_in_owner = true
+layout_mode = 2

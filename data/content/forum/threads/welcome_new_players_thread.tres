@@ -1,15 +1,22 @@
 [gd_resource type="Resource" script_class="ForumThread" format=3 uid="uid://ccatgheetv76k"]
 
 [ext_resource type="Script" uid="uid://blxdqibocgs5x" path="res://data/templates/forum_post.gd" id="1_wjhpy"]
+[ext_resource type="Resource" uid="uid://dqcx6fntqnfmx" path="res://data/content/forum/users/GANBAREkun.tres" id="2_a7hnc"]
 [ext_resource type="Script" uid="uid://csyarr4wn3qlx" path="res://data/templates/forum_thread.gd" id="2_fv5a7"]
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="3_gk5kf"]
+[ext_resource type="Script" uid="uid://cgcematgxdayk" path="res://data/templates/condition_data.gd" id="3_roit0"]
 
 [sub_resource type="Resource" id="Resource_gk5kf"]
 script = ExtResource("1_wjhpy")
+author = ExtResource("2_a7hnc")
 avatar = ExtResource("3_gk5kf")
 username = "LORDSAVIOUR"
+user_rank = "#20 Worldwide"
 user_title = "Moderator"
 location = "Tokyo, Japan"
+post_id = "1"
+is_op = true
+release_day = -3
 text_content = "Hi, everyone! With the RIP Morris meme unfortunately becoming more and more real, I was (democratically, I promise!!) graced with the title of Super Pretty Queen of the Cobalt Blue Message Board for the time being. While most of you already know me, we have been receiving an unusual amount of traffic lately, and I found it good and responsible to make a new post to help our new friends situate themselves!
 
 First things first: I'm GoGo_FroYo, everyone's big sister. I have been playing the game for six years, and even though life has gotten a little busier for all of us, I still try to make as much time as possible to play it. You might be wondering, what makes this Pokémon GO/Digimon/SMT rip-off so special for me? Well! Once you get the hang of it, it's a lovely and deceptively complex game with an incredible close-knit community! ⸜(｡˃ ᵕ ˂ )⸝♡
@@ -55,10 +62,14 @@ metadata/_custom_type_script = "uid://blxdqibocgs5x"
 
 [sub_resource type="Resource" id="Resource_fv5a7"]
 script = ExtResource("1_wjhpy")
+author = ExtResource("2_a7hnc")
 avatar = ExtResource("3_gk5kf")
 username = "Dark."
-user_title = "Top #2 Ranker"
+user_rank = "Top #2 Ranker"
+user_title = "Moderator"
 location = "Tokyo, Japan"
+post_id = "2"
+release_action_block = 1
 text_content = "Well, it’s that time of year where somebody starts spamming the site URL across the internet and we get a mild influx of new users. I would say ‘welcome’, but you are not. Ask redundant questions without using the search function and the auto-moderator will cuck you to death, as is deserved. Consider this an FAQ:
 
 1. I installed the game and set up my character. Why can’t I find any enemies?
@@ -117,8 +128,6 @@ author_title = "Moderator"
 is_pinned = true
 popularity_score = 999
 reply_count = 2
-last_reply_author = "DarkNess..."
-last_reply_time_label = "12PM"
 thread_preview = "Welcome to you all!"
 posts = Array[ExtResource("1_wjhpy")]([SubResource("Resource_gk5kf"), SubResource("Resource_fv5a7")])
 metadata/_custom_type_script = "uid://csyarr4wn3qlx"

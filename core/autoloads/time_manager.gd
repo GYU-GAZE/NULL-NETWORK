@@ -6,6 +6,13 @@ enum TimePeriod {
 }
 
 const ACTION_BLOCKS_PER_PERIOD: int = 6
+const TOTAL_ACTION_BLOCKS_PER_DAY: int = ACTION_BLOCKS_PER_PERIOD * 2
+const SECONDS_PER_DAY: int = 86400
+
+@export_category("Game Start Date")
+var start_year: int = 2026
+@export_range(1, 12) var start_month: int = 1
+@export_range(1, 31) var start_calendar_day: int = 1
 
 @export_category("Time State")
 var current_period: TimePeriod = TimePeriod.DAY
@@ -15,13 +22,24 @@ var days_passed: int = 1
 var days_until_update: int = 7
 
 @export_category("Calendar System")
-var current_year: int = 2024
+var current_year: int = 2026
 var current_month_index: int = 0
-var current_calendar_day: int = 21
+var current_calendar_day: int = 1
 
-const MONTH_NAMES: Array[String] = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"]
-const FULL_MONTH_NAMES: Array[String] = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
-const DAYS_IN_MONTH: Array[int] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+const MONTH_NAMES: Array[String] = [
+	"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+	"JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+]
+
+const FULL_MONTH_NAMES: Array[String] = [
+	"January", "February", "March", "April", "May", "June",
+	"July", "August", "September", "October", "November", "December"
+]
+
+
+func _ready() -> void:
+	_sync_calendar_from_days_passed()
+
 
 func advance_action(amount: int = 1) -> void:
 	if amount <= 0:
@@ -48,15 +66,15 @@ func _advance_day() -> void:
 	if days_until_update < 0:
 		days_until_update = 0
 
-	current_calendar_day += 1
+	_sync_calendar_from_days_passed()
 
-	if current_calendar_day > DAYS_IN_MONTH[current_month_index]:
-		current_calendar_day = 1
-		current_month_index += 1
 
-		if current_month_index > 11:
-			current_month_index = 0
-			current_year += 1
+func _sync_calendar_from_days_passed() -> void:
+	var date_info: Dictionary = get_date_for_game_day(days_passed)
+
+	current_year = int(date_info.get("year", start_year))
+	current_month_index = int(date_info.get("month", start_month)) - 1
+	current_calendar_day = int(date_info.get("day", start_calendar_day))
 
 
 func _emit_time_signal() -> void:
@@ -95,10 +113,88 @@ func is_day() -> bool:
 func is_night() -> bool:
 	return current_period == TimePeriod.NIGHT
 
-func get_total_action_index() -> int:
-	var period_offset := 0
 
-	if current_period == TimePeriod.NIGHT:
+func get_total_action_index() -> int:
+	return get_action_index_for_game_time(
+		days_passed,
+		current_period,
+		current_action_block
+	)
+
+
+func get_action_index_for_game_time(game_day: int, period: int, action_block: int) -> int:
+	var period_offset: int = 0
+
+	if period == TimePeriod.NIGHT:
 		period_offset = ACTION_BLOCKS_PER_PERIOD
 
-	return ((days_passed - 1) * ACTION_BLOCKS_PER_PERIOD * 2) + period_offset + current_action_block
+	var safe_action_block: int = clampi(action_block, 0, ACTION_BLOCKS_PER_PERIOD - 1)
+
+	return ((game_day - 1) * TOTAL_ACTION_BLOCKS_PER_DAY) + period_offset + safe_action_block
+
+
+func get_date_for_game_day(game_day: int) -> Dictionary:
+	var start_unix_time: int = int(Time.get_unix_time_from_datetime_dict({
+		"year": start_year,
+		"month": start_month,
+		"day": start_calendar_day,
+		"hour": 0,
+		"minute": 0,
+		"second": 0
+	}))
+
+	var day_offset: int = game_day - 1
+	var target_unix_time: int = start_unix_time + (day_offset * SECONDS_PER_DAY)
+
+	return Time.get_datetime_dict_from_unix_time(target_unix_time)
+
+
+func get_action_block_hour(period: int, action_block: int) -> int:
+	var safe_action_block: int = clampi(action_block, 0, ACTION_BLOCKS_PER_PERIOD - 1)
+
+	if period == TimePeriod.NIGHT:
+		return (18 + (safe_action_block * 2)) % 24
+
+	return 6 + (safe_action_block * 2)
+
+
+func format_action_block_hour(period: int, action_block: int) -> String:
+	var hour_24: int = get_action_block_hour(period, action_block)
+
+	var suffix: String = "AM"
+
+	if hour_24 >= 12:
+		suffix = "PM"
+
+	var hour_12: int = hour_24 % 12
+
+	if hour_12 == 0:
+		hour_12 = 12
+
+	return "%d %s" % [hour_12, suffix]
+
+
+func format_forum_timestamp(game_day: int, period: int, action_block: int) -> String:
+	var time_text: String = format_action_block_hour(period, action_block)
+	var day_difference: int = days_passed - game_day
+
+	if day_difference == 0:
+		return "Today, %s" % time_text
+
+	if day_difference == 1:
+		return "Yesterday, %s" % time_text
+
+	var date_info: Dictionary = get_date_for_game_day(game_day)
+
+	var day: int = int(date_info.get("day", 1))
+	var month: int = int(date_info.get("month", 1))
+	var year: int = int(date_info.get("year", start_year))
+
+	var month_label: String = MONTH_NAMES[month - 1]
+
+	return "%02d %s %d, %s" % [
+		day,
+		month_label,
+		year,
+		time_text
+	]
