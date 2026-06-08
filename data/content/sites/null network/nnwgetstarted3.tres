@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bdeqm6m4tdmrs" path="res://data/templates/page_block.gd" id="1_qbk2k"]
 [ext_resource type="Script" uid="uid://duyokyo5xmy6y" path="res://data/templates/website_page.gd" id="2_l8jtf"]
-[ext_resource type="PackedScene" uid="uid://ca0hkbg8cj17l" path="res://apps/forum/nnw_getstarted3.tscn" id="2_www6m"]
+[ext_resource type="PackedScene" uid="uid://ca0hkbg8cj17l" path="res://data/content/sites/null network/nnw_getstarted3.tscn" id="2_www6m"]
 
 [resource]
 script = ExtResource("2_l8jtf")
