@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="WebsitePage" format=3 uid="uid://c32di78tt0h3h"]
+
+[ext_resource type="Script" uid="uid://bdeqm6m4tdmrs" path="res://data/templates/page_block.gd" id="1_7udlv"]
+[ext_resource type="Script" uid="uid://duyokyo5xmy6y" path="res://data/templates/website_page.gd" id="2_a24u7"]
+[ext_resource type="PackedScene" uid="uid://bgvj70mu5l7r8" path="res://apps/forum/nnw_getstarted1.tscn" id="2_e577r"]
+
+[resource]
+script = ExtResource("2_a24u7")
+url = "null.net/introduction"
+page_title = "hello, world"
+custom_site_scene = ExtResource("2_e577r")
+metadata/_custom_type_script = "uid://duyokyo5xmy6y"

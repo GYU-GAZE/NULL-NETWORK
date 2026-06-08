@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cscpajwjirfbu"]
 
 [ext_resource type="Script" uid="uid://c3v2mkc1kn8ap" path="res://apps/forum/rankings/rankings_app.gd" id="1_us3t6"]
+[ext_resource type="PackedScene" uid="uid://5i7rt18tc1v2" path="res://apps/forum/rankings/ranking_row_ui.tscn" id="2_5klbt"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_qejth"]
 font_size = 28
@@ -14,6 +15,8 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_us3t6")
+page_description = "Current worldwide standings for NULL NETWORK players."
+ranking_row_scene = ExtResource("2_5klbt")
 
 [node name="MainMargin" type="MarginContainer" parent="." unique_id=1991023602]
 layout_mode = 2

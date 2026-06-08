@@ -3,8 +3,12 @@ class_name RankingsApp
 
 signal browser_navigation_requested(url: String)
 
+@export_category("Display")
+@export var page_title: String = "GLOBAL PLAYER RANKINGS"
+@export_multiline var page_description: String = "Current worldwide standings for active NULL NETWORK players."
+@export var top_limit: int = 50
+
 @export_category("Data")
-@export var ranking_board: RankingBoardData
 @export var ranking_row_scene: PackedScene
 
 @export_category("Navigation")
@@ -48,21 +52,17 @@ func _refresh_page() -> void:
 	_clear_container(ranking_list)
 	_clear_container(player_rank_container)
 
-	if ranking_board == null:
-		title_label.text = "GLOBAL PLAYER RANKINGS"
-		description_label.text = "Ranking data unavailable."
-		_hide_player_section()
-		return
+	title_label.text = page_title
+	description_label.text = page_description
 
-	title_label.text = ranking_board.board_title
-	description_label.text = ranking_board.board_description
+	NetworkUserDatabase.reload_users()
 
 	_build_top_ranking()
 	_build_player_rank_section()
 
 
 func _build_top_ranking() -> void:
-	var top_users: Array[NetworkUserData] = ranking_board.get_top_users(50)
+	var top_users: Array[NetworkUserData] = NetworkUserDatabase.get_top_ranked_users(top_limit)
 
 	if top_users.is_empty():
 		var empty_label: Label = Label.new()
@@ -71,16 +71,20 @@ func _build_top_ranking() -> void:
 		ranking_list.add_child(empty_label)
 		return
 
+	var player_user: NetworkUserData = NetworkUserDatabase.get_player_user()
+
 	for user in top_users:
-		_add_ranking_row(ranking_list, user, _is_player_user(user))
+		_add_ranking_row(ranking_list, user, user == player_user)
 
 
 func _build_player_rank_section() -> void:
-	if ranking_board.player_user == null:
+	var player_user: NetworkUserData = NetworkUserDatabase.get_player_user()
+
+	if player_user == null:
 		_hide_player_section()
 		return
 
-	if ranking_board.is_player_in_top(50):
+	if NetworkUserDatabase.is_player_in_top(top_limit):
 		_hide_player_section()
 		return
 
@@ -88,7 +92,7 @@ func _build_player_rank_section() -> void:
 	player_rank_title.show()
 	player_rank_container.show()
 
-	_add_ranking_row(player_rank_container, ranking_board.player_user, true)
+	_add_ranking_row(player_rank_container, player_user, true)
 
 
 func _hide_player_section() -> void:
@@ -118,16 +122,6 @@ func _add_ranking_row(parent: VBoxContainer, user: NetworkUserData, highlight: b
 		row.profile_requested.connect(_on_profile_requested)
 
 	parent.add_child(HSeparator.new())
-
-
-func _is_player_user(user: NetworkUserData) -> bool:
-	if user == null:
-		return false
-
-	if ranking_board == null or ranking_board.player_user == null:
-		return false
-
-	return user == ranking_board.player_user
 
 
 func _clear_container(container: Control) -> void:

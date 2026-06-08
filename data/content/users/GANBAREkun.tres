@@ -1,21 +1,21 @@
 [gd_resource type="Resource" script_class="NetworkUserData" format=3 uid="uid://dqcx6fntqnfmx"]
 
-[ext_resource type="Script" uid="uid://dtfyctp720emx" path="res://data/templates/network_user_data.gd" id="1_6myj1"]
-[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="2_etp7o"]
+[ext_resource type="Script" uid="uid://dtfyctp720emx" path="res://data/templates/network_user_data.gd" id="1_ra1py"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="2_xf4wy"]
 
 [resource]
-script = ExtResource("1_6myj1")
+script = ExtResource("1_ra1py")
 user_id = "GANBAREkun"
 display_name = "GANBAREkun"
 title = "The humble hero!"
 rank_label = "TOP #2 WORLDWIDE"
 location = "Tokyo, Japan"
-global_rank = 1
+global_rank = 2
 score = 6703928
 level = 50
 partner_apk_name = "GoldenJustice!"
 server_name = "Japan"
-server_flag_icon = ExtResource("2_etp7o")
+server_flag_icon = ExtResource("2_xf4wy")
 is_player = true
 is_known_to_player = false
 bio = "My anus is peenus weanus"

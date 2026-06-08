@@ -1,0 +1,132 @@
+[gd_scene format=3 uid="uid://ca0hkbg8cj17l"]
+
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_3oj6v"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_egev0"]
+font_size = 42
+
+[node name="NnwHomepage" type="PanelContainer" unique_id=1533622385]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MasterScroll" type="ScrollContainer" parent="." unique_id=566420815]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="PageVBox" type="VBoxContainer" parent="MasterScroll" unique_id=721925602]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="MainHeader" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=518152830]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 95)
+layout_mode = 2
+
+[node name="HeaderMargin" type="MarginContainer" parent="MasterScroll/PageVBox/MainHeader" unique_id=78195232]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="HeaderHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin" unique_id=436731104]
+layout_mode = 2
+
+[node name="LogoBlock" type="VBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=1903811266]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TextureRect" type="TextureRect" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=445857204]
+layout_mode = 2
+texture = ExtResource("1_3oj6v")
+stretch_mode = 5
+
+[node name="NullChannelTitle" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=1245775031]
+unique_name_in_owner = true
+layout_mode = 2
+text = "lang.uage"
+label_settings = SubResource("LabelSettings_egev0")
+horizontal_alignment = 1
+
+[node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=1615245422]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 50
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=585275666]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer" unique_id=86437627]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="IntroductionBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/VBoxContainer" unique_id=921583470]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Introduction"
+
+[node name="GetStartedBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/VBoxContainer" unique_id=180985698]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Get Started!"
+
+[node name="GetStartedBtn2" type="Button" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/VBoxContainer" unique_id=1933142865]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Glossary"
+
+[node name="UpdatesBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/VBoxContainer" unique_id=914620269]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+text = "<<<
+"
+
+[node name="Control" type="Control" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer" unique_id=1321424914]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer" unique_id=316809722]
+custom_minimum_size = Vector2(900, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 1
+text = "ADMINISTRATOR A player who controls at least 51% of an area’s Data Centers, gaining regional authority and influence. The title varies by region, with players known as “King/Queen,” “Big Brother/Big Sister,” “Daddy/Mommy,” etc., depending on local culture. A player controlling 100% of the Data Centers is called a True Administrator.
+
+AGGRO LOCK A state where a player is within an enemy’s aggro range and unable to safely exit the game. This often occurs when a player tries to flee from a stronger virus, only to have it persistently pursue them, trapping the player in an ongoing encounter.
+
+BLACKHAT A broad term for playstyles centered on consumption and exploitation. Blackhat players often engage in unconventional mechanics, such as player killing, virus taming, and hacking, using features that deviate from standard gameplay.
+
+CRAWL The act of traversing an area by vehicle with the primary goal of collecting detailed map data. See also: “Index.”
+
+DATA CENTER Fixed locations within an area guarded by formidable Boss programs. Though often thought of as dungeons, Data Centers differ in their permanence, representing enduring strongholds that require strategic conquest.
+
+DEAD ZONE A location (city, state, or country) with zero players. Due to the lack of human intervention, Dead Zones typically have thriving program ecosystems and unique spawns, though they present much harder challenges. Dead Zones are ranked by size, with the highest tier being locations like Antarctica.
+
+DOOM ZONE An area inhabited by only a single player, which may also be a Dead Zone if the player has not been present since its inception. Named in homage to the homonymous 1993 video game.
+
+DOOM GUY/GIRL The sole player of a Doom Zone.
+
+DUNGEON A temporary location occupied by a powerful program and its subordinate entities. Unlike Data Centers, dungeons are not fixed and may vanish once cleared.
+
+HYENA A player who strategically waits for another player to become weakened — either through their own battles or by others — to swoop in and eliminate both for personal gain.
+
+INDEX The act of gathering information about an area, either by purchasing map data from other players or by navigating the area oneself.
+
+JÌNG An infamous Japanese player known for frequently spamming message boards with incoherent messages. While mostly an irritant, the term \"Jìng\" has also come to refer to bots and bot-like behavior in the game.
+
+VIRGIN A rare, untouched tamed program with no previous stat customization, making it highly desirable for its full potential as a blank slate.
+
+WHITEHAT An umbrella term for purification-focused playstyles. Though most players inherently adopt whitehat behaviors by adhering to standard mechanics, only those who choose this path after encountering forbidden knowledge are recognized as true whitehats."
+horizontal_alignment = 1
+autowrap_mode = 2

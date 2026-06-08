@@ -34,7 +34,13 @@ func setup(user: NetworkUserData, highlight: bool = false) -> void:
 
 	rank_label.text = user_data.get_global_rank_label()
 	name_button.text = user_data.display_name
-	title_label.text = user_data.get_display_title()
+
+	# Ranking não mostra Title nem Rank Label.
+	# Esses campos continuam existindo no NetworkUserData para fórum/perfil/social,
+	# mas aqui a linha fica limpa: username puro.
+	title_label.text = ""
+	title_label.hide()
+
 	score_label.text = str(user_data.score)
 	level_label.text = "Lv. %d" % user_data.level
 	partner_apk_label.text = user_data.get_partner_apk_label()
