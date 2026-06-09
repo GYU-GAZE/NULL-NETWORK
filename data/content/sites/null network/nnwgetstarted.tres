@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WebsitePage" format=3 uid="uid://c36aa2wi4cid7"]
+
+[ext_resource type="Script" uid="uid://duyokyo5xmy6y" path="res://data/templates/website_page.gd" id="1_kf27u"]
+[ext_resource type="PackedScene" uid="uid://bgvj70mu5l7r8" path="res://data/content/sites/null network/nnw_getstarted1.tscn" id="1_wpf41"]
+
+[resource]
+script = ExtResource("1_kf27u")
+url = "null.net/getstarted"
+page_title = "hello, world"
+custom_site_scene = ExtResource("1_wpf41")
+metadata/_custom_type_script = "uid://duyokyo5xmy6y"

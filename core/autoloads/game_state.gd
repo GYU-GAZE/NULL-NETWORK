@@ -4,7 +4,7 @@ var story_flags: Dictionary = {}
 var read_threads: Dictionary = {}
 var watched_threads: Dictionary = {}
 var thread_visibility_signatures: Dictionary = {}
-
+var numeric_vars: Dictionary = {}
 
 func set_flag(flag_name: String, value: bool) -> void:
 	if flag_name.is_empty():
@@ -115,3 +115,26 @@ func is_thread_watched(thread_id: String) -> bool:
 		return false
 
 	return watched_threads.get(thread_id, false)
+
+
+func set_number(var_name: String, value: int) -> void:
+	if var_name.is_empty():
+		return
+
+	numeric_vars[var_name] = value
+
+
+func add_number(var_name: String, amount: int) -> int:
+	if var_name.is_empty():
+		return 0
+
+	var new_value: int = get_number(var_name) + amount
+	numeric_vars[var_name] = new_value
+	return new_value
+
+
+func get_number(var_name: String, default_value: int = 0) -> int:
+	if var_name.is_empty():
+		return default_value
+
+	return int(numeric_vars.get(var_name, default_value))

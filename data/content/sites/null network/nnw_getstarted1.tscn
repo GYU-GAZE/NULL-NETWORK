@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bgvj70mu5l7r8"]
 
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_mfti5"]
+[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="2_ti3e4"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_egev0"]
 font_size = 42
@@ -74,16 +75,25 @@ theme_override_constants/separation = 10
 unique_name_in_owner = true
 layout_mode = 2
 text = "Introduction"
+script = ExtResource("2_ti3e4")
+nodes_to_show = Array[NodePath]([NodePath("../../Control2/IntroductionLabel")])
+nodes_to_hide = Array[NodePath]([NodePath("../../Control2/GetStartedLabel"), NodePath("../../Control2/GlossaryLabel")])
 
 [node name="GetStartedBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/VBoxContainer" unique_id=921583470]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Get Started!"
+script = ExtResource("2_ti3e4")
+nodes_to_show = Array[NodePath]([NodePath("../../Control2/GetStartedLabel")])
+nodes_to_hide = Array[NodePath]([NodePath("../../Control2/GlossaryLabel"), NodePath("../../Control2/IntroductionLabel")])
 
 [node name="GlossaryBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/VBoxContainer" unique_id=180985698]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Glossary"
+script = ExtResource("2_ti3e4")
+nodes_to_show = Array[NodePath]([NodePath("../../Control2/GlossaryLabel")])
+nodes_to_hide = Array[NodePath]([NodePath("../../Control2/IntroductionLabel"), NodePath("../../Control2/GetStartedLabel")])
 
 [node name="BackBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/VBoxContainer" unique_id=914620269]
 unique_name_in_owner = true
@@ -91,15 +101,25 @@ layout_mode = 2
 size_flags_horizontal = 4
 text = "<<<
 "
+script = ExtResource("2_ti3e4")
+target_url = "null.net"
 
 [node name="Control" type="Control" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer" unique_id=1321424914]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer" unique_id=316809722]
-custom_minimum_size = Vector2(900, 0)
+[node name="Control2" type="Control" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer" unique_id=1721326422]
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
+
+[node name="IntroductionLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/Control2" unique_id=316809722]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Hello Cobalt community, my name is Morris and this is a fan project I began back in college in the mid 2000s. Piecing together the source code of Cobalt Blue from decompiled scraps has been one of the most challenging but rewarding experiences of my life. I’ve had a lot of help from all of you along the way, and while it can’t be called a 1 to 1 recreation, I believe we’ve expanded upon Yamada-sensei’s vision in a meaningful way.
 
@@ -110,5 +130,86 @@ Going forward, the moderation team will be taking the reins on this project and 
 Thank you all for playing and keeping the world safe.
 
 Morris_the_Worm84"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="GetStartedLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/Control2" unique_id=1722132267]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "1 Upon starting the game, you will be prompted to enter a player name that is bound to your account. Choose wisely, as this cannot be changed later.
+
+2 The creatures you will encounter in this game are split into two categories:
+
+    Vaccine: Purified data dedicated to maintaining the order and stability of the two worlds. Steadfast guardians of good and justice. They will be invaluable allies during your quest.
+
+    VIRUS: Corrupted data which erodes at the barrier between worlds, bent on mindlessly consuming in the pursuit of power. These are your fated enemies and should not be fraternized with!
+
+3 Cobalt Blue is a game about making memorable companions, thus you will be presented with a selection of Vaccines to take as your first partner. Be sure to read the last section of this guide carefully, as each has unique affinities that may help or hinder you on your journey. If you feel you’ve picked wrong, fret not. Your companion can be replaced as your journey continues.
+
+4 Players will be given points to invest in their partner's skill tree. How you balance these points will influence your overall parameters, such as:
+
+    STR: The base amount of physical damage their attacks deal.
+    VIT: Hit points, infection resistance and overall vitality.
+    DEX: Hand-eye coordination, accuracy and ranged damage.
+    SPD: Movement speed, reaction time and general mobility.
+    MAG: Energy points employed to unleash special skills.
+    NRV: Social intelligence and gumption. Affects purification.
+
+5 To grow, you and your partner must do battle against nefarious Viruses. By inflicting enough damage upon a virus, its core becomes vulnerable and its very essence becomes subject to change! At this point you have several options.
+
+    PURIFY: Aided by a Vaccine companion, you may undo the corruption afflicting the Virus and set it on the righteous path. This is the noble warrior’s way forward and the key to restoring the balance between worlds. [MEDIUM XP YIELD]
+
+    TAME: This can be done in succession to purifying. (Or without purifying at all, but we don’t do that around here!) Release your union with your current companion and pursue a new path to power. Through your battle you may have learned the pros and cons of this creature’s skillset and found them better suited to your playstyle. [LOW XP YIELD]
+
+    CONSUME: This path is tantamount to the destruction of the Virus (or Vaccine) and will reduce it to raw data. The player and their companion will absorb the totality of its power and experience significant growth. Be warned: a voracious appetite can lead down dark paths and you may be afflicted with a portion of its corruption. [HIGH XP YIELD]
+
+6 Always be on guard. You are not the only predator in this ecosystem. Viruses, distrusting warriors among the Vaccines, and other players can easily make you into their prey. Should your HP ever be reduced to 0, your journey will end and you must forever carry the crushing weight of having been defeated in Cobalt Blue!"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="GlossaryLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/Control2" unique_id=471311050]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "ADMINISTRATOR A player who controls at least 51% of an area’s Data Centers, gaining regional authority and influence. The title varies by region, with players known as “King/Queen,” “Big Brother/Big Sister,” “Daddy/Mommy,” etc., depending on local culture. A player controlling 100% of the Data Centers is called a True Administrator.
+
+AGGRO LOCK A state where a player is within an enemy’s aggro range and unable to safely exit the game. This often occurs when a player tries to flee from a stronger virus, only to have it persistently pursue them, trapping the player in an ongoing encounter.
+
+BLACKHAT A broad term for playstyles centered on consumption and exploitation. Blackhat players often engage in unconventional mechanics, such as player killing, virus taming, and hacking, using features that deviate from standard gameplay.
+
+CRAWL The act of traversing an area by vehicle with the primary goal of collecting detailed map data. See also: “Index.”
+
+DATA CENTER Fixed locations within an area guarded by formidable Boss programs. Though often thought of as dungeons, Data Centers differ in their permanence, representing enduring strongholds that require strategic conquest.
+
+DEAD ZONE A location (city, state, or country) with zero players. Due to the lack of human intervention, Dead Zones typically have thriving program ecosystems and unique spawns, though they present much harder challenges. Dead Zones are ranked by size, with the highest tier being locations like Antarctica.
+
+DOOM ZONE An area inhabited by only a single player, which may also be a Dead Zone if the player has not been present since its inception. Named in homage to the homonymous 1993 video game.
+
+DOOM GUY/GIRL The sole player of a Doom Zone.
+
+DUNGEON A temporary location occupied by a powerful program and its subordinate entities. Unlike Data Centers, dungeons are not fixed and may vanish once cleared.
+
+HYENA A player who strategically waits for another player to become weakened — either through their own battles or by others — to swoop in and eliminate both for personal gain.
+
+INDEX The act of gathering information about an area, either by purchasing map data from other players or by navigating the area oneself.
+
+JÌNG An infamous Japanese player known for frequently spamming message boards with incoherent messages. While mostly an irritant, the term \"Jìng\" has also come to refer to bots and bot-like behavior in the game.
+
+VIRGIN A rare, untouched tamed program with no previous stat customization, making it highly desirable for its full potential as a blank slate.
+
+WHITEHAT An umbrella term for purification-focused playstyles. Though most players inherently adopt whitehat behaviors by adhering to standard mechanics, only those who choose this path after encountering forbidden knowledge are recognized as true whitehats."
 horizontal_alignment = 1
 autowrap_mode = 2

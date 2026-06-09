@@ -1,11 +1,11 @@
 [gd_resource type="Resource" script_class="WebsitePage" format=3 uid="uid://o6b4b04yql0"]
 
-[ext_resource type="Script" uid="uid://bdeqm6m4tdmrs" path="res://data/templates/page_block.gd" id="1_s2ssx"]
 [ext_resource type="Script" uid="uid://duyokyo5xmy6y" path="res://data/templates/website_page.gd" id="2_4v6q2"]
 [ext_resource type="PackedScene" uid="uid://d2wc20x3ldl5k" path="res://apps/forum/forum_app.tscn" id="2_d0hvp"]
 
 [resource]
 script = ExtResource("2_4v6q2")
 url = "www.null.net/forums"
+page_title = "/null/ Channel"
 custom_site_scene = ExtResource("2_d0hvp")
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"

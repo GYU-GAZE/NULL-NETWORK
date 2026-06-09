@@ -4,6 +4,7 @@ class_name BrowserApp
 
 @export var tab_button_scene: PackedScene
 @export var new_tab_button_scene: PackedScene
+
 @onready var tab_button_container: HBoxContainer = %TabButtonContainer
 @onready var new_tab_button_holder: MarginContainer = %NewTabButtonHolder
 @onready var tab_scroll: ScrollContainer = %TabScroll
@@ -19,6 +20,7 @@ class_name BrowserApp
 var tabs: Array[BrowserTabData] = []
 var current_tab_index: int = -1
 var last_known_size: Vector2 = Vector2.ZERO
+
 
 func _ready() -> void:
 	go_button.pressed.connect(_on_go_pressed)
@@ -126,27 +128,28 @@ func _load_page(target_url: String, is_history_nav: bool = false) -> void:
 	if target_url.is_empty():
 		return
 
+	var clean_url: String = target_url.strip_edges()
 	var tab := _get_current_tab()
 
 	if not is_history_nav:
 		_save_current_custom_site_state()
 		tab.clear_custom_site_state()
 
-	var page: WebsitePage = SimulatedDNS.fetch_page(target_url)
+	var page: WebsitePage = SimulatedDNS.fetch_page(clean_url)
 
 	if page != null:
 		tab.set_page_title(page.page_title)
 	else:
-		tab.set_page_title(target_url)
+		tab.set_page_title(clean_url)
 
 	if not is_history_nav:
-		tab.navigate_to(target_url, tab.page_title)
+		tab.navigate_to(clean_url, tab.page_title)
 	else:
-		tab.current_url = target_url
+		tab.current_url = clean_url
 
-	url_line_edit.text = target_url
+	url_line_edit.text = clean_url
 
-	_render_url(target_url)
+	_render_url(clean_url)
 	_refresh_tab_buttons()
 
 
@@ -174,12 +177,13 @@ func _render_url(target_url: String) -> void:
 	var tab := _get_current_tab()
 	tab.set_page_title(page.page_title)
 
-	if page.custom_site_scene != null:
-		_render_custom_site(page.custom_site_scene, tab.custom_site_state)
-	else:
+	if page.custom_site_scene == null:
 		tab.clear_custom_site_state()
-		_render_normal_site(page)
+		_render_missing_scene_error(page)
+		_refresh_tab_buttons()
+		return
 
+	_render_custom_site(page.custom_site_scene, tab.custom_site_state)
 	_refresh_tab_buttons()
 
 
@@ -236,6 +240,20 @@ func _render_403_error() -> void:
 	var error_label := Label.new()
 	error_label.text = "ERRO 403: CONNECTION REFUSED\n\nO servidor recusou a conexão ou o domínio não existe."
 	error_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	error_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	error_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	normal_site_content.add_child(error_label)
+
+
+func _render_missing_scene_error(page: WebsitePage) -> void:
+	custom_site_container.hide()
+	normal_site_scroll.show()
+
+	var error_label := Label.new()
+	error_label.text = "ERRO 500: PAGE SCENE MISSING\n\nA rota '%s' existe, mas não possui custom_site_scene configurada." % page.url
+	error_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	error_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	error_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	normal_site_content.add_child(error_label)
 
 
@@ -243,138 +261,23 @@ func _render_custom_site(scene: PackedScene, state: Dictionary = {}) -> void:
 	normal_site_scroll.hide()
 	custom_site_container.show()
 
-	var instance = scene.instantiate()
+	var instance: Node = scene.instantiate()
 	custom_site_container.add_child(instance)
 
-	if instance.has_signal("browser_navigation_requested"):
-		instance.browser_navigation_requested.connect(_load_page)
+	_connect_browser_navigation_signals(instance)
 
 	if instance.has_method("restore_browser_state"):
 		instance.call_deferred("restore_browser_state", state)
 
 
-func _render_normal_site(page: WebsitePage) -> void:
-	custom_site_container.hide()
-	normal_site_scroll.show()
+func _connect_browser_navigation_signals(root: Node) -> void:
+	if root.has_signal("browser_navigation_requested"):
+		if not root.is_connected("browser_navigation_requested", Callable(self, "_load_page")):
+			root.connect("browser_navigation_requested", Callable(self, "_load_page"))
 
-	match page.header_type:
-		WebsitePage.HeaderType.TEXT:
-			var header_label := Label.new()
-			header_label.text = page.header_text
-			header_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			normal_site_content.add_child(header_label)
+	for child in root.get_children():
+		_connect_browser_navigation_signals(child)
 
-		WebsitePage.HeaderType.IMAGE:
-			if page.header_image:
-				var header_rect := TextureRect.new()
-				header_rect.texture = page.header_image
-				header_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-				header_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-				header_rect.custom_minimum_size.y = 150
-				normal_site_content.add_child(header_rect)
-
-	if not page.navbar_links.is_empty():
-		var nav_box := HBoxContainer.new()
-		nav_box.alignment = BoxContainer.ALIGNMENT_CENTER
-
-		for link_name in page.navbar_links:
-			var dest_url: String = page.navbar_links[link_name]
-
-			var btn := Button.new()
-			btn.text = link_name
-			nav_box.add_child(btn)
-			btn.pressed.connect(func(): _load_page(dest_url))
-
-		normal_site_content.add_child(nav_box)
-
-	normal_site_content.add_child(HSeparator.new())
-
-	for block in page.content_blocks:
-		_build_block(block, normal_site_content)
-
-
-func _build_block(block: PageBlock, parent_node: Control) -> void:
-	if block == null:
-		return
-
-	var new_node: Control = null
-
-	match block.type:
-		PageBlock.BlockType.ROW:
-			new_node = HBoxContainer.new()
-			new_node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-		PageBlock.BlockType.COLUMN:
-			new_node = VBoxContainer.new()
-			new_node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-		PageBlock.BlockType.TEXT:
-			var text_label := RichTextLabel.new()
-			text_label.bbcode_enabled = true
-			text_label.meta_clicked.connect(_on_bbcode_link_clicked)
-			text_label.text = block.text_content
-			text_label.fit_content = true
-			text_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-			text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			text_label.custom_minimum_size.x = 10
-			new_node = text_label
-
-		PageBlock.BlockType.IMAGE:
-			var img_rect := TextureRect.new()
-			img_rect.texture = block.image_content
-			img_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			img_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			img_rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			img_rect.custom_minimum_size.y = 200
-			new_node = img_rect
-
-		PageBlock.BlockType.BUTTON:
-			var btn := Button.new()
-			btn.text = block.text_content
-			btn.pressed.connect(func(): _handle_block_button(block))
-			new_node = btn
-
-		PageBlock.BlockType.SPACING:
-			var spacer := Control.new()
-			spacer.custom_minimum_size.y = block.spacing_size
-			new_node = spacer
-
-	if new_node != null:
-		parent_node.add_child(new_node)
-
-		if block.type == PageBlock.BlockType.ROW or block.type == PageBlock.BlockType.COLUMN:
-			for child_block in block.child_blocks:
-				_build_block(child_block, new_node)
-
-
-func _handle_block_button(block: PageBlock) -> void:
-	match block.button_action:
-		PageBlock.ButtonAction.NONE:
-			return
-
-		PageBlock.ButtonAction.NAVIGATE:
-			if not block.target_url.is_empty():
-				_load_page(block.target_url)
-
-		PageBlock.ButtonAction.APPLY_EFFECTS:
-			_apply_block_effects(block)
-
-
-func _apply_block_effects(block: PageBlock) -> void:
-	for effect in block.effects:
-		if effect == null:
-			continue
-
-		effect.apply()
-
-
-func _on_bbcode_link_clicked(meta: Variant) -> void:
-	var target_url := str(meta)
-
-	if target_url.is_empty():
-		return
-
-	_load_page(target_url)
 
 func _process(_delta: float) -> void:
 	if size == last_known_size:
@@ -382,7 +285,8 @@ func _process(_delta: float) -> void:
 
 	last_known_size = size
 	_refresh_tab_layout_only()
-	
+
+
 func _refresh_tab_layout_only() -> void:
 	if not is_instance_valid(tab_scroll):
 		return

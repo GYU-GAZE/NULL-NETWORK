@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://dfghm5hb81mbt"]
 
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_ocl2t"]
+[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="2_7d4j3"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_egev0"]
 font_size = 42
@@ -66,14 +67,10 @@ theme_override_constants/margin_bottom = 50
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="Control" type="Control" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=1214457294]
-layout_mode = 2
-
 [node name="Label" type="Label" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=316809722]
-custom_minimum_size = Vector2(900, 0)
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 1
+size_flags_vertical = 3
+theme_override_constants/line_spacing = 3
 text = "In the lead-up to the devastating Y2K virus, a mass purge of data opened a rift between the world of man and computers. Now, electronic specters from the digital realm are trying to invade the world of the living!
 
 Gear up with futuristic goggles and photon weaponry that lets you do battle with vicious viruses, woeful worms and apocalyptic A.I. — each one hellbent on overwriting humanity.
@@ -92,6 +89,8 @@ autowrap_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 text = "Get Started"
+script = ExtResource("2_7d4j3")
+target_url = "null.net/getstarted"
 
 [node name="UpdatesBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=914620269]
 unique_name_in_owner = true
@@ -104,8 +103,12 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Message Board
 "
+script = ExtResource("2_7d4j3")
+target_url = "null.net/forums"
 
 [node name="RankingsBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=180985698]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Player Rankings"
+script = ExtResource("2_7d4j3")
+target_url = "null.net/playerrankings"

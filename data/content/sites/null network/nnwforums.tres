@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WebsitePage" format=3 uid="uid://card3ns3hi6ws"]
+
+[ext_resource type="PackedScene" uid="uid://d2wc20x3ldl5k" path="res://apps/forum/forum_app.tscn" id="1_rhv46"]
+[ext_resource type="Script" uid="uid://duyokyo5xmy6y" path="res://data/templates/website_page.gd" id="1_wknwx"]
+
+[resource]
+script = ExtResource("1_wknwx")
+url = "null.net/forums"
+page_title = "/null/ Channel"
+custom_site_scene = ExtResource("1_rhv46")
+metadata/_custom_type_script = "uid://duyokyo5xmy6y"
