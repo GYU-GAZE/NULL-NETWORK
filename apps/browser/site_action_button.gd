@@ -1,6 +1,11 @@
 extends Button
 class_name SiteActionButton
 
+@export_category("Notification")
+@export var show_notification: bool = false
+@export var notification_title: String = ""
+@export_multiline var notification_message: String = ""
+
 signal browser_navigation_requested(url: String)
 
 enum FlagMode {
@@ -71,6 +76,7 @@ func _on_pressed() -> void:
 	_apply_number_action()
 	_apply_single_visibility_action()
 	_apply_multiple_visibility_actions()
+	_apply_notification_action()
 	_apply_navigation_action()
 
 
@@ -192,3 +198,9 @@ func _apply_navigation_action() -> void:
 		return
 
 	browser_navigation_requested.emit(clean_url)
+
+func _apply_notification_action() -> void:
+	if not show_notification:
+		return
+
+	UniversalNotifications.push(notification_title, notification_message)

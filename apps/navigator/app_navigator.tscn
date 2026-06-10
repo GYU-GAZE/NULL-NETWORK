@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://ckvkd6ckteaqr" path="res://apps/navigator/app_navigator.gd" id="1_bqhse"]
 [ext_resource type="Script" uid="uid://c81tcrqrtfpb5" path="res://data/templates/map_location.gd" id="2_h65ck"]
 [ext_resource type="Resource" uid="uid://csosrd43b0u55" path="res://data/content/encounters/AkihabaraLocation.tres" id="3_plepu"]
+[ext_resource type="Script" uid="uid://d1pihqcg2dnkp" path="res://systems/ui/notification_layer.gd" id="4_2eqnt"]
+[ext_resource type="PackedScene" uid="uid://dwopyu1m0pfrm" path="res://systems/ui/notification_toast.tscn" id="5_hm2l6"]
 
 [node name="AppNavigator" type="Panel" unique_id=2140236202]
 script = ExtResource("1_bqhse")
@@ -27,3 +29,19 @@ layout_mode = 2
 [node name="BtnScan" type="Button" parent="HBoxContainer/LocationDetails" unique_id=865560310]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="NavigatorRoot" type="Control" parent="." unique_id=1007701186]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="NotificationLayer" type="Control" parent="NavigatorRoot" unique_id=1298953669]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("4_2eqnt")
+toast_scene = ExtResource("5_hm2l6")

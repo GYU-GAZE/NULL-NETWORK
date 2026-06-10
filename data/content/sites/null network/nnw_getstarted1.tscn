@@ -108,17 +108,12 @@ target_url = "null.net"
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
-[node name="Control2" type="Control" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer" unique_id=1721326422]
+[node name="Control2" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer" unique_id=1623854215]
 layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="IntroductionLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/Control2" unique_id=316809722]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "Hello Cobalt community, my name is Morris and this is a fan project I began back in college in the mid 2000s. Piecing together the source code of Cobalt Blue from decompiled scraps has been one of the most challenging but rewarding experiences of my life. I’ve had a lot of help from all of you along the way, and while it can’t be called a 1 to 1 recreation, I believe we’ve expanded upon Yamada-sensei’s vision in a meaningful way.
@@ -135,12 +130,7 @@ autowrap_mode = 2
 
 [node name="GetStartedLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/Control2" unique_id=1722132267]
 visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "1 Upon starting the game, you will be prompted to enter a player name that is bound to your account. Choose wisely, as this cannot be changed later.
@@ -176,12 +166,7 @@ autowrap_mode = 2
 
 [node name="GlossaryLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/Control2" unique_id=471311050]
 visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 text = "ADMINISTRATOR A player who controls at least 51% of an area’s Data Centers, gaining regional authority and influence. The title varies by region, with players known as “King/Queen,” “Big Brother/Big Sister,” “Daddy/Mommy,” etc., depending on local culture. A player controlling 100% of the Data Centers is called a True Administrator.

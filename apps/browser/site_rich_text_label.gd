@@ -44,6 +44,10 @@ func _run_meta_action(meta_text: String) -> void:
 	# [url=hide:../SecretPanel]Hide node[/url]
 	# [url=toggle_node:../SecretPanel]Toggle node[/url]
 
+	if meta_text.begins_with("notify:"):
+		_run_notification(meta_text.trim_prefix("notify:"))
+		return
+	
 	if meta_text.begins_with("nav:"):
 		_run_navigation(meta_text.trim_prefix("nav:"))
 		return
@@ -165,3 +169,17 @@ func _run_visibility_toggle(path_text: String) -> void:
 
 	var canvas_item: CanvasItem = target_node as CanvasItem
 	canvas_item.visible = not canvas_item.visible
+
+func _run_notification(payload: String) -> void:
+	var parts: PackedStringArray = payload.split("|", false)
+
+	if parts.size() <= 0:
+		return
+
+	var title: String = parts[0].strip_edges()
+	var message: String = ""
+
+	if parts.size() >= 2:
+		message = parts[1].strip_edges()
+
+	UniversalNotifications.push(title, message)
