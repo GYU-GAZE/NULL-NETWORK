@@ -54,6 +54,7 @@ var current_mode: String = "thread_list"
 var current_thread_id: String = ""
 var current_filter: ForumViewFilter = ForumViewFilter.TRENDING
 var current_search_query: String = ""
+var notified_watch_alert_signatures: Dictionary = {}
 
 
 func _ready() -> void:
@@ -581,6 +582,7 @@ func _on_watch_thread_pressed() -> void:
 
 func _on_time_advanced(_period: int, _days_passed: int, _cal_day: int, _cal_month: String) -> void:
 	_refresh_thread_list()
+	_notify_new_watched_thread_alerts()
 	_refresh_alerts_badge()
 
 	if current_mode == "alerts":
@@ -687,3 +689,46 @@ func restore_browser_state(state: Dictionary) -> void:
 
 func _on_post_link_clicked(url: String) -> void:
 	browser_navigation_requested.emit(url)
+
+func _notify_new_watched_thread_alerts() -> void:
+	for data in thread_list:
+		if data == null or data.thread_ref == null:
+			continue
+
+		if not data.is_visible():
+			continue
+
+		if data.is_archived():
+			continue
+
+		var thread: ForumThread = data.thread_ref
+
+		GameState.sync_thread_read_state(
+			thread.thread_id,
+			thread.get_visibility_signature()
+		)
+
+		if not _thread_has_pending_watch_alert(thread):
+			continue
+
+		var notification_key: String = _get_watch_notification_key(thread)
+
+		if notified_watch_alert_signatures.has(notification_key):
+			continue
+
+		notified_watch_alert_signatures[notification_key] = true
+
+		UniversalNotifications.push(
+			thread.get_watched_notification_title(),
+			thread.get_watched_notification_message()
+		)
+
+
+func _get_watch_notification_key(thread: ForumThread) -> String:
+	if thread == null:
+		return ""
+
+	return "%s::%s" % [
+		thread.thread_id,
+		thread.get_visibility_signature()
+	]

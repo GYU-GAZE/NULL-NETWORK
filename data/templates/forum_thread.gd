@@ -34,6 +34,10 @@ enum ThreadCategory {
 @export var last_reply_author: String = ""
 @export var last_reply_time_label: String = ""
 
+@export_category("Notifications")
+@export var watched_notification_title: String = "New watched reply"
+@export_multiline var watched_notification_message: String = "{last_reply_author} replied to {thread_label} {thread_title}."
+
 @export_category("Preview")
 @export_multiline var thread_preview: String = ""
 
@@ -203,6 +207,35 @@ func get_visibility_signature() -> String:
 			parts.append(post.post_id)
 
 	return "|".join(parts)
+
+
+func get_watched_notification_title() -> String:
+	if watched_notification_title.strip_edges().is_empty():
+		return "New watched reply"
+
+	return _format_notification_text(watched_notification_title)
+
+
+func get_watched_notification_message() -> String:
+	if watched_notification_message.strip_edges().is_empty():
+		return _format_notification_text("{last_reply_author} replied to {thread_label} {thread_title}.")
+
+	return _format_notification_text(watched_notification_message)
+
+
+func _format_notification_text(template: String) -> String:
+	var output: String = template
+
+	output = output.replace("{thread_id}", thread_id)
+	output = output.replace("{thread_title}", thread_title)
+	output = output.replace("{thread_label}", get_thread_label_text())
+	output = output.replace("{category}", get_category_label())
+	output = output.replace("{thread_author}", get_thread_author())
+	output = output.replace("{last_reply_author}", get_last_reply_author())
+	output = output.replace("{last_reply_time}", get_last_reply_time_label())
+	output = output.replace("{reply_count}", str(get_reply_count()))
+
+	return output.strip_edges()
 
 
 func matches_search(query: String) -> bool:

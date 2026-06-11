@@ -33,21 +33,6 @@ func _on_meta_clicked(meta: Variant) -> void:
 
 
 func _run_meta_action(meta_text: String) -> void:
-	# Formatos:
-	# [url=nav:null.net/forums]Forums[/url]
-	# [url=flag:read_intro:true]Set true[/url]
-	# [url=flag:read_intro:false]Set false[/url]
-	# [url=toggle_flag:read_intro]Toggle flag[/url]
-	# [url=num:set:intro_clicks:5]Set number[/url]
-	# [url=num:add:intro_clicks:1]Add number[/url]
-	# [url=show:../SecretPanel]Show node[/url]
-	# [url=hide:../SecretPanel]Hide node[/url]
-	# [url=toggle_node:../SecretPanel]Toggle node[/url]
-
-	if meta_text.begins_with("notify:"):
-		_run_notification(meta_text.trim_prefix("notify:"))
-		return
-	
 	if meta_text.begins_with("nav:"):
 		_run_navigation(meta_text.trim_prefix("nav:"))
 		return
@@ -76,7 +61,14 @@ func _run_meta_action(meta_text: String) -> void:
 		_run_visibility_toggle(meta_text.trim_prefix("toggle_node:"))
 		return
 
-	# Fallback: se não tiver prefixo, trata como URL normal.
+	if meta_text.begins_with("notify:"):
+		_run_notification(meta_text.trim_prefix("notify:"))
+		return
+
+	if meta_text.begins_with("alert:"):
+		_run_alert(meta_text.trim_prefix("alert:"))
+		return
+
 	_run_navigation(meta_text)
 
 
@@ -170,6 +162,7 @@ func _run_visibility_toggle(path_text: String) -> void:
 	var canvas_item: CanvasItem = target_node as CanvasItem
 	canvas_item.visible = not canvas_item.visible
 
+
 func _run_notification(payload: String) -> void:
 	var parts: PackedStringArray = payload.split("|", false)
 
@@ -183,3 +176,22 @@ func _run_notification(payload: String) -> void:
 		message = parts[1].strip_edges()
 
 	UniversalNotifications.push(title, message)
+
+
+func _run_alert(payload: String) -> void:
+	var parts: PackedStringArray = payload.split("|", false)
+
+	if parts.size() <= 0:
+		return
+
+	var title: String = parts[0].strip_edges()
+	var message: String = ""
+	var animation: UniversalAlerts.AlertAnimation = UniversalAlerts.AlertAnimation.POP
+
+	if parts.size() >= 2:
+		message = parts[1].strip_edges()
+
+	if parts.size() >= 3:
+		animation = UniversalAlerts.get_animation_from_text(parts[2])
+
+	UniversalAlerts.show_alert(title, message, animation)

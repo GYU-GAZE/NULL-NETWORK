@@ -28,6 +28,7 @@ CombatManager="*uid://dya47f8vc1y21"
 GameState="*uid://bcrfrujoy08hd"
 NetworkUserDatabase="*uid://hgxhi0xngeti"
 UniversalNotifications="*uid://76i2tpbcma6u"
+UniversalAlerts="*uid://c0hyybnt1hst3"
 
 [display]
 

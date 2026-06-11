@@ -76,8 +76,15 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Introduction"
 script = ExtResource("2_ti3e4")
+show_alert_on_failed_condition = true
 nodes_to_show = Array[NodePath]([NodePath("../../Control2/IntroductionLabel")])
 nodes_to_hide = Array[NodePath]([NodePath("../../Control2/GetStartedLabel"), NodePath("../../Control2/GlossaryLabel")])
+show_notification = true
+notification_title = "Eu sou ovoxcelente..."
+notification_message = "Eu sou ovoxcelente..."
+show_alert = true
+alert_title = "Tu é burro mané"
+alert_message = "Burro demais."
 
 [node name="GetStartedBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/HBoxContainer/VBoxContainer" unique_id=921583470]
 unique_name_in_owner = true

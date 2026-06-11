@@ -1,11 +1,6 @@
 extends Button
 class_name SiteActionButton
 
-@export_category("Notification")
-@export var show_notification: bool = false
-@export var notification_title: String = ""
-@export_multiline var notification_message: String = ""
-
 signal browser_navigation_requested(url: String)
 
 enum FlagMode {
@@ -38,6 +33,12 @@ enum FailedConditionBehavior {
 @export var required_flag_value: bool = true
 @export var failed_condition_behavior: FailedConditionBehavior = FailedConditionBehavior.DO_NOTHING
 
+@export_category("Failed Condition Alert")
+@export var show_alert_on_failed_condition: bool = false
+@export var failed_alert_title: String = "Access denied"
+@export_multiline var failed_alert_message: String = "You cannot do that yet."
+@export var failed_alert_animation: UniversalAlerts.AlertAnimation = UniversalAlerts.AlertAnimation.SHAKE
+
 @export_category("Navigation")
 @export var target_url: String = ""
 
@@ -60,6 +61,17 @@ enum FailedConditionBehavior {
 @export var nodes_to_hide: Array[NodePath] = []
 @export var nodes_to_toggle: Array[NodePath] = []
 
+@export_category("Notification")
+@export var show_notification: bool = false
+@export var notification_title: String = ""
+@export_multiline var notification_message: String = ""
+
+@export_category("Alert")
+@export var show_alert: bool = false
+@export var alert_title: String = ""
+@export_multiline var alert_message: String = ""
+@export var alert_animation: UniversalAlerts.AlertAnimation = UniversalAlerts.AlertAnimation.POP
+
 
 func _ready() -> void:
 	if not pressed.is_connected(_on_pressed):
@@ -70,6 +82,7 @@ func _ready() -> void:
 
 func _on_pressed() -> void:
 	if not _is_condition_met():
+		_apply_failed_condition_action()
 		return
 
 	_apply_flag_action()
@@ -77,6 +90,7 @@ func _on_pressed() -> void:
 	_apply_single_visibility_action()
 	_apply_multiple_visibility_actions()
 	_apply_notification_action()
+	_apply_alert_action()
 	_apply_navigation_action()
 
 
@@ -104,6 +118,17 @@ func _apply_condition_visual_state() -> void:
 
 		FailedConditionBehavior.HIDE_BUTTON:
 			visible = false
+
+
+func _apply_failed_condition_action() -> void:
+	if not show_alert_on_failed_condition:
+		return
+
+	UniversalAlerts.show_alert(
+		failed_alert_title,
+		failed_alert_message,
+		failed_alert_animation
+	)
 
 
 func _apply_flag_action() -> void:
@@ -191,6 +216,20 @@ func _apply_visibility_to_node_path(node_path: NodePath, mode: VisibilityMode) -
 			return
 
 
+func _apply_notification_action() -> void:
+	if not show_notification:
+		return
+
+	UniversalNotifications.push(notification_title, notification_message)
+
+
+func _apply_alert_action() -> void:
+	if not show_alert:
+		return
+
+	UniversalAlerts.show_alert(alert_title, alert_message, alert_animation)
+
+
 func _apply_navigation_action() -> void:
 	var clean_url: String = target_url.strip_edges()
 
@@ -198,9 +237,3 @@ func _apply_navigation_action() -> void:
 		return
 
 	browser_navigation_requested.emit(clean_url)
-
-func _apply_notification_action() -> void:
-	if not show_notification:
-		return
-
-	UniversalNotifications.push(notification_title, notification_message)
