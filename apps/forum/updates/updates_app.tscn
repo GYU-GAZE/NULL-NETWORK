@@ -1,0 +1,70 @@
+[gd_scene format=3 uid="uid://nq56sk3ukffg"]
+
+[ext_resource type="Script" uid="uid://bq6a15k4l7udl" path="res://apps/forum/updates/updates_app.gd" id="1_1dfqa"]
+[ext_resource type="PackedScene" uid="uid://cp40s5l33gwv3" path="res://apps/forum/updates/updates_entry_ui.tscn" id="2_l7d1f"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_l7d1f"]
+font_size = 28
+
+[node name="UpdatesApp" type="PanelContainer" unique_id=730512888]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1dfqa")
+entry_ui_scene = ExtResource("2_l7d1f")
+
+[node name="MasterScroll" type="ScrollContainer" parent="." unique_id=416512700]
+layout_mode = 2
+
+[node name="MainMargin" type="MarginContainer" parent="MasterScroll" unique_id=623014344]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="MainVBox" type="VBoxContainer" parent="MasterScroll/MainMargin" unique_id=72866312]
+layout_mode = 2
+
+[node name="HeaderPanel" type="PanelContainer" parent="MasterScroll/MainMargin/MainVBox" unique_id=389800765]
+layout_mode = 2
+
+[node name="HeaderVBox" type="VBoxContainer" parent="MasterScroll/MainMargin/MainVBox/HeaderPanel" unique_id=477899842]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="MasterScroll/MainMargin/MainVBox/HeaderPanel/HeaderVBox" unique_id=1956622938]
+layout_mode = 2
+text = "CHANGELOG"
+label_settings = SubResource("LabelSettings_l7d1f")
+horizontal_alignment = 1
+
+[node name="DescriptionLabel" type="Label" parent="MasterScroll/MainMargin/MainVBox/HeaderPanel/HeaderVBox" unique_id=481901302]
+layout_mode = 2
+text = "x days until the 1.0 update"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="NavBar" type="HBoxContainer" parent="MasterScroll/MainMargin/MainVBox" unique_id=463820350]
+layout_mode = 2
+alignment = 1
+
+[node name="ForumsBtn" type="Button" parent="MasterScroll/MainMargin/MainVBox/NavBar" unique_id=1250127402]
+layout_mode = 2
+text = "Thread List"
+
+[node name="RankingsBtn" type="Button" parent="MasterScroll/MainMargin/MainVBox/NavBar" unique_id=1463923733]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Refresh"
+
+[node name="HomeBtn" type="Button" parent="MasterScroll/MainMargin/MainVBox/NavBar" unique_id=296863575]
+layout_mode = 2
+text = "Thread List"
+
+[node name="EntriesContainer" type="VBoxContainer" parent="MasterScroll/MainMargin/MainVBox" unique_id=2120579094]
+unique_name_in_owner = true
+layout_mode = 2

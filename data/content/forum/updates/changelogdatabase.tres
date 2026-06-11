@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ChangelogDatabase" format=3 uid="uid://c0aed1hoxey60"]
+
+[ext_resource type="Script" uid="uid://dx1qv4pgh8wi5" path="res://data/templates/changelog_entry_data.gd" id="1_7r16l"]
+[ext_resource type="Script" uid="uid://4j1faop7wtpf" path="res://data/templates/changelog_database.gd" id="2_1wv03"]
+
+[resource]
+script = ExtResource("2_1wv03")
+metadata/_custom_type_script = "uid://4j1faop7wtpf"

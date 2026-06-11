@@ -1,16 +1,26 @@
 extends Node
 
+signal flag_changed(flag_name: String, value: bool)
+signal number_changed(var_name: String, value: int)
+signal game_state_changed
+
 var story_flags: Dictionary = {}
 var read_threads: Dictionary = {}
 var watched_threads: Dictionary = {}
 var thread_visibility_signatures: Dictionary = {}
 var numeric_vars: Dictionary = {}
 
+var changelog_read_signature: String = ""
+var notified_changelog_entries: Dictionary = {}
+
+
 func set_flag(flag_name: String, value: bool) -> void:
 	if flag_name.is_empty():
 		return
 
 	story_flags[flag_name] = value
+	flag_changed.emit(flag_name, value)
+	game_state_changed.emit()
 
 
 func get_flag(flag_name: String, default_value: bool = false) -> bool:
@@ -23,6 +33,8 @@ func toggle_flag(flag_name: String) -> bool:
 
 	var new_value: bool = not get_flag(flag_name, false)
 	story_flags[flag_name] = new_value
+	flag_changed.emit(flag_name, new_value)
+	game_state_changed.emit()
 	return new_value
 
 
@@ -122,6 +134,8 @@ func set_number(var_name: String, value: int) -> void:
 		return
 
 	numeric_vars[var_name] = value
+	number_changed.emit(var_name, value)
+	game_state_changed.emit()
 
 
 func add_number(var_name: String, amount: int) -> int:
@@ -130,6 +144,8 @@ func add_number(var_name: String, amount: int) -> int:
 
 	var new_value: int = get_number(var_name) + amount
 	numeric_vars[var_name] = new_value
+	number_changed.emit(var_name, new_value)
+	game_state_changed.emit()
 	return new_value
 
 
@@ -138,3 +154,28 @@ func get_number(var_name: String, default_value: int = 0) -> int:
 		return default_value
 
 	return int(numeric_vars.get(var_name, default_value))
+
+
+func mark_changelog_as_read(visibility_signature: String) -> void:
+	changelog_read_signature = visibility_signature
+
+
+func has_read_changelog_signature(visibility_signature: String) -> bool:
+	if visibility_signature.is_empty():
+		return true
+
+	return changelog_read_signature == visibility_signature
+
+
+func mark_changelog_entry_as_notified(notification_key: String) -> void:
+	if notification_key.is_empty():
+		return
+
+	notified_changelog_entries[notification_key] = true
+
+
+func was_changelog_entry_notified(notification_key: String) -> bool:
+	if notification_key.is_empty():
+		return true
+
+	return notified_changelog_entries.get(notification_key, false)
