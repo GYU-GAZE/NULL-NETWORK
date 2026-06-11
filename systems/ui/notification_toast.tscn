@@ -3,12 +3,9 @@
 [ext_resource type="Script" uid="uid://djltrrynblxyu" path="res://systems/ui/notification_toast.gd" id="1_gvxqv"]
 
 [node name="NotificationToast" type="PanelContainer" unique_id=2042007074]
-custom_minimum_size = Vector2(320, 80)
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+custom_minimum_size = Vector2(100, 40)
+offset_right = 116.0
+offset_bottom = 74.0
 script = ExtResource("1_gvxqv")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=443056733]

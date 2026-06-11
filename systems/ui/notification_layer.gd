@@ -49,6 +49,10 @@ func _try_show_next() -> void:
 	add_child(toast)
 	active_toasts.append(toast)
 
+	toast.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	toast.position = Vector2.ZERO
+	toast.size = toast.get_combined_minimum_size()
+
 	toast.setup(
 		str(data.get("title", "")),
 		str(data.get("message", ""))
@@ -58,6 +62,7 @@ func _try_show_next() -> void:
 		toast.finished.connect(_on_toast_finished)
 
 	await get_tree().process_frame
+	await get_tree().process_frame
 
 	var final_pos: Vector2 = _get_toast_final_position(toast)
 	var hidden_pos: Vector2 = _get_toast_hidden_position(toast, final_pos)
@@ -66,22 +71,33 @@ func _try_show_next() -> void:
 
 
 func _get_toast_final_position(toast: NotificationToast) -> Vector2:
-	var viewport_size: Vector2 = get_viewport_rect().size
+	var layer_size: Vector2 = size
+	var toast_size: Vector2 = toast.size
+
+	if layer_size.x <= 0.0 or layer_size.y <= 0.0:
+		layer_size = get_viewport_rect().size
+
+	if toast_size.x <= 0.0 or toast_size.y <= 0.0:
+		toast_size = toast.get_combined_minimum_size()
+
+	var x: float = layer_size.x - toast_size.x - right_offset
+	var y: float = top_offset
+
+	x = clamp(x, 0.0, max(0.0, layer_size.x - toast_size.x))
+	y = clamp(y, 0.0, max(0.0, layer_size.y - toast_size.y))
+
+	return Vector2(x, y)
+
+
+func _get_toast_hidden_position(toast: NotificationToast, final_pos: Vector2) -> Vector2:
 	var toast_size: Vector2 = toast.size
 
 	if toast_size.x <= 0.0 or toast_size.y <= 0.0:
 		toast_size = toast.get_combined_minimum_size()
 
 	return Vector2(
-		viewport_size.x - toast_size.x - right_offset,
-		top_offset
-	)
-
-
-func _get_toast_hidden_position(toast: NotificationToast, final_pos: Vector2) -> Vector2:
-	return Vector2(
 		final_pos.x,
-		hidden_offset_y
+		-toast_size.y - abs(hidden_offset_y)
 	)
 
 
