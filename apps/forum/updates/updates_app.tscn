@@ -1,70 +1,258 @@
 [gd_scene format=3 uid="uid://nq56sk3ukffg"]
 
-[ext_resource type="Script" uid="uid://bq6a15k4l7udl" path="res://apps/forum/updates/updates_app.gd" id="1_1dfqa"]
-[ext_resource type="PackedScene" uid="uid://cp40s5l33gwv3" path="res://apps/forum/updates/updates_entry_ui.tscn" id="2_l7d1f"]
+[ext_resource type="Script" uid="uid://bxkoo8h0n8e23" path="res://apps/forum/forum_app.gd" id="1_pgwb0"]
+[ext_resource type="Script" uid="uid://dgyj7kryn0aau" path="res://data/templates/thread_button_data.gd" id="2_ubhyg"]
+[ext_resource type="Resource" uid="uid://c000rcbslv3ig" path="res://data/content/forum/buttons/btn_planos_ia.tres" id="3_xlnbm"]
+[ext_resource type="PackedScene" uid="uid://c1eml51sqyj5c" path="res://apps/forum/forum_post_ui.tscn" id="4_bkfqy"]
+[ext_resource type="PackedScene" uid="uid://v0ask2g51gcm" path="res://apps/forum/forum_thread_row_ui.tscn" id="5_48q8w"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_l7d1f"]
-font_size = 28
+[sub_resource type="LabelSettings" id="LabelSettings_jseev"]
+font_size = 42
 
-[node name="UpdatesApp" type="PanelContainer" unique_id=730512888]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("1_1dfqa")
-entry_ui_scene = ExtResource("2_l7d1f")
+[node name="UpdatesApp" type="PanelContainer" unique_id=1643493238]
+offset_right = 1200.0
+offset_bottom = 900.0
+size_flags_horizontal = 3
+script = ExtResource("1_pgwb0")
+thread_list = Array[ExtResource("2_ubhyg")]([ExtResource("3_xlnbm")])
+post_ui_scene = ExtResource("4_bkfqy")
+thread_row_scene = ExtResource("5_48q8w")
+visible_categories = Array[int]([4])
 
-[node name="MasterScroll" type="ScrollContainer" parent="." unique_id=416512700]
+[node name="MasterScroll" type="ScrollContainer" parent="." unique_id=1604201622]
+unique_name_in_owner = true
 layout_mode = 2
+horizontal_scroll_mode = 0
 
-[node name="MainMargin" type="MarginContainer" parent="MasterScroll" unique_id=623014344]
+[node name="PageVBox" type="VBoxContainer" parent="MasterScroll" unique_id=24340731]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+theme_override_constants/separation = 10
 
-[node name="MainVBox" type="VBoxContainer" parent="MasterScroll/MainMargin" unique_id=72866312]
+[node name="MainHeader" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=388077512]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 95)
 layout_mode = 2
 
-[node name="HeaderPanel" type="PanelContainer" parent="MasterScroll/MainMargin/MainVBox" unique_id=389800765]
+[node name="HeaderMargin" type="MarginContainer" parent="MasterScroll/PageVBox/MainHeader" unique_id=348159869]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="HeaderHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin" unique_id=561997673]
 layout_mode = 2
 
-[node name="HeaderVBox" type="VBoxContainer" parent="MasterScroll/MainMargin/MainVBox/HeaderPanel" unique_id=477899842]
+[node name="HeaderSpaceLeft" type="Control" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=1953265723]
+custom_minimum_size = Vector2(180, 0)
 layout_mode = 2
 
-[node name="TitleLabel" type="Label" parent="MasterScroll/MainMargin/MainVBox/HeaderPanel/HeaderVBox" unique_id=1956622938]
+[node name="LogoBlock" type="VBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=391836541]
 layout_mode = 2
-text = "CHANGELOG"
-label_settings = SubResource("LabelSettings_l7d1f")
+size_flags_horizontal = 3
+
+[node name="NullChannelTitle" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=1861507975]
+unique_name_in_owner = true
+layout_mode = 2
+text = "/null/ Channel"
+label_settings = SubResource("LabelSettings_jseev")
 horizontal_alignment = 1
 
-[node name="DescriptionLabel" type="Label" parent="MasterScroll/MainMargin/MainVBox/HeaderPanel/HeaderVBox" unique_id=481901302]
+[node name="NullChannelSubtitle" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=61103580]
+unique_name_in_owner = true
 layout_mode = 2
-text = "x days until the 1.0 update"
+text = "official forum of NULL NETWORK"
 horizontal_alignment = 1
-autowrap_mode = 2
 
-[node name="NavBar" type="HBoxContainer" parent="MasterScroll/MainMargin/MainVBox" unique_id=463820350]
+[node name="UserBlock" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=1403857369]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+
+[node name="UserInfoVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock" unique_id=835395507]
+layout_mode = 2
+
+[node name="LoggedInAsLabel" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=1630577298]
+layout_mode = 2
+text = "LOGGED IN AS:"
+
+[node name="UsernameLabel" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=946064420]
+unique_name_in_owner = true
+layout_mode = 2
+text = "null.guy"
+
+[node name="UserRankLabel" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=1295827378]
+unique_name_in_owner = true
+layout_mode = 2
+text = "#999 Worldwide"
+
+[node name="UserAvatarRect" type="TextureRect" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock" unique_id=97392787]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="MainNavBarPanel" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=494262737]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NavBarMargin" type="MarginContainer" parent="MasterScroll/PageVBox/MainNavBarPanel" unique_id=236034356]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="NavbarHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin" unique_id=537395990]
+modulate = Color(0.25765854, 0.25765854, 0.25765854, 1)
+self_modulate = Color(0.22352941, 0.22352941, 0.22352941, 1)
 layout_mode = 2
 alignment = 1
 
-[node name="ForumsBtn" type="Button" parent="MasterScroll/MainMargin/MainVBox/NavBar" unique_id=1250127402]
-layout_mode = 2
-text = "Thread List"
-
-[node name="RankingsBtn" type="Button" parent="MasterScroll/MainMargin/MainVBox/NavBar" unique_id=1463923733]
+[node name="HomeBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=162773071]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Refresh"
+text = "Home"
 
-[node name="HomeBtn" type="Button" parent="MasterScroll/MainMargin/MainVBox/NavBar" unique_id=296863575]
-layout_mode = 2
-text = "Thread List"
-
-[node name="EntriesContainer" type="VBoxContainer" parent="MasterScroll/MainMargin/MainVBox" unique_id=2120579094]
+[node name="ThreadsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1598627230]
 unique_name_in_owner = true
+layout_mode = 2
+text = "Thread List
+"
+
+[node name="UpdatesBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1440624438]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Changelog
+"
+
+[node name="RankingsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=5661677]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Global Ranking
+"
+
+[node name="NavSpacer" type="Control" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=963956772]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AlertsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1081638203]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Alerts"
+
+[node name="AlertsNotificationBadge" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox/AlertsBtn" unique_id=990522405]
+unique_name_in_owner = true
+visible = false
+layout_direction = 3
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "!"
+icon_alignment = 2
+
+[node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=1833793142]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 50
+
+[node name="ThreadListPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=1195254683]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SearchBarPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage" unique_id=326616070]
+layout_mode = 2
+
+[node name="SearchBarHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel" unique_id=338836288]
+layout_mode = 2
+
+[node name="SearchInput" type="LineEdit" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel/SearchBarHBox" unique_id=772114499]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Search threads, users, or tags..."
+
+[node name="SearchBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel/SearchBarHBox" unique_id=1082947240]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Search"
+
+[node name="ClearSearchBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel/SearchBarHBox" unique_id=529726060]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear"
+
+[node name="ThreadListHeader" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage" unique_id=863783881]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+
+[node name="TypeHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=1918684334]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "TYPE"
+
+[node name="ThreadHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=1628584177]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "THREAD"
+
+[node name="RepliesHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=616873302]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+text = "REPLIES"
+
+[node name="LastReplyHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=731144364]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "LAST REPLY"
+
+[node name="AuthorHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=2072254690]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "AUTHOR"
+
+[node name="ThreadList" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage" unique_id=345993463]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ReaderContainer" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=547838893]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ReaderTopBar" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=1970215264]
+layout_mode = 2
+
+[node name="ReaderTitleLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderTopBar" unique_id=91619794]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ReaderSpacer" type="Control" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderTopBar" unique_id=1189386675]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WatchThreadBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderTopBar" unique_id=255008541]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Watch Thread"
+
+[node name="PostList" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=637423438]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TopNav" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=342336655]
+layout_mode = 2
+
+[node name="AlertsPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=93287149]
+unique_name_in_owner = true
+visible = false
 layout_mode = 2

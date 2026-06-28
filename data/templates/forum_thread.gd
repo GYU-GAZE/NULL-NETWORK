@@ -5,7 +5,8 @@ enum ThreadCategory {
 	GUIDE,
 	RUMOR,
 	HELP,
-	SOCIAL
+	SOCIAL,
+	UPDATE
 }
 
 @export_category("Identity")
@@ -55,6 +56,8 @@ func get_category_label() -> String:
 			return "HELP"
 		ThreadCategory.SOCIAL:
 			return "SOCIAL"
+		ThreadCategory.UPDATE:
+			return "UPDATE"
 
 	return "SOCIAL"
 
@@ -69,6 +72,8 @@ func get_category_icon_text() -> String:
 			return "HLP"
 		ThreadCategory.SOCIAL:
 			return "SOC"
+		ThreadCategory.UPDATE:
+			return "UPD"
 
 	return "SOC"
 
