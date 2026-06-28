@@ -6,7 +6,14 @@
 [ext_resource type="Resource" uid="uid://bp4bnvyj836yd" path="res://data/content/sites/null network/nnwhome.tres" id="4_24ulu"]
 [ext_resource type="Resource" uid="uid://bybyeeei4x1a4" path="res://data/content/sites/null network/nnwrankings.tres" id="5_eo5um"]
 [ext_resource type="Resource" uid="uid://c36aa2wi4cid7" path="res://data/content/sites/null network/nnwgetstarted.tres" id="6_36ugt"]
+[ext_resource type="PackedScene" uid="uid://nq56sk3ukffg" path="res://apps/forum/updates/updates_app.tscn" id="7_24ulu"]
+
+[sub_resource type="Resource" id="Resource_36ugt"]
+script = ExtResource("2_d1bob")
+url = "null.net/updates"
+custom_site_scene = ExtResource("7_24ulu")
+metadata/_custom_type_script = "uid://duyokyo5xmy6y"
 
 [node name="SimulatedDNS" type="Node" unique_id=1524678864]
 script = ExtResource("1_dmleo")
-registered_sites = Array[ExtResource("2_d1bob")]([ExtResource("4_24ulu"), ExtResource("5_eo5um"), ExtResource("3_o7uul"), ExtResource("6_36ugt")])
+registered_sites = Array[ExtResource("2_d1bob")]([ExtResource("4_24ulu"), ExtResource("5_eo5um"), ExtResource("3_o7uul"), ExtResource("6_36ugt"), SubResource("Resource_36ugt")])

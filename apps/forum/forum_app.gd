@@ -37,11 +37,6 @@ enum ForumViewFilter {
 @export var show_rankings_navigation: bool = true
 @export var show_watch_button: bool = true
 
-@export_category("External URLs")
-@export var updates_url: String = "null.net/updates"
-@export var rankings_url: String = "null.net/rankings"
-@export var forums_url: String = "null.net/forums"
-
 @onready var master_scroll: ScrollContainer = %MasterScroll
 
 @onready var thread_list_page: VBoxContainer = %ThreadListPage
@@ -199,12 +194,6 @@ func _apply_feature_visibility() -> void:
 func _connect_main_nav() -> void:
 	if not threads_btn.pressed.is_connected(_on_threads_btn_pressed):
 		threads_btn.pressed.connect(_on_threads_btn_pressed)
-
-	if not updates_btn.pressed.is_connected(_on_updates_btn_pressed):
-		updates_btn.pressed.connect(_on_updates_btn_pressed)
-
-	if not rankings_btn.pressed.is_connected(_on_rankings_btn_pressed):
-		rankings_btn.pressed.connect(_on_rankings_btn_pressed)
 
 	if not alerts_btn.pressed.is_connected(_on_alerts_btn_pressed):
 		alerts_btn.pressed.connect(_on_alerts_btn_pressed)
@@ -848,14 +837,6 @@ func _on_threads_btn_pressed() -> void:
 	_show_thread_list_page()
 	_refresh_thread_list()
 	_refresh_alerts_badge()
-
-
-func _on_updates_btn_pressed() -> void:
-	browser_navigation_requested.emit(updates_url)
-
-
-func _on_rankings_btn_pressed() -> void:
-	browser_navigation_requested.emit(rankings_url)
 
 
 func _on_alerts_btn_pressed() -> void:
