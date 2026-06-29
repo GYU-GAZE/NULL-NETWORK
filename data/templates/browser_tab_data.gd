@@ -3,13 +3,14 @@ class_name BrowserTabData
 
 @export var current_url: String = ""
 @export var page_title: String = "Nova Aba"
+@export var favicon: Texture2D
 
 var history: Array[String] = []
 var history_index: int = -1
 var custom_site_state: Dictionary = {}
 
 
-func navigate_to(url: String, title: String = "") -> void:
+func navigate_to(url: String, title: String = "", icon: Texture2D = null) -> void:
 	if url.is_empty():
 		return
 
@@ -21,10 +22,8 @@ func navigate_to(url: String, title: String = "") -> void:
 
 	current_url = url
 
-	if not title.is_empty():
-		page_title = title
-	else:
-		page_title = url
+	set_page_title(title)
+	set_favicon(icon)
 
 
 func can_go_back() -> bool:
@@ -58,6 +57,10 @@ func set_page_title(title: String) -> void:
 		page_title = current_url
 	else:
 		page_title = title
+
+
+func set_favicon(icon: Texture2D) -> void:
+	favicon = icon
 
 
 func clear_custom_site_state() -> void:

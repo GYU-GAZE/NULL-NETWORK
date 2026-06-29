@@ -1,10 +1,12 @@
 [gd_resource type="Resource" script_class="WebsitePage" format=3 uid="uid://bp4bnvyj836yd"]
 
+[ext_resource type="Texture2D" uid="uid://d1ikfbaxfrmtk" path="res://data/sprites/icons/nnwicon.png" id="2_gpf38"]
 [ext_resource type="PackedScene" uid="uid://dfghm5hb81mbt" path="res://data/content/sites/null network/nnw_homepage.tscn" id="2_p583y"]
 [ext_resource type="Script" uid="uid://duyokyo5xmy6y" path="res://data/templates/website_page.gd" id="3_hh78u"]
 
 [resource]
 script = ExtResource("3_hh78u")
 page_title = "null NETWORK"
+favicon = ExtResource("2_gpf38")
 custom_site_scene = ExtResource("2_p583y")
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"

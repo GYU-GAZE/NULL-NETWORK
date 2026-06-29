@@ -1,9 +1,19 @@
 extends Control
 class_name BrowserApp
 
-
 @export var tab_button_scene: PackedScene
 @export var new_tab_button_scene: PackedScene
+
+@export_category("Favorite Button")
+@export var favorite_add_text: String = "☆"
+@export var favorite_remove_text: String = "★"
+@export var favorite_blocked_text: String = "☆"
+@export var favorite_add_icon: Texture2D
+@export var favorite_remove_icon: Texture2D
+@export var favorite_blocked_icon: Texture2D
+@export var favorite_add_tooltip: String = "Add favorite"
+@export var favorite_remove_tooltip: String = "Remove favorite"
+@export var favorite_blocked_tooltip: String = "This page cannot be favorited"
 
 @onready var tab_button_container: HBoxContainer = %TabButtonContainer
 @onready var new_tab_button_holder: MarginContainer = %NewTabButtonHolder
@@ -12,6 +22,7 @@ class_name BrowserApp
 @onready var url_line_edit: LineEdit = %UrlLineEdit
 @onready var go_button: Button = %GoButton
 @onready var browser_back_btn: Button = %BrowserBackBtn
+@onready var favorite_button: Button = %FavoriteButton
 
 @onready var normal_site_scroll: ScrollContainer = %NormalSiteScroll
 @onready var normal_site_content: VBoxContainer = %NormalSiteContent
@@ -26,8 +37,11 @@ func _ready() -> void:
 	go_button.pressed.connect(_on_go_pressed)
 	url_line_edit.text_submitted.connect(_load_page)
 	browser_back_btn.pressed.connect(_on_browser_back_pressed)
+	favorite_button.pressed.connect(_on_favorite_pressed)
 
-	_create_tab("null.net")
+	_connect_browser_navigation_signals(self)
+
+	_create_tab("home")
 
 
 func _on_go_pressed() -> void:
@@ -45,6 +59,7 @@ func _create_tab(start_url: String = "") -> void:
 		_clear_containers()
 		url_line_edit.text = ""
 		_refresh_tab_buttons()
+		_refresh_favorite_button()
 		return
 
 	_load_page(start_url)
@@ -67,6 +82,7 @@ func _close_tab(tab_index: int) -> void:
 
 	_render_current_tab()
 	_refresh_tab_buttons()
+	_refresh_favorite_button()
 
 
 func _switch_tab(tab_index: int) -> void:
@@ -82,6 +98,7 @@ func _switch_tab(tab_index: int) -> void:
 
 	_render_current_tab()
 	_refresh_tab_buttons()
+	_refresh_favorite_button()
 
 
 func _get_current_tab() -> BrowserTabData:
@@ -110,6 +127,7 @@ func _refresh_tab_buttons() -> void:
 		tab_button.setup(
 			i,
 			tab.page_title,
+			tab.favicon,
 			i == current_tab_index,
 			tabs.size() > 1,
 			tab_width
@@ -120,7 +138,7 @@ func _refresh_tab_buttons() -> void:
 
 	var new_tab_button := new_tab_button_scene.instantiate() as Button
 	new_tab_button.custom_minimum_size.x = 36.0
-	new_tab_button.pressed.connect(func(): _create_tab("null.net"))
+	new_tab_button.pressed.connect(func(): _create_tab("home"))
 	new_tab_button_holder.add_child(new_tab_button)
 
 
@@ -139,11 +157,16 @@ func _load_page(target_url: String, is_history_nav: bool = false) -> void:
 
 	if page != null:
 		tab.set_page_title(page.page_title)
+		tab.set_favicon(page.favicon)
 	else:
 		tab.set_page_title(clean_url)
+		tab.set_favicon(null)
+
+	if page != null and page.record_in_browser_history:
+		GameState.register_browser_visit(clean_url, tab.page_title, tab.favicon)
 
 	if not is_history_nav:
-		tab.navigate_to(clean_url, tab.page_title)
+		tab.navigate_to(clean_url, tab.page_title, tab.favicon)
 	else:
 		tab.current_url = clean_url
 
@@ -151,6 +174,7 @@ func _load_page(target_url: String, is_history_nav: bool = false) -> void:
 
 	_render_url(clean_url)
 	_refresh_tab_buttons()
+	_refresh_favorite_button()
 
 
 func _render_current_tab() -> void:
@@ -160,9 +184,11 @@ func _render_current_tab() -> void:
 
 	if tab.current_url.is_empty():
 		_clear_containers()
+		_refresh_favorite_button()
 		return
 
 	_render_url(tab.current_url)
+	_refresh_favorite_button()
 
 
 func _render_url(target_url: String) -> void:
@@ -176,15 +202,18 @@ func _render_url(target_url: String) -> void:
 
 	var tab := _get_current_tab()
 	tab.set_page_title(page.page_title)
+	tab.set_favicon(page.favicon)
 
 	if page.custom_site_scene == null:
 		tab.clear_custom_site_state()
 		_render_missing_scene_error(page)
 		_refresh_tab_buttons()
+		_refresh_favorite_button()
 		return
 
 	_render_custom_site(page.custom_site_scene, tab.custom_site_state)
 	_refresh_tab_buttons()
+	_refresh_favorite_button()
 
 
 func _on_browser_back_pressed() -> void:
@@ -196,6 +225,7 @@ func _on_browser_back_pressed() -> void:
 
 			if handled_by_app:
 				_save_current_custom_site_state()
+				_refresh_favorite_button()
 				return
 
 	var tab := _get_current_tab()
@@ -205,6 +235,62 @@ func _on_browser_back_pressed() -> void:
 		_load_page(previous_url, true)
 	else:
 		print("Histórico vazio, não há para onde voltar.")
+
+
+func _on_favorite_pressed() -> void:
+	var tab := _get_current_tab()
+
+	if tab.current_url.is_empty():
+		return
+
+	if tab.current_url == "home":
+		return
+
+	GameState.toggle_browser_site_pin(
+		tab.current_url,
+		tab.page_title,
+		tab.favicon
+	)
+
+	_refresh_favorite_button()
+
+
+func _refresh_favorite_button() -> void:
+	if not is_instance_valid(favorite_button):
+		return
+
+	var tab := _get_current_tab()
+
+	if tab.current_url.is_empty() or tab.current_url == "home":
+		_apply_favorite_button_visual(
+			false,
+			favorite_blocked_text,
+			favorite_blocked_icon,
+			favorite_blocked_tooltip
+		)
+		return
+
+	if GameState.is_browser_site_pinned(tab.current_url):
+		_apply_favorite_button_visual(
+			true,
+			favorite_remove_text,
+			favorite_remove_icon,
+			favorite_remove_tooltip
+		)
+	else:
+		_apply_favorite_button_visual(
+			true,
+			favorite_add_text,
+			favorite_add_icon,
+			favorite_add_tooltip
+		)
+
+
+func _apply_favorite_button_visual(enabled: bool, button_text: String, button_icon: Texture2D, tooltip: String) -> void:
+	favorite_button.disabled = not enabled
+	favorite_button.text = button_text
+	favorite_button.icon = button_icon
+	favorite_button.tooltip_text = tooltip
 
 
 func _save_current_custom_site_state() -> void:
@@ -266,17 +352,13 @@ func _render_custom_site(scene: PackedScene, state: Dictionary = {}) -> void:
 
 	_connect_browser_navigation_signals(instance)
 
+	var tab := _get_current_tab()
+
+	if instance.has_method("set_browser_url"):
+		instance.call_deferred("set_browser_url", tab.current_url)
+
 	if instance.has_method("restore_browser_state"):
 		instance.call_deferred("restore_browser_state", state)
-
-
-func _connect_browser_navigation_signals(root: Node) -> void:
-	if root.has_signal("browser_navigation_requested"):
-		if not root.is_connected("browser_navigation_requested", Callable(self, "_load_page")):
-			root.connect("browser_navigation_requested", Callable(self, "_load_page"))
-
-	for child in root.get_children():
-		_connect_browser_navigation_signals(child)
 
 
 func _process(_delta: float) -> void:
@@ -295,8 +377,22 @@ func _refresh_tab_layout_only() -> void:
 	var new_tab_button_width: float = 36.0
 	var tab_bar_margin: float = 24.0
 
-	var total_tabs_width: float = tab_width * float(tabs.size())
+	var tab_count: int = tabs.size()
+	var tab_spacing: float = 0.0
+
+	if is_instance_valid(tab_button_container):
+		tab_spacing = float(tab_button_container.get_theme_constant("separation")) * float(max(0, tab_count - 1))
+
+	var total_tabs_width: float = (tab_width * float(tab_count)) + tab_spacing
 	var max_scroll_width: float = max(200.0, size.x - new_tab_button_width - tab_bar_margin)
 
 	tab_scroll.custom_minimum_size.x = min(total_tabs_width, max_scroll_width)
 	tab_scroll.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+
+func _connect_browser_navigation_signals(root: Node) -> void:
+	if root.has_signal("browser_navigation_requested"):
+		if not root.is_connected("browser_navigation_requested", Callable(self, "_load_page")):
+			root.connect("browser_navigation_requested", Callable(self, "_load_page"))
+
+	for child in root.get_children():
+		_connect_browser_navigation_signals(child)

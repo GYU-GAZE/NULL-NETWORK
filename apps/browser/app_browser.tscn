@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cwms4o3bngg47" path="res://apps/browser/browser.gd" id="1_mufrk"]
 [ext_resource type="PackedScene" uid="uid://c15t5fwjule8g" path="res://apps/browser/browser_tab_button.tscn" id="2_4noms"]
 [ext_resource type="PackedScene" uid="uid://br0t7kf5rrafw" path="res://apps/browser/browser_new_tab_button.tscn" id="3_fx11j"]
+[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="4_kj561"]
 [ext_resource type="Script" uid="uid://bre1yc202tlqa" path="res://systems/ui/alert_layer.gd" id="4_rgo1m"]
 [ext_resource type="PackedScene" uid="uid://dlkm01xdtlvo2" path="res://systems/ui/alert_box.tscn" id="5_l1ivm"]
 
@@ -62,6 +63,12 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "<"
 
+[node name="HomeBtn" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=1371956060]
+layout_mode = 2
+text = "H"
+script = ExtResource("4_kj561")
+target_url = "home"
+
 [node name="UrlLineEdit" type="LineEdit" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=93702499]
 unique_name_in_owner = true
 layout_mode = 2
@@ -71,6 +78,12 @@ size_flags_horizontal = 3
 unique_name_in_owner = true
 layout_mode = 2
 text = "Ir"
+
+[node name="FavoriteButton" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=251522193]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Add Favorite"
+text = "☆"
 
 [node name="Divider" type="HSeparator" parent="MainVBox" unique_id=831126565]
 layout_mode = 2

@@ -13,18 +13,29 @@ enum UserRole {
 @export var user_id: String = ""
 @export var display_name: String = "Anonymous"
 @export var avatar: Texture2D
+@export var profile_banner: Texture2D
 
 @export_category("Profile")
 @export var title: String = "Newbie"
 @export var rank_label: String = ""
 @export var location: String = "Unknown"
 @export var role: UserRole = UserRole.USER
+@export var joined_label: String = "Unknown"
+@export var last_seen_label: String = "Unknown"
+@export var status_message: String = ""
+@export var personal_site_url: String = ""
+
+@export_category("Social")
+@export var friend_users: Array[NetworkUserData] = []
 
 @export_category("NULL NETWORK Stats")
 @export var global_rank: int = 999
 @export var score: int = 0
 @export var level: int = 1
 @export var partner_apk_name: String = "???"
+@export var reputation: int = 0
+@export var total_posts: int = 0
+@export var total_threads: int = 0
 
 @export_category("Server")
 @export var server_name: String = "Unknown"
@@ -35,7 +46,9 @@ enum UserRole {
 @export var is_known_to_player: bool = true
 
 @export_category("Flavor")
-@export_multiline var bio: String = ""
+@export_multiline var bio_bbcode: String = ""
+@export_multiline var signature_bbcode: String = ""
+@export var profile_tags: Array[String] = []
 
 
 func get_display_title() -> String:
@@ -54,6 +67,9 @@ func get_display_title() -> String:
 
 
 func get_global_rank_label() -> String:
+	if global_rank <= 0:
+		return "Unranked"
+
 	return "#%d" % global_rank
 
 
@@ -76,6 +92,31 @@ func get_profile_url() -> String:
 		return ""
 
 	return "null.net/profile/%s" % user_id
+
+
+func get_bio_bbcode() -> String:
+	if not bio_bbcode.strip_edges().is_empty():
+		return bio_bbcode
+
+	return "[i]No bio available.[/i]"
+
+
+func get_signature_bbcode() -> String:
+	return signature_bbcode.strip_edges()
+
+
+func get_status_label() -> String:
+	if status_message.strip_edges().is_empty():
+		return "No status."
+
+	return status_message.strip_edges()
+
+
+func get_personal_site_label() -> String:
+	if personal_site_url.strip_edges().is_empty():
+		return ""
+
+	return personal_site_url.strip_edges()
 
 
 func is_moderator() -> bool:

@@ -4,6 +4,7 @@ class_name BrowserTabButton
 signal tab_selected(tab_index: int)
 signal tab_close_requested(tab_index: int)
 
+@onready var favicon_rect: TextureRect = %FaviconRect
 @onready var title_button: Button = %TitleButton
 @onready var close_button: Button = %CloseButton
 
@@ -16,12 +17,18 @@ func _ready() -> void:
 	close_button.pressed.connect(_on_close_pressed)
 
 
-func setup(index: int, title: String, active: bool, can_close: bool, tab_width: float) -> void:
+func setup(index: int, title: String, icon: Texture2D, active: bool, can_close: bool, tab_width: float) -> void:
 	tab_index = index
 	is_active = active
 
 	custom_minimum_size.x = tab_width
 	size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+
+	favicon_rect.texture = icon
+	favicon_rect.visible = icon != null
+	favicon_rect.custom_minimum_size = Vector2(16, 16)
+	favicon_rect.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	favicon_rect.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
 	title_button.text = title
 	title_button.disabled = active

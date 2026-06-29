@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WebsitePage" format=3 uid="uid://bcswsoee3jx6u"]
+
+[ext_resource type="Script" uid="uid://duyokyo5xmy6y" path="res://data/templates/website_page.gd" id="1_23qss"]
+[ext_resource type="PackedScene" uid="uid://dpqjvq0f6i10h" path="res://apps/forum/profile/profile_app.tscn" id="1_ufgo1"]
+
+[resource]
+script = ExtResource("1_23qss")
+url = "null.net/profile/GANBAREkun"
+page_title = "TENYA Profile"
+custom_site_scene = ExtResource("1_ufgo1")
+metadata/_custom_type_script = "uid://duyokyo5xmy6y"

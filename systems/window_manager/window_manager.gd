@@ -129,6 +129,13 @@ func _apply_saved_or_default_window_state(app_id: String, window: WindowBase) ->
 
 
 func _save_window_state(app_id: String, window: WindowBase) -> void:
+	if window.is_maximized:
+		saved_window_states[app_id] = {
+			"position": window.restore_position,
+			"size": window.restore_size
+		}
+		return
+
 	saved_window_states[app_id] = {
 		"position": window.position,
 		"size": window.size

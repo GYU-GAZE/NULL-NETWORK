@@ -9,6 +9,12 @@ script = ExtResource("1_xj1nm")
 [node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1111365720]
 layout_mode = 2
 
+[node name="FaviconRect" type="TextureRect" parent="HBoxContainer" unique_id=1370919824]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+stretch_mode = 5
+
 [node name="TitleButton" type="Button" parent="HBoxContainer" unique_id=1539831087]
 unique_name_in_owner = true
 layout_mode = 2
