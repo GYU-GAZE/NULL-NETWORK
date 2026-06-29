@@ -27,6 +27,4 @@ metadata/_custom_type_script = "uid://dtfyctp720emx"
 script = ExtResource("2_r0jvr")
 author = SubResource("Resource_pmg47")
 is_op = true
-is_moderator = true
-is_system_post = true
 metadata/_custom_type_script = "uid://blxdqibocgs5x"

@@ -16,24 +16,11 @@ enum ThreadCategory {
 @export var thread_category: ThreadCategory = ThreadCategory.SOCIAL
 @export var thread_tags: Array[String] = []
 
-@export_category("Legacy Compatibility")
-@export var board_name: String = "General"
-
-@export_category("Fallback Author")
-@export var thread_author: String = "Anonymous"
-@export var author_rank: String = "Newbie"
-@export var author_title: String = ""
-
 @export_category("Thread State")
 @export var is_pinned: bool = false
 @export var is_locked: bool = false
 @export var is_archived: bool = false
 @export var popularity_score: int = 0
-
-@export_category("Activity Fallback")
-@export var reply_count: int = 0
-@export var last_reply_author: String = ""
-@export var last_reply_time_label: String = ""
 
 @export_category("Notifications")
 @export var watched_notification_title: String = "New watched reply"
@@ -125,58 +112,51 @@ func get_last_post() -> ForumPost:
 func get_thread_author() -> String:
 	var author_post: ForumPost = get_author_post()
 
-	if author_post != null:
-		return author_post.get_username()
+	if author_post == null:
+		return "Unknown User"
 
-	return thread_author
+	return author_post.get_username()
 
 
 func get_thread_author_title() -> String:
 	var author_post: ForumPost = get_author_post()
 
-	if author_post != null:
-		return author_post.get_display_title()
+	if author_post == null:
+		return "Unknown"
 
-	if author_title.is_empty():
-		return author_rank
-
-	return "%s | %s" % [author_rank, author_title]
+	return author_post.get_display_title()
 
 
 func get_reply_count() -> int:
 	var visible_posts: Array[ForumPost] = get_visible_posts()
 
-	if not visible_posts.is_empty():
-		return max(0, visible_posts.size() - 1)
+	if visible_posts.is_empty():
+		return 0
 
-	if reply_count > 0:
-		return reply_count
-
-	return 0
+	return max(0, visible_posts.size() - 1)
 
 
 func get_last_reply_author() -> String:
-	var last_post: ForumPost = get_last_post()
+	var visible_posts: Array[ForumPost] = get_visible_posts()
 
-	if last_post != null:
-		return last_post.get_username()
+	if visible_posts.size() >= 2:
+		return visible_posts[visible_posts.size() - 1].get_username()
 
-	if not last_reply_author.is_empty():
-		return last_reply_author
+	var author_post: ForumPost = get_author_post()
 
-	return get_thread_author()
+	if author_post != null:
+		return author_post.get_username()
+
+	return "Unknown User"
 
 
 func get_last_reply_time_label() -> String:
 	var last_post: ForumPost = get_last_post()
 
-	if last_post != null:
-		return last_post.get_time_label()
+	if last_post == null:
+		return ""
 
-	if not last_reply_time_label.is_empty():
-		return last_reply_time_label
-
-	return ""
+	return last_post.get_time_label()
 
 
 func get_preview_text() -> String:
@@ -256,9 +236,6 @@ func matches_search(query: String) -> bool:
 		return true
 
 	if get_category_label().to_lower().contains(normalized_query):
-		return true
-
-	if board_name.to_lower().contains(normalized_query):
 		return true
 
 	if get_thread_author().to_lower().contains(normalized_query):

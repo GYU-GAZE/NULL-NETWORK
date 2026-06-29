@@ -9,20 +9,13 @@ enum ThreadPeriod {
 @export_category("Author")
 @export var author: NetworkUserData
 
-@export_category("Legacy User Profile Fallback")
-@export var avatar: Texture2D
-@export var username: String = "Anonymous"
-@export var user_rank: String = "Newbie"
-@export var user_title: String = "Newbie"
-@export var location: String = "Unknown"
-
 @export_category("Post Metadata")
 @export var post_id: String = ""
 @export var time_label_override: String = ""
 @export var edited_label: String = ""
 @export var is_op: bool = false
-@export var is_moderator: bool = false
-@export var is_system_post: bool = false
+@export var is_moderator_override: bool = false
+@export var is_system_post_override: bool = false
 
 @export_category("Post Lifecycle / Timestamp")
 @export var release_day: int = 1
@@ -37,62 +30,51 @@ enum ThreadPeriod {
 
 
 func get_avatar() -> Texture2D:
-	if author != null and author.avatar != null:
-		return author.avatar
+	if author == null:
+		return null
 
-	return avatar
+	return author.avatar
 
 
 func get_username() -> String:
-	if author != null:
-		return author.display_name
+	if author == null:
+		return "Unknown User"
 
-	return username
+	return author.display_name
 
 
 func get_user_location() -> String:
-	if author != null:
-		return author.location
+	if author == null:
+		return "Unknown"
 
-	return location
+	return author.location
 
 
 func get_display_title() -> String:
-	if author != null:
-		return author.get_display_title()
+	if author == null:
+		return "Unknown"
 
-	var lines: Array[String] = []
-
-	if not user_title.is_empty():
-		lines.append(user_title)
-
-	if not user_rank.is_empty() and user_rank != user_title:
-		lines.append(user_rank)
-
-	if lines.is_empty():
-		return "Newbie"
-
-	return "\n".join(lines)
+	return author.get_display_title()
 
 
 func is_author_moderator() -> bool:
-	if is_moderator:
+	if is_moderator_override:
 		return true
 
-	if author != null:
-		return author.is_moderator()
+	if author == null:
+		return false
 
-	return false
+	return author.is_moderator()
 
 
 func is_author_system() -> bool:
-	if is_system_post:
+	if is_system_post_override:
 		return true
 
-	if author != null:
-		return author.is_system()
+	if author == null:
+		return false
 
-	return false
+	return author.is_system()
 
 
 func get_time_label() -> String:

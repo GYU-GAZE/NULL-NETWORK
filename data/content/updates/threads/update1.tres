@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="ForumThread" format=3 uid="uid://vqbj7050dtjk"]
 
 [ext_resource type="Script" uid="uid://blxdqibocgs5x" path="res://data/templates/forum_post.gd" id="1_ph2tc"]
+[ext_resource type="Resource" uid="uid://bpq7yx8q1did3" path="res://data/content/updates/threads/update1post.tres" id="2_7nios"]
 [ext_resource type="Script" uid="uid://csyarr4wn3qlx" path="res://data/templates/forum_thread.gd" id="2_q8fyk"]
 
 [resource]
@@ -9,4 +10,5 @@ thread_id = "update1"
 thread_title = "CHANGELOG: 0.9.1 ver"
 thread_label = "changelog"
 thread_category = 4
+posts = Array[ExtResource("1_ph2tc")]([ExtResource("2_7nios")])
 metadata/_custom_type_script = "uid://csyarr4wn3qlx"
