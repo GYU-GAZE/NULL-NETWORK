@@ -5,6 +5,7 @@
 [ext_resource type="Resource" uid="uid://c000rcbslv3ig" path="res://data/content/forum/buttons/btn_planos_ia.tres" id="3_441rv"]
 [ext_resource type="PackedScene" uid="uid://c1eml51sqyj5c" path="res://apps/forum/forum_post_ui.tscn" id="4_2d478"]
 [ext_resource type="PackedScene" uid="uid://v0ask2g51gcm" path="res://apps/forum/forum_thread_row_ui.tscn" id="5_jseev"]
+[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="6_chltv"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_jseev"]
 font_size = 42
@@ -113,24 +114,32 @@ alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 text = "Home"
+script = ExtResource("6_chltv")
+target_url = "null.net"
 
 [node name="ThreadsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1598627230]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Thread List
 "
+script = ExtResource("6_chltv")
+target_url = "null.net/forums"
 
 [node name="UpdatesBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1440624438]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Changelog
 "
+script = ExtResource("6_chltv")
+target_url = "null.net/updates"
 
 [node name="RankingsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=5661677]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Global Ranking
 "
+script = ExtResource("6_chltv")
+target_url = "null.net/playerrankings"
 
 [node name="NavSpacer" type="Control" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=963956772]
 layout_mode = 2

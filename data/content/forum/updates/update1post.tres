@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ForumPost" format=3 uid="uid://bpq7yx8q1did3"]
+
+[ext_resource type="Script" uid="uid://cgcematgxdayk" path="res://data/templates/condition_data.gd" id="1_o3tb8"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_pmg47"]
+[ext_resource type="Script" uid="uid://dtfyctp720emx" path="res://data/templates/network_user_data.gd" id="1_r0jvr"]
+[ext_resource type="Script" uid="uid://blxdqibocgs5x" path="res://data/templates/forum_post.gd" id="2_r0jvr"]
+
+[sub_resource type="Resource" id="Resource_pmg47"]
+script = ExtResource("1_r0jvr")
+user_id = "TENYA"
+display_name = "TENYA!"
+avatar = ExtResource("1_pmg47")
+title = "Administrator"
+rank_label = "Top 3 Worldwide"
+location = "Tokyo, Japan"
+role = 1
+global_rank = 3
+score = 700000
+level = 53
+partner_apk_name = "HUBBIE"
+server_name = "Japan"
+server_flag_icon = ExtResource("1_pmg47")
+is_known_to_player = false
+metadata/_custom_type_script = "uid://dtfyctp720emx"
+
+[resource]
+script = ExtResource("2_r0jvr")
+author = SubResource("Resource_pmg47")
+is_op = true
+is_moderator = true
+is_system_post = true
+metadata/_custom_type_script = "uid://blxdqibocgs5x"

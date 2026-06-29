@@ -97,6 +97,8 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Changelog
 "
+script = ExtResource("2_7d4j3")
+target_url = "null.net/updates"
 
 [node name="ThreadsBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=921583470]
 unique_name_in_owner = true

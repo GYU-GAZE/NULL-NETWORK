@@ -11,6 +11,7 @@
 [sub_resource type="Resource" id="Resource_36ugt"]
 script = ExtResource("2_d1bob")
 url = "null.net/updates"
+page_title = "Updates"
 custom_site_scene = ExtResource("7_24ulu")
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"
 
