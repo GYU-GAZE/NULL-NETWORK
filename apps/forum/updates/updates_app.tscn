@@ -1,8 +1,6 @@
 [gd_scene format=3 uid="uid://nq56sk3ukffg"]
 
 [ext_resource type="Script" uid="uid://bxkoo8h0n8e23" path="res://apps/forum/forum_app.gd" id="1_pgwb0"]
-[ext_resource type="Script" uid="uid://dgyj7kryn0aau" path="res://data/templates/thread_button_data.gd" id="2_ubhyg"]
-[ext_resource type="Resource" uid="uid://c000rcbslv3ig" path="res://data/content/forum/buttons/btn_planos_ia.tres" id="3_xlnbm"]
 [ext_resource type="PackedScene" uid="uid://c1eml51sqyj5c" path="res://apps/forum/forum_post_ui.tscn" id="4_bkfqy"]
 [ext_resource type="PackedScene" uid="uid://v0ask2g51gcm" path="res://apps/forum/forum_thread_row_ui.tscn" id="5_48q8w"]
 [ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="6_ubhyg"]
@@ -10,12 +8,12 @@
 [sub_resource type="LabelSettings" id="LabelSettings_jseev"]
 font_size = 42
 
-[node name="ForumApp" type="PanelContainer" unique_id=1643493238]
+[node name="UpdatesApp" type="PanelContainer" unique_id=1643493238]
 offset_right = 1200.0
 offset_bottom = 900.0
 size_flags_horizontal = 3
 script = ExtResource("1_pgwb0")
-thread_list = Array[ExtResource("2_ubhyg")]([ExtResource("3_xlnbm")])
+thread_data_folders = Array[String](["res://data/content/updates/threads"])
 post_ui_scene = ExtResource("4_bkfqy")
 thread_row_scene = ExtResource("5_48q8w")
 visible_categories = Array[int]([4])
