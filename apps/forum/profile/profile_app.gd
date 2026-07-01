@@ -244,16 +244,18 @@ func _rebuild_friends_preview() -> void:
 	if current_user == null:
 		return
 
-	friends_preview_title_label.text = "FRIENDS (%d)" % current_user.friend_users.size()
+	var friends: Array[NetworkUserData] = _get_current_user_friends()
 
-	if current_user.friend_users.is_empty():
+	friends_preview_title_label.text = "FRIENDS (%d)" % friends.size()
+
+	if friends.is_empty():
 		_add_empty_label(friends_preview_grid, "No friends listed.")
 		return
 
-	var count: int = min(max_friends_preview, current_user.friend_users.size())
+	var count: int = min(max_friends_preview, friends.size())
 
 	for i in range(count):
-		var friend: NetworkUserData = current_user.friend_users[i]
+		var friend: NetworkUserData = friends[i]
 
 		if friend == null:
 			continue
@@ -267,13 +269,15 @@ func _rebuild_full_friends() -> void:
 	if current_user == null:
 		return
 
-	friends_title_label.text = "FRIENDS (%d)" % current_user.friend_users.size()
+	var friends: Array[NetworkUserData] = _get_current_user_friends()
 
-	if current_user.friend_users.is_empty():
+	friends_title_label.text = "FRIENDS (%d)" % friends.size()
+
+	if friends.is_empty():
 		_add_empty_label(friends_grid, "No friends listed.")
 		return
 
-	for friend in current_user.friend_users:
+	for friend in friends:
 		if friend == null:
 			continue
 
@@ -491,3 +495,10 @@ func _add_empty_label(container: Control, message: String) -> void:
 func _clear_container(container: Control) -> void:
 	for child in container.get_children():
 		child.queue_free()
+
+func _get_current_user_friends() -> Array[NetworkUserData]:
+	if current_user == null:
+		return []
+
+	return NetworkUserDatabase.get_resolved_friends_for_user(current_user)
+	
