@@ -15,12 +15,21 @@ func _sanitize_url(raw_url: String) -> String:
 # A busca real que o Browser vai chamar:
 func fetch_page(url: String) -> WebsitePage:
 	var target_url = _sanitize_url(url)
-	
+
 	for site in registered_sites:
-		if _sanitize_url(site.url) == target_url:
-			return site
-			
-	# Se não achou nada, devolve o 403 ou nulo
+		if site == null:
+			continue
+
+		var site_url: String = _sanitize_url(site.url)
+
+		if site.match_as_prefix:
+			if target_url.begins_with(site_url):
+				return site
+		else:
+			if site_url == target_url:
+				return site
+
 	if error_403_page:
 		return error_403_page
+
 	return null

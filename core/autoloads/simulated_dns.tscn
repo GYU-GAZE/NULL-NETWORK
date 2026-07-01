@@ -8,7 +8,7 @@
 [ext_resource type="Resource" uid="uid://c36aa2wi4cid7" path="res://data/content/sites/null network/nnwgetstarted.tres" id="6_36ugt"]
 [ext_resource type="PackedScene" uid="uid://nq56sk3ukffg" path="res://apps/forum/updates/updates_app.tscn" id="7_24ulu"]
 [ext_resource type="Resource" uid="uid://cjbmn36b8oupn" path="res://data/content/sites/browser_home.tres" id="8_l8h8g"]
-[ext_resource type="Resource" uid="uid://bcswsoee3jx6u" path="res://data/content/sites/null network/profile_test.tres" id="9_1mm3y"]
+[ext_resource type="Resource" uid="uid://dar3oj54yqmh7" path="res://data/content/users/-UserProfiles.tres" id="9_1mm3y"]
 
 [sub_resource type="Resource" id="Resource_36ugt"]
 script = ExtResource("2_d1bob")

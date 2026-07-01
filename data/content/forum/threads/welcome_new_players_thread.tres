@@ -3,17 +3,11 @@
 [ext_resource type="Script" uid="uid://blxdqibocgs5x" path="res://data/templates/forum_post.gd" id="1_wjhpy"]
 [ext_resource type="Resource" uid="uid://dqcx6fntqnfmx" path="res://data/content/users/GANBAREkun.tres" id="2_a7hnc"]
 [ext_resource type="Script" uid="uid://csyarr4wn3qlx" path="res://data/templates/forum_thread.gd" id="2_fv5a7"]
-[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="3_gk5kf"]
 [ext_resource type="Script" uid="uid://cgcematgxdayk" path="res://data/templates/condition_data.gd" id="3_roit0"]
 
 [sub_resource type="Resource" id="Resource_gk5kf"]
 script = ExtResource("1_wjhpy")
 author = ExtResource("2_a7hnc")
-avatar = ExtResource("3_gk5kf")
-username = "LORDSAVIOUR"
-user_rank = "#20 Worldwide"
-user_title = "Moderator"
-location = "Tokyo, Japan"
 post_id = "1"
 is_op = true
 release_day = -3
@@ -63,11 +57,6 @@ metadata/_custom_type_script = "uid://blxdqibocgs5x"
 [sub_resource type="Resource" id="Resource_fv5a7"]
 script = ExtResource("1_wjhpy")
 author = ExtResource("2_a7hnc")
-avatar = ExtResource("3_gk5kf")
-username = "Dark."
-user_rank = "Top #2 Ranker"
-user_title = "Moderator"
-location = "Tokyo, Japan"
 post_id = "2"
 release_action_block = 1
 text_content = "Well, it’s that time of year where somebody starts spamming the site URL across the internet and we get a mild influx of new users. I would say ‘welcome’, but you are not. Ask redundant questions without using the search function and the auto-moderator will cuck you to death, as is deserved. Consider this an FAQ:
@@ -121,13 +110,8 @@ thread_id = "welcome_new_players"
 thread_title = "WELCOME, NEW PLAYERS"
 thread_category = 1
 thread_tags = Array[String](["guide", "new", "welcome"])
-board_name = "Guides"
-thread_author = "VIVICTORYAY!"
-author_rank = "#23 Worldwide"
-author_title = "Moderator"
 is_pinned = true
 popularity_score = 999
-reply_count = 2
 thread_preview = "Welcome to you all!"
 posts = Array[ExtResource("1_wjhpy")]([SubResource("Resource_gk5kf"), SubResource("Resource_fv5a7")])
 metadata/_custom_type_script = "uid://csyarr4wn3qlx"

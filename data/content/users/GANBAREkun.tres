@@ -1,7 +1,9 @@
 [gd_resource type="Resource" script_class="NetworkUserData" format=3 uid="uid://dqcx6fntqnfmx"]
 
 [ext_resource type="Script" uid="uid://dtfyctp720emx" path="res://data/templates/network_user_data.gd" id="1_ra1py"]
+[ext_resource type="Resource" uid="uid://cmfowidu6no38" path="res://data/content/users/Neetzsche.tres" id="2_4p0ex"]
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="2_xf4wy"]
+[ext_resource type="Resource" uid="uid://bdh72b0wuxe67" path="res://data/content/users/penguinsenior.tres" id="3_4p0ex"]
 
 [resource]
 script = ExtResource("1_ra1py")
@@ -10,6 +12,7 @@ display_name = "GANBAREkun"
 title = "The humble hero!"
 rank_label = "TOP #2 WORLDWIDE"
 location = "Tokyo, Japan"
+friend_users = Array[ExtResource("1_ra1py")]([ExtResource("2_4p0ex"), ExtResource("3_4p0ex")])
 global_rank = 2
 score = 6703928
 level = 50
@@ -18,5 +21,4 @@ server_name = "Japan"
 server_flag_icon = ExtResource("2_xf4wy")
 is_player = true
 is_known_to_player = false
-bio = "My anus is peenus weanus"
 metadata/_custom_type_script = "uid://dtfyctp720emx"

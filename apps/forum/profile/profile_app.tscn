@@ -1,265 +1,469 @@
 [gd_scene format=3 uid="uid://dpqjvq0f6i10h"]
 
 [ext_resource type="Script" uid="uid://detf37teq40nv" path="res://apps/forum/profile/profile_app.gd" id="1_ho3n6"]
+[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="2_xhibo"]
 
-[node name="ProfileApp" type="Control" unique_id=799052716]
-layout_mode = 3
+[sub_resource type="LabelSettings" id="LabelSettings_xhibo"]
+font_size = 42
+
+[node name="ProfileApp" type="PanelContainer" unique_id=738199959]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+size_flags_horizontal = 3
 script = ExtResource("1_ho3n6")
 default_user_id = "GANBAREkun"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=751437843]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="MasterScroll" type="ScrollContainer" parent="." unique_id=1280918357]
+unique_name_in_owner = true
+layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer" unique_id=1137476970]
+[node name="PageVBox" type="VBoxContainer" parent="MasterScroll" unique_id=386130478]
 layout_mode = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 40
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
 
-[node name="MainVBox" type="VBoxContainer" parent="ScrollContainer/MarginContainer" unique_id=1152494083]
+[node name="MainHeader" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=1230557343]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 95)
 layout_mode = 2
+
+[node name="HeaderMargin" type="MarginContainer" parent="MasterScroll/PageVBox/MainHeader" unique_id=1045317758]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="HeaderHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin" unique_id=1273363157]
+layout_mode = 2
+
+[node name="HeaderSpaceLeft" type="Control" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=1657143796]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+
+[node name="LogoBlock" type="VBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=439292823]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NullChannelTitle" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=835273566]
+unique_name_in_owner = true
+layout_mode = 2
+text = "/null/ Channel"
+label_settings = SubResource("LabelSettings_xhibo")
+horizontal_alignment = 1
+
+[node name="NullChannelSubtitle" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=149681298]
+unique_name_in_owner = true
+layout_mode = 2
+text = "official forum of NULL NETWORK"
+horizontal_alignment = 1
+
+[node name="UserBlock" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=616463964]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+
+[node name="UserInfoVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock" unique_id=1352741599]
+layout_mode = 2
+
+[node name="LoggedInAsLabel" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=2118220568]
+layout_mode = 2
+text = "LOGGED IN AS:"
+
+[node name="UsernameLabel" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=1841918195]
+unique_name_in_owner = true
+layout_mode = 2
+text = "null.guy"
+
+[node name="UserRankLabel" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=1881570879]
+unique_name_in_owner = true
+layout_mode = 2
+text = "#999 Worldwide"
+
+[node name="UserAvatarRect" type="TextureRect" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock" unique_id=1265088338]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="MainNavBarPanel" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=1612509941]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NavBarMargin" type="MarginContainer" parent="MasterScroll/PageVBox/MainNavBarPanel" unique_id=1304779700]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="NavbarHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin" unique_id=165436930]
+modulate = Color(0.25765854, 0.25765854, 0.25765854, 1)
+self_modulate = Color(0.22352941, 0.22352941, 0.22352941, 1)
+layout_mode = 2
+alignment = 1
+
+[node name="HomeBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1074610668]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Home"
+script = ExtResource("2_xhibo")
+target_url = "null.net"
+
+[node name="ThreadsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1450686663]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Thread List
+"
+script = ExtResource("2_xhibo")
+target_url = "null.net/forums"
+
+[node name="UpdatesBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=643525862]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Changelog
+"
+script = ExtResource("2_xhibo")
+target_url = "null.net/updates"
+
+[node name="RankingsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1790978208]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Global Ranking
+"
+script = ExtResource("2_xhibo")
+target_url = "null.net/playerrankings"
+
+[node name="NavSpacer" type="Control" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=471928984]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AlertsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=388834737]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Alerts"
+
+[node name="AlertsNotificationBadge" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox/AlertsBtn" unique_id=919181101]
+unique_name_in_owner = true
+visible = false
+layout_direction = 3
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "!"
+icon_alignment = 2
+
+[node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=627646694]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 50
+
+[node name="ProfilePage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=2066119615]
+layout_mode = 2
+
+[node name="ProfileMainHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage" unique_id=798534326]
+layout_mode = 2
+size_flags_vertical = 3
 theme_override_constants/separation = 12
 
-[node name="HeaderPanel" type="PanelContainer" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=611530149]
+[node name="LeftProfilePanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox" unique_id=1510089706]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="LeftProfileMargin" type="MarginContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel" unique_id=843264977]
 layout_mode = 2
 
-[node name="HeaderVBox" type="VBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox/HeaderPanel" unique_id=1110747851]
+[node name="LeftProfileVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin" unique_id=1544287546]
 layout_mode = 2
 
-[node name="BannerRect" type="TextureRect" parent="ScrollContainer/MarginContainer/MainVBox/HeaderPanel/HeaderVBox" unique_id=384404974]
+[node name="IdentityHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox" unique_id=852197016]
+layout_mode = 2
+
+[node name="AvatarRect" type="TextureRect" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/IdentityHBox" unique_id=73091616]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 140)
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 6
 
-[node name="HeaderHBox" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox/HeaderPanel/HeaderVBox" unique_id=1389147321]
+[node name="IdentityVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/IdentityHBox" unique_id=75443415]
 layout_mode = 2
 
-[node name="AvatarRect" type="TextureRect" parent="ScrollContainer/MarginContainer/MainVBox/HeaderPanel/HeaderVBox/HeaderHBox" unique_id=1226152045]
+[node name="NameLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/IdentityHBox/IdentityVBox" unique_id=551182727]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+
+[node name="UserIdLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/IdentityHBox/IdentityVBox" unique_id=1086198898]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TitleBadge" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/IdentityHBox/IdentityVBox" unique_id=1892814525]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="RankStarsLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/IdentityHBox/IdentityVBox" unique_id=892806965]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LeftSeparator1" type="HSeparator" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox" unique_id=1013211326]
+layout_mode = 2
+
+[node name="LocationRow" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox" unique_id=1723038869]
+layout_mode = 2
+
+[node name="LocationNameLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/LocationRow" unique_id=2128670962]
+layout_mode = 2
+text = "LOCATION"
+
+[node name="LocationValueLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/LocationRow" unique_id=146037234]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="StatusRow" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox" unique_id=175445564]
+layout_mode = 2
+
+[node name="StatusNameLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/StatusRow" unique_id=1923374460]
+layout_mode = 2
+text = "STATUS"
+
+[node name="StatusValueLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/StatusRow" unique_id=688715282]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="JoinedRow" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox" unique_id=492489866]
+layout_mode = 2
+
+[node name="JoinedNameLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/JoinedRow" unique_id=1374553361]
+layout_mode = 2
+text = "JOINED"
+
+[node name="JoinedValueLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/JoinedRow" unique_id=1585506904]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LastSeenRow" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox" unique_id=1884442225]
+layout_mode = 2
+
+[node name="LastSeenNameLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/LastSeenRow" unique_id=2071076133]
+layout_mode = 2
+text = "LAST SEEN"
+
+[node name="LastSeenValueLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/LastSeenRow" unique_id=1390715741]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ProfileBannerRect" type="TextureRect" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox" unique_id=1654559337]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
 expand_mode = 1
-stretch_mode = 5
+stretch_mode = 6
 
-[node name="HeaderInfoVBox" type="VBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox/HeaderPanel/HeaderVBox/HeaderHBox" unique_id=1941302562]
-layout_mode = 2
-
-[node name="NameLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/HeaderPanel/HeaderVBox/HeaderHBox/HeaderInfoVBox" unique_id=1068900837]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Username"
-
-[node name="TitleLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/HeaderPanel/HeaderVBox/HeaderHBox/HeaderInfoVBox" unique_id=1597429955]
-unique_name_in_owner = true
-layout_mode = 2
-text = "User Title"
-
-[node name="StatusLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/HeaderPanel/HeaderVBox/HeaderHBox/HeaderInfoVBox" unique_id=10592008]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Status message"
-
-[node name="MetaLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/HeaderPanel/HeaderVBox/HeaderHBox/HeaderInfoVBox" unique_id=1052458347]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Unknown • Last seen: Unknown • Location: Unknown"
-
-[node name="TabHBox" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=1730212739]
-layout_mode = 2
-
-[node name="BioBtn" type="Button" parent="ScrollContainer/MarginContainer/MainVBox/TabHBox" unique_id=852089490]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Bio"
-
-[node name="StatsBtn" type="Button" parent="ScrollContainer/MarginContainer/MainVBox/TabHBox" unique_id=776652031]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Stats"
-
-[node name="FriendsBtn" type="Button" parent="ScrollContainer/MarginContainer/MainVBox/TabHBox" unique_id=1907633399]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Friends"
-
-[node name="BioPage" type="VBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=1735089520]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="BioTitleLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/BioPage" unique_id=1956421456]
-layout_mode = 2
-
-[node name="BioText" type="RichTextLabel" parent="ScrollContainer/MarginContainer/MainVBox/BioPage" unique_id=1234163420]
+[node name="SignatureText" type="RichTextLabel" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox" unique_id=784433205]
 unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
-text = "BIO"
 fit_content = true
+scroll_active = false
 
-[node name="SignatureTitleLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/BioPage" unique_id=1733799569]
+[node name="RightProfileVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox" unique_id=540527597]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="ProfileTabsPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox" unique_id=1080850398]
 layout_mode = 2
 
-[node name="SignatureText" type="RichTextLabel" parent="ScrollContainer/MarginContainer/MainVBox/BioPage" unique_id=422563458]
+[node name="ProfileTabsHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/ProfileTabsPanel" unique_id=703424060]
+layout_mode = 2
+
+[node name="AboutBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/ProfileTabsPanel/ProfileTabsHBox" unique_id=155783723]
+unique_name_in_owner = true
+layout_mode = 2
+toggle_mode = true
+text = "ABOUT"
+
+[node name="ThreadsTabBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/ProfileTabsPanel/ProfileTabsHBox" unique_id=384768799]
+unique_name_in_owner = true
+layout_mode = 2
+toggle_mode = true
+text = "THREADS"
+
+[node name="FriendsTabBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/ProfileTabsPanel/ProfileTabsHBox" unique_id=579437836]
+unique_name_in_owner = true
+layout_mode = 2
+toggle_mode = true
+text = "FRIENDS"
+
+[node name="AboutRightPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox" unique_id=745454788]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BioPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage" unique_id=1837511633]
+layout_mode = 2
+
+[node name="BioMargin" type="MarginContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BioPanel" unique_id=389054835]
+layout_mode = 2
+
+[node name="BioText" type="RichTextLabel" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BioPanel/BioMargin" unique_id=1952356545]
 unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
-text = "SIGNATURE"
 fit_content = true
+scroll_active = false
 
-[node name="StatsPage" type="VBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=955406983]
-unique_name_in_owner = true
+[node name="BottomInfoHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage" unique_id=1701798207]
 layout_mode = 2
+theme_override_constants/separation = 12
 
-[node name="RankRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage" unique_id=204341858]
-layout_mode = 2
-
-[node name="RankNameLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/RankRow" unique_id=1833928580]
-custom_minimum_size = Vector2(160, 0)
-layout_mode = 2
-text = "Global Rank"
-
-[node name="RankValueLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/RankRow" unique_id=689772089]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "-"
-
-[node name="ScoreRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage" unique_id=1602440555]
-layout_mode = 2
-
-[node name="ScoreNameLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/ScoreRow" unique_id=761957190]
-custom_minimum_size = Vector2(160, 0)
-layout_mode = 2
-text = "Score"
-
-[node name="ScoreValueLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/ScoreRow" unique_id=253394394]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "-"
-
-[node name="LevelRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage" unique_id=1628609417]
-layout_mode = 2
-
-[node name="LevelNameLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/LevelRow" unique_id=2140428996]
-custom_minimum_size = Vector2(160, 0)
-layout_mode = 2
-text = "Level"
-
-[node name="LevelValueLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/LevelRow" unique_id=1561539684]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "-"
-
-[node name="PartnerRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage" unique_id=700808957]
-layout_mode = 2
-
-[node name="PartnerNameLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/PartnerRow" unique_id=253760876]
-custom_minimum_size = Vector2(160, 0)
-layout_mode = 2
-text = "Partner APK"
-
-[node name="PartnerValueLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/PartnerRow" unique_id=1975010995]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "-"
-
-[node name="ServerRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage" unique_id=292264538]
-layout_mode = 2
-
-[node name="ServerNameLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/ServerRow" unique_id=1382940261]
-custom_minimum_size = Vector2(160, 0)
-layout_mode = 2
-text = "Server"
-
-[node name="ServerValueLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/ServerRow" unique_id=2059901538]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "-"
-
-[node name="ReputationRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage" unique_id=1821071627]
-layout_mode = 2
-
-[node name="ReputationNameLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/ReputationRow" unique_id=1353270304]
-custom_minimum_size = Vector2(160, 0)
-layout_mode = 2
-text = "Reputation"
-
-[node name="ReputationValueLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/ReputationRow" unique_id=113666426]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "-"
-
-[node name="PostsRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage" unique_id=2062509516]
-layout_mode = 2
-
-[node name="PostsNameLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/PostsRow" unique_id=1194445834]
-custom_minimum_size = Vector2(160, 0)
-layout_mode = 2
-text = "Posts"
-
-[node name="PostsValueLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/PostsRow" unique_id=809480969]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "-"
-
-[node name="ThreadsRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage" unique_id=834152524]
-layout_mode = 2
-
-[node name="ThreadsNameLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/ThreadsRow" unique_id=1855811138]
-custom_minimum_size = Vector2(160, 0)
-layout_mode = 2
-text = "Threads"
-
-[node name="ThreadsValueLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/ThreadsRow" unique_id=2019912383]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "-"
-
-[node name="TagsRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage" unique_id=1261188092]
-layout_mode = 2
-
-[node name="TagsNameLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/TagsRow" unique_id=1686025885]
-custom_minimum_size = Vector2(160, 0)
-layout_mode = 2
-text = "Tags"
-
-[node name="TagsValueLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/StatsPage/TagsRow" unique_id=563107431]
-unique_name_in_owner = true
+[node name="StatsPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox" unique_id=1971536615]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="FriendsPage" type="VBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=1074790127]
+[node name="StatsMargin" type="MarginContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel" unique_id=1256435001]
+layout_mode = 2
+
+[node name="StatsVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin" unique_id=86401503]
+layout_mode = 2
+
+[node name="RankRow" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox" unique_id=1974943226]
+layout_mode = 2
+
+[node name="RankNameLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/RankRow" unique_id=766712299]
+layout_mode = 2
+text = "RANKING POSITION"
+
+[node name="RankValueLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/RankRow" unique_id=1511895425]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="FriendsTitleLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox/FriendsPage" unique_id=954940619]
+[node name="ScoreRow" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox" unique_id=106423615]
 layout_mode = 2
 
-[node name="FriendsContainer" type="GridContainer" parent="ScrollContainer/MarginContainer/MainVBox/FriendsPage" unique_id=1041129082]
+[node name="ScoreNameLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/ScoreRow" unique_id=960581584]
+layout_mode = 2
+text = "SCORE"
+
+[node name="ScoreValueLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/ScoreRow" unique_id=519371503]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 0
+
+[node name="LevelRow" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox" unique_id=1668489137]
+layout_mode = 2
+
+[node name="LevelNameLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/LevelRow" unique_id=916886686]
+layout_mode = 2
+text = "APK LEVEL"
+
+[node name="LevelValueLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/LevelRow" unique_id=2003705787]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PartnerRow" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox" unique_id=1830597236]
+layout_mode = 2
+
+[node name="PartnerNameLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/PartnerRow" unique_id=1376442216]
+layout_mode = 2
+text = "PARTNER APK"
+
+[node name="PartnerValueLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/PartnerRow" unique_id=1722072048]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ReputationRow" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox" unique_id=931933505]
+layout_mode = 2
+
+[node name="ReputationNameLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/ReputationRow" unique_id=665408343]
+layout_mode = 2
+text = "REPUTATION"
+
+[node name="ReputationValueLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/ReputationRow" unique_id=1429464778]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PostsRow" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox" unique_id=2025861402]
+layout_mode = 2
+
+[node name="PostsNameLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/PostsRow" unique_id=550169515]
+layout_mode = 2
+text = "POSTS"
+
+[node name="PostsValueLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/PostsRow" unique_id=1751852991]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ThreadsRow" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox" unique_id=1061764480]
+layout_mode = 2
+
+[node name="ThreadsNameLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/ThreadsRow" unique_id=1678650581]
+layout_mode = 2
+text = "THREADS"
+
+[node name="ThreadsValueLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/StatsPanel/StatsMargin/StatsVBox/ThreadsRow" unique_id=889790213]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="FriendsPreviewPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox" unique_id=795060686]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FriendsPreviewMargin" type="MarginContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/FriendsPreviewPanel" unique_id=990465643]
+layout_mode = 2
+
+[node name="FriendsPreviewVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/FriendsPreviewPanel/FriendsPreviewMargin" unique_id=2074893559]
+layout_mode = 2
+
+[node name="FriendsPreviewTitleLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/FriendsPreviewPanel/FriendsPreviewMargin/FriendsPreviewVBox" unique_id=1660099649]
+unique_name_in_owner = true
+layout_mode = 2
+text = "FRIENDS"
+
+[node name="FriendsPreviewGrid" type="GridContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/AboutRightPage/BottomInfoHBox/FriendsPreviewPanel/FriendsPreviewMargin/FriendsPreviewVBox" unique_id=1003592099]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 4
+
+[node name="ThreadsPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox" unique_id=497011543]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="ThreadsTitleLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/ThreadsPage" unique_id=1882244035]
+unique_name_in_owner = true
+layout_mode = 2
+text = "THREADS BY USER"
+
+[node name="UserThreadsContainer" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/ThreadsPage" unique_id=38943708]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="FriendsPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox" unique_id=1316608666]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="FriendsTitleLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/FriendsPage" unique_id=1657393451]
+unique_name_in_owner = true
+layout_mode = 2
+text = "FRIENDS"
+
+[node name="FriendsGrid" type="GridContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/RightProfileVBox/FriendsPage" unique_id=992528914]
+unique_name_in_owner = true
+layout_mode = 2
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 12
-columns = 4
+columns = 6

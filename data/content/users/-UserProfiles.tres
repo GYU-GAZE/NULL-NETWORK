@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="WebsitePage" format=3 uid="uid://dar3oj54yqmh7"]
+
+[ext_resource type="Script" uid="uid://duyokyo5xmy6y" path="res://data/templates/website_page.gd" id="1_uihgy"]
+[ext_resource type="PackedScene" uid="uid://dpqjvq0f6i10h" path="res://apps/forum/profile/profile_app.tscn" id="1_ygbm3"]
+
+[resource]
+script = ExtResource("1_uihgy")
+url = "null.net/profile/"
+page_title = "Profile"
+match_as_prefix = true
+custom_site_scene = ExtResource("1_ygbm3")
+metadata/_custom_type_script = "uid://duyokyo5xmy6y"

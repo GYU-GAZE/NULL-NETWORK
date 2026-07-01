@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1_23qss")
-url = "null.net/profile/GANBAREkun"
+url = "null.net/profile/"
 page_title = "TENYA Profile"
 custom_site_scene = ExtResource("1_ufgo1")
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"
