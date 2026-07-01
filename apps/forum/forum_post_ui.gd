@@ -4,7 +4,7 @@ class_name ForumPostUI
 signal link_clicked(url: String)
 
 @onready var avatar_rect: TextureRect = %AvatarRect
-@onready var username_label: Label = %UsernameLabel
+@onready var username_button: Button = %UsernameButton
 @onready var title_label: Label = %TitleLabel
 @onready var location_label: Label = %LocationLabel
 
@@ -37,10 +37,68 @@ func _setup_profile() -> void:
 	else:
 		avatar_rect.hide()
 
-	username_label.text = _build_username_text()
+	username_button.text = _build_username_text()
 	title_label.text = post_data.get_display_title()
 	location_label.text = _build_location_text()
 
+	_setup_author_profile_link()
+
+
+
+func _setup_author_profile_link() -> void:
+	var profile_url: String = _get_author_profile_url()
+	var has_profile: bool = not profile_url.is_empty()
+
+	var tooltip: String = "Open %s's profile" % post_data.get_username()
+
+	username_button.tooltip_text = tooltip if has_profile else ""
+	avatar_rect.tooltip_text = tooltip if has_profile else ""
+
+	username_button.disabled = not has_profile
+	username_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if has_profile else Control.CURSOR_ARROW
+
+	avatar_rect.mouse_filter = Control.MOUSE_FILTER_STOP if has_profile else Control.MOUSE_FILTER_IGNORE
+	avatar_rect.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if has_profile else Control.CURSOR_ARROW
+
+	if has_profile:
+		if not username_button.pressed.is_connected(_on_author_profile_pressed):
+			username_button.pressed.connect(_on_author_profile_pressed)
+
+		if not avatar_rect.gui_input.is_connected(_on_avatar_gui_input):
+			avatar_rect.gui_input.connect(_on_avatar_gui_input)
+
+func _get_author_profile_url() -> String:
+	if post_data == null:
+		return ""
+
+	if post_data.author == null:
+		return ""
+
+	return post_data.author.get_profile_url()
+
+
+func _on_author_profile_pressed() -> void:
+	var profile_url: String = _get_author_profile_url()
+
+	if profile_url.is_empty():
+		return
+
+	link_clicked.emit(profile_url)
+
+
+func _on_avatar_gui_input(event: InputEvent) -> void:
+	if not event is InputEventMouseButton:
+		return
+
+	var mouse_event: InputEventMouseButton = event as InputEventMouseButton
+
+	if not mouse_event.pressed:
+		return
+
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
+		return
+
+	_on_author_profile_pressed()
 
 func _build_username_text() -> String:
 	var parts: Array[String] = []

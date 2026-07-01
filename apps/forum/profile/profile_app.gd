@@ -237,6 +237,11 @@ func _apply_tab_visibility() -> void:
 	threads_tab_btn.button_pressed = current_tab == ProfileTab.THREADS
 	friends_tab_btn.button_pressed = current_tab == ProfileTab.FRIENDS
 
+func _get_current_user_friends() -> Array[NetworkUserData]:
+	if current_user == null:
+		return []
+
+	return NetworkUserDatabase.get_resolved_friends_for_user(current_user)
 
 func _rebuild_friends_preview() -> void:
 	_clear_container(friends_preview_grid)
@@ -495,10 +500,4 @@ func _add_empty_label(container: Control, message: String) -> void:
 func _clear_container(container: Control) -> void:
 	for child in container.get_children():
 		child.queue_free()
-
-func _get_current_user_friends() -> Array[NetworkUserData]:
-	if current_user == null:
-		return []
-
-	return NetworkUserDatabase.get_resolved_friends_for_user(current_user)
 	
