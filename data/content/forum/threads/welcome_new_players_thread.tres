@@ -4,6 +4,8 @@
 [ext_resource type="Resource" uid="uid://dqcx6fntqnfmx" path="res://data/content/users/GANBAREkun.tres" id="2_a7hnc"]
 [ext_resource type="Script" uid="uid://csyarr4wn3qlx" path="res://data/templates/forum_thread.gd" id="2_fv5a7"]
 [ext_resource type="Script" uid="uid://cgcematgxdayk" path="res://data/templates/condition_data.gd" id="3_roit0"]
+[ext_resource type="Resource" uid="uid://cmfowidu6no38" path="res://data/content/users/Neetzsche.tres" id="4_a7hnc"]
+[ext_resource type="Texture2D" uid="uid://d1ikfbaxfrmtk" path="res://data/sprites/icons/nnwicon.png" id="5_mjabt"]
 
 [sub_resource type="Resource" id="Resource_gk5kf"]
 script = ExtResource("1_wjhpy")
@@ -56,57 +58,16 @@ metadata/_custom_type_script = "uid://blxdqibocgs5x"
 
 [sub_resource type="Resource" id="Resource_fv5a7"]
 script = ExtResource("1_wjhpy")
-author = ExtResource("2_a7hnc")
+author = ExtResource("4_a7hnc")
 post_id = "2"
 release_action_block = 1
-text_content = "Well, it’s that time of year where somebody starts spamming the site URL across the internet and we get a mild influx of new users. I would say ‘welcome’, but you are not. Ask redundant questions without using the search function and the auto-moderator will cuck you to death, as is deserved. Consider this an FAQ:
-
-1. I installed the game and set up my character. Why can’t I find any enemies?
-
-This is an AR game that requires you to ACTUALLY go outside. If you’re trying to spoof your location with GPS shenanigans, then I’m sorry to inform you that doesn’t work. Might as well uninstall now, you basement dwelling f*****. You get the highest frequency of encounters at night. Not ‘I covered my phone with a blanket’. Or ‘I changed the time on my mobile device to midnight’. Walk outside when the sun goes down and wait for the blue screen to pop up.
-If you’re playing this on Nox, Bluestacks, LDPlayer, Nemu, etc. kill yourself.
-
-2. Should I keep my starting partner?
-
-No. Also, do not take any guide written by GoGo_FroYo seriously.
-
-    She's a woman.
-    She's retarded.
-
-The starters are shit. Their stat lines are shit. Their passives are shit. If you use one, you are a shit player. Swap as soon as possible.
-
-3. I’m having trouble logging in/out. Why is that?
-
-Connectivity is spotty and unreliable. It may correlate to the area you’re in. It’s not uncommon to lose access for days at a time. Cry about it.
-Logging out can be done at any time from the menu, except when the player is in combat. The aggro range of viruses is deceptively large. Prepare for Minecraft levels of YOU MAY NOT REST NOW, THERE ARE MONSTERS NEARBY.
-Also, never force quit. You can try if you’d like to.
-
-4. Do viruses have elemental affinities? If so, how do they work?
-
-Sometimes. Figure it out yourself. If your parents let you play Pokemon as a child you should be fine. If you can’t grasp basic type match-ups, you’re too stupid to be playing this game anyway.
-
-5. What are the drawbacks of absorbing too many viruses?
-
-The answer to this is player-dependent. This game has many playstyles, both Whitehat and Blackhat. If you lean towards one side then suddenly switch, the side-effects will be more apparent and stunt your progress. People who walk the indecisive gray path are trash and generally weak willed.
-
-6. What’s the objective of this game?
-
-There isn’t one. It’s a massive time sink. Purify everything. Kill everything. It’s just mindless grinding and the occasional procedurally generated dungeon. Beat the boss, unlock a new area that looks just like the last one, but tinted a different color. This game is shitty and overrated, but I’m good at it so I keep playing.
-
-7. I saw someone talking about some weird term that isn't in Morris' guide. What does that mean?
-
-Probably something. Sometimes it's nothing and it's just some of the numerous assholes we've got in here trolling noobs like you for fun. The game has a shit ton of hidden mechanics and tidbits that you have no way of figuring out until you come across them yourself and that's kind of the only actually good thing it's got going for it. Most People won't give this kind of info for free to a literally who, and if you have half a functioning braincell, neither should you.
-
-8. I saw like 50 threads titled RIP Morris or RIP So-and-so. Are they dead?
-
-No. That is a meme. It is posted whenever Morris drops out of the top 25 scorers. When a player character dies, they’re erased from the leaderboard so his presence fluctuates. Whenever someone at the top of the leaderboard loses their character, we have a funeral thread. That’s it.
-
-If there’s anything else you want to ask, a guide probably already exists for it. "
+text_content = "[url=nav:null.net/profile/Neetzsche.]get a load of this dude[/url]"
+image_content = ExtResource("5_mjabt")
 metadata/_custom_type_script = "uid://blxdqibocgs5x"
 
 [resource]
 script = ExtResource("2_fv5a7")
-thread_id = "welcome_new_players"
+thread_id = "welcomenewplayers"
 thread_title = "WELCOME, NEW PLAYERS"
 thread_category = 1
 thread_tags = Array[String](["guide", "new", "welcome"])

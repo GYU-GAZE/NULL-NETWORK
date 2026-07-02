@@ -15,15 +15,16 @@ enum ProfileTab {
 @export var max_friends_preview: int = 12
 
 @export_category("Threads")
-@export var thread_data_folders: Array[String] = [
-	"res://data/content/forum/threads",
-	"res://data/content/updates/threads"
-]
 @export var thread_row_scene: PackedScene
+
+@export_category("Friend Cards")
+@export var friend_card_scene: PackedScene
+
+@export_category("Routing")
+@export var thread_url_prefix: String = "null.net/forums/thread/"
 
 var current_user: NetworkUserData
 var current_tab: ProfileTab = ProfileTab.ABOUT
-var loaded_thread_buttons: Array[ThreadButtonData] = []
 
 @onready var username_label: Label = %UsernameLabel
 @onready var user_rank_label: Label = %UserRankLabel
@@ -73,8 +74,7 @@ func _ready() -> void:
 	about_btn.pressed.connect(_show_about_tab)
 	threads_tab_btn.pressed.connect(_show_threads_tab)
 	friends_tab_btn.pressed.connect(_show_friends_tab)
-
-	_load_thread_database()
+	
 	_load_user(default_user_id)
 	_show_about_tab()
 
@@ -289,7 +289,15 @@ func _rebuild_full_friends() -> void:
 		friends_grid.add_child(_create_friend_card(friend, false))
 
 
-func _create_friend_card(friend: NetworkUserData, compact: bool = false) -> Button:
+func _create_friend_card(friend: NetworkUserData, compact: bool = false) -> Control:
+	if friend_card_scene != null:
+		var card: ProfileFriendCard = friend_card_scene.instantiate() as ProfileFriendCard
+
+		if card != null:
+			card.setup(friend, compact)
+			card.friend_selected.connect(_on_friend_pressed)
+			return card
+
 	var button: Button = Button.new()
 
 	if compact:
@@ -311,6 +319,7 @@ func _create_friend_card(friend: NetworkUserData, compact: bool = false) -> Butt
 	button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	button.clip_text = true
 	button.pressed.connect(_on_friend_pressed.bind(friend))
+
 	return button
 
 
@@ -326,67 +335,13 @@ func _on_friend_pressed(user: NetworkUserData) -> void:
 	browser_navigation_requested.emit(url)
 
 
-func _load_thread_database() -> void:
-	loaded_thread_buttons.clear()
-
-	for folder_path in thread_data_folders:
-		_load_threads_from_folder(folder_path)
-
-
-func _load_threads_from_folder(folder_path: String) -> void:
-	var dir: DirAccess = DirAccess.open(folder_path)
-
-	if dir == null:
-		return
-
-	dir.list_dir_begin()
-
-	while true:
-		var file_name: String = dir.get_next()
-
-		if file_name.is_empty():
-			break
-
-		if file_name.begins_with("."):
-			continue
-
-		var full_path: String = "%s/%s" % [folder_path, file_name]
-
-		if dir.current_is_dir():
-			_load_threads_from_folder(full_path)
-			continue
-
-		if not file_name.ends_with(".tres") and not file_name.ends_with(".res"):
-			continue
-
-		_try_load_thread(full_path)
-
-	dir.list_dir_end()
-
-
-func _try_load_thread(path: String) -> void:
-	var resource: Resource = ResourceLoader.load(path)
-
-	if resource == null:
-		return
-
-	if resource is ThreadButtonData:
-		loaded_thread_buttons.append(resource as ThreadButtonData)
-		return
-
-	if resource is ForumThread:
-		var data := ThreadButtonData.new()
-		data.thread_ref = resource as ForumThread
-		loaded_thread_buttons.append(data)
-
-
 func _rebuild_user_threads() -> void:
 	_clear_container(user_threads_container)
 
 	if current_user == null:
 		return
 
-	var user_threads: Array[ThreadButtonData] = _get_threads_started_by_user(current_user)
+	var user_threads: Array[ThreadButtonData] = ForumThreadDatabase.get_threads_started_by_user(current_user, true)
 
 	threads_title_label.text = "THREADS BY %s (%d)" % [
 		current_user.display_name,
@@ -405,30 +360,6 @@ func _rebuild_user_threads() -> void:
 			row.thread_selected.connect(_on_profile_thread_selected)
 		else:
 			user_threads_container.add_child(_create_thread_fallback_button(thread_data))
-
-
-func _get_threads_started_by_user(user: NetworkUserData) -> Array[ThreadButtonData]:
-	var result: Array[ThreadButtonData] = []
-
-	for data in loaded_thread_buttons:
-		if data == null or data.thread_ref == null:
-			continue
-
-		if not data.is_visible():
-			continue
-
-		var author_post: ForumPost = data.thread_ref.get_author_post()
-
-		if author_post == null:
-			continue
-
-		if author_post.author == null:
-			continue
-
-		if author_post.author.user_id == user.user_id:
-			result.append(data)
-
-	return result
 
 
 func _create_thread_fallback_button(thread_data: ThreadButtonData) -> Button:
@@ -453,10 +384,14 @@ func _on_profile_thread_selected(thread: ForumThread) -> void:
 	if thread == null:
 		return
 
-	# Por enquanto, thread permalink ainda não existe.
-	# Depois vamos trocar isso por algo tipo:
-	# browser_navigation_requested.emit("null.net/forums/thread/%s" % thread.thread_id)
-	browser_navigation_requested.emit("null.net/forums")
+	if thread.thread_id.strip_edges().is_empty():
+		browser_navigation_requested.emit("null.net/forums")
+		return
+
+	browser_navigation_requested.emit("%s%s" % [
+		thread_url_prefix,
+		thread.thread_id
+	])
 
 
 func _get_rank_stars_text(user: NetworkUserData) -> String:

@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://nq56sk3ukffg" path="res://apps/forum/updates/updates_app.tscn" id="7_24ulu"]
 [ext_resource type="Resource" uid="uid://cjbmn36b8oupn" path="res://data/content/sites/browser_home.tres" id="8_l8h8g"]
 [ext_resource type="Resource" uid="uid://dar3oj54yqmh7" path="res://data/content/users/-UserProfiles.tres" id="9_1mm3y"]
+[ext_resource type="Resource" uid="uid://dvi4ve0f0elur" path="res://data/content/sites/null network/forum_thread_route.tres" id="10_aoje1"]
 
 [sub_resource type="Resource" id="Resource_36ugt"]
 script = ExtResource("2_d1bob")
@@ -19,4 +20,4 @@ metadata/_custom_type_script = "uid://duyokyo5xmy6y"
 
 [node name="SimulatedDNS" type="Node" unique_id=1524678864]
 script = ExtResource("1_dmleo")
-registered_sites = Array[ExtResource("2_d1bob")]([ExtResource("4_24ulu"), ExtResource("5_eo5um"), ExtResource("3_o7uul"), ExtResource("6_36ugt"), SubResource("Resource_36ugt"), ExtResource("8_l8h8g"), ExtResource("9_1mm3y")])
+registered_sites = Array[ExtResource("2_d1bob")]([ExtResource("4_24ulu"), ExtResource("5_eo5um"), ExtResource("3_o7uul"), ExtResource("6_36ugt"), SubResource("Resource_36ugt"), ExtResource("8_l8h8g"), ExtResource("9_1mm3y"), ExtResource("10_aoje1")])

@@ -4,6 +4,9 @@ class_name BrowserApp
 @export var tab_button_scene: PackedScene
 @export var new_tab_button_scene: PackedScene
 
+@export_category("Browser Routes")
+@export var home_url: String = "home"
+
 @export_category("Favorite Button")
 @export var favorite_add_text: String = "☆"
 @export var favorite_remove_text: String = "★"
@@ -41,7 +44,7 @@ func _ready() -> void:
 
 	_connect_browser_navigation_signals(self)
 
-	_create_tab("home")
+	_create_tab(home_url)
 
 
 func _on_go_pressed() -> void:
@@ -138,7 +141,7 @@ func _refresh_tab_buttons() -> void:
 
 	var new_tab_button := new_tab_button_scene.instantiate() as Button
 	new_tab_button.custom_minimum_size.x = 36.0
-	new_tab_button.pressed.connect(func(): _create_tab("home"))
+	new_tab_button.pressed.connect(func(): _create_tab(home_url))
 	new_tab_button_holder.add_child(new_tab_button)
 
 
@@ -243,7 +246,7 @@ func _on_favorite_pressed() -> void:
 	if tab.current_url.is_empty():
 		return
 
-	if tab.current_url == "home":
+	if tab.current_url == home_url:
 		return
 
 	GameState.toggle_browser_site_pin(
@@ -261,7 +264,7 @@ func _refresh_favorite_button() -> void:
 
 	var tab := _get_current_tab()
 
-	if tab.current_url.is_empty() or tab.current_url == "home":
+	if tab.current_url.is_empty() or tab.current_url == home_url:
 		_apply_favorite_button_visual(
 			false,
 			favorite_blocked_text,

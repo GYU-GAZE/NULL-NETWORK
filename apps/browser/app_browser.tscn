@@ -11,6 +11,7 @@
 script = ExtResource("1_mufrk")
 tab_button_scene = ExtResource("2_4noms")
 new_tab_button_scene = ExtResource("3_fx11j")
+home_url = "kubus://home"
 
 [node name="MainVBox" type="VBoxContainer" parent="." unique_id=1051088920]
 layout_mode = 1

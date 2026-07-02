@@ -1,8 +1,6 @@
 [gd_scene format=3 uid="uid://d2wc20x3ldl5k"]
 
 [ext_resource type="Script" uid="uid://bxkoo8h0n8e23" path="res://apps/forum/forum_app.gd" id="1_goqfn"]
-[ext_resource type="Script" uid="uid://dgyj7kryn0aau" path="res://data/templates/thread_button_data.gd" id="2_gsky1"]
-[ext_resource type="Resource" uid="uid://c000rcbslv3ig" path="res://data/content/forum/buttons/btn_planos_ia.tres" id="3_441rv"]
 [ext_resource type="PackedScene" uid="uid://c1eml51sqyj5c" path="res://apps/forum/forum_post_ui.tscn" id="4_2d478"]
 [ext_resource type="PackedScene" uid="uid://v0ask2g51gcm" path="res://apps/forum/forum_thread_row_ui.tscn" id="5_jseev"]
 [ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="6_chltv"]
@@ -15,7 +13,6 @@ offset_right = 1200.0
 offset_bottom = 900.0
 size_flags_horizontal = 3
 script = ExtResource("1_goqfn")
-thread_list = Array[ExtResource("2_gsky1")]([ExtResource("3_441rv")])
 post_ui_scene = ExtResource("4_2d478")
 thread_row_scene = ExtResource("5_jseev")
 

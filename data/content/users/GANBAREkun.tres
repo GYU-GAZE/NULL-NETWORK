@@ -9,6 +9,8 @@
 script = ExtResource("1_ra1py")
 user_id = "GANBAREkun"
 display_name = "GANBAREkun"
+avatar = ExtResource("2_xf4wy")
+profile_banner = ExtResource("2_xf4wy")
 title = "The humble hero!"
 rank_label = "TOP #2 WORLDWIDE"
 location = "Tokyo, Japan"

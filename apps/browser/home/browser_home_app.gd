@@ -3,9 +3,6 @@ class_name BrowserHomeApp
 
 signal browser_navigation_requested(url: String)
 
-@export_category("Pinned Sites")
-@export var pinned_sites: Array[WebsitePage] = []
-
 @export_category("History")
 @export var max_recent_sites: int = 12
 

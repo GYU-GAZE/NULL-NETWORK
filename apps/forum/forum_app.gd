@@ -14,9 +14,12 @@ enum ForumViewFilter {
 
 @export_category("Forum Database")
 @export var thread_list: Array[ThreadButtonData] = []
-@export var thread_data_folders: Array[String] = []
 @export var post_ui_scene: PackedScene
 @export var thread_row_scene: PackedScene
+
+@export_category("Routing")
+@export var forum_home_url: String = "null.net/forums"
+@export var thread_url_prefix: String = "null.net/forums/thread/"
 
 @export_category("Feed Configuration")
 @export var visible_categories: Array[ForumThread.ThreadCategory] = [
@@ -70,7 +73,6 @@ var current_thread_id: String = ""
 var current_filter: ForumViewFilter = ForumViewFilter.TRENDING
 var current_search_query: String = ""
 
-var loaded_thread_list: Array[ThreadButtonData] = []
 var notified_watch_alert_signatures: Dictionary = {}
 
 
@@ -97,78 +99,40 @@ func _ready() -> void:
 
 
 func _reload_folder_threads() -> void:
-	loaded_thread_list.clear()
-
-	for folder_path in thread_data_folders:
-		_load_thread_data_from_folder(folder_path)
-
-
-func _load_thread_data_from_folder(folder_path: String) -> void:
-	var clean_folder_path: String = folder_path.strip_edges()
-
-	if clean_folder_path.is_empty():
-		return
-
-	var dir: DirAccess = DirAccess.open(clean_folder_path)
-
-	if dir == null:
-		push_warning("ForumApp: pasta de threads não encontrada: %s" % clean_folder_path)
-		return
-
-	dir.list_dir_begin()
-
-	while true:
-		var file_name: String = dir.get_next()
-
-		if file_name.is_empty():
-			break
-
-		if file_name.begins_with("."):
-			continue
-
-		var full_path: String = "%s/%s" % [clean_folder_path, file_name]
-
-		if dir.current_is_dir():
-			_load_thread_data_from_folder(full_path)
-			continue
-
-		if not file_name.ends_with(".tres") and not file_name.ends_with(".res"):
-			continue
-
-		_try_load_thread_data(full_path)
-
-	dir.list_dir_end()
-
-
-func _try_load_thread_data(path: String) -> void:
-	var resource: Resource = ResourceLoader.load(path)
-
-	if resource == null:
-		return
-
-	if resource is ThreadButtonData:
-		loaded_thread_list.append(resource as ThreadButtonData)
-		return
-
-	if resource is ForumThread:
-		var generated_button_data: ThreadButtonData = ThreadButtonData.new()
-		generated_button_data.thread_ref = resource as ForumThread
-		loaded_thread_list.append(generated_button_data)
-		return
+	ForumThreadDatabase.reload_threads()
 
 
 func _get_all_thread_data() -> Array[ThreadButtonData]:
 	var result: Array[ThreadButtonData] = []
+	var seen_thread_ids: Dictionary = {}
 
 	for data in thread_list:
-		if data != null:
-			result.append(data)
+		_append_unique_thread_data(result, seen_thread_ids, data)
 
-	for data in loaded_thread_list:
-		if data != null:
-			result.append(data)
+	for data in ForumThreadDatabase.get_all_thread_data():
+		_append_unique_thread_data(result, seen_thread_ids, data)
 
 	return result
+
+
+func _append_unique_thread_data(result: Array[ThreadButtonData], seen_thread_ids: Dictionary, data: ThreadButtonData) -> void:
+	if data == null:
+		return
+
+	if data.thread_ref == null:
+		return
+
+	var thread_id: String = data.thread_ref.thread_id.strip_edges()
+
+	if thread_id.is_empty():
+		result.append(data)
+		return
+
+	if seen_thread_ids.has(thread_id):
+		return
+
+	seen_thread_ids[thread_id] = true
+	result.append(data)
 
 
 func _apply_feature_visibility() -> void:
@@ -843,6 +807,22 @@ func _on_alerts_btn_pressed() -> void:
 	_show_alerts_page()
 	_refresh_alerts_badge()
 
+func set_browser_url(url: String) -> void:
+	var thread_id: String = _extract_thread_id_from_url(url)
+
+	if thread_id.is_empty():
+		return
+
+	_open_thread_by_id(thread_id)
+
+
+func _extract_thread_id_from_url(url: String) -> String:
+	var clean_url: String = url.strip_edges()
+
+	if clean_url.begins_with(thread_url_prefix):
+		return clean_url.trim_prefix(thread_url_prefix).strip_edges()
+
+	return ""
 
 func handle_browser_back() -> bool:
 	if reader_container.visible:
@@ -858,7 +838,6 @@ func handle_browser_back() -> bool:
 		return true
 
 	return false
-
 
 func get_browser_state() -> Dictionary:
 	return {

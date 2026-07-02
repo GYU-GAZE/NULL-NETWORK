@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://brakaxk3boshv"]
+
+[ext_resource type="Script" uid="uid://b8yx0arcdmrs4" path="res://apps/forum/profile/profile_friend_card.gd" id="1_6uecq"]
+
+[node name="ProfileFriendCard" type="Button" unique_id=952640749]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+text_overrun_behavior = 5
+clip_text = true
+vertical_icon_alignment = 0
+expand_icon = true
+script = ExtResource("1_6uecq")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1904376445]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1340695244]
+layout_mode = 2
+
+[node name="AvatarRect" type="TextureRect" parent="MarginContainer/VBoxContainer" unique_id=2604051]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=265630652]
+layout_mode = 2
+
+[node name="RankLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=662574972]
+layout_mode = 2

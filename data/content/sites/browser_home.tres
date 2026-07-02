@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1_edca3")
-url = "home"
+url = "kubus://home"
 page_title = "Home"
 record_in_browser_history = false
 custom_site_scene = ExtResource("1_y30ad")

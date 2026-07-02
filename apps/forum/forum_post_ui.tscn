@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c1eml51sqyj5c"]
 
 [ext_resource type="Script" uid="uid://cbh0iplcjal7t" path="res://apps/forum/forum_post_ui.gd" id="1_c64ud"]
+[ext_resource type="Script" uid="uid://di40e5wgij1k4" path="res://apps/browser/site_rich_text_label.gd" id="2_ttvaj"]
 
 [node name="PostUi" type="PanelContainer" unique_id=94172056]
 anchors_preset = 15
@@ -56,7 +57,7 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TextContent" type="RichTextLabel" parent="Margin/MainHBox/ContentVBox" unique_id=1615083238]
+[node name="TextContent" type="RichTextLabel" parent="Margin/MainHBox/ContentVBox" unique_id=876917943]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
@@ -64,6 +65,8 @@ size_flags_vertical = 3
 fit_content = true
 scroll_active = false
 autowrap_mode = 2
+script = ExtResource("2_ttvaj")
+metadata/_custom_type_script = "uid://di40e5wgij1k4"
 
 [node name="ImageContent" type="TextureRect" parent="Margin/MainHBox/ContentVBox" unique_id=1018726603]
 unique_name_in_owner = true

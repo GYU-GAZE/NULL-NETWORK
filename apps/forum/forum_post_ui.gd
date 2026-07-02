@@ -8,7 +8,7 @@ signal link_clicked(url: String)
 @onready var title_label: Label = %TitleLabel
 @onready var location_label: Label = %LocationLabel
 
-@onready var text_content: RichTextLabel = %TextContent
+@onready var text_content: SiteRichTextLabel = %TextContent
 @onready var image_content: TextureRect = %ImageContent
 
 var post_data: ForumPost
@@ -134,7 +134,6 @@ func _build_location_text() -> String:
 
 	return output
 
-
 func _setup_content() -> void:
 	text_content.bbcode_enabled = true
 	text_content.fit_content = true
@@ -143,8 +142,8 @@ func _setup_content() -> void:
 	text_content.custom_minimum_size.x = 10
 	text_content.text = _build_post_body()
 
-	if not text_content.meta_clicked.is_connected(_on_meta_clicked):
-		text_content.meta_clicked.connect(_on_meta_clicked)
+	if not text_content.browser_navigation_requested.is_connected(_on_text_navigation_requested):
+		text_content.browser_navigation_requested.connect(_on_text_navigation_requested)
 
 	if post_data.image_content != null:
 		image_content.texture = post_data.image_content
@@ -175,11 +174,8 @@ func _apply_post_visual_state() -> void:
 
 	modulate = Color.WHITE
 
-
-func _on_meta_clicked(meta: Variant) -> void:
-	var target_url: String = str(meta)
-
-	if target_url.is_empty():
+func _on_text_navigation_requested(url: String) -> void:
+	if url.strip_edges().is_empty():
 		return
 
-	link_clicked.emit(target_url)
+	link_clicked.emit(url)

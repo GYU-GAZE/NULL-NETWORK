@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://dpqjvq0f6i10h"]
 
 [ext_resource type="Script" uid="uid://detf37teq40nv" path="res://apps/forum/profile/profile_app.gd" id="1_ho3n6"]
+[ext_resource type="PackedScene" uid="uid://brakaxk3boshv" path="res://apps/forum/profile/profile_friend_card.tscn" id="2_kfd2e"]
 [ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="2_xhibo"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_xhibo"]
@@ -15,6 +16,7 @@ grow_vertical = 2
 size_flags_horizontal = 3
 script = ExtResource("1_ho3n6")
 default_user_id = "GANBAREkun"
+friend_card_scene = ExtResource("2_kfd2e")
 
 [node name="MasterScroll" type="ScrollContainer" parent="." unique_id=1280918357]
 unique_name_in_owner = true
