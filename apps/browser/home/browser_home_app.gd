@@ -3,6 +3,9 @@ class_name BrowserHomeApp
 
 signal browser_navigation_requested(url: String)
 
+@export_category("Site Cards")
+@export var site_card_scene: PackedScene
+
 @export_category("History")
 @export var max_recent_sites: int = 12
 
@@ -80,6 +83,15 @@ func _rebuild_recent_sites() -> void:
 func _add_site_button(container: VBoxContainer, url: String, title: String, favicon: Texture2D = null) -> void:
 	if url.strip_edges().is_empty():
 		return
+
+	if site_card_scene != null:
+		var card: BrowserHomeCard = site_card_scene.instantiate() as BrowserHomeCard
+
+		if card != null:
+			container.add_child(card)
+			card.setup(url, title, favicon)
+			card.site_selected.connect(_on_site_pressed)
+			return
 
 	var button: Button = Button.new()
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL

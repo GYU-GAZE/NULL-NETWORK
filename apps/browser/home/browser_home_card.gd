@@ -1,5 +1,5 @@
 extends Button
-class_name BrowserHomeSiteCard
+class_name BrowserHomeCard
 
 signal site_selected(url: String)
 
@@ -20,6 +20,7 @@ func setup(url: String, title: String, favicon: Texture2D = null) -> void:
 		title_label.text = "Missing site"
 		url_label.text = ""
 		favicon_rect.texture = null
+		favicon_rect.hide()
 		return
 
 	var clean_title: String = title.strip_edges()
