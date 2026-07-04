@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://bqmoyfon08xk6"]
+
+[node name="KubuNotificationCenter" type="PanelContainer" unique_id=2085214822]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1331620898]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=415970969]
+layout_mode = 2
+
+[node name="HeaderHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=765102207]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderHBox" unique_id=811462892]
+unique_name_in_owner = true
+layout_mode = 2
+text = "KubuOS Notification Center"
+
+[node name="UnreadCountLabel" type="Label" parent="MarginContainer/VBoxContainer/HeaderHBox" unique_id=1641224065]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0 unread / 0 total"
+
+[node name="ActionHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1458304634]
+layout_mode = 2
+
+[node name="MarkAllReadBtn" type="Button" parent="MarginContainer/VBoxContainer/ActionHBox" unique_id=718191461]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Mark all read"
+
+[node name="ClearHistoryBtn" type="Button" parent="MarginContainer/VBoxContainer/ActionHBox" unique_id=1265632204]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear history"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=572457232]
+layout_mode = 2
+
+[node name="EmptyLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1089293238]
+unique_name_in_owner = true
+layout_mode = 2
+text = "No notifications yet."
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer" unique_id=1140984787]
+layout_mode = 2
+
+[node name="NotificationList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/ScrollContainer" unique_id=1480894940]
+unique_name_in_owner = true
+layout_mode = 2

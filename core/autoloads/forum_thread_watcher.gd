@@ -61,10 +61,15 @@ func refresh_watched_threads(send_notifications: bool = true) -> void:
 
 		notified_watch_alert_signatures[notification_key] = true
 
-		UniversalNotifications.push(
-			thread.get_watched_notification_title(),
-			thread.get_watched_notification_message()
-		)
+		UniversalNotifications.push_data(
+		thread.get_watched_notification_title(),
+		thread.get_watched_notification_message(),
+		KubuNotificationData.NotificationType.FORUM,
+		"null.net/forums/thread/%s" % thread.thread_id,
+		"forum",
+		thread.thread_id,
+		KubuNotificationData.NotificationPriority.NORMAL
+)
 
 	if changed_alerts:
 		watched_alerts_changed.emit()

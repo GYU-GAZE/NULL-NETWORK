@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="3_6yas7"]
 [ext_resource type="PackedScene" uid="uid://dcoqma7h6c75u" path="res://apps/browser/app_browser.tscn" id="4_q8u6i"]
 [ext_resource type="PackedScene" uid="uid://b2jukdy0iqin4" path="res://apps/navigator/app_navigator.tscn" id="5_6yas7"]
+[ext_resource type="Resource" uid="uid://fu3bq14o7fy3" path="res://data/content/apps/app_notifications.tres" id="6_t5qpq"]
 
 [sub_resource type="Resource" id="Resource_uadmx"]
 script = ExtResource("2_yw0nm")
@@ -34,7 +35,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_2pwep")
-installed_apps = Array[ExtResource("2_yw0nm")]([SubResource("Resource_uadmx"), SubResource("Resource_ll2ol")])
+installed_apps = Array[ExtResource("2_yw0nm")]([SubResource("Resource_uadmx"), SubResource("Resource_ll2ol"), ExtResource("6_t5qpq")])
 
 [node name="Background" type="ColorRect" parent="." unique_id=1101823804]
 layout_mode = 1

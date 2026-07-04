@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AppResource" format=3 uid="uid://fu3bq14o7fy3"]
+
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_hvmee"]
+[ext_resource type="Script" uid="uid://b2kr16bkp27ck" path="res://data/templates/app_resource.gd" id="1_m5xmp"]
+[ext_resource type="PackedScene" uid="uid://bqmoyfon08xk6" path="res://systems/ui/kubu_notification_center.tscn" id="2_5am2v"]
+
+[resource]
+script = ExtResource("1_m5xmp")
+app_id = "notcenter"
+app_name = "Notifications"
+app_icon = ExtResource("1_hvmee")
+app_scene = ExtResource("2_5am2v")
+default_window_size = Vector2(520, 640)
+min_window_size = Vector2(360, 420)
+metadata/_custom_type_script = "uid://b2kr16bkp27ck"
