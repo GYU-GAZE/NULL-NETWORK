@@ -5,7 +5,6 @@
 [ext_resource type="Script" uid="uid://csyarr4wn3qlx" path="res://data/templates/forum_thread.gd" id="2_fv5a7"]
 [ext_resource type="Script" uid="uid://cgcematgxdayk" path="res://data/templates/condition_data.gd" id="3_roit0"]
 [ext_resource type="Resource" uid="uid://cmfowidu6no38" path="res://data/content/users/Neetzsche.tres" id="4_a7hnc"]
-[ext_resource type="Texture2D" uid="uid://d1ikfbaxfrmtk" path="res://data/sprites/icons/nnwicon.png" id="5_mjabt"]
 
 [sub_resource type="Resource" id="Resource_gk5kf"]
 script = ExtResource("1_wjhpy")
@@ -62,7 +61,6 @@ author = ExtResource("4_a7hnc")
 post_id = "2"
 release_action_block = 1
 text_content = "[url=nav:null.net/profile/Neetzsche.]get a load of this dude[/url]"
-image_content = ExtResource("5_mjabt")
 metadata/_custom_type_script = "uid://blxdqibocgs5x"
 
 [resource]

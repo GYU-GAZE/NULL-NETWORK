@@ -6,8 +6,8 @@
 
 [resource]
 script = ExtResource("3_khd0v")
-app_id = "navigator"
-app_name = "Navigator"
+app_id = "notifications"
+app_name = "Notifications"
 app_icon = ExtResource("1_jveos")
 app_scene = ExtResource("2_4j6fk")
 metadata/_custom_type_script = "uid://b2kr16bkp27ck"

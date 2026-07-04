@@ -1,11 +1,14 @@
 [gd_scene format=3 uid="uid://bqmoyfon08xk6"]
 
+[ext_resource type="Script" uid="uid://cw55e0qguy1me" path="res://systems/ui/kubu_notification_center.gd" id="1_m30wu"]
+
 [node name="KubuNotificationCenter" type="PanelContainer" unique_id=2085214822]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_m30wu")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1331620898]
 layout_mode = 2

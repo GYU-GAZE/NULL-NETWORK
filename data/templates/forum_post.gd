@@ -26,7 +26,6 @@ enum ThreadPeriod {
 
 @export_category("Content")
 @export_multiline var text_content: String = ""
-@export var image_content: Texture2D
 
 
 func get_avatar() -> Texture2D:

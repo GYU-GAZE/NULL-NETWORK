@@ -9,7 +9,6 @@ signal link_clicked(url: String)
 @onready var location_label: Label = %LocationLabel
 
 @onready var text_content: SiteRichTextLabel = %TextContent
-@onready var image_content: TextureRect = %ImageContent
 
 var post_data: ForumPost
 
@@ -145,12 +144,6 @@ func _setup_content() -> void:
 	if not text_content.browser_navigation_requested.is_connected(_on_text_navigation_requested):
 		text_content.browser_navigation_requested.connect(_on_text_navigation_requested)
 
-	if post_data.image_content != null:
-		image_content.texture = post_data.image_content
-		image_content.show()
-	else:
-		image_content.hide()
-
 
 func _build_post_body() -> String:
 	if post_data.is_author_system():
@@ -179,3 +172,11 @@ func _on_text_navigation_requested(url: String) -> void:
 		return
 
 	link_clicked.emit(url)
+
+func _post_body_has_inline_image() -> bool:
+	if post_data == null:
+		return false
+
+	var body: String = post_data.text_content.to_lower()
+
+	return body.contains("[img]") or body.contains("[img=")
