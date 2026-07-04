@@ -9,28 +9,38 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 script = ExtResource("1_m25dy")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1137136891]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1662202334]
 layout_mode = 2
 
 [node name="FaviconRect" type="TextureRect" parent="MarginContainer/HBoxContainer" unique_id=1125443360]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(16, 16)
 layout_mode = 2
 texture = ExtResource("2_y5j4e")
+stretch_mode = 2
 
 [node name="TextVBox" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1133184873]
 layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="TitleLabel" type="Label" parent="MarginContainer/HBoxContainer/TextVBox" unique_id=205103573]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Nome do Site"
 
 [node name="UrlLabel" type="Label" parent="MarginContainer/HBoxContainer/TextVBox" unique_id=412006410]
+unique_name_in_owner = true
 layout_mode = 2
 text = "linkdosite.com"

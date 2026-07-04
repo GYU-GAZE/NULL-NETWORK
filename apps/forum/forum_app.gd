@@ -16,6 +16,7 @@ enum ForumViewFilter {
 @export var thread_list: Array[ThreadButtonData] = []
 @export var post_ui_scene: PackedScene
 @export var thread_row_scene: PackedScene
+@export var alert_card_scene: PackedScene
 
 @export_category("Routing")
 @export var forum_home_url: String = "null.net/forums"
@@ -73,8 +74,6 @@ var current_thread_id: String = ""
 var current_filter: ForumViewFilter = ForumViewFilter.TRENDING
 var current_search_query: String = ""
 
-var notified_watch_alert_signatures: Dictionary = {}
-
 
 func _ready() -> void:
 	_reload_folder_threads()
@@ -96,6 +95,9 @@ func _ready() -> void:
 
 	if not GameState.game_state_changed.is_connected(_on_game_state_changed):
 		GameState.game_state_changed.connect(_on_game_state_changed)
+		
+	if not ForumThreadWatcher.watched_alerts_changed.is_connected(_on_watched_alerts_changed):
+		ForumThreadWatcher.watched_alerts_changed.connect(_on_watched_alerts_changed)
 
 
 func _reload_folder_threads() -> void:
@@ -377,6 +379,29 @@ func _add_thread_row(data: ThreadButtonData) -> void:
 	var separator: HSeparator = HSeparator.new()
 	thread_list_container.add_child(separator)
 
+func _add_alert_card(data: ThreadButtonData) -> void:
+	if alert_card_scene == null:
+		push_error("ForumApp: alert_card_scene não configurada.")
+		return
+
+	var instance: Node = alert_card_scene.instantiate()
+
+	if instance == null:
+		push_error("ForumApp: alert_card_scene.instantiate() retornou null.")
+		return
+
+	if not instance is ForumAlertCard:
+		push_error("ForumApp: alert_card_scene precisa ter root ForumAlertCard.")
+		instance.queue_free()
+		return
+
+	var card: ForumAlertCard = instance as ForumAlertCard
+	alerts_page.add_child(card)
+
+	card.setup(data)
+	card.alert_selected.connect(_open_thread)
+
+	alerts_page.add_child(HSeparator.new())
 
 func _refresh_filter_buttons() -> void:
 	trending_btn.button_pressed = current_filter == ForumViewFilter.TRENDING
@@ -573,67 +598,17 @@ func _rebuild_alerts_page() -> void:
 		return
 
 	for data in alert_threads:
-		var thread: ForumThread = data.thread_ref
-
-		var alert_btn: Button = Button.new()
-		alert_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		alert_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		alert_btn.text = "! %s %s\nLast reply: %s — %s" % [
-			thread.get_thread_label_text(),
-			thread.thread_title,
-			thread.get_last_reply_author(),
-			thread.get_last_reply_time_label()
-		]
-		alert_btn.pressed.connect(_open_thread.bind(thread))
-		alerts_page.add_child(alert_btn)
-
-		alerts_page.add_child(HSeparator.new())
-
+		_add_alert_card(data)
 
 func _get_alert_threads() -> Array[ThreadButtonData]:
-	var result: Array[ThreadButtonData] = []
-
-	for data in _get_all_thread_data():
-		if data == null or data.thread_ref == null:
-			continue
-
-		if not data.is_visible():
-			continue
-
-		if data.is_archived():
-			continue
-
-		if not _is_category_visible(data.thread_ref.thread_category):
-			continue
-
-		GameState.sync_thread_read_state(
-			data.thread_ref.thread_id,
-			data.thread_ref.get_visibility_signature()
-		)
-
-		if _thread_has_pending_watch_alert(data.thread_ref):
-			result.append(data)
-
-	result.sort_custom(_sort_threads)
-	return result
-
-
-func _thread_has_pending_watch_alert(thread: ForumThread) -> bool:
-	if thread == null:
-		return false
-
-	if not thread.has_unread_content():
-		return false
-
-	return GameState.is_thread_watched(thread.thread_id)
-
+	return ForumThreadWatcher.get_alert_thread_data()
 
 func _refresh_alerts_badge() -> void:
 	if not show_alerts_navigation:
 		alerts_notification_badge.visible = false
 		return
 
-	var has_alerts: bool = not _get_alert_threads().is_empty()
+	var has_alerts: bool = ForumThreadWatcher.has_pending_alerts()
 	alerts_notification_badge.visible = has_alerts
 
 	if not has_alerts:
@@ -721,15 +696,7 @@ func _notify_new_watched_thread_alerts() -> void:
 			thread.get_visibility_signature()
 		)
 
-		if not _thread_has_pending_watch_alert(thread):
-			continue
-
 		var notification_key: String = _get_watch_notification_key(thread)
-
-		if notified_watch_alert_signatures.has(notification_key):
-			continue
-
-		notified_watch_alert_signatures[notification_key] = true
 
 		UniversalNotifications.push(
 			thread.get_watched_notification_title(),
@@ -754,7 +721,6 @@ func _on_time_advanced(_period: int, _days_passed: int, _cal_day: int, _cal_mont
 		_auto_watch_visible_threads()
 
 	_refresh_thread_list()
-	_notify_new_watched_thread_alerts()
 	_refresh_alerts_badge()
 
 	if current_mode == "alerts":
@@ -872,3 +838,9 @@ func restore_browser_state(state: Dictionary) -> void:
 	_show_thread_list_page()
 	_refresh_thread_list()
 	_refresh_alerts_badge()
+
+func _on_watched_alerts_changed() -> void:
+	_refresh_alerts_badge()
+
+	if current_mode == "alerts":
+		_rebuild_alerts_page()

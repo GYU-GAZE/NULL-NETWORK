@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://bsmlmh5xi4r03"]
+
+[node name="ForumAlertCard" type="Button" unique_id=816212624]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+clip_text = true
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1042352610]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1955492659]
+layout_mode = 2
+
+[node name="CategoryLabel" type="Label" parent="MarginContainer/HBoxContainer" unique_id=356245103]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 0)
+layout_mode = 2
+text = "RMR"
+horizontal_alignment = 1
+
+[node name="TextVBox" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=618400871]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/HBoxContainer/TextVBox" unique_id=1686085458]
+unique_name_in_owner = true
+layout_mode = 2
+text = "IS TENYA ALIVE?"
+clip_text = true
+
+[node name="MessageLabel" type="Label" parent="MarginContainer/HBoxContainer/TextVBox" unique_id=1910002784]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Someone replied to this watched thread."
+
+[node name="MetaLabel" type="Label" parent="MarginContainer/HBoxContainer/TextVBox" unique_id=443652587]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Last reply: Ganbarekun - Today, 12PM"

@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://df710bluwtcbp"]
 
 [ext_resource type="Script" uid="uid://7b1im6w8fy41" path="res://apps/browser/home/browser_home_app.gd" id="1_i1hwu"]
+[ext_resource type="PackedScene" uid="uid://clrecf8xmiaol" path="res://apps/browser/home/browser_home_card.tscn" id="2_3gjt3"]
 
 [node name="BrowserHomeApp" type="Control" unique_id=1709414757]
 layout_mode = 3
@@ -10,6 +11,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_i1hwu")
+site_card_scene = ExtResource("2_3gjt3")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=421971853]
 layout_mode = 1

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bxkoo8h0n8e23" path="res://apps/forum/forum_app.gd" id="1_goqfn"]
 [ext_resource type="PackedScene" uid="uid://c1eml51sqyj5c" path="res://apps/forum/forum_post_ui.tscn" id="4_2d478"]
+[ext_resource type="PackedScene" uid="uid://bsmlmh5xi4r03" path="res://apps/forum/forum_alert_card.tscn" id="4_jseev"]
 [ext_resource type="PackedScene" uid="uid://v0ask2g51gcm" path="res://apps/forum/forum_thread_row_ui.tscn" id="5_jseev"]
 [ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="6_chltv"]
 
@@ -15,6 +16,7 @@ size_flags_horizontal = 3
 script = ExtResource("1_goqfn")
 post_ui_scene = ExtResource("4_2d478")
 thread_row_scene = ExtResource("5_jseev")
+alert_card_scene = ExtResource("4_jseev")
 
 [node name="MasterScroll" type="ScrollContainer" parent="." unique_id=1604201622]
 unique_name_in_owner = true

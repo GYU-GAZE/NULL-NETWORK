@@ -30,6 +30,7 @@ NetworkUserDatabase="*uid://hgxhi0xngeti"
 UniversalNotifications="*uid://76i2tpbcma6u"
 UniversalAlerts="*uid://c0hyybnt1hst3"
 ForumThreadDatabase="*uid://bpdyhjd4pvl84"
+ForumThreadWatcher="*uid://dr6lhsur8ec0t"
 
 [display]
 
