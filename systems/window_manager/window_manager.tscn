@@ -13,4 +13,3 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_uq54c")
 window_base_scene = ExtResource("2_mospc")
-reserved_top_height = 19.0

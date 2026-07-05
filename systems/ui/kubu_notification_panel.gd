@@ -4,10 +4,10 @@ class_name KubuNotificationPanel
 signal panel_opened
 signal panel_closed
 
-@export_category("Layout")
-@export var taskbar_height: float = 36.0
-@export var panel_size: Vector2 = Vector2(420, 420)
-@export var right_margin: float = 8.0
+@export_category("Fallback Layout")
+@export var taskbar_height: float = 19.0
+@export var panel_size: Vector2 = Vector2(360, 300)
+@export var right_margin: float = 6.0
 @export var top_gap: float = 0.0
 
 @export_category("Animation")
@@ -28,9 +28,15 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = true
 
+	_sync_metrics()
+
+	if not KubuOSMetrics.metrics_changed.is_connected(_on_metrics_changed):
+		KubuOSMetrics.metrics_changed.connect(_on_metrics_changed)
+
 	if panel_container != null:
 		panel_container.mouse_filter = Control.MOUSE_FILTER_STOP
 		panel_container.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		panel_container.custom_minimum_size = Vector2.ZERO
 
 	if not GlobalSignals.request_toggle_notification_center.is_connected(toggle):
 		GlobalSignals.request_toggle_notification_center.connect(toggle)
@@ -81,17 +87,31 @@ func _on_resized() -> void:
 	_apply_layout(false)
 
 
+func _sync_metrics() -> void:
+	taskbar_height = KubuOSMetrics.taskbar_height
+	panel_size = KubuOSMetrics.notification_panel_size
+	right_margin = KubuOSMetrics.notification_right_margin
+	top_gap = KubuOSMetrics.notification_top_gap
+
+
+func _on_metrics_changed() -> void:
+	_sync_metrics()
+	_apply_layout(false)
+
+
 func _apply_layout(animated: bool) -> void:
 	if panel_container == null:
 		return
 
 	panel_container.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	panel_container.custom_minimum_size = Vector2.ZERO
 	panel_container.size = panel_size
 
-	var target_position: Vector2 = _get_open_position()
+	var runtime_panel_size: Vector2 = _get_runtime_panel_size()
+	var target_position: Vector2 = _get_open_position(runtime_panel_size)
 
 	if not is_open:
-		target_position = _get_closed_position()
+		target_position = _get_closed_position(runtime_panel_size)
 
 	if not animated:
 		panel_container.position = target_position
@@ -110,23 +130,35 @@ func _apply_layout(animated: bool) -> void:
 	)
 
 
-func _get_open_position() -> Vector2:
+func _get_open_position(runtime_panel_size: Vector2) -> Vector2:
 	var root_size: Vector2 = _get_root_size()
 
-	var x: float = root_size.x - panel_size.x - right_margin
+	var x: float = root_size.x - runtime_panel_size.x - right_margin
 	var y: float = taskbar_height + top_gap
 
-	x = clamp(x, 0.0, max(0.0, root_size.x - panel_size.x))
+	x = clamp(x, 0.0, max(0.0, root_size.x - runtime_panel_size.x))
 
 	return Vector2(x, y)
 
 
-func _get_closed_position() -> Vector2:
-	var open_position: Vector2 = _get_open_position()
+func _get_closed_position(runtime_panel_size: Vector2) -> Vector2:
+	var open_position: Vector2 = _get_open_position(runtime_panel_size)
 
 	return Vector2(
 		open_position.x,
-		taskbar_height - panel_size.y
+		-runtime_panel_size.y
+	)
+
+
+func _get_runtime_panel_size() -> Vector2:
+	var runtime_size: Vector2 = panel_container.size
+
+	if runtime_size.x <= 0.0 or runtime_size.y <= 0.0:
+		runtime_size = panel_size
+
+	return Vector2(
+		max(1.0, runtime_size.x),
+		max(1.0, runtime_size.y)
 	)
 
 

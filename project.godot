@@ -31,6 +31,7 @@ UniversalNotifications="*uid://76i2tpbcma6u"
 UniversalAlerts="*uid://c0hyybnt1hst3"
 ForumThreadDatabase="*uid://bpdyhjd4pvl84"
 ForumThreadWatcher="*uid://dr6lhsur8ec0t"
+KubuOSMetrics="*uid://c6c2hs74gfwis"
 
 [display]
 
@@ -39,6 +40,13 @@ window/size/viewport_height=540
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 window/stretch/scale_mode="integer"
+
+[gui]
+
+theme/default_font_antialiasing=0
+theme/default_font_hinting=0
+theme/default_font_subpixel_positioning=0
+theme/custom="uid://b7gxuuxwdgv0u"
 
 [rendering]
 

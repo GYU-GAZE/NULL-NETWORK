@@ -48,6 +48,12 @@ var _last_day_text: String = ""
 
 
 func _ready() -> void:
+	_apply_metrics()
+
+	if not KubuOSMetrics.metrics_changed.is_connected(_apply_metrics):
+		KubuOSMetrics.metrics_changed.connect(_apply_metrics)
+
+	temperature_label.text = temperature_label_text
 	temperature_label.text = temperature_label_text
 	location_label.text = location_label_text
 	network_label.text = network_label_text
@@ -71,6 +77,11 @@ func _ready() -> void:
 	_refresh_from_time_manager()
 	_refresh_notification_badge()
 
+func _apply_metrics() -> void:
+	custom_minimum_size = Vector2(custom_minimum_size.x, KubuOSMetrics.taskbar_height)
+	size = Vector2(size.x, KubuOSMetrics.taskbar_height)
+	offset_top = 0.0
+	offset_bottom = KubuOSMetrics.taskbar_height
 
 func _collect_action_pips() -> void:
 	action_pips.clear()

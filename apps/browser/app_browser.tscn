@@ -1,6 +1,5 @@
 [gd_scene format=3 uid="uid://dcoqma7h6c75u"]
 
-[ext_resource type="Theme" uid="uid://di75uk752biah" path="res://data/assets/themes/kububrowser.tres" id="1_ipe0g"]
 [ext_resource type="Script" uid="uid://cwms4o3bngg47" path="res://apps/browser/browser.gd" id="1_mufrk"]
 [ext_resource type="PackedScene" uid="uid://c15t5fwjule8g" path="res://apps/browser/browser_tab_button.tscn" id="2_4noms"]
 [ext_resource type="PackedScene" uid="uid://br0t7kf5rrafw" path="res://apps/browser/browser_new_tab_button.tscn" id="3_fx11j"]
@@ -9,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://dlkm01xdtlvo2" path="res://systems/ui/alert_box.tscn" id="5_l1ivm"]
 
 [node name="BrowserApp" type="Panel" unique_id=1373929234]
-theme = ExtResource("1_ipe0g")
+clip_contents = true
 script = ExtResource("1_mufrk")
 tab_button_scene = ExtResource("2_4noms")
 new_tab_button_scene = ExtResource("3_fx11j")
@@ -92,6 +91,7 @@ text = "☆"
 layout_mode = 2
 
 [node name="ContentArea" type="MarginContainer" parent="MainVBox" unique_id=1789936585]
+clip_contents = true
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -106,10 +106,18 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="CustomSiteContainer" type="MarginContainer" parent="MainVBox/ContentArea" unique_id=1185931622]
+[node name="CustomSiteScroll" type="ScrollContainer" parent="MainVBox/ContentArea" unique_id=1164053081]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="CustomSiteContainer" type="MarginContainer" parent="MainVBox/ContentArea/CustomSiteScroll" unique_id=1185931622]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="AlertLayer" type="Control" parent="." unique_id=1159255861]
 layout_mode = 1

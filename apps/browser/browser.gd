@@ -29,6 +29,7 @@ class_name BrowserApp
 
 @onready var normal_site_scroll: ScrollContainer = %NormalSiteScroll
 @onready var normal_site_content: VBoxContainer = %NormalSiteContent
+@onready var custom_site_scroll: ScrollContainer = %CustomSiteScroll
 @onready var custom_site_container: MarginContainer = %CustomSiteContainer
 
 var tabs: Array[BrowserTabData] = []
@@ -323,7 +324,7 @@ func _clear_containers() -> void:
 
 
 func _render_403_error() -> void:
-	custom_site_container.hide()
+	custom_site_scroll.hide()
 	normal_site_scroll.show()
 
 	var error_label := Label.new()
@@ -335,7 +336,7 @@ func _render_403_error() -> void:
 
 
 func _render_missing_scene_error(page: WebsitePage) -> void:
-	custom_site_container.hide()
+	custom_site_scroll.hide()
 	normal_site_scroll.show()
 
 	var error_label := Label.new()
@@ -348,10 +349,16 @@ func _render_missing_scene_error(page: WebsitePage) -> void:
 
 func _render_custom_site(scene: PackedScene, state: Dictionary = {}) -> void:
 	normal_site_scroll.hide()
-	custom_site_container.show()
+	custom_site_scroll.show()
 
 	var instance: Node = scene.instantiate()
 	custom_site_container.add_child(instance)
+
+	if instance is Control:
+		var control := instance as Control
+		control.custom_minimum_size = Vector2.ZERO
+		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		control.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
 	_connect_browser_navigation_signals(instance)
 

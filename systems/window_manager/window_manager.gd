@@ -4,18 +4,23 @@ class_name WindowManager
 @export_category("Dependencies")
 @export var window_base_scene: PackedScene
 
-@export_category("OS Reserved Areas")
-@export var reserved_top_height: float = 36.0
+@export_category("Fallback OS Reserved Areas")
+@export var reserved_top_height: float = 19.0
 @export var reserved_bottom_height: float = 0.0
 @export var reserved_left_width: float = 0.0
 @export var reserved_right_width: float = 0.0
 
-var open_windows: Dictionary = {} # app_id -> WindowBase
-var saved_window_states: Dictionary = {} # app_id -> Dictionary { position, size }
+var open_windows: Dictionary = {}
+var saved_window_states: Dictionary = {}
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	_sync_metrics()
+
+	if not KubuOSMetrics.metrics_changed.is_connected(_on_metrics_changed):
+		KubuOSMetrics.metrics_changed.connect(_on_metrics_changed)
 
 	GlobalSignals.request_open_app.connect(_on_request_open_app)
 	GlobalSignals.request_close_app.connect(close_window)
@@ -136,6 +141,21 @@ func _get_parent_size() -> Vector2:
 		parent_size = get_viewport_rect().size
 
 	return parent_size
+
+
+func _sync_metrics() -> void:
+	reserved_top_height = KubuOSMetrics.taskbar_height
+	reserved_bottom_height = KubuOSMetrics.dock_height
+	reserved_left_width = KubuOSMetrics.reserved_left_width
+	reserved_right_width = KubuOSMetrics.reserved_right_width
+
+
+func _on_metrics_changed() -> void:
+	_sync_metrics()
+
+	for window in open_windows.values():
+		if window is WindowBase:
+			_clamp_window_to_work_area(window as WindowBase)
 
 
 func _apply_saved_or_default_window_state(app_id: String, window: WindowBase) -> void:

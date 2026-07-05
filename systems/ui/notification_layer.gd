@@ -4,11 +4,11 @@ class_name NotificationLayer
 @export_category("Scene")
 @export var toast_scene: PackedScene
 
-@export_category("OS Chrome Position")
-@export var taskbar_height: float = 36.0
-@export var right_margin: float = 8.0
-@export var top_gap: float = 6.0
-@export var hidden_extra_y: float = 8.0
+@export_category("Fallback OS Chrome Position")
+@export var taskbar_height: float = 19.0
+@export var right_margin: float = 6.0
+@export var top_gap: float = 4.0
+@export var hidden_extra_y: float = 6.0
 
 @export_category("Behavior")
 @export var max_visible_notifications: int = 1
@@ -22,6 +22,11 @@ var is_notification_center_open: bool = false
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+	_sync_metrics()
+
+	if not KubuOSMetrics.metrics_changed.is_connected(_on_metrics_changed):
+		KubuOSMetrics.metrics_changed.connect(_on_metrics_changed)
+
 	if not UniversalNotifications.notification_requested.is_connected(_on_notification_requested):
 		UniversalNotifications.notification_requested.connect(_on_notification_requested)
 
@@ -32,6 +37,17 @@ func _ready() -> void:
 	if GlobalSignals.has_signal("request_close_notification_center"):
 		if not GlobalSignals.request_close_notification_center.is_connected(_on_notification_center_closed):
 			GlobalSignals.request_close_notification_center.connect(_on_notification_center_closed)
+
+
+func _sync_metrics() -> void:
+	taskbar_height = KubuOSMetrics.taskbar_height
+	right_margin = KubuOSMetrics.toast_right_margin
+	top_gap = KubuOSMetrics.toast_top_gap
+	hidden_extra_y = KubuOSMetrics.toast_hidden_extra_y
+
+
+func _on_metrics_changed() -> void:
+	_sync_metrics()
 
 
 func _on_notification_requested(title: String, message: String) -> void:
@@ -119,7 +135,7 @@ func _get_toast_hidden_position(toast: NotificationToast, final_pos: Vector2) ->
 
 	return Vector2(
 		final_pos.x,
-		taskbar_height - toast_size.y - hidden_extra_y
+		-toast_size.y - hidden_extra_y
 	)
 
 
