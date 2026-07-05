@@ -3,17 +3,22 @@
 [ext_resource type="Script" uid="uid://baf4xd38af0fs" path="res://systems/ui/kubu_notification_card.gd" id="1_7gi24"]
 
 [node name="KubuNotificationCard" type="Button" unique_id=1239208577]
+custom_minimum_size = Vector2(0, 72)
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+size_flags_horizontal = 3
 script = ExtResource("1_7gi24")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=1130172725]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=992123902]
 layout_mode = 2
@@ -21,10 +26,12 @@ layout_mode = 2
 [node name="StatusLabel" type="Label" parent="MarginContainer/HBoxContainer" unique_id=1075525162]
 unique_name_in_owner = true
 layout_mode = 2
+text = "abc"
 
 [node name="TypeLabel" type="Label" parent="MarginContainer/HBoxContainer" unique_id=1481049536]
 unique_name_in_owner = true
 layout_mode = 2
+text = "abvc"
 
 [node name="TextVBox" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1821590064]
 layout_mode = 2
@@ -32,11 +39,17 @@ layout_mode = 2
 [node name="TitleLabel" type="Label" parent="MarginContainer/HBoxContainer/TextVBox" unique_id=144462416]
 unique_name_in_owner = true
 layout_mode = 2
+text = "abvc"
+autowrap_mode = 2
 
 [node name="MessageLabel" type="Label" parent="MarginContainer/HBoxContainer/TextVBox" unique_id=1953685174]
 unique_name_in_owner = true
 layout_mode = 2
+text = "abvc"
+autowrap_mode = 2
 
 [node name="MetaLabel" type="Label" parent="MarginContainer/HBoxContainer/TextVBox" unique_id=1047486311]
 unique_name_in_owner = true
 layout_mode = 2
+text = "abc"
+autowrap_mode = 2

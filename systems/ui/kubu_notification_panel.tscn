@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://b80q2304dxkkp"]
+
+[ext_resource type="PackedScene" uid="uid://bqmoyfon08xk6" path="res://systems/ui/kubu_notification_center.tscn" id="1_een0e"]
+[ext_resource type="Script" uid="uid://f5sikftn4sh7" path="res://systems/ui/kubu_notification_panel.gd" id="1_jupji"]
+[ext_resource type="PackedScene" uid="uid://b75wwtpxnql2o" path="res://systems/ui/kubu_notification_card.tscn" id="2_n8vfv"]
+
+[node name="KubuNotificationPanel" type="Control" unique_id=805521796]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_jupji")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1719810284]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 420)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="KubuNotificationCenter" parent="PanelContainer" unique_id=2085214822 instance=ExtResource("1_een0e")]
+unique_name_in_owner = true
+layout_mode = 2
+notification_card_scene = ExtResource("2_n8vfv")

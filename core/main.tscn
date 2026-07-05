@@ -8,6 +8,7 @@
 [ext_resource type="Resource" uid="uid://fu3bq14o7fy3" path="res://data/content/apps/app_notifications.tres" id="6_cus2n"]
 [ext_resource type="PackedScene" uid="uid://dbcmrbcstca3l" path="res://systems/window_manager/window_manager.tscn" id="6_rayt5"]
 [ext_resource type="PackedScene" uid="uid://b65wapqwc7vgi" path="res://systems/desktop/kubu_top_taskbar.tscn" id="8_brq4u"]
+[ext_resource type="PackedScene" uid="uid://b80q2304dxkkp" path="res://systems/ui/kubu_notification_panel.tscn" id="8_jsmgm"]
 
 [sub_resource type="Resource" id="Resource_kagtj"]
 script = ExtResource("2_cus2n")
@@ -42,6 +43,10 @@ layer = 10
 
 [node name="OSChromeLayer" type="CanvasLayer" parent="." unique_id=790163479]
 layer = 20
+
+[node name="KubuNotificationPanel" parent="OSChromeLayer" unique_id=805521796 instance=ExtResource("8_jsmgm")]
+size_flags_horizontal = 4
+size_flags_vertical = 0
 
 [node name="KubuTopTaskbar" parent="OSChromeLayer" unique_id=614386726 instance=ExtResource("8_brq4u")]
 custom_minimum_size = Vector2(0, 36)

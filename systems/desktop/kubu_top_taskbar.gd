@@ -217,7 +217,7 @@ func _refresh_notification_badge() -> void:
 
 
 func _on_notification_button_pressed() -> void:
-	UniversalNotifications.push_simple("Notification button pressed.")
+	GlobalSignals.request_toggle_notification_center.emit()
 
 
 func _on_menu_button_pressed() -> void:
