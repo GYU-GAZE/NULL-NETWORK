@@ -5,12 +5,12 @@ enum TimePeriod {
 	NIGHT
 }
 
-const ACTION_BLOCKS_PER_PERIOD: int = 6
+const ACTION_BLOCKS_PER_PERIOD: int = 12
 const TOTAL_ACTION_BLOCKS_PER_DAY: int = ACTION_BLOCKS_PER_PERIOD * 2
 const SECONDS_PER_DAY: int = 86400
 
 @export_category("Game Start Date")
-var start_year: int = 2026
+@export var start_year: int = 2026
 @export_range(1, 12) var start_month: int = 1
 @export_range(1, 31) var start_calendar_day: int = 1
 
@@ -25,6 +25,7 @@ var days_until_update: int = 7
 var current_year: int = 2026
 var current_month_index: int = 0
 var current_calendar_day: int = 1
+var current_weekday_index: int = 0
 
 const MONTH_NAMES: Array[String] = [
 	"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
@@ -34,6 +35,10 @@ const MONTH_NAMES: Array[String] = [
 const FULL_MONTH_NAMES: Array[String] = [
 	"January", "February", "March", "April", "May", "June",
 	"July", "August", "September", "October", "November", "December"
+]
+
+const WEEKDAY_NAMES: Array[String] = [
+	"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"
 ]
 
 
@@ -75,6 +80,7 @@ func _sync_calendar_from_days_passed() -> void:
 	current_year = int(date_info.get("year", start_year))
 	current_month_index = int(date_info.get("month", start_month)) - 1
 	current_calendar_day = int(date_info.get("day", start_calendar_day))
+	current_weekday_index = int(date_info.get("weekday", 0))
 
 
 func _emit_time_signal() -> void:
@@ -102,6 +108,15 @@ func get_current_period_name() -> String:
 	return get_period_name(current_period)
 
 
+func get_current_weekday_name() -> String:
+	var safe_index: int = clampi(current_weekday_index, 0, WEEKDAY_NAMES.size() - 1)
+	return WEEKDAY_NAMES[safe_index]
+
+
+func is_weekend() -> bool:
+	return current_weekday_index == 0 or current_weekday_index == 6
+
+
 func get_actions_left_in_period() -> int:
 	return ACTION_BLOCKS_PER_PERIOD - current_action_block
 
@@ -120,6 +135,15 @@ func get_total_action_index() -> int:
 		current_period,
 		current_action_block
 	)
+
+
+func get_current_day_block_index() -> int:
+	var period_offset: int = 0
+
+	if current_period == TimePeriod.NIGHT:
+		period_offset = ACTION_BLOCKS_PER_PERIOD
+
+	return period_offset + current_action_block
 
 
 func get_action_index_for_game_time(game_day: int, period: int, action_block: int) -> int:
@@ -153,25 +177,46 @@ func get_action_block_hour(period: int, action_block: int) -> int:
 	var safe_action_block: int = clampi(action_block, 0, ACTION_BLOCKS_PER_PERIOD - 1)
 
 	if period == TimePeriod.NIGHT:
-		return (18 + (safe_action_block * 2)) % 24
+		return (18 + safe_action_block) % 24
 
-	return 6 + (safe_action_block * 2)
+	return 6 + safe_action_block
 
 
-func format_action_block_hour(period: int, action_block: int) -> String:
-	var hour_24: int = get_action_block_hour(period, action_block)
+func get_day_block_index_for_hour(hour: int) -> int:
+	var safe_hour: int = posmod(hour, 24)
+
+	if safe_hour >= 6 and safe_hour <= 17:
+		return safe_hour - 6
+
+	if safe_hour >= 18 and safe_hour <= 23:
+		return ACTION_BLOCKS_PER_PERIOD + (safe_hour - 18)
+
+	return ACTION_BLOCKS_PER_PERIOD + 6 + safe_hour
+
+
+func is_hour_in_day_period(hour: int) -> bool:
+	var safe_hour: int = posmod(hour, 24)
+	return safe_hour >= 6 and safe_hour <= 17
+
+
+func format_hour_12(hour_24: int) -> String:
+	var safe_hour: int = posmod(hour_24, 24)
 
 	var suffix: String = "AM"
 
-	if hour_24 >= 12:
+	if safe_hour >= 12:
 		suffix = "PM"
 
-	var hour_12: int = hour_24 % 12
+	var hour_12: int = safe_hour % 12
 
 	if hour_12 == 0:
 		hour_12 = 12
 
 	return "%d %s" % [hour_12, suffix]
+
+
+func format_action_block_hour(period: int, action_block: int) -> String:
+	return format_hour_12(get_action_block_hour(period, action_block))
 
 
 func format_forum_timestamp(game_day: int, period: int, action_block: int) -> String:

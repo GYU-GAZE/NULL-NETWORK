@@ -1,0 +1,181 @@
+[gd_scene format=3 uid="uid://b65wapqwc7vgi"]
+
+[ext_resource type="Script" uid="uid://cxk7wbhj63ywr" path="res://systems/desktop/kubu_top_taskbar.gd" id="1_fh3bs"]
+[ext_resource type="PackedScene" uid="uid://de6bco5bmfe1v" path="res://systems/desktop/kubu_action_pip.tscn" id="2_ofqvs"]
+
+[node name="KubuTopTaskbar" type="PanelContainer" unique_id=614386726]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 31.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+script = ExtResource("1_fh3bs")
+slot_hours = Array[int]([6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5])
+weekday_available_hours = Array[int]([6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1370706736]
+layout_mode = 2
+
+[node name="MainHBox" type="HBoxContainer" parent="MarginContainer" unique_id=1680276485]
+layout_mode = 2
+
+[node name="LeftHBox" type="HBoxContainer" parent="MarginContainer/MainHBox" unique_id=19311493]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/MainHBox/LeftHBox" unique_id=925555801]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_right = 20
+
+[node name="TimeLabel" type="Label" parent="MarginContainer/MainHBox/LeftHBox/MarginContainer" unique_id=2110130482]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "06 AM"
+
+[node name="ActionPipHBox" type="HBoxContainer" parent="MarginContainer/MainHBox/LeftHBox" unique_id=1911763943]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="KubuActionPip" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=499583230 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip2" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1072617752 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip3" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=2063661907 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip4" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=730442374 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip5" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=725360401 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip6" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=968344807 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip7" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1708828972 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip8" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1904771323 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip9" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=803288499 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip10" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1643806711 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip11" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1389360433 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip12" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1756388800 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip13" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=2130226006 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip14" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1630731797 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip15" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1669250791 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip16" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=307720823 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip17" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1714191202 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip18" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1254773440 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip19" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1431757605 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip20" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=148494543 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip21" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1154246325 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip22" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1337558743 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip23" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1550069258 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip24" parent="MarginContainer/MainHBox/LeftHBox/ActionPipHBox" unique_id=1878010277 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="SepA" type="Label" parent="MarginContainer/MainHBox/LeftHBox" unique_id=985008323]
+layout_mode = 2
+text = "|"
+
+[node name="TemperatureLabel" type="Label" parent="MarginContainer/MainHBox/LeftHBox" unique_id=708353296]
+unique_name_in_owner = true
+layout_mode = 2
+text = "23°C"
+
+[node name="SepB" type="Label" parent="MarginContainer/MainHBox/LeftHBox" unique_id=351112727]
+layout_mode = 2
+text = "|"
+
+[node name="LocationLabel" type="Label" parent="MarginContainer/MainHBox/LeftHBox" unique_id=882875370]
+unique_name_in_owner = true
+layout_mode = 2
+text = "TOKYO - SHIBUYA"
+
+[node name="CenterSpacerLeft" type="Control" parent="MarginContainer/MainHBox" unique_id=43988963]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CenterHBox" type="HBoxContainer" parent="MarginContainer/MainHBox" unique_id=22832124]
+layout_mode = 2
+alignment = 1
+
+[node name="DayLabel" type="Label" parent="MarginContainer/MainHBox/CenterHBox" unique_id=1612470781]
+unique_name_in_owner = true
+layout_mode = 2
+text = "DAY 01"
+
+[node name="CenterSpacerRight" type="Control" parent="MarginContainer/MainHBox" unique_id=1694922037]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightHBox" type="HBoxContainer" parent="MarginContainer/MainHBox" unique_id=194839902]
+layout_mode = 2
+alignment = 2
+
+[node name="DateLabel" type="Label" parent="MarginContainer/MainHBox/RightHBox" unique_id=847208262]
+unique_name_in_owner = true
+layout_mode = 2
+text = "01.JAN.2026"
+
+[node name="SepC" type="Label" parent="MarginContainer/MainHBox/RightHBox" unique_id=1937519956]
+layout_mode = 2
+text = "|"
+
+[node name="NetworkLabel" type="Label" parent="MarginContainer/MainHBox/RightHBox" unique_id=1263436092]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NET"
+
+[node name="BatteryLabel" type="Label" parent="MarginContainer/MainHBox/RightHBox" unique_id=2065754869]
+unique_name_in_owner = true
+layout_mode = 2
+text = "BAT 95%"
+
+[node name="NotificationButton" type="Button" parent="MarginContainer/MainHBox/RightHBox" unique_id=675898044]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NOTIF"
+
+[node name="MenuButton" type="Button" parent="MarginContainer/MainHBox/RightHBox" unique_id=740875205]
+unique_name_in_owner = true
+layout_mode = 2
+text = "☰"

@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dcoqma7h6c75u" path="res://apps/browser/app_browser.tscn" id="4_q8u6i"]
 [ext_resource type="PackedScene" uid="uid://b2jukdy0iqin4" path="res://apps/navigator/app_navigator.tscn" id="5_6yas7"]
 [ext_resource type="Resource" uid="uid://fu3bq14o7fy3" path="res://data/content/apps/app_notifications.tres" id="6_t5qpq"]
+[ext_resource type="PackedScene" uid="uid://b65wapqwc7vgi" path="res://systems/desktop/kubu_top_taskbar.tscn" id="7_1juv5"]
 
 [sub_resource type="Resource" id="Resource_uadmx"]
 script = ExtResource("2_yw0nm")
@@ -53,10 +54,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -335.5
-offset_top = -68.5
-offset_right = 335.5
-offset_bottom = 68.5
+offset_left = -452.0
+offset_top = -74.0
+offset_right = 452.0
+offset_bottom = 74.0
 grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
@@ -131,3 +132,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 15
 alignment = 1
+
+[node name="KubuTopTaskbar" parent="." unique_id=614386726 instance=ExtResource("7_1juv5")]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 1
