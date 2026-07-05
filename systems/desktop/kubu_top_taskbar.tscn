@@ -22,19 +22,29 @@ layout_mode = 2
 [node name="LeftHBox" type="HBoxContainer" parent="MarginContainer/MainHBox" unique_id=19311493]
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/MainHBox/LeftHBox" unique_id=925555801]
+[node name="TimeNigga" type="Control" parent="MarginContainer/MainHBox/LeftHBox" unique_id=50364083]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="TimeMargin" type="MarginContainer" parent="MarginContainer/MainHBox/LeftHBox/TimeNigga" unique_id=925555801]
+layout_mode = 0
+offset_left = 4.0
+offset_right = 87.0
+offset_bottom = 31.0
+size_flags_horizontal = 4
 theme_override_constants/margin_left = 15
 theme_override_constants/margin_right = 20
 
-[node name="TimeLabel" type="Label" parent="MarginContainer/MainHBox/LeftHBox/MarginContainer" unique_id=2110130482]
+[node name="TimeLabel" type="Label" parent="MarginContainer/MainHBox/LeftHBox/TimeNigga/TimeMargin" unique_id=2110130482]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 4
 text = "06 AM"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="ActionPipHBox" type="HBoxContainer" parent="MarginContainer/MainHBox/LeftHBox" unique_id=1911763943]
 unique_name_in_owner = true
@@ -136,6 +146,7 @@ size_flags_horizontal = 3
 
 [node name="CenterHBox" type="HBoxContainer" parent="MarginContainer/MainHBox" unique_id=22832124]
 layout_mode = 2
+size_flags_horizontal = 6
 alignment = 1
 
 [node name="DayLabel" type="Label" parent="MarginContainer/MainHBox/CenterHBox" unique_id=1612470781]
