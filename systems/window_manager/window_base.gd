@@ -176,10 +176,20 @@ func restore_from_maximized() -> void:
 
 
 func _get_maximized_position() -> Vector2:
+	var parent_node: Node = get_parent()
+
+	if parent_node != null and parent_node.has_method("get_work_area_position"):
+		return parent_node.get_work_area_position()
+
 	return Vector2.ZERO
 
 
 func _get_maximized_size() -> Vector2:
+	var parent_node: Node = get_parent()
+
+	if parent_node != null and parent_node.has_method("get_work_area_size"):
+		return parent_node.get_work_area_size()
+
 	var parent_control: Control = get_parent() as Control
 
 	if parent_control != null and parent_control.size.x > 0.0 and parent_control.size.y > 0.0:

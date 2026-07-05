@@ -4,16 +4,17 @@ class_name WindowManager
 @export_category("Dependencies")
 @export var window_base_scene: PackedScene
 
+@export_category("OS Reserved Areas")
+@export var reserved_top_height: float = 36.0
+@export var reserved_bottom_height: float = 0.0
+@export var reserved_left_width: float = 0.0
+@export var reserved_right_width: float = 0.0
+
 var open_windows: Dictionary = {} # app_id -> WindowBase
 var saved_window_states: Dictionary = {} # app_id -> Dictionary { position, size }
 
 
 func _ready() -> void:
-	# HOTFIX:
-	# WindowManager fica em Full Rect por cima do Desktop.
-	# Se ele consumir mouse, ele bloqueia botões/ícones do desktop fora das janelas.
-	# Com IGNORE, áreas vazias passam clique para o Desktop,
-	# mas as janelas filhas continuam recebendo input normalmente.
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	GlobalSignals.request_open_app.connect(_on_request_open_app)
@@ -97,7 +98,7 @@ func _on_window_changed(app_id: String) -> void:
 		return
 
 	var window: WindowBase = open_windows[app_id]
-	_clamp_window_to_screen(window)
+	_clamp_window_to_work_area(window)
 	_save_window_state(app_id, window)
 
 
@@ -112,6 +113,31 @@ func cycle_windows() -> void:
 			break
 
 
+func get_work_area_position() -> Vector2:
+	return Vector2(
+		reserved_left_width,
+		reserved_top_height
+	)
+
+
+func get_work_area_size() -> Vector2:
+	var parent_size: Vector2 = _get_parent_size()
+
+	return Vector2(
+		max(0.0, parent_size.x - reserved_left_width - reserved_right_width),
+		max(0.0, parent_size.y - reserved_top_height - reserved_bottom_height)
+	)
+
+
+func _get_parent_size() -> Vector2:
+	var parent_size: Vector2 = size
+
+	if parent_size.x <= 0.0 or parent_size.y <= 0.0:
+		parent_size = get_viewport_rect().size
+
+	return parent_size
+
+
 func _apply_saved_or_default_window_state(app_id: String, window: WindowBase) -> void:
 	if saved_window_states.has(app_id):
 		var state: Dictionary = saved_window_states[app_id]
@@ -122,9 +148,12 @@ func _apply_saved_or_default_window_state(app_id: String, window: WindowBase) ->
 		if state.has("position"):
 			window.position = state["position"]
 	else:
-		window.position = (size - window.size) / 2.0
+		var work_position: Vector2 = get_work_area_position()
+		var work_size: Vector2 = get_work_area_size()
 
-	_clamp_window_to_screen(window)
+		window.position = work_position + ((work_size - window.size) / 2.0)
+
+	_clamp_window_to_work_area(window)
 	_save_window_state(app_id, window)
 
 
@@ -142,20 +171,31 @@ func _save_window_state(app_id: String, window: WindowBase) -> void:
 	}
 
 
-func _clamp_window_to_screen(window: WindowBase) -> void:
-	var parent_size: Vector2 = size
+func _clamp_window_to_work_area(window: WindowBase) -> void:
+	if window == null:
+		return
 
-	if parent_size.x <= 0 or parent_size.y <= 0:
-		parent_size = get_viewport_rect().size
+	var work_position: Vector2 = get_work_area_position()
+	var work_size: Vector2 = get_work_area_size()
 
-	var max_position: Vector2 = Vector2(
-		max(0.0, parent_size.x - window.size.x),
-		max(0.0, parent_size.y - window.size.y)
+	var max_allowed_size: Vector2 = Vector2(
+		max(window.min_window_size.x, work_size.x),
+		max(window.min_window_size.y, work_size.y)
+	)
+
+	window.size = Vector2(
+		min(window.size.x, max_allowed_size.x),
+		min(window.size.y, max_allowed_size.y)
+	)
+
+	var max_position: Vector2 = work_position + Vector2(
+		max(0.0, work_size.x - window.size.x),
+		max(0.0, work_size.y - window.size.y)
 	)
 
 	window.position = Vector2(
-		clamp(window.position.x, 0.0, max_position.x),
-		clamp(window.position.y, 0.0, max_position.y)
+		clamp(window.position.x, work_position.x, max_position.x),
+		clamp(window.position.y, work_position.y, max_position.y)
 	)
 
 
