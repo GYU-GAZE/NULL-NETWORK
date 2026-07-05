@@ -13,3 +13,4 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_3unrp")
 toast_scene = ExtResource("2_0w5bh")
+taskbar_height = 19.0

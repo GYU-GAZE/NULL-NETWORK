@@ -13,10 +13,12 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_jupji")
+taskbar_height = 19.0
+panel_size = Vector2(360, 300)
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=1719810284]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(420, 420)
+custom_minimum_size = Vector2(360, 300)
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0

@@ -8,7 +8,7 @@
 
 [node name="KubuActionPip" type="TextureRect" unique_id=499583230]
 texture_filter = 1
-custom_minimum_size = Vector2(10, 16)
+custom_minimum_size = Vector2(5, 8)
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5

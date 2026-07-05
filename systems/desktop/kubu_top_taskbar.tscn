@@ -6,9 +6,10 @@
 [ext_resource type="Texture2D" uid="uid://c8fmqahig64mp" path="res://data/assets/ui/bellz icon.png" id="4_7d4ja"]
 
 [node name="KubuTopTaskbar" type="PanelContainer" unique_id=614386726]
+custom_minimum_size = Vector2(0, 19)
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 31.0
+offset_bottom = 19.0
 grow_horizontal = 2
 size_flags_horizontal = 3
 theme = ExtResource("1_p0iwt")
@@ -163,6 +164,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = -2.5
+offset_bottom = 2.5
 grow_horizontal = 2
 grow_vertical = 2
 alignment = 2
@@ -200,10 +203,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1.0
-offset_top = 6.0
-offset_right = -7.0
-offset_bottom = -7.0
+offset_left = 6.0
+offset_top = 7.0
+offset_right = -16.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 texture_normal = ExtResource("4_7d4ja")
@@ -216,9 +219,9 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -23.0
+offset_left = -28.0
 offset_top = -3.0
-offset_right = 17.0
+offset_right = 12.0
 offset_bottom = 38.0
 grow_horizontal = 0
 text = "1"

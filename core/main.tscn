@@ -41,6 +41,7 @@ installed_apps = Array[ExtResource("2_cus2n")]([SubResource("Resource_kagtj"), S
 layer = 10
 
 [node name="WindowManager" parent="WindowManagerLayer" unique_id=211618596 instance=ExtResource("6_rayt5")]
+reserved_top_height = 19.0
 
 [node name="OSChromeLayer" type="CanvasLayer" parent="." unique_id=790163479]
 layer = 20
@@ -48,10 +49,15 @@ layer = 20
 [node name="KubuNotificationPanel" parent="OSChromeLayer" unique_id=805521796 instance=ExtResource("8_jsmgm")]
 size_flags_horizontal = 4
 size_flags_vertical = 0
-taskbar_height = 40.0
+taskbar_height = 19.0
+panel_size = Vector2(360, 300)
+right_margin = 6.0
 
 [node name="NotificationLayer" parent="OSChromeLayer" unique_id=1039715699 instance=ExtResource("9_xhu5d")]
-taskbar_height = 40.0
+taskbar_height = 19.0
+right_margin = 6.0
+top_gap = 4.0
+hidden_extra_y = 6.0
 
 [node name="KubuTopTaskbar" parent="OSChromeLayer" unique_id=614386726 instance=ExtResource("8_brq4u")]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 22)
