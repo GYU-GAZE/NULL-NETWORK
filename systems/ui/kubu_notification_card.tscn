@@ -35,6 +35,7 @@ text = "abvc"
 
 [node name="TextVBox" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1821590064]
 layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="TitleLabel" type="Label" parent="MarginContainer/HBoxContainer/TextVBox" unique_id=144462416]
 unique_name_in_owner = true

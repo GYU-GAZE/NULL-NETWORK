@@ -1,0 +1,12 @@
+[gd_resource type="Theme" format=3 uid="uid://di75uk752biah"]
+
+[ext_resource type="FontVariation" uid="uid://dbfkky14b821p" path="res://data/assets/fonts/silver_ui_font.tres" id="1_rhoty"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hr6mx"]
+bg_color = Color(0, 0, 0, 1)
+
+[resource]
+default_base_scale = 1.0
+default_font = ExtResource("1_rhoty")
+default_font_size = 38
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_hr6mx")

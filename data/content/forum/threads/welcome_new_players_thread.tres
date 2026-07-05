@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://csyarr4wn3qlx" path="res://data/templates/forum_thread.gd" id="2_fv5a7"]
 [ext_resource type="Script" uid="uid://cgcematgxdayk" path="res://data/templates/condition_data.gd" id="3_roit0"]
 [ext_resource type="Resource" uid="uid://cmfowidu6no38" path="res://data/content/users/Neetzsche.tres" id="4_a7hnc"]
+[ext_resource type="Resource" uid="uid://bdh72b0wuxe67" path="res://data/content/users/penguinsenior.tres" id="5_mjabt"]
 
 [sub_resource type="Resource" id="Resource_gk5kf"]
 script = ExtResource("1_wjhpy")
@@ -63,6 +64,14 @@ release_action_block = 1
 text_content = "[url=nav:null.net/profile/Neetzsche.]get a load of this dude[/url]"
 metadata/_custom_type_script = "uid://blxdqibocgs5x"
 
+[sub_resource type="Resource" id="Resource_g2kxv"]
+script = ExtResource("1_wjhpy")
+author = ExtResource("5_mjabt")
+post_id = "3"
+release_action_block = 2
+text_content = "ummm... really???"
+metadata/_custom_type_script = "uid://blxdqibocgs5x"
+
 [resource]
 script = ExtResource("2_fv5a7")
 thread_id = "welcomenewplayers"
@@ -72,5 +81,5 @@ thread_tags = Array[String](["guide", "new", "welcome"])
 is_pinned = true
 popularity_score = 999
 thread_preview = "Welcome to you all!"
-posts = Array[ExtResource("1_wjhpy")]([SubResource("Resource_gk5kf"), SubResource("Resource_fv5a7")])
+posts = Array[ExtResource("1_wjhpy")]([SubResource("Resource_gk5kf"), SubResource("Resource_fv5a7"), SubResource("Resource_g2kxv")])
 metadata/_custom_type_script = "uid://csyarr4wn3qlx"

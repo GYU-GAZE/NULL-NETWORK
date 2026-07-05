@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://de6bco5bmfe1v"]
 
 [ext_resource type="Script" uid="uid://c4l0hnp2w7hni" path="res://systems/desktop/kubu_action_pip.gd" id="1_uyuwb"]
-[ext_resource type="Texture2D" uid="uid://f0jkm3wh4njk" path="res://data/sprites/ui/pip current day.png" id="2_1djfw"]
-[ext_resource type="Texture2D" uid="uid://ywhbnfxbnvjw" path="res://data/sprites/ui/pip available day.png" id="3_5uk2r"]
-[ext_resource type="Texture2D" uid="uid://d35lyyu1f4ioi" path="res://data/sprites/ui/pip used day.png" id="4_fk0j2"]
-[ext_resource type="Texture2D" uid="uid://bryiqa022fgdx" path="res://data/sprites/ui/pip unavailable.png" id="5_sxlcg"]
+[ext_resource type="Texture2D" uid="uid://f0jkm3wh4njk" path="res://data/assets/ui/pip current day.png" id="2_1djfw"]
+[ext_resource type="Texture2D" uid="uid://ywhbnfxbnvjw" path="res://data/assets/ui/pip available day.png" id="3_5uk2r"]
+[ext_resource type="Texture2D" uid="uid://d35lyyu1f4ioi" path="res://data/assets/ui/pip used day.png" id="4_fk0j2"]
+[ext_resource type="Texture2D" uid="uid://bryiqa022fgdx" path="res://data/assets/ui/pip unavailable.png" id="5_sxlcg"]
 
 [node name="KubuActionPip" type="TextureRect" unique_id=499583230]
 texture_filter = 1

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c0hicc87o31l2"
-path="res://.godot/imported/pip current night.png-366cfedebf3f5b3b8eb89ea30a06001a.ctex"
+path="res://.godot/imported/pip current night.png-7e524bdcba63c989f642cbdbbe03aa6b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://data/sprites/ui/pip current night.png"
-dest_files=["res://.godot/imported/pip current night.png-366cfedebf3f5b3b8eb89ea30a06001a.ctex"]
+source_file="res://data/assets/ui/pip current night.png"
+dest_files=["res://.godot/imported/pip current night.png-7e524bdcba63c989f642cbdbbe03aa6b.ctex"]
 
 [params]
 

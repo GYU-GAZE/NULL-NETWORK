@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d1ikfbaxfrmtk"
-path="res://.godot/imported/nnwicon.png-935a8220e9f30c64ebcc00b91bed3835.ctex"
+uid="uid://gb5gnyimc243"
+path="res://.godot/imported/pip available night.png-1e652efab4c696eb60ed4de5a3716294.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://data/sprites/icons/nnwicon.png"
-dest_files=["res://.godot/imported/nnwicon.png-935a8220e9f30c64ebcc00b91bed3835.ctex"]
+source_file="res://data/assets/ui/pip available night.png"
+dest_files=["res://.godot/imported/pip available night.png-1e652efab4c696eb60ed4de5a3716294.ctex"]
 
 [params]
 

@@ -51,8 +51,12 @@ layout_mode = 2
 text = "No notifications yet."
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer" unique_id=1140984787]
+custom_minimum_size = Vector2(0, 240)
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="NotificationList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/ScrollContainer" unique_id=1480894940]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0

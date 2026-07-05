@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c5haoq87c7fjo"
-path="res://.godot/imported/pip used night.png-7dfa4af2c82a9a3138465a307e81d03d.ctex"
+uid="uid://d1ikfbaxfrmtk"
+path="res://.godot/imported/nnwicon.png-5cac3d4a6f7931977c574de67a303a67.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://data/sprites/ui/pip used night.png"
-dest_files=["res://.godot/imported/pip used night.png-7dfa4af2c82a9a3138465a307e81d03d.ctex"]
+source_file="res://data/assets/icons/nnwicon.png"
+dest_files=["res://.godot/imported/nnwicon.png-5cac3d4a6f7931977c574de67a303a67.ctex"]
 
 [params]
 

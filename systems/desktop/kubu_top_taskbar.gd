@@ -36,9 +36,10 @@ class_name KubuTopTaskbar
 @onready var date_label: Label = %DateLabel
 @onready var network_label: Label = %NetworkLabel
 @onready var battery_label: Label = %BatteryLabel
-@onready var notification_button: Button = %NotificationButton
+@onready var notification_button: TextureButton = %NotificationButton
 @onready var menu_button: Button = %MenuButton
 @onready var action_pip_hbox: HBoxContainer = %ActionPipHBox
+@onready var notification_badge: Label = %NotificationBadge
 
 var action_pips: Array[KubuActionPip] = []
 
@@ -209,11 +210,20 @@ func _refresh_notification_badge() -> void:
 	elif UniversalNotifications.has_method("get_history"):
 		unread_count = UniversalNotifications.get_history().size()
 
-	if unread_count <= 0:
-		notification_button.text = "NOTIF"
+	if notification_badge == null:
 		return
 
-	notification_button.text = "NOTIF %d" % unread_count
+	notification_badge.visible = unread_count > 0
+
+	if unread_count <= 0:
+		notification_badge.text = ""
+		return
+
+	if unread_count > 99:
+		notification_badge.text = "99+"
+		return
+
+	notification_badge.text = str(unread_count)
 
 
 func _on_notification_button_pressed() -> void:

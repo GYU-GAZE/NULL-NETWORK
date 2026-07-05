@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://f0jkm3wh4njk"
-path="res://.godot/imported/pip current day.png-159ee6f7b63a2d26cec20e17d47028cb.ctex"
+uid="uid://c8fmqahig64mp"
+path="res://.godot/imported/bellz icon.png-6da03a21e22f52d4b309d7efed29778f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://data/sprites/ui/pip current day.png"
-dest_files=["res://.godot/imported/pip current day.png-159ee6f7b63a2d26cec20e17d47028cb.ctex"]
+source_file="res://data/assets/ui/bellz icon.png"
+dest_files=["res://.godot/imported/bellz icon.png-6da03a21e22f52d4b309d7efed29778f.ctex"]
 
 [params]
 

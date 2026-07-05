@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d35lyyu1f4ioi"
-path="res://.godot/imported/pip used day.png-024a0e247e09b29d16f7ffade4355da8.ctex"
+uid="uid://f0jkm3wh4njk"
+path="res://.godot/imported/pip current day.png-8fa4f3ff096c1fd722022e16dcd64b04.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://data/sprites/ui/pip used day.png"
-dest_files=["res://.godot/imported/pip used day.png-024a0e247e09b29d16f7ffade4355da8.ctex"]
+source_file="res://data/assets/ui/pip current day.png"
+dest_files=["res://.godot/imported/pip current day.png-8fa4f3ff096c1fd722022e16dcd64b04.ctex"]
 
 [params]
 

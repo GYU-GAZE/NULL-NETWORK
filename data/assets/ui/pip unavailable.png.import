@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bryiqa022fgdx"
-path="res://.godot/imported/pip unavailable.png-d2557fb90c06681d6108757d66d8f9af.ctex"
+path="res://.godot/imported/pip unavailable.png-c375a4d710f7abad742db1fec47a7f19.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://data/sprites/ui/pip unavailable.png"
-dest_files=["res://.godot/imported/pip unavailable.png-d2557fb90c06681d6108757d66d8f9af.ctex"]
+source_file="res://data/assets/ui/pip unavailable.png"
+dest_files=["res://.godot/imported/pip unavailable.png-c375a4d710f7abad742db1fec47a7f19.ctex"]
 
 [params]
 
