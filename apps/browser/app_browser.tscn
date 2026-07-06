@@ -9,12 +9,15 @@
 
 [node name="BrowserApp" type="Panel" unique_id=1373929234]
 clip_contents = true
+size_flags_horizontal = 3
+size_flags_vertical = 3
 script = ExtResource("1_mufrk")
 tab_button_scene = ExtResource("2_4noms")
 new_tab_button_scene = ExtResource("3_fx11j")
 home_url = "kubus://home"
 
 [node name="MainVBox" type="VBoxContainer" parent="." unique_id=1051088920]
+clip_contents = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -51,6 +54,7 @@ size_flags_horizontal = 0
 
 [node name="AddressBarMargin" type="MarginContainer" parent="MainVBox" unique_id=237390264]
 layout_mode = 2
+size_flags_vertical = 0
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 10
@@ -114,10 +118,9 @@ horizontal_scroll_mode = 0
 
 [node name="CustomSiteContainer" type="MarginContainer" parent="MainVBox/ContentArea/CustomSiteScroll" unique_id=1185931622]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
+size_flags_vertical = 0
 
 [node name="AlertLayer" type="Control" parent="." unique_id=1159255861]
 layout_mode = 1
