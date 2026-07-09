@@ -63,6 +63,12 @@ func _on_request_open_app(app: AppResource) -> void:
 		var app_instance: Node = app.app_scene.instantiate()
 		new_window.content_container.add_child(app_instance)
 
+		if app_instance is Control:
+			var app_control := app_instance as Control
+			app_control.custom_minimum_size = Vector2.ZERO
+			app_control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			app_control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
 	_apply_saved_or_default_window_state(app_id, new_window)
 
 	new_window.window_focused.connect(focus_window.bind(app_id))

@@ -27,10 +27,10 @@ class_name BrowserApp
 @onready var browser_back_btn: Button = %BrowserBackBtn
 @onready var favorite_button: Button = %FavoriteButton
 
+@onready var content_area: Control = %ContentArea
 @onready var normal_site_scroll: ScrollContainer = %NormalSiteScroll
 @onready var normal_site_content: VBoxContainer = %NormalSiteContent
-@onready var custom_site_scroll: ScrollContainer = %CustomSiteScroll
-@onready var custom_site_container: MarginContainer = %CustomSiteContainer
+@onready var custom_site_container: Control = %CustomSiteContainer
 
 var tabs: Array[BrowserTabData] = []
 var current_tab_index: int = -1
@@ -38,6 +38,8 @@ var last_known_size: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
+	_apply_browser_shell_layout()
+
 	go_button.pressed.connect(_on_go_pressed)
 	url_line_edit.text_submitted.connect(_load_page)
 	browser_back_btn.pressed.connect(_on_browser_back_pressed)
@@ -47,6 +49,54 @@ func _ready() -> void:
 
 	_create_tab(home_url)
 
+func _apply_browser_shell_layout() -> void:
+	custom_minimum_size = Vector2.ZERO
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
+	clip_contents = true
+
+	if is_instance_valid(content_area):
+		content_area.custom_minimum_size = Vector2.ZERO
+		content_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		content_area.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		content_area.clip_contents = true
+
+	if is_instance_valid(normal_site_scroll):
+		normal_site_scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
+		normal_site_scroll.custom_minimum_size = Vector2.ZERO
+		normal_site_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		normal_site_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+	if is_instance_valid(custom_site_container):
+		custom_site_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+		custom_site_container.custom_minimum_size = Vector2.ZERO
+		custom_site_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		custom_site_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		custom_site_container.clip_contents = true
+
+		if not custom_site_container.resized.is_connected(_resize_current_custom_site):
+			custom_site_container.resized.connect(_resize_current_custom_site)
+
+
+func _show_normal_site_mode() -> void:
+	custom_site_container.hide()
+	normal_site_scroll.show()
+
+
+func _show_custom_site_mode() -> void:
+	normal_site_scroll.hide()
+	custom_site_container.show()
+
+
+func _resize_current_custom_site() -> void:
+	if not is_instance_valid(custom_site_container):
+		return
+
+	for child in custom_site_container.get_children():
+		if child is Control:
+			var control := child as Control
+			control.position = Vector2.ZERO
+			control.size = custom_site_container.size
 
 func _on_go_pressed() -> void:
 	_load_page(url_line_edit.text)
@@ -324,8 +374,7 @@ func _clear_containers() -> void:
 
 
 func _render_403_error() -> void:
-	custom_site_scroll.hide()
-	normal_site_scroll.show()
+	_show_normal_site_mode()
 
 	var error_label := Label.new()
 	error_label.text = "ERRO 403: CONNECTION REFUSED\n\nO servidor recusou a conexão ou o domínio não existe."
@@ -336,8 +385,7 @@ func _render_403_error() -> void:
 
 
 func _render_missing_scene_error(page: WebsitePage) -> void:
-	custom_site_scroll.hide()
-	normal_site_scroll.show()
+	_show_normal_site_mode()
 
 	var error_label := Label.new()
 	error_label.text = "ERRO 500: PAGE SCENE MISSING\n\nA rota '%s' existe, mas não possui custom_site_scene configurada." % page.url
@@ -348,14 +396,16 @@ func _render_missing_scene_error(page: WebsitePage) -> void:
 
 
 func _render_custom_site(scene: PackedScene, state: Dictionary = {}) -> void:
-	normal_site_scroll.hide()
-	custom_site_scroll.show()
+	_show_custom_site_mode()
 
 	var instance: Node = scene.instantiate()
 	custom_site_container.add_child(instance)
 
 	if instance is Control:
 		var control := instance as Control
+		control.set_anchors_preset(Control.PRESET_FULL_RECT)
+		control.position = Vector2.ZERO
+		control.size = custom_site_container.size
 		control.custom_minimum_size = Vector2.ZERO
 		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		control.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -369,6 +419,8 @@ func _render_custom_site(scene: PackedScene, state: Dictionary = {}) -> void:
 
 	if instance.has_method("restore_browser_state"):
 		instance.call_deferred("restore_browser_state", state)
+
+	_resize_current_custom_site()
 
 
 func _process(_delta: float) -> void:

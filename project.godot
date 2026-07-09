@@ -38,7 +38,7 @@ KubuOSMetrics="*uid://c6c2hs74gfwis"
 window/size/viewport_width=960
 window/size/viewport_height=540
 window/stretch/mode="viewport"
-window/stretch/aspect="expand"
+window/stretch/aspect="ignore"
 window/stretch/scale_mode="integer"
 
 [gui]

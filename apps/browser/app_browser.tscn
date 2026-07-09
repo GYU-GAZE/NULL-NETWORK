@@ -94,14 +94,15 @@ text = "☆"
 [node name="Divider" type="HSeparator" parent="MainVBox" unique_id=831126565]
 layout_mode = 2
 
-[node name="ContentArea" type="MarginContainer" parent="MainVBox" unique_id=1789936585]
+[node name="ContentArea" type="Control" parent="MainVBox" unique_id=1133759272]
 clip_contents = true
 layout_mode = 2
 size_flags_vertical = 3
 
 [node name="NormalSiteScroll" type="ScrollContainer" parent="MainVBox/ContentArea" unique_id=175349413]
 unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 0
+offset_right = 139.0
 horizontal_scroll_mode = 0
 
 [node name="NormalSiteContent" type="VBoxContainer" parent="MainVBox/ContentArea/NormalSiteScroll" unique_id=1631711902]
@@ -110,15 +111,16 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="CustomSiteScroll" type="ScrollContainer" parent="MainVBox/ContentArea" unique_id=1164053081]
+[node name="CustomSiteContainer" type="Control" parent="MainVBox/ContentArea" unique_id=608180596]
 unique_name_in_owner = true
 visible = false
-layout_mode = 2
-horizontal_scroll_mode = 0
-
-[node name="CustomSiteContainer" type="MarginContainer" parent="MainVBox/ContentArea/CustomSiteScroll" unique_id=1185931622]
-unique_name_in_owner = true
-layout_mode = 2
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
 
