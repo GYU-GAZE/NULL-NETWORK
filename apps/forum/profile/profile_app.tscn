@@ -2,8 +2,7 @@
 
 [ext_resource type="Script" uid="uid://detf37teq40nv" path="res://apps/forum/profile/profile_app.gd" id="1_ho3n6"]
 [ext_resource type="PackedScene" uid="uid://brakaxk3boshv" path="res://apps/forum/profile/profile_friend_card.tscn" id="2_kfd2e"]
-[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="2_xhibo"]
-[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="3_qhy1w"]
+[ext_resource type="PackedScene" uid="uid://bpbbjyyqep1sg" path="res://apps/forum/null_channel_header.tscn" id="3_kfd2e"]
 
 [node name="ProfileApp" type="PanelContainer" unique_id=738199959]
 anchors_preset = 15
@@ -27,123 +26,9 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 10
 
-[node name="MainHeader" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=1230557343]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-
-[node name="HeaderMargin" type="MarginContainer" parent="MasterScroll/PageVBox/MainHeader" unique_id=1045317758]
-layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 4
-
-[node name="HeaderHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin" unique_id=1273363157]
-layout_mode = 2
-
-[node name="HeaderBanner" type="TextureRect" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=623079149]
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-size_flags_horizontal = 3
-texture = ExtResource("3_qhy1w")
-expand_mode = 2
-stretch_mode = 5
-
-[node name="UserBlock" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=616463964]
-custom_minimum_size = Vector2(180, 0)
-layout_mode = 2
-
-[node name="UserInfoVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock" unique_id=1352741599]
-layout_mode = 2
-
-[node name="LoggedInAsLabel" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=2118220568]
-layout_mode = 2
-text = "LOGGED IN AS:"
-
-[node name="UsernameLabel" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=1841918195]
+[node name="SiteHeader" parent="MasterScroll/PageVBox" unique_id=1050287416 instance=ExtResource("3_kfd2e")]
 unique_name_in_owner = true
 layout_mode = 2
-text = "null.guy"
-
-[node name="UserRankLabel" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=1881570879]
-unique_name_in_owner = true
-layout_mode = 2
-text = "#999 Worldwide"
-
-[node name="UserAvatarRect" type="TextureRect" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock" unique_id=1265088338]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(72, 72)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 0
-
-[node name="MainNavBarPanel" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=1612509941]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="NavBarMargin" type="MarginContainer" parent="MasterScroll/PageVBox/MainNavBarPanel" unique_id=1304779700]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 5
-
-[node name="NavbarHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin" unique_id=165436930]
-modulate = Color(0.25765854, 0.25765854, 0.25765854, 1)
-self_modulate = Color(0.22352941, 0.22352941, 0.22352941, 1)
-layout_mode = 2
-alignment = 1
-
-[node name="HomeBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1074610668]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Home"
-script = ExtResource("2_xhibo")
-target_url = "null.net"
-
-[node name="ThreadsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1450686663]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Thread List
-"
-script = ExtResource("2_xhibo")
-target_url = "null.net/forums"
-
-[node name="UpdatesBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=643525862]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Changelog
-"
-script = ExtResource("2_xhibo")
-target_url = "null.net/updates"
-
-[node name="RankingsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1790978208]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Global Ranking
-"
-script = ExtResource("2_xhibo")
-target_url = "null.net/playerrankings"
-
-[node name="NavSpacer" type="Control" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=471928984]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="AlertsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=388834737]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Alerts"
-
-[node name="AlertsNotificationBadge" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox/AlertsBtn" unique_id=919181101]
-unique_name_in_owner = true
-visible = false
-layout_direction = 3
-layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
-text = "!"
-icon_alignment = 2
 
 [node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=627646694]
 layout_mode = 2
