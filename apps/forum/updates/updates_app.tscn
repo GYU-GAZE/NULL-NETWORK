@@ -33,10 +33,10 @@ layout_mode = 2
 [node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=1833793142]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 100
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 100
-theme_override_constants/margin_bottom = 50
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 12
 
 [node name="ThreadListPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=1195254683]
 unique_name_in_owner = true

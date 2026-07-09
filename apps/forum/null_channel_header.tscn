@@ -14,17 +14,21 @@ grow_vertical = 2
 size_flags_horizontal = 3
 script = ExtResource("1_t7py2")
 
-[node name="HeaderMargin" type="MarginContainer" parent="." unique_id=787082523]
+[node name="HeaderVBox" type="VBoxContainer" parent="." unique_id=1368720595]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="HeaderMargin" type="MarginContainer" parent="HeaderVBox" unique_id=787082523]
 layout_mode = 2
 theme_override_constants/margin_left = 6
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 4
 
-[node name="HeaderHBox" type="HBoxContainer" parent="HeaderMargin" unique_id=24243142]
+[node name="HeaderHBox" type="HBoxContainer" parent="HeaderVBox/HeaderMargin" unique_id=24243142]
 layout_mode = 2
 
-[node name="BannerRect" type="TextureRect" parent="HeaderMargin/HeaderHBox" unique_id=730160190]
+[node name="BannerRect" type="TextureRect" parent="HeaderVBox/HeaderMargin/HeaderHBox" unique_id=730160190]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(256, 40)
 layout_mode = 2
@@ -33,29 +37,29 @@ texture = ExtResource("2_tcew5")
 expand_mode = 2
 stretch_mode = 5
 
-[node name="UserBlock" type="HBoxContainer" parent="HeaderMargin/HeaderHBox" unique_id=934832956]
+[node name="UserBlock" type="HBoxContainer" parent="HeaderVBox/HeaderMargin/HeaderHBox" unique_id=934832956]
 custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
 size_flags_horizontal = 8
 
-[node name="UserInfoVBox" type="VBoxContainer" parent="HeaderMargin/HeaderHBox/UserBlock" unique_id=1898589862]
+[node name="UserInfoVBox" type="VBoxContainer" parent="HeaderVBox/HeaderMargin/HeaderHBox/UserBlock" unique_id=1898589862]
 layout_mode = 2
 
-[node name="LoggedInAsLabel" type="Label" parent="HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=855642232]
+[node name="LoggedInAsLabel" type="Label" parent="HeaderVBox/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=855642232]
 layout_mode = 2
 text = "LOGGED IN AS:"
 
-[node name="UsernameLabel" type="Label" parent="HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=558136063]
+[node name="UsernameLabel" type="Label" parent="HeaderVBox/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=558136063]
 unique_name_in_owner = true
 layout_mode = 2
 text = "null.guy"
 
-[node name="UserRankLabel" type="Label" parent="HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=1469160510]
+[node name="UserRankLabel" type="Label" parent="HeaderVBox/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=1469160510]
 unique_name_in_owner = true
 layout_mode = 2
 text = "#999 Worldwide"
 
-[node name="UserAvatarRect" type="TextureRect" parent="HeaderMargin/HeaderHBox/UserBlock" unique_id=1918521082]
+[node name="UserAvatarRect" type="TextureRect" parent="HeaderVBox/HeaderMargin/HeaderHBox/UserBlock" unique_id=1918521082]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
@@ -65,23 +69,23 @@ texture = ExtResource("2_tcew5")
 expand_mode = 2
 stretch_mode = 5
 
-[node name="MainNavBarPanel" type="PanelContainer" parent="." unique_id=1071308217]
+[node name="MainNavBarPanel" type="PanelContainer" parent="HeaderVBox" unique_id=1071308217]
 layout_mode = 2
 
-[node name="NavBarMargin" type="MarginContainer" parent="MainNavBarPanel" unique_id=1143755250]
+[node name="NavBarMargin" type="MarginContainer" parent="HeaderVBox/MainNavBarPanel" unique_id=1143755250]
 layout_mode = 2
 theme_override_constants/margin_left = 6
 theme_override_constants/margin_top = 2
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 2
 
-[node name="NavbarHBox" type="HBoxContainer" parent="MainNavBarPanel/NavBarMargin" unique_id=994780494]
+[node name="NavbarHBox" type="HBoxContainer" parent="HeaderVBox/MainNavBarPanel/NavBarMargin" unique_id=994780494]
 modulate = Color(0.25765854, 0.25765854, 0.25765854, 1)
 self_modulate = Color(0.22352941, 0.22352941, 0.22352941, 1)
 layout_mode = 2
 alignment = 1
 
-[node name="HomeBtn" type="Button" parent="MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1530510066]
+[node name="HomeBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1530510066]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
@@ -90,7 +94,7 @@ text = "Home"
 script = ExtResource("3_tcew5")
 target_url = "null.net"
 
-[node name="ThreadsBtn" type="Button" parent="MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=458510602]
+[node name="ThreadsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=458510602]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
@@ -99,7 +103,7 @@ text = "Threads"
 script = ExtResource("3_tcew5")
 target_url = "null.net/forums"
 
-[node name="UpdatesBtn" type="Button" parent="MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1216798712]
+[node name="UpdatesBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1216798712]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
@@ -109,7 +113,7 @@ text = "Updates
 script = ExtResource("3_tcew5")
 target_url = "null.net/updates"
 
-[node name="RankingsBtn" type="Button" parent="MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1349775164]
+[node name="RankingsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1349775164]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
@@ -118,16 +122,16 @@ text = "Ranking"
 script = ExtResource("3_tcew5")
 target_url = "null.net/playerrankings"
 
-[node name="NavSpacer" type="Control" parent="MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=380275048]
+[node name="NavSpacer" type="Control" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=380275048]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="AlertsBtn" type="Button" parent="MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1984097093]
+[node name="AlertsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1984097093]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Alerts"
 
-[node name="AlertsNotificationBadge" type="Button" parent="MainNavBarPanel/NavBarMargin/NavbarHBox/AlertsBtn" unique_id=862717973]
+[node name="AlertsNotificationBadge" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox/AlertsBtn" unique_id=862717973]
 unique_name_in_owner = true
 visible = false
 layout_direction = 3

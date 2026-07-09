@@ -26,9 +26,7 @@ enum ProfileTab {
 var current_user: NetworkUserData
 var current_tab: ProfileTab = ProfileTab.ABOUT
 
-@onready var username_label: Label = %UsernameLabel
-@onready var user_rank_label: Label = %UserRankLabel
-@onready var user_avatar_rect: TextureRect = %UserAvatarRect
+@onready var site_header: NullChannelHeader = %SiteHeader
 
 @onready var about_btn: Button = %AboutBtn
 @onready var threads_tab_btn: Button = %ThreadsTabBtn
@@ -71,13 +69,38 @@ var current_tab: ProfileTab = ProfileTab.ABOUT
 
 
 func _ready() -> void:
+	_connect_site_header()
+
 	about_btn.pressed.connect(_show_about_tab)
 	threads_tab_btn.pressed.connect(_show_threads_tab)
 	friends_tab_btn.pressed.connect(_show_friends_tab)
-	
+
 	_load_user(default_user_id)
 	_show_about_tab()
 
+func _connect_site_header() -> void:
+	if not is_instance_valid(site_header):
+		return
+
+	site_header.refresh_player()
+	site_header.configure_navigation(
+		true,
+		true,
+		true,
+		false
+	)
+
+	if not site_header.navigation_requested.is_connected(_on_site_header_navigation_requested):
+		site_header.navigation_requested.connect(_on_site_header_navigation_requested)
+
+
+func _on_site_header_navigation_requested(url: String) -> void:
+	var clean_url: String = url.strip_edges()
+
+	if clean_url.is_empty():
+		return
+
+	browser_navigation_requested.emit(clean_url)
 
 func set_browser_url(url: String) -> void:
 	var user_id: String = _extract_user_id_from_url(url)
@@ -119,9 +142,9 @@ func _load_user(user_id: String) -> void:
 func _render_missing_user(user_id: String) -> void:
 	current_user = null
 
-	username_label.text = "unknown"
-	user_rank_label.text = "#??? Worldwide"
-	user_avatar_rect.texture = null
+	avatar_rect.texture = null
+	name_label.text = "USER NOT FOUND"
+	user_id_label.text = "#404"
 
 	avatar_rect.texture = null
 	name_label.text = "USER NOT FOUND"
@@ -147,28 +170,12 @@ func _render_missing_user(user_id: String) -> void:
 
 
 func _render_user() -> void:
-	_render_header_user()
 	_render_left_profile_card()
 	_render_bio()
 	_render_stats()
 	_rebuild_friends_preview()
 	_rebuild_full_friends()
 	_rebuild_user_threads()
-
-
-func _render_header_user() -> void:
-	var player_user: NetworkUserData = NetworkUserDatabase.get_player_user()
-
-	if player_user == null:
-		username_label.text = "null.guy"
-		user_rank_label.text = "#999 Worldwide"
-		user_avatar_rect.texture = null
-		return
-
-	username_label.text = player_user.display_name
-	user_rank_label.text = "%s Worldwide" % player_user.get_global_rank_label()
-	user_avatar_rect.texture = player_user.avatar
-
 
 func _render_left_profile_card() -> void:
 	avatar_rect.texture = current_user.avatar

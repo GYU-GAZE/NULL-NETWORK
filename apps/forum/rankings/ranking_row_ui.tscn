@@ -16,7 +16,7 @@ layout_mode = 2
 
 [node name="RankLabel" type="Label" parent="MainHBox" unique_id=1520382355]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(70, 0)
+custom_minimum_size = Vector2(35, 0)
 layout_mode = 2
 horizontal_alignment = 1
 
@@ -43,19 +43,19 @@ clip_text = true
 
 [node name="ScoreLabel" type="Label" parent="MainHBox" unique_id=1930514493]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 horizontal_alignment = 1
 
 [node name="LevelLabel" type="Label" parent="MainHBox" unique_id=525248385]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(70, 0)
+custom_minimum_size = Vector2(35, 0)
 layout_mode = 2
 horizontal_alignment = 1
 
 [node name="PartnerAPKLabel" type="Label" parent="MainHBox" unique_id=1158143611]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(75, 0)
 layout_mode = 2
 horizontal_alignment = 1
 clip_text = true
@@ -66,7 +66,7 @@ layout_mode = 2
 
 [node name="ServerLabel" type="Label" parent="MainHBox/ServerHBox" unique_id=1318818345]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 horizontal_alignment = 1
@@ -74,7 +74,7 @@ clip_text = true
 
 [node name="ServerFlagRect" type="TextureRect" parent="MainHBox/ServerHBox" unique_id=320633659]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(28, 20)
+custom_minimum_size = Vector2(14, 10)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5

@@ -75,7 +75,7 @@ text = "Thread List"
 layout_mode = 2
 
 [node name="RankHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=1121916358]
-custom_minimum_size = Vector2(70, 0)
+custom_minimum_size = Vector2(34, 0)
 layout_mode = 2
 text = "RANK"
 
@@ -85,22 +85,22 @@ size_flags_horizontal = 3
 text = "PLAYER"
 
 [node name="ScoreHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=516959359]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
 text = "SCORE"
 
 [node name="LevelHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=934596260]
-custom_minimum_size = Vector2(70, 0)
+custom_minimum_size = Vector2(35, 0)
 layout_mode = 2
 text = "LEVEL"
 
 [node name="PartnerAPKHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=1444996139]
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(75, 0)
 layout_mode = 2
 text = "PARTNER APK"
 
 [node name="ServerHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=145786757]
-custom_minimum_size = Vector2(130, 0)
+custom_minimum_size = Vector2(75, 0)
 layout_mode = 2
 text = "SERVER"
 

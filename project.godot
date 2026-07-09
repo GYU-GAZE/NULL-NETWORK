@@ -32,13 +32,15 @@ UniversalAlerts="*uid://c0hyybnt1hst3"
 ForumThreadDatabase="*uid://bpdyhjd4pvl84"
 ForumThreadWatcher="*uid://dr6lhsur8ec0t"
 KubuOSMetrics="*uid://c6c2hs74gfwis"
+KubuDisplaySetting="*uid://cj1646w44qblw"
 
 [display]
 
 window/size/viewport_width=960
 window/size/viewport_height=540
+window/size/window_width_override=1920
+window/size/window_height_override=1080
 window/stretch/mode="viewport"
-window/stretch/aspect="ignore"
 window/stretch/scale_mode="integer"
 
 [gui]

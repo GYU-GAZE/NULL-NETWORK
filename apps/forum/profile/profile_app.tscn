@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://detf37teq40nv" path="res://apps/forum/profile/profile_app.gd" id="1_ho3n6"]
 [ext_resource type="PackedScene" uid="uid://brakaxk3boshv" path="res://apps/forum/profile/profile_friend_card.tscn" id="2_kfd2e"]
 [ext_resource type="PackedScene" uid="uid://bpbbjyyqep1sg" path="res://apps/forum/null_channel_header.tscn" id="3_kfd2e"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="3_qhy1w"]
 
 [node name="ProfileApp" type="PanelContainer" unique_id=738199959]
 anchors_preset = 15
@@ -33,10 +34,10 @@ layout_mode = 2
 [node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=627646694]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 100
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 100
-theme_override_constants/margin_bottom = 50
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 24
 
 [node name="ProfilePage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=2066119615]
 layout_mode = 2
@@ -47,7 +48,6 @@ size_flags_vertical = 3
 theme_override_constants/separation = 12
 
 [node name="LeftProfilePanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox" unique_id=1510089706]
-custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 
@@ -55,6 +55,7 @@ size_flags_horizontal = 0
 layout_mode = 2
 
 [node name="LeftProfileVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin" unique_id=1544287546]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 
 [node name="IdentityHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox" unique_id=852197016]
@@ -62,10 +63,11 @@ layout_mode = 2
 
 [node name="AvatarRect" type="TextureRect" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/IdentityHBox" unique_id=73091616]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(128, 128)
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
-expand_mode = 1
-stretch_mode = 6
+texture = ExtResource("3_qhy1w")
+expand_mode = 2
+stretch_mode = 5
 
 [node name="IdentityVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox/IdentityHBox" unique_id=75443415]
 layout_mode = 2
@@ -135,7 +137,7 @@ layout_mode = 2
 
 [node name="ProfileBannerRect" type="TextureRect" parent="MasterScroll/PageVBox/ContentArea/ProfilePage/ProfileMainHBox/LeftProfilePanel/LeftProfileMargin/LeftProfileVBox" unique_id=1654559337]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 6
