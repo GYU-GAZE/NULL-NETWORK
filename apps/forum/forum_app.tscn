@@ -3,11 +3,9 @@
 [ext_resource type="Script" uid="uid://bxkoo8h0n8e23" path="res://apps/forum/forum_app.gd" id="1_goqfn"]
 [ext_resource type="PackedScene" uid="uid://c1eml51sqyj5c" path="res://apps/forum/forum_post_ui.tscn" id="4_2d478"]
 [ext_resource type="PackedScene" uid="uid://bsmlmh5xi4r03" path="res://apps/forum/forum_alert_card.tscn" id="4_jseev"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="5_chltv"]
 [ext_resource type="PackedScene" uid="uid://v0ask2g51gcm" path="res://apps/forum/forum_thread_row_ui.tscn" id="5_jseev"]
 [ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="6_chltv"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_jseev"]
-font_size = 42
 
 [node name="ForumApp" type="PanelContainer" unique_id=1643493238]
 offset_right = 1200.0
@@ -31,43 +29,31 @@ theme_override_constants/separation = 10
 
 [node name="MainHeader" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=388077512]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 95)
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 
 [node name="HeaderMargin" type="MarginContainer" parent="MasterScroll/PageVBox/MainHeader" unique_id=348159869]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
 
 [node name="HeaderHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin" unique_id=561997673]
 layout_mode = 2
 
-[node name="HeaderSpaceLeft" type="Control" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=1953265723]
-custom_minimum_size = Vector2(180, 0)
-layout_mode = 2
-
-[node name="LogoBlock" type="VBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=391836541]
+[node name="HeaderBanner" type="TextureRect" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=1752223617]
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="NullChannelTitle" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=1861507975]
-unique_name_in_owner = true
-layout_mode = 2
-text = "/null/ Channel"
-label_settings = SubResource("LabelSettings_jseev")
-horizontal_alignment = 1
-
-[node name="NullChannelSubtitle" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=61103580]
-unique_name_in_owner = true
-layout_mode = 2
-text = "official forum of NULL NETWORK"
-horizontal_alignment = 1
+texture = ExtResource("5_chltv")
+expand_mode = 2
+stretch_mode = 5
 
 [node name="UserBlock" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=1403857369]
-custom_minimum_size = Vector2(180, 0)
+custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
+size_flags_horizontal = 8
 
 [node name="UserInfoVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock" unique_id=835395507]
 layout_mode = 2
@@ -87,10 +73,13 @@ layout_mode = 2
 text = "#999 Worldwide"
 
 [node name="UserAvatarRect" type="TextureRect" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/UserBlock" unique_id=97392787]
-custom_minimum_size = Vector2(72, 72)
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
+texture = ExtResource("5_chltv")
+expand_mode = 2
+stretch_mode = 5
 
 [node name="MainNavBarPanel" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=494262737]
 unique_name_in_owner = true
@@ -111,32 +100,38 @@ alignment = 1
 
 [node name="HomeBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=162773071]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
+size_flags_horizontal = 0
 text = "Home"
 script = ExtResource("6_chltv")
 target_url = "null.net"
 
 [node name="ThreadsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1598627230]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
-text = "Thread List
-"
+size_flags_horizontal = 0
+text = "Threads"
 script = ExtResource("6_chltv")
 target_url = "null.net/forums"
 
 [node name="UpdatesBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1440624438]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
-text = "Changelog
+size_flags_horizontal = 0
+text = "Updates
 "
 script = ExtResource("6_chltv")
 target_url = "null.net/updates"
 
 [node name="RankingsBtn" type="Button" parent="MasterScroll/PageVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=5661677]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
-text = "Global Ranking
-"
+size_flags_horizontal = 0
+text = "Ranking"
 script = ExtResource("6_chltv")
 target_url = "null.net/playerrankings"
 
@@ -162,10 +157,10 @@ icon_alignment = 2
 [node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=1833793142]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 100
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 100
-theme_override_constants/margin_bottom = 50
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 12
 
 [node name="ThreadListPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=1195254683]
 unique_name_in_owner = true
@@ -179,6 +174,7 @@ layout_mode = 2
 
 [node name="TrendingBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=66220868]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
@@ -186,6 +182,7 @@ text = "TRENDING"
 
 [node name="SocialBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=1199021360]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
@@ -193,6 +190,7 @@ text = "SOCIAL"
 
 [node name="RumorsBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=93564674]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
@@ -200,6 +198,7 @@ text = "RUMORS"
 
 [node name="GuidesBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=839607493]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
@@ -207,6 +206,7 @@ text = "GUIDES"
 
 [node name="HelpBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=914829697]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
@@ -214,6 +214,7 @@ text = "HELP"
 
 [node name="ArchivedBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=1181931581]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true

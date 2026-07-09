@@ -41,6 +41,12 @@ enum ForumViewFilter {
 @export var show_rankings_navigation: bool = true
 @export var show_watch_button: bool = true
 
+@export_category("Compact Layout")
+@export var type_column_width: float = 48.0
+@export var replies_column_width: float = 42.0
+@export var last_reply_column_width: float = 86.0
+@export var author_column_width: float = 80.0
+
 @onready var master_scroll: ScrollContainer = %MasterScroll
 
 @onready var thread_list_page: VBoxContainer = %ThreadListPage
@@ -69,6 +75,11 @@ enum ForumViewFilter {
 @onready var search_btn: Button = %SearchBtn
 @onready var clear_search_btn: Button = %ClearSearchBtn
 
+@onready var type_header_label: Label = %TypeHeaderLabel
+@onready var replies_header_label: Label = %RepliesHeaderLabel
+@onready var last_reply_header_label: Label = %LastReplyHeaderLabel
+@onready var author_header_label: Label = %AuthorHeaderLabel
+
 var current_mode: String = "thread_list"
 var current_thread_id: String = ""
 var current_filter: ForumViewFilter = ForumViewFilter.TRENDING
@@ -77,6 +88,7 @@ var current_search_query: String = ""
 
 func _ready() -> void:
 	_reload_folder_threads()
+	_apply_compact_layout()
 	_apply_feature_visibility()
 
 	_connect_main_nav()
@@ -156,6 +168,23 @@ func _apply_feature_visibility() -> void:
 	search_btn.visible = show_search_bar
 	clear_search_btn.visible = show_search_bar
 
+func _apply_compact_layout() -> void:
+	_set_column_width(type_header_label, type_column_width)
+	_set_column_width(replies_header_label, replies_column_width)
+	_set_column_width(last_reply_header_label, last_reply_column_width)
+	_set_column_width(author_header_label, author_column_width)
+
+
+func _set_column_width(control: Control, width: float) -> void:
+	if not is_instance_valid(control):
+		return
+
+	control.custom_minimum_size.x = width
+	control.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+
+	if control is Label:
+		var label := control as Label
+		label.clip_text = true
 
 func _connect_main_nav() -> void:
 	if not threads_btn.pressed.is_connected(_on_threads_btn_pressed):
@@ -372,6 +401,13 @@ func _add_thread_row(data: ThreadButtonData) -> void:
 
 	var row: ForumThreadRowUI = instance as ForumThreadRowUI
 	thread_list_container.add_child(row)
+
+	row.apply_layout_widths(
+		type_column_width,
+		replies_column_width,
+		last_reply_column_width,
+		author_column_width
+	)
 
 	row.setup(data)
 	row.thread_selected.connect(_open_thread)

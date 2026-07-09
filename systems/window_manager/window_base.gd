@@ -317,50 +317,124 @@ func _apply_resize_from_mouse() -> void:
 		return
 
 	var delta: Vector2 = get_global_mouse_position() - resize_start_mouse
+	var work_rect: Rect2 = _get_work_area_rect()
+
+	var work_left: float = work_rect.position.x
+	var work_top: float = work_rect.position.y
+	var work_right: float = work_rect.position.x + work_rect.size.x
+	var work_bottom: float = work_rect.position.y + work_rect.size.y
+
+	var min_width: float = min(min_window_size.x, max(1.0, work_rect.size.x))
+	var min_height: float = min(min_window_size.y, max(1.0, work_rect.size.y))
+
+	var start_left: float = resize_start_position.x
+	var start_top: float = resize_start_position.y
+	var start_right: float = resize_start_position.x + resize_start_size.x
+	var start_bottom: float = resize_start_position.y + resize_start_size.y
+
+	var new_left: float = start_left
+	var new_top: float = start_top
+	var new_right: float = start_right
+	var new_bottom: float = start_bottom
 
 	match resize_mode:
 		ResizeMode.RIGHT:
-			size.x = max(min_window_size.x, resize_start_size.x + delta.x)
+			new_right = clamp(
+				start_right + delta.x,
+				start_left + min_width,
+				work_right
+			)
 
 		ResizeMode.BOTTOM:
-			size.y = max(min_window_size.y, resize_start_size.y + delta.y)
+			new_bottom = clamp(
+				start_bottom + delta.y,
+				start_top + min_height,
+				work_bottom
+			)
 
 		ResizeMode.BOTTOM_RIGHT:
-			size.x = max(min_window_size.x, resize_start_size.x + delta.x)
-			size.y = max(min_window_size.y, resize_start_size.y + delta.y)
+			new_right = clamp(
+				start_right + delta.x,
+				start_left + min_width,
+				work_right
+			)
+			new_bottom = clamp(
+				start_bottom + delta.y,
+				start_top + min_height,
+				work_bottom
+			)
 
 		ResizeMode.LEFT:
-			var new_width: float = max(min_window_size.x, resize_start_size.x - delta.x)
-			position.x = resize_start_position.x + (resize_start_size.x - new_width)
-			size.x = new_width
+			new_left = clamp(
+				start_left + delta.x,
+				work_left,
+				start_right - min_width
+			)
 
 		ResizeMode.TOP:
-			var new_height: float = max(min_window_size.y, resize_start_size.y - delta.y)
-			position.y = resize_start_position.y + (resize_start_size.y - new_height)
-			size.y = new_height
+			new_top = clamp(
+				start_top + delta.y,
+				work_top,
+				start_bottom - min_height
+			)
 
 		ResizeMode.TOP_LEFT:
-			var new_width: float = max(min_window_size.x, resize_start_size.x - delta.x)
-			var new_height: float = max(min_window_size.y, resize_start_size.y - delta.y)
-
-			position.x = resize_start_position.x + (resize_start_size.x - new_width)
-			position.y = resize_start_position.y + (resize_start_size.y - new_height)
-
-			size.x = new_width
-			size.y = new_height
+			new_left = clamp(
+				start_left + delta.x,
+				work_left,
+				start_right - min_width
+			)
+			new_top = clamp(
+				start_top + delta.y,
+				work_top,
+				start_bottom - min_height
+			)
 
 		ResizeMode.TOP_RIGHT:
-			size.x = max(min_window_size.x, resize_start_size.x + delta.x)
-
-			var new_height: float = max(min_window_size.y, resize_start_size.y - delta.y)
-			position.y = resize_start_position.y + (resize_start_size.y - new_height)
-			size.y = new_height
+			new_right = clamp(
+				start_right + delta.x,
+				start_left + min_width,
+				work_right
+			)
+			new_top = clamp(
+				start_top + delta.y,
+				work_top,
+				start_bottom - min_height
+			)
 
 		ResizeMode.BOTTOM_LEFT:
-			var new_width: float = max(min_window_size.x, resize_start_size.x - delta.x)
+			new_left = clamp(
+				start_left + delta.x,
+				work_left,
+				start_right - min_width
+			)
+			new_bottom = clamp(
+				start_bottom + delta.y,
+				start_top + min_height,
+				work_bottom
+			)
 
-			position.x = resize_start_position.x + (resize_start_size.x - new_width)
-			size.x = new_width
-			size.y = max(min_window_size.y, resize_start_size.y + delta.y)
+	position = Vector2(new_left, new_top)
+	size = Vector2(
+		max(min_width, new_right - new_left),
+		max(min_height, new_bottom - new_top)
+	)
 
 	window_resized.emit()
+
+func _get_work_area_rect() -> Rect2:
+	var parent_node: Node = get_parent()
+
+	if parent_node != null:
+		if parent_node.has_method("get_work_area_position") and parent_node.has_method("get_work_area_size"):
+			return Rect2(
+				parent_node.get_work_area_position(),
+				parent_node.get_work_area_size()
+			)
+
+	var parent_control: Control = get_parent() as Control
+
+	if parent_control != null and parent_control.size.x > 0.0 and parent_control.size.y > 0.0:
+		return Rect2(Vector2.ZERO, parent_control.size)
+
+	return Rect2(Vector2.ZERO, get_viewport_rect().size)
