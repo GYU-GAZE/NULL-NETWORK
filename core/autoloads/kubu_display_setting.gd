@@ -16,7 +16,7 @@ const CONFIG_PATH: String = "user://display_settings.cfg"
 @export var base_resolution: Vector2i = Vector2i(960, 540)
 @export var default_scale_mode: ScaleMode = ScaleMode.SCALE_2X
 @export var max_auto_scale: int = 4
-@export var center_window_after_apply: bool = true
+@export var center_window_after_apply: bool = false
 
 var current_scale_mode: ScaleMode = ScaleMode.SCALE_2X
 var current_scale: int = 2
@@ -48,9 +48,6 @@ func apply_display_settings() -> void:
 	)
 
 	root_window.size = physical_size
-
-	if center_window_after_apply:
-		_center_root_window(root_window, physical_size)
 
 	display_scale_changed.emit(current_scale, physical_size)
 
@@ -103,19 +100,6 @@ func _get_best_auto_scale() -> int:
 			best_scale = scale
 
 	return best_scale
-
-
-func _center_root_window(root_window: Window, physical_size: Vector2i) -> void:
-	var screen_index := DisplayServer.window_get_current_screen()
-	var usable_rect: Rect2i = DisplayServer.screen_get_usable_rect(screen_index)
-
-	var centered_position := usable_rect.position + Vector2i(
-		int((usable_rect.size.x - physical_size.x) * 0.5),
-		int((usable_rect.size.y - physical_size.y) * 0.5)
-	)
-
-	root_window.position = centered_position
-
 
 func _load_settings() -> void:
 	current_scale_mode = default_scale_mode
