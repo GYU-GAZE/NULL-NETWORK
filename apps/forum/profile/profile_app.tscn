@@ -3,9 +3,7 @@
 [ext_resource type="Script" uid="uid://detf37teq40nv" path="res://apps/forum/profile/profile_app.gd" id="1_ho3n6"]
 [ext_resource type="PackedScene" uid="uid://brakaxk3boshv" path="res://apps/forum/profile/profile_friend_card.tscn" id="2_kfd2e"]
 [ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="2_xhibo"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_xhibo"]
-font_size = 42
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="3_qhy1w"]
 
 [node name="ProfileApp" type="PanelContainer" unique_id=738199959]
 anchors_preset = 15
@@ -31,39 +29,26 @@ theme_override_constants/separation = 10
 
 [node name="MainHeader" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=1230557343]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 95)
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 
 [node name="HeaderMargin" type="MarginContainer" parent="MasterScroll/PageVBox/MainHeader" unique_id=1045317758]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
 
 [node name="HeaderHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin" unique_id=1273363157]
 layout_mode = 2
 
-[node name="HeaderSpaceLeft" type="Control" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=1657143796]
-custom_minimum_size = Vector2(180, 0)
-layout_mode = 2
-
-[node name="LogoBlock" type="VBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=439292823]
+[node name="HeaderBanner" type="TextureRect" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=623079149]
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="NullChannelTitle" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=835273566]
-unique_name_in_owner = true
-layout_mode = 2
-text = "/null/ Channel"
-label_settings = SubResource("LabelSettings_xhibo")
-horizontal_alignment = 1
-
-[node name="NullChannelSubtitle" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=149681298]
-unique_name_in_owner = true
-layout_mode = 2
-text = "official forum of NULL NETWORK"
-horizontal_alignment = 1
+texture = ExtResource("3_qhy1w")
+expand_mode = 2
+stretch_mode = 5
 
 [node name="UserBlock" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=616463964]
 custom_minimum_size = Vector2(180, 0)

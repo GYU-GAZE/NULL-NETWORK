@@ -1,0 +1,138 @@
+[gd_scene format=3 uid="uid://bpbbjyyqep1sg"]
+
+[ext_resource type="Script" uid="uid://dferouqi83ljf" path="res://apps/forum/null_channel_header.gd" id="1_t7py2"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="2_tcew5"]
+[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="3_tcew5"]
+
+[node name="NullChannelHeader" type="PanelContainer" unique_id=1050287416]
+custom_minimum_size = Vector2(0, 72)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+script = ExtResource("1_t7py2")
+
+[node name="HeaderMargin" type="MarginContainer" parent="." unique_id=787082523]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="HeaderHBox" type="HBoxContainer" parent="HeaderMargin" unique_id=24243142]
+layout_mode = 2
+
+[node name="BannerRect" type="TextureRect" parent="HeaderMargin/HeaderHBox" unique_id=730160190]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(256, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("2_tcew5")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="UserBlock" type="HBoxContainer" parent="HeaderMargin/HeaderHBox" unique_id=934832956]
+custom_minimum_size = Vector2(128, 0)
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="UserInfoVBox" type="VBoxContainer" parent="HeaderMargin/HeaderHBox/UserBlock" unique_id=1898589862]
+layout_mode = 2
+
+[node name="LoggedInAsLabel" type="Label" parent="HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=855642232]
+layout_mode = 2
+text = "LOGGED IN AS:"
+
+[node name="UsernameLabel" type="Label" parent="HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=558136063]
+unique_name_in_owner = true
+layout_mode = 2
+text = "null.guy"
+
+[node name="UserRankLabel" type="Label" parent="HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=1469160510]
+unique_name_in_owner = true
+layout_mode = 2
+text = "#999 Worldwide"
+
+[node name="UserAvatarRect" type="TextureRect" parent="HeaderMargin/HeaderHBox/UserBlock" unique_id=1918521082]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+texture = ExtResource("2_tcew5")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="MainNavBarPanel" type="PanelContainer" parent="." unique_id=1071308217]
+layout_mode = 2
+
+[node name="NavBarMargin" type="MarginContainer" parent="MainNavBarPanel" unique_id=1143755250]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 2
+
+[node name="NavbarHBox" type="HBoxContainer" parent="MainNavBarPanel/NavBarMargin" unique_id=994780494]
+modulate = Color(0.25765854, 0.25765854, 0.25765854, 1)
+self_modulate = Color(0.22352941, 0.22352941, 0.22352941, 1)
+layout_mode = 2
+alignment = 1
+
+[node name="HomeBtn" type="Button" parent="MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1530510066]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Home"
+script = ExtResource("3_tcew5")
+target_url = "null.net"
+
+[node name="ThreadsBtn" type="Button" parent="MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=458510602]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Threads"
+script = ExtResource("3_tcew5")
+target_url = "null.net/forums"
+
+[node name="UpdatesBtn" type="Button" parent="MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1216798712]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Updates
+"
+script = ExtResource("3_tcew5")
+target_url = "null.net/updates"
+
+[node name="RankingsBtn" type="Button" parent="MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1349775164]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Ranking"
+script = ExtResource("3_tcew5")
+target_url = "null.net/playerrankings"
+
+[node name="NavSpacer" type="Control" parent="MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=380275048]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AlertsBtn" type="Button" parent="MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1984097093]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Alerts"
+
+[node name="AlertsNotificationBadge" type="Button" parent="MainNavBarPanel/NavBarMargin/NavbarHBox/AlertsBtn" unique_id=862717973]
+unique_name_in_owner = true
+visible = false
+layout_direction = 3
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "!"
+icon_alignment = 2

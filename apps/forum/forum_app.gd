@@ -58,11 +58,7 @@ enum ForumViewFilter {
 @onready var watch_thread_btn: Button = %WatchThreadBtn
 @onready var post_list: VBoxContainer = %PostList
 
-@onready var threads_btn: Button = %ThreadsBtn
-@onready var updates_btn: Button = %UpdatesBtn
-@onready var rankings_btn: Button = %RankingsBtn
-@onready var alerts_btn: Button = %AlertsBtn
-@onready var alerts_notification_badge: Control = %AlertsNotificationBadge
+@onready var site_header: NullChannelHeader = %SiteHeader
 
 @onready var trending_btn: Button = %TrendingBtn
 @onready var social_btn: Button = %SocialBtn
@@ -150,12 +146,14 @@ func _append_unique_thread_data(result: Array[ThreadButtonData], seen_thread_ids
 
 
 func _apply_feature_visibility() -> void:
-	threads_btn.visible = show_main_nav
-	updates_btn.visible = show_main_nav and show_updates_navigation
-	rankings_btn.visible = show_main_nav and show_rankings_navigation
-	alerts_btn.visible = show_main_nav and show_alerts_navigation
+	site_header.configure_navigation(
+		show_main_nav,
+		show_updates_navigation,
+		show_rankings_navigation,
+		show_alerts_navigation
+	)
 
-	alerts_notification_badge.visible = false
+	site_header.set_alerts_badge_visible(false)
 
 	trending_btn.visible = show_filter_bar
 	social_btn.visible = show_filter_bar and visible_categories.has(ForumThread.ThreadCategory.SOCIAL)
@@ -187,11 +185,11 @@ func _set_column_width(control: Control, width: float) -> void:
 		label.clip_text = true
 
 func _connect_main_nav() -> void:
-	if not threads_btn.pressed.is_connected(_on_threads_btn_pressed):
-		threads_btn.pressed.connect(_on_threads_btn_pressed)
+	if not site_header.navigation_requested.is_connected(_on_site_header_navigation_requested):
+		site_header.navigation_requested.connect(_on_site_header_navigation_requested)
 
-	if not alerts_btn.pressed.is_connected(_on_alerts_btn_pressed):
-		alerts_btn.pressed.connect(_on_alerts_btn_pressed)
+	if not site_header.alerts_requested.is_connected(_on_site_header_alerts_requested):
+		site_header.alerts_requested.connect(_on_site_header_alerts_requested)
 
 
 func _connect_filter_tabs() -> void:
@@ -641,19 +639,10 @@ func _get_alert_threads() -> Array[ThreadButtonData]:
 
 func _refresh_alerts_badge() -> void:
 	if not show_alerts_navigation:
-		alerts_notification_badge.visible = false
+		site_header.set_alerts_badge_visible(false)
 		return
 
-	var has_alerts: bool = ForumThreadWatcher.has_pending_alerts()
-	alerts_notification_badge.visible = has_alerts
-
-	if not has_alerts:
-		return
-
-	alerts_notification_badge.scale = Vector2(0.75, 0.75)
-
-	var tween: Tween = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(alerts_notification_badge, "scale", Vector2.ONE, 0.18)
+	site_header.set_alerts_badge_visible(ForumThreadWatcher.has_pending_alerts())
 
 
 func _refresh_watch_button() -> void:
@@ -880,3 +869,18 @@ func _on_watched_alerts_changed() -> void:
 
 	if current_mode == "alerts":
 		_rebuild_alerts_page()
+
+func _on_site_header_navigation_requested(url: String) -> void:
+	var target_url: String = url.strip_edges()
+
+	if target_url == forum_home_url:
+		_show_thread_list_page()
+		_refresh_filter_buttons()
+		_refresh_thread_list()
+		return
+
+	browser_navigation_requested.emit(target_url)
+
+
+func _on_site_header_alerts_requested() -> void:
+	_show_alerts_page()
