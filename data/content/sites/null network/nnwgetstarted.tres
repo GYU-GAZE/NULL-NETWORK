@@ -7,5 +7,5 @@
 script = ExtResource("1_kf27u")
 url = "null.net/getstarted"
 page_title = "hello, world"
-custom_site_scene = ExtResource("1_wpf41")
+site_scene = ExtResource("1_wpf41")
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"
