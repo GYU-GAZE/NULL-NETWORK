@@ -24,6 +24,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          cp project.godot /tmp/project.godot.original
 
           while IFS= read -r -d '' import_file; do
             source_file="${import_file%.import}"
@@ -37,7 +38,7 @@ jobs:
 
             case "$extension" in
               png)
-                printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl8gWQAAAAASUVORK5CYII=' \
+                printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4////fwAJ+wP9KobjigAAAABJRU5ErkJggg==' \
                   | base64 --decode > "$source_file"
                 ;;
               ttf)
@@ -51,6 +52,10 @@ jobs:
 
             rm -f "$import_file"
           done < <(find data -type f -name '*.import' -print0)
+
+          # The project theme is loaded before the first filesystem import.
+          # Disable it only for the disposable runner copy during that import.
+          sed -i '/^theme\/custom=/d' project.godot
 
       - name: Download Godot 4.6.3
         run: |
@@ -68,8 +73,11 @@ jobs:
             --headless \
             --editor \
             --path . \
-            --quit-after 10 \
+            --quit-after 20 \
             --verbose 2>&1 | tee godot-import.log
+
+      - name: Restore project settings
+        run: cp /tmp/project.godot.original project.godot
 
       - name: Run main scene headlessly
         shell: bash
