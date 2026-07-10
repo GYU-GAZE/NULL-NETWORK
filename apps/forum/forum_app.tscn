@@ -7,9 +7,13 @@
 [ext_resource type="PackedScene" uid="uid://v0ask2g51gcm" path="res://apps/forum/forum_thread_row_ui.tscn" id="5_jseev"]
 
 [node name="ForumApp" type="PanelContainer" unique_id=1643493238]
-offset_right = 960.0
-offset_bottom = 540.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 script = ExtResource("1_goqfn")
 post_ui_scene = ExtResource("4_2d478")
 thread_row_scene = ExtResource("5_jseev")
@@ -45,7 +49,7 @@ layout_mode = 2
 [node name="ThreadTypeTabsPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage" unique_id=1912109280]
 layout_mode = 2
 
-[node name="ThreadTypeTabsHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel" unique_id=284693550]
+[node name="ThreadTypeTabsHBox" type="HFlowContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel" unique_id=284693550]
 layout_mode = 2
 
 [node name="TrendingBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=66220868]
@@ -120,13 +124,14 @@ text = "Clear"
 
 [node name="ThreadListHeader" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage" unique_id=863783881]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 
 [node name="TypeHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=1918684334]
-custom_minimum_size = Vector2(90, 0)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
 text = "TYPE"
+clip_text = true
 
 [node name="ThreadHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=1628584177]
 layout_mode = 2
@@ -134,19 +139,25 @@ size_flags_horizontal = 3
 text = "THREAD"
 
 [node name="RepliesHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=616873302]
-custom_minimum_size = Vector2(70, 0)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 0)
 layout_mode = 2
 text = "REPLIES"
+clip_text = true
 
 [node name="LastReplyHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=731144364]
-custom_minimum_size = Vector2(140, 0)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(86, 0)
 layout_mode = 2
 text = "LAST REPLY"
+clip_text = true
 
 [node name="AuthorHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=2072254690]
-custom_minimum_size = Vector2(120, 0)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 text = "AUTHOR"
+clip_text = true
 
 [node name="ThreadList" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage" unique_id=345993463]
 unique_name_in_owner = true
@@ -166,10 +177,8 @@ layout_mode = 2
 [node name="ReaderTitleLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderTopBar" unique_id=91619794]
 unique_name_in_owner = true
 layout_mode = 2
-
-[node name="ReaderSpacer" type="Control" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderTopBar" unique_id=1189386675]
-layout_mode = 2
 size_flags_horizontal = 3
+autowrap_mode = 2
 
 [node name="WatchThreadBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderTopBar" unique_id=255008541]
 unique_name_in_owner = true
@@ -181,10 +190,8 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TopNav" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=342336655]
-layout_mode = 2
-
 [node name="AlertsPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=93287149]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+size_flags_horizontal = 3
