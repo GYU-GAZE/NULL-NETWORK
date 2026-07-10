@@ -8,5 +8,5 @@ script = ExtResource("1_3xjqt")
 url = "null.net/forums/thread/"
 page_title = "Viewing Thread"
 match_as_prefix = true
-custom_site_scene = ExtResource("1_0pc1p")
+site_scene = ExtResource("1_0pc1p")
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"
