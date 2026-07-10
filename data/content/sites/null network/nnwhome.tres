@@ -8,5 +8,5 @@
 script = ExtResource("3_hh78u")
 page_title = "null NETWORK"
 favicon = ExtResource("2_gpf38")
-custom_site_scene = ExtResource("2_p583y")
+site_scene = ExtResource("2_p583y")
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"
