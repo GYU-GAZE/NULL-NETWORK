@@ -3,11 +3,6 @@
 [ext_resource type="Script" uid="uid://sj2n48ryfj5v" path="res://apps/forum/rankings/ranking_row_ui.gd" id="1_tslle"]
 
 [node name="RankingRowUi" type="PanelContainer" unique_id=621506018]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 size_flags_horizontal = 3
 script = ExtResource("1_tslle")
 
@@ -35,9 +30,13 @@ size_flags_horizontal = 3
 [node name="NameButton" type="Button" parent="MainHBox/PlayerVBox" unique_id=1438901368]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+clip_text = true
+alignment = 0
 
 [node name="TitleLabel" type="Label" parent="MainHBox/PlayerVBox" unique_id=425595245]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 clip_text = true
 
@@ -61,6 +60,7 @@ horizontal_alignment = 1
 clip_text = true
 
 [node name="ServerHBox" type="HBoxContainer" parent="MainHBox" unique_id=1530499478]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
 
