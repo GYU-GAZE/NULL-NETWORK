@@ -1,7 +1,8 @@
-[gd_scene format=3 uid="uid://cscpajwjirfbu"]
+[gd_scene load_steps=5 format=3 uid="uid://cscpajwjirfbu"]
 
 [ext_resource type="Script" uid="uid://c3v2mkc1kn8ap" path="res://apps/forum/rankings/rankings_app.gd" id="1_us3t6"]
 [ext_resource type="PackedScene" uid="uid://5i7rt18tc1v2" path="res://apps/forum/rankings/ranking_row_ui.tscn" id="2_5klbt"]
+[ext_resource type="PackedScene" uid="uid://bpbbjyyqep1sg" path="res://apps/forum/null_channel_header.tscn" id="3_header"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_qejth"]
 font_size = 28
@@ -18,112 +19,121 @@ script = ExtResource("1_us3t6")
 page_description = "Current worldwide standings for NULL NETWORK players."
 ranking_row_scene = ExtResource("2_5klbt")
 
-[node name="MainMargin" type="MarginContainer" parent="." unique_id=1991023602]
+[node name="MasterScroll" type="ScrollContainer" parent="."]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+horizontal_scroll_mode = 0
 
-[node name="MainVBox" type="VBoxContainer" parent="MainMargin" unique_id=1470626676]
+[node name="PageVBox" type="VBoxContainer" parent="MasterScroll"]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
 
-[node name="HeaderPanel" type="PanelContainer" parent="MainMargin/MainVBox" unique_id=485330717]
-layout_mode = 2
-
-[node name="HeaderVBox" type="VBoxContainer" parent="MainMargin/MainVBox/HeaderPanel" unique_id=1895924477]
+[node name="SiteHeader" parent="MasterScroll/PageVBox" instance=ExtResource("3_header")]
+unique_name_in_owner = true
 layout_mode = 2
 
-[node name="TitleLabel" type="Label" parent="MainMargin/MainVBox/HeaderPanel/HeaderVBox" unique_id=2131144465]
+[node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 12
+
+[node name="ContentVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="HeaderPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ContentVBox"]
+layout_mode = 2
+
+[node name="HeaderVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/HeaderPanel"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/HeaderPanel/HeaderVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "GLOBAL PLAYER RANKINGS"
 label_settings = SubResource("LabelSettings_qejth")
 horizontal_alignment = 1
+autowrap_mode = 2
 
-[node name="DescriptionLabel" type="Label" parent="MainMargin/MainVBox/HeaderPanel/HeaderVBox" unique_id=576250047]
+[node name="DescriptionLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/HeaderPanel/HeaderVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="NavBar" type="HBoxContainer" parent="MainMargin/MainVBox" unique_id=1561893122]
+[node name="ControlsFlow" type="HFlowContainer" parent="MasterScroll/PageVBox/ContentArea/ContentVBox"]
 layout_mode = 2
 alignment = 1
 
-[node name="ForumsBtn" type="Button" parent="MainMargin/MainVBox/NavBar" unique_id=116814896]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Thread List"
-
-[node name="UpdatesBtn" type="Button" parent="MainMargin/MainVBox/NavBar" unique_id=294024056]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Updates"
-
-[node name="RefreshBtn" type="Button" parent="MainMargin/MainVBox/NavBar" unique_id=481483092]
+[node name="RefreshBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/ControlsFlow"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Refresh"
 
-[node name="HomeBtn" type="Button" parent="MainMargin/MainVBox/NavBar" unique_id=1150553626]
+[node name="ListHeader" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ContentVBox"]
+layout_mode = 2
+
+[node name="RankHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/ListHeader"]
 unique_name_in_owner = true
-layout_mode = 2
-text = "Thread List"
-
-[node name="ListHeader" type="HBoxContainer" parent="MainMargin/MainVBox" unique_id=232633144]
-layout_mode = 2
-
-[node name="RankHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=1121916358]
-custom_minimum_size = Vector2(34, 0)
+custom_minimum_size = Vector2(35, 0)
 layout_mode = 2
 text = "RANK"
+clip_text = true
 
-[node name="PlayerHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=476262310]
+[node name="PlayerHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/ListHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "PLAYER"
 
-[node name="ScoreHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=516959359]
-custom_minimum_size = Vector2(64, 0)
+[node name="ScoreHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/ListHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 text = "SCORE"
+clip_text = true
 
-[node name="LevelHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=934596260]
+[node name="LevelHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/ListHeader"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(35, 0)
 layout_mode = 2
 text = "LEVEL"
+clip_text = true
 
-[node name="PartnerAPKHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=1444996139]
+[node name="PartnerHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/ListHeader"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(75, 0)
 layout_mode = 2
-text = "PARTNER APK"
+text = "PARTNER"
+clip_text = true
 
-[node name="ServerHeader" type="Label" parent="MainMargin/MainVBox/ListHeader" unique_id=145786757]
-custom_minimum_size = Vector2(75, 0)
+[node name="ServerHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/ListHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
 text = "SERVER"
+clip_text = true
 
-[node name="RankingScroll" type="ScrollContainer" parent="MainMargin/MainVBox" unique_id=1984215323]
-layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-
-[node name="RankingList" type="VBoxContainer" parent="MainMargin/MainVBox/RankingScroll" unique_id=1185650541]
+[node name="RankingList" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ContentVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PlayerSeparator" type="HSeparator" parent="MainMargin" unique_id=1375847594]
+[node name="PlayerSeparator" type="HSeparator" parent="MasterScroll/PageVBox/ContentArea/ContentVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="PlayerRankTitle" type="Label" parent="MainMargin" unique_id=1739781184]
+[node name="PlayerRankTitle" type="Label" parent="MasterScroll/PageVBox/ContentArea/ContentVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "YOUR CURRENT RANK"
 horizontal_alignment = 1
 
-[node name="PlayerRankContainer" type="VBoxContainer" parent="MainMargin" unique_id=1123222141]
+[node name="PlayerRankContainer" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ContentVBox"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
