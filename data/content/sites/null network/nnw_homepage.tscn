@@ -1,116 +1,172 @@
-[gd_scene format=3 uid="uid://dfghm5hb81mbt"]
+[gd_scene load_steps=5 format=3 uid="uid://dfghm5hb81mbt"]
 
-[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_ocl2t"]
-[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="2_7d4j3"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_icon"]
+[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="2_action"]
+[ext_resource type="Theme" path="res://data/assets/themes/null_channel_ui.tres" id="3_theme"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_egev0"]
+[sub_resource type="LabelSettings" id="TitleSettings"]
 font_size = 42
+font_color = Color(0.9, 0.96, 1, 1)
 
-[node name="NnwHomepage" type="PanelContainer" unique_id=1533622385]
+[node name="NnwHomepage" type="PanelContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("3_theme")
 
-[node name="MasterScroll" type="ScrollContainer" parent="." unique_id=566420815]
+[node name="MasterScroll" type="ScrollContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="PageVBox" type="VBoxContainer" parent="MasterScroll" unique_id=721925602]
+[node name="PageVBox" type="VBoxContainer" parent="MasterScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 12
 
-[node name="MainHeader" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=518152830]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 95)
+[node name="HeroPanel" type="PanelContainer" parent="MasterScroll/PageVBox"]
 layout_mode = 2
 
-[node name="HeaderMargin" type="MarginContainer" parent="MasterScroll/PageVBox/MainHeader" unique_id=78195232]
+[node name="HeroMargin" type="MarginContainer" parent="MasterScroll/PageVBox/HeroPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
 
-[node name="HeaderHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin" unique_id=436731104]
+[node name="HeroHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/HeroPanel/HeroMargin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="LogoPanel" type="PanelContainer" parent="MasterScroll/PageVBox/HeroPanel/HeroMargin/HeroHBox"]
+custom_minimum_size = Vector2(124, 124)
 layout_mode = 2
 
-[node name="LogoBlock" type="VBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=1903811266]
+[node name="Logo" type="TextureRect" parent="MasterScroll/PageVBox/HeroPanel/HeroMargin/HeroHBox/LogoPanel"]
 layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="TextureRect" type="TextureRect" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=445857204]
-layout_mode = 2
-texture = ExtResource("1_ocl2t")
+texture = ExtResource("1_icon")
+expand_mode = 1
 stretch_mode = 5
 
-[node name="NullChannelTitle" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=1245775031]
+[node name="HeroCopy" type="VBoxContainer" parent="MasterScroll/PageVBox/HeroPanel/HeroMargin/HeroHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="Eyebrow" type="Label" parent="MasterScroll/PageVBox/HeroPanel/HeroMargin/HeroHBox/HeroCopy"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.72, 0.9, 1)
+theme_override_font_sizes/font_size = 13
+text = "A COLLABORATIVE EXPERIMENT"
+
+[node name="NullChannelTitle" type="Label" parent="MasterScroll/PageVBox/HeroPanel/HeroMargin/HeroHBox/HeroCopy"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "null NETWORK"
-label_settings = SubResource("LabelSettings_egev0")
-horizontal_alignment = 1
+label_settings = SubResource("TitleSettings")
 
-[node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=1615245422]
+[node name="HeroDescription" type="Label" parent="MasterScroll/PageVBox/HeroPanel/HeroMargin/HeroHBox/HeroCopy"]
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/margin_left = 100
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 100
-theme_override_constants/margin_bottom = 50
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=86437627]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Label" type="Label" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=316809722]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/line_spacing = 3
-text = "In the lead-up to the devastating Y2K virus, a mass purge of data opened a rift between the world of man and computers. Now, electronic specters from the digital realm are trying to invade the world of the living!
-
-Gear up with futuristic goggles and photon weaponry that lets you do battle with vicious viruses, woeful worms and apocalyptic A.I. — each one hellbent on overwriting humanity.
-
-Using the latest innovations in augmented reality, take the fight from your screen straight into your home! A gaming experience like nothing you've seen before!
-
-From the brilliant mind of Tarou Yamada.
-
-コバルトブルー
-© 2000"
-horizontal_alignment = 1
-vertical_alignment = 1
+theme_override_colors/font_color = Color(0.55, 0.67, 0.75, 1)
+text = "An underground location-based network where operators and digital partners confront unstable entities across the physical world."
 autowrap_mode = 2
 
-[node name="Get Started" type="Button" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=1065679730]
-unique_name_in_owner = true
+[node name="StatusRow" type="HBoxContainer" parent="MasterScroll/PageVBox/HeroPanel/HeroMargin/HeroHBox/HeroCopy"]
 layout_mode = 2
-text = "Get Started"
-script = ExtResource("2_7d4j3")
+
+[node name="StatusLabel" type="Label" parent="MasterScroll/PageVBox/HeroPanel/HeroMargin/HeroHBox/HeroCopy/StatusRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.82, 0.61, 1)
+text = "● TOKYO NODE ONLINE"
+
+[node name="StatusSpacer" type="Control" parent="MasterScroll/PageVBox/HeroPanel/HeroMargin/HeroHBox/HeroCopy/StatusRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VersionLabel" type="Label" parent="MasterScroll/PageVBox/HeroPanel/HeroMargin/HeroHBox/HeroCopy/StatusRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.59, 0.66, 1)
+text = "PRE-1.0"
+
+[node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 20
+
+[node name="ContentVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="IntroPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ContentVBox"]
+layout_mode = 2
+
+[node name="IntroMargin" type="MarginContainer" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/IntroPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="IntroText" type="Label" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/IntroPanel/IntroMargin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.8, 0.86, 1)
+theme_override_constants/line_spacing = 3
+text = "NULL NETWORK began as an experimental bridge between physical exploration and autonomous digital life. Its original developers disappeared, its documentation remains incomplete, and the community now maintains what is left.\n\nProceed at your own discretion."
+autowrap_mode = 2
+
+[node name="DirectoryTitle" type="Label" parent="MasterScroll/PageVBox/ContentArea/ContentVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.72, 0.88, 1)
+theme_override_font_sizes/font_size = 13
+text = "NETWORK DIRECTORY"
+
+[node name="DirectoryGrid" type="GridContainer" parent="MasterScroll/PageVBox/ContentArea/ContentVBox"]
+layout_mode = 2
+columns = 2
+
+[node name="Get Started" type="Button" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/DirectoryGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "GET STARTED\nInstallation and operator basics"
+alignment = 0
+script = ExtResource("2_action")
 target_url = "null.net/getstarted"
 
-[node name="UpdatesBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=914620269]
+[node name="UpdatesBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/DirectoryGrid"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
-text = "Changelog
-"
-script = ExtResource("2_7d4j3")
+size_flags_horizontal = 3
+text = "UPDATES\nDevelopment records and notices"
+alignment = 0
+script = ExtResource("2_action")
 target_url = "null.net/updates"
 
-[node name="ThreadsBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=921583470]
+[node name="ThreadsBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/DirectoryGrid"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
-text = "Message Board
-"
-script = ExtResource("2_7d4j3")
+size_flags_horizontal = 3
+text = "NULL CHANNEL\nCommunity discussion board"
+alignment = 0
+script = ExtResource("2_action")
 target_url = "null.net/forums"
 
-[node name="RankingsBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=180985698]
+[node name="RankingsBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ContentVBox/DirectoryGrid"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
-text = "Player Rankings"
-script = ExtResource("2_7d4j3")
+size_flags_horizontal = 3
+text = "PLAYER RANKINGS\nWorldwide operator standings"
+alignment = 0
+script = ExtResource("2_action")
 target_url = "null.net/playerrankings"
