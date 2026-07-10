@@ -18,7 +18,14 @@ enum ResizeMode {
 	BOTTOM_RIGHT
 }
 
+@export_category("Window Animation")
 @export var tween_duration: float = 0.25
+@export var opening_scale: Vector2 = Vector2(0.8, 0.8)
+@export var focus_scale: Vector2 = Vector2(1.02, 1.02)
+@export var closing_scale: Vector2 = Vector2(0.8, 0.8)
+@export var focus_pulse_duration: float = 0.1
+
+@export_category("Resize")
 @export var border_size: float = 8.0
 
 @export_category("Window Buttons")
@@ -45,6 +52,9 @@ var is_maximized: bool = false
 var restore_position: Vector2 = Vector2.ZERO
 var restore_size: Vector2 = Vector2.ZERO
 
+var _animation_tween: Tween
+var _is_closing: bool = false
+
 @onready var title_label: Label = %TitleLabel
 @onready var close_button: Button = %CloseButton
 @onready var maximize_button: Button = %MaximizeButton
@@ -55,18 +65,17 @@ var restore_size: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	anchors_preset = Control.PRESET_TOP_LEFT
-	modulate.a = 0.0
-
-	var tween: Tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "modulate:a", 1.0, tween_duration)
 
 	close_button.pressed.connect(close)
 	maximize_button.pressed.connect(toggle_maximized)
-
 	top_bar.gui_input.connect(_on_top_bar_gui_input)
 	resize_border.gui_input.connect(_on_resize_border_gui_input)
 
+	if not resized.is_connected(_refresh_pivot_offset):
+		resized.connect(_refresh_pivot_offset)
+
 	_refresh_maximize_button()
+	call_deferred("play_open_animation")
 
 
 func setup(
@@ -94,7 +103,27 @@ func setup(
 	resize_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resize_border.border_size = border_size
 
+	_refresh_pivot_offset()
 	_refresh_maximize_button()
+
+
+func play_open_animation() -> void:
+	if _is_closing:
+		return
+
+	_kill_animation_tween()
+	_refresh_pivot_offset()
+
+	scale = opening_scale
+	modulate = Color(1.0, 1.0, 1.0, 0.0)
+
+	_animation_tween = create_tween().set_parallel(true)
+	_animation_tween.tween_property(self, "scale", Vector2.ONE, tween_duration) \
+		.set_trans(Tween.TRANS_BACK) \
+		.set_ease(Tween.EASE_OUT)
+	_animation_tween.tween_property(self, "modulate:a", 1.0, tween_duration) \
+		.set_trans(Tween.TRANS_SINE) \
+		.set_ease(Tween.EASE_OUT)
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -184,6 +213,7 @@ func apply_maximized_geometry() -> void:
 
 	position = KubuOSMetrics.snap_vector(_get_maximized_position())
 	size = KubuOSMetrics.snap_vector(_get_maximized_size())
+	_refresh_pivot_offset()
 
 
 func _get_maximized_position() -> Vector2:
@@ -279,21 +309,46 @@ func _on_resize_border_gui_input(event: InputEvent) -> void:
 
 
 func pulse() -> void:
-	var tween: Tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "modulate", Color(1.15, 1.15, 1.15, modulate.a), 0.08)
-	tween.tween_property(self, "modulate", Color(1.0, 1.0, 1.0, modulate.a), 0.12)
+	if _is_closing:
+		return
+
+	_kill_animation_tween()
+	_refresh_pivot_offset()
+
+	if not scale.is_equal_approx(Vector2.ONE):
+		scale = Vector2.ONE
+
+	_animation_tween = create_tween()
+	_animation_tween.tween_property(self, "scale", focus_scale, focus_pulse_duration) \
+		.set_trans(Tween.TRANS_SINE) \
+		.set_ease(Tween.EASE_OUT)
+	_animation_tween.tween_property(self, "scale", Vector2.ONE, focus_pulse_duration) \
+		.set_trans(Tween.TRANS_SINE) \
+		.set_ease(Tween.EASE_IN)
 
 
 func close() -> void:
+	if _is_closing:
+		return
+
+	_is_closing = true
 	close_button.disabled = true
 	maximize_button.disabled = true
 	is_dragging = false
 	is_resizing = false
 	resize_border.force_capture = false
 
-	var tween: Tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tween.tween_property(self, "modulate:a", 0.0, tween_duration)
-	tween.tween_callback(window_closed.emit)
+	_kill_animation_tween()
+	_refresh_pivot_offset()
+
+	_animation_tween = create_tween().set_parallel(true)
+	_animation_tween.tween_property(self, "scale", closing_scale, tween_duration) \
+		.set_trans(Tween.TRANS_BACK) \
+		.set_ease(Tween.EASE_IN)
+	_animation_tween.tween_property(self, "modulate:a", 0.0, tween_duration) \
+		.set_trans(Tween.TRANS_SINE) \
+		.set_ease(Tween.EASE_IN)
+	_animation_tween.chain().tween_callback(window_closed.emit)
 
 
 func _input(event: InputEvent) -> void:
@@ -345,80 +400,32 @@ func _apply_resize_from_mouse() -> void:
 
 	match resize_mode:
 		ResizeMode.RIGHT:
-			new_right = clamp(
-				start_right + delta.x,
-				start_left + min_width,
-				work_right
-			)
+			new_right = clamp(start_right + delta.x, start_left + min_width, work_right)
 
 		ResizeMode.BOTTOM:
-			new_bottom = clamp(
-				start_bottom + delta.y,
-				start_top + min_height,
-				work_bottom
-			)
+			new_bottom = clamp(start_bottom + delta.y, start_top + min_height, work_bottom)
 
 		ResizeMode.BOTTOM_RIGHT:
-			new_right = clamp(
-				start_right + delta.x,
-				start_left + min_width,
-				work_right
-			)
-			new_bottom = clamp(
-				start_bottom + delta.y,
-				start_top + min_height,
-				work_bottom
-			)
+			new_right = clamp(start_right + delta.x, start_left + min_width, work_right)
+			new_bottom = clamp(start_bottom + delta.y, start_top + min_height, work_bottom)
 
 		ResizeMode.LEFT:
-			new_left = clamp(
-				start_left + delta.x,
-				work_left,
-				start_right - min_width
-			)
+			new_left = clamp(start_left + delta.x, work_left, start_right - min_width)
 
 		ResizeMode.TOP:
-			new_top = clamp(
-				start_top + delta.y,
-				work_top,
-				start_bottom - min_height
-			)
+			new_top = clamp(start_top + delta.y, work_top, start_bottom - min_height)
 
 		ResizeMode.TOP_LEFT:
-			new_left = clamp(
-				start_left + delta.x,
-				work_left,
-				start_right - min_width
-			)
-			new_top = clamp(
-				start_top + delta.y,
-				work_top,
-				start_bottom - min_height
-			)
+			new_left = clamp(start_left + delta.x, work_left, start_right - min_width)
+			new_top = clamp(start_top + delta.y, work_top, start_bottom - min_height)
 
 		ResizeMode.TOP_RIGHT:
-			new_right = clamp(
-				start_right + delta.x,
-				start_left + min_width,
-				work_right
-			)
-			new_top = clamp(
-				start_top + delta.y,
-				work_top,
-				start_bottom - min_height
-			)
+			new_right = clamp(start_right + delta.x, start_left + min_width, work_right)
+			new_top = clamp(start_top + delta.y, work_top, start_bottom - min_height)
 
 		ResizeMode.BOTTOM_LEFT:
-			new_left = clamp(
-				start_left + delta.x,
-				work_left,
-				start_right - min_width
-			)
-			new_bottom = clamp(
-				start_bottom + delta.y,
-				start_top + min_height,
-				work_bottom
-			)
+			new_left = clamp(start_left + delta.x, work_left, start_right - min_width)
+			new_bottom = clamp(start_bottom + delta.y, start_top + min_height, work_bottom)
 
 	position = KubuOSMetrics.snap_vector(Vector2(new_left, new_top))
 	size = KubuOSMetrics.snap_vector(Vector2(
@@ -445,3 +452,14 @@ func _get_work_area_rect() -> Rect2:
 		return Rect2(Vector2.ZERO, parent_control.size)
 
 	return Rect2(Vector2.ZERO, get_viewport_rect().size)
+
+
+func _refresh_pivot_offset() -> void:
+	pivot_offset = size * 0.5
+
+
+func _kill_animation_tween() -> void:
+	if _animation_tween != null and _animation_tween.is_valid():
+		_animation_tween.kill()
+
+	_animation_tween = null
