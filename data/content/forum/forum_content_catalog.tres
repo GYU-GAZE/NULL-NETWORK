@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="ForumContentCatalog" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/forum_content_catalog.gd" id="1_catalog"]
+
+[resource]
+script = ExtResource("1_catalog")
+thread_data_folders = Array[String](["res://data/content/forum/threads", "res://data/content/updates/threads"])
