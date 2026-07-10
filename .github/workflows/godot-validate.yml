@@ -41,7 +41,7 @@ jobs:
             --headless \
             --editor \
             --path . \
-            --quit-after 2 \
+            --quit-after 10 \
             --verbose 2>&1 | tee godot-import.log
 
       - name: Run main scene headlessly
@@ -52,7 +52,8 @@ jobs:
             --headless \
             --path . \
             --quit-after 2 \
-            --verbose 2>&1 | tee godot-runtime.log
+            --verbose \
+            core/main.tscn 2>&1 | tee godot-runtime.log
 
       - name: Reject script and resource errors
         run: |
