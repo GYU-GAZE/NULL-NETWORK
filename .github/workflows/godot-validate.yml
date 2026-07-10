@@ -41,3 +41,11 @@ jobs:
             echo "Godot reported script or resource loading errors."
             exit 1
           fi
+
+      - name: Upload validation log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-validation-log
+          path: godot-validation.log
+          if-no-files-found: ignore
