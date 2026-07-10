@@ -3,7 +3,14 @@ class_name ProfileFriendCard
 
 signal friend_selected(user: NetworkUserData)
 
+@export_category("Text")
 @export var tooltip_template: String = "Open {user}'s profile"
+
+@export_category("Layout")
+@export var compact_card_size: Vector2 = Vector2(72, 88)
+@export var full_card_size: Vector2 = Vector2(104, 128)
+@export var compact_avatar_size: Vector2 = Vector2(40, 40)
+@export var full_avatar_size: Vector2 = Vector2(56, 56)
 
 @onready var avatar_rect: TextureRect = %AvatarRect
 @onready var name_label: Label = %NameLabel
@@ -33,7 +40,6 @@ func setup(user: NetworkUserData, compact: bool = false) -> void:
 
 func _apply_setup() -> void:
 	has_pending_setup = false
-
 	_apply_layout(pending_compact)
 
 	if user_data == null:
@@ -47,33 +53,22 @@ func _apply_setup() -> void:
 	name_label.text = user_data.display_name
 	rank_label.text = user_data.get_global_rank_label()
 	avatar_rect.texture = user_data.avatar
-
 	tooltip_text = tooltip_template.replace("{user}", user_data.display_name)
 
 
 func _apply_layout(compact: bool) -> void:
-	if compact:
-		custom_minimum_size = Vector2(72, 88)
-	else:
-		custom_minimum_size = Vector2(104, 128)
+	custom_minimum_size = compact_card_size if compact else full_card_size
+	avatar_rect.custom_minimum_size = compact_avatar_size if compact else full_avatar_size
 
 	size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 
 	name_label.clip_text = true
 	rank_label.clip_text = true
-
-	if compact:
-		avatar_rect.custom_minimum_size = Vector2(40, 40)
-	else:
-		avatar_rect.custom_minimum_size = Vector2(56, 56)
-
 	avatar_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	avatar_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 
 
 func _on_pressed() -> void:
-	if user_data == null:
-		return
-
-	friend_selected.emit(user_data)
+	if user_data != null:
+		friend_selected.emit(user_data)
