@@ -1,0 +1,40 @@
+name: Godot Project Validation
+
+on:
+  push:
+    branches:
+      - main
+      - refactor/adaptive-display-foundation
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate-project:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Godot 4.6.3
+        run: |
+          curl --fail --location --retry 3 \
+            --output godot.zip \
+            https://godot-releases.nbg1.your-objectstorage.com/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip
+          unzip -q godot.zip
+          chmod +x Godot_v4.6.3-stable_linux.x86_64
+
+      - name: Import and validate project
+        run: |
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --editor \
+            --path . \
+            --quit-after 2 \
+            --verbose 2>&1 | tee godot-validation.log
+
+          if grep -E "SCRIPT ERROR|Parse Error|Failed to load script|Cannot get class" godot-validation.log; then
+            echo "Godot reported script or resource loading errors."
+            exit 1
+          fi
