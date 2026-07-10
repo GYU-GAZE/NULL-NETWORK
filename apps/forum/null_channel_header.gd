@@ -10,6 +10,10 @@ signal alerts_requested
 @export var banner_texture: Texture2D
 @export var banner_logical_size: Vector2 = Vector2(256, 40)
 
+@export_category("Responsive Layout")
+@export var compact_width: float = 620.0
+@export var narrow_width: float = 460.0
+
 @onready var banner_rect: TextureRect = %BannerRect
 @onready var username_label: Label = %UsernameLabel
 @onready var user_rank_label: Label = %UserRankLabel
@@ -22,6 +26,14 @@ signal alerts_requested
 @onready var alerts_btn: Button = %AlertsBtn
 @onready var alerts_notification_badge: Control = %AlertsNotificationBadge
 
+@onready var site_descriptor: Label = get_node("HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox/BannerStack/SiteDescriptor")
+@onready var user_card: PanelContainer = get_node("HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox/UserCard")
+
+var _show_main_nav: bool = true
+var _show_updates_navigation: bool = true
+var _show_rankings_navigation: bool = true
+var _show_alerts_navigation: bool = true
+
 
 func _ready() -> void:
 	_apply_banner()
@@ -29,6 +41,11 @@ func _ready() -> void:
 	_connect_alerts_button()
 	refresh_player()
 	set_alerts_badge_visible(false)
+
+	if not resized.is_connected(_apply_responsive_layout):
+		resized.connect(_apply_responsive_layout)
+
+	call_deferred("_apply_responsive_layout")
 
 
 func refresh_player() -> void:
@@ -51,11 +68,11 @@ func configure_navigation(
 	show_rankings_navigation: bool,
 	show_alerts_navigation: bool
 ) -> void:
-	home_btn.visible = show_main_nav
-	threads_btn.visible = show_main_nav
-	updates_btn.visible = show_main_nav and show_updates_navigation
-	rankings_btn.visible = show_main_nav and show_rankings_navigation
-	alerts_btn.visible = show_main_nav and show_alerts_navigation
+	_show_main_nav = show_main_nav
+	_show_updates_navigation = show_updates_navigation
+	_show_rankings_navigation = show_rankings_navigation
+	_show_alerts_navigation = show_alerts_navigation
+	_apply_responsive_layout()
 
 
 func set_alerts_badge_visible(value: bool) -> void:
@@ -82,6 +99,30 @@ func _apply_banner() -> void:
 	banner_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 
 
+func _apply_responsive_layout() -> void:
+	if not is_inside_tree():
+		return
+
+	var available_width: float = size.x
+	var compact: bool = available_width > 0.0 and available_width < compact_width
+	var narrow: bool = available_width > 0.0 and available_width < narrow_width
+
+	site_descriptor.visible = not compact
+	user_rank_label.visible = not compact
+	user_avatar_rect.visible = not narrow
+	user_card.visible = not narrow
+
+	home_btn.visible = _show_main_nav and not narrow
+	threads_btn.visible = _show_main_nav
+	updates_btn.visible = _show_main_nav and _show_updates_navigation
+	rankings_btn.visible = _show_main_nav and _show_rankings_navigation and not compact
+	alerts_btn.visible = _show_main_nav and _show_alerts_navigation
+
+	threads_btn.text = "BOARD" if compact else "THREADS"
+	updates_btn.text = "LOG" if narrow else "UPDATES"
+	alerts_btn.text = "!" if narrow else "ALERTS"
+
+
 func _connect_navigation_buttons() -> void:
 	_connect_site_action_button(home_btn)
 	_connect_site_action_button(threads_btn)
@@ -105,8 +146,7 @@ func _connect_alerts_button() -> void:
 	if not alerts_btn.pressed.is_connected(_on_alerts_pressed):
 		alerts_btn.pressed.connect(_on_alerts_pressed)
 
-	if alerts_notification_badge is Control:
-		alerts_notification_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	alerts_notification_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _on_button_navigation_requested(url: String) -> void:
