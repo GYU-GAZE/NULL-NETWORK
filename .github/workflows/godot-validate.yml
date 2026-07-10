@@ -20,6 +20,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Provision CI-only fallback font
+        run: |
+          if [ ! -f data/assets/fonts/Silver.ttf ]; then
+            echo "Silver.ttf is not versioned; using DejaVu Sans only for headless validation."
+            cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf data/assets/fonts/Silver.ttf
+          fi
+
       - name: Download Godot 4.6.3
         run: |
           curl --fail --location --retry 3 \
