@@ -101,9 +101,10 @@ func apply_display_settings() -> void:
 	_is_applying = true
 	current_scale = _resolve_scale()
 	_apply_window_mode()
+	_apply_content_scale()
 
 	if current_display_mode == DisplayMode.WINDOWED:
-		var target_size: Vector2i = _snap_physical_size_to_scale(current_windowed_size, current_scale)
+		var target_size: Vector2i = _sanitize_windowed_size(current_windowed_size)
 		_root_window.size = target_size
 		current_windowed_size = target_size
 
@@ -132,7 +133,10 @@ func get_current_logical_size() -> Vector2i:
 	if current_logical_size != Vector2i.ZERO:
 		return current_logical_size
 
-	return _calculate_logical_size(get_current_physical_size(), max(MIN_PIXEL_SCALE, current_scale))
+	return _calculate_logical_size(
+		get_current_physical_size(),
+		max(MIN_PIXEL_SCALE, current_scale)
+	)
 
 
 func get_current_display_mode() -> DisplayMode:
@@ -154,7 +158,20 @@ func _apply_window_mode() -> void:
 			_root_window.mode = Window.MODE_EXCLUSIVE_FULLSCREEN
 
 
-func _refresh_content_scale() -> void:
+func _apply_content_scale() -> void:
+	# O KubuOS funciona como uma aplicação de desktop escalável:
+	# a janela define o espaço disponível e content_scale_factor define
+	# quantos pixels físicos cada unidade lógica ocupa.
+	#
+	# CONTENT_SCALE_MODE_DISABLED impede o Godot de preservar um framebuffer
+	# virtual fixo, eliminando letterbox e permitindo que a área útil cresça.
+	_root_window.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
+	_root_window.content_scale_size = Vector2i.ZERO
+	_root_window.content_scale_factor = float(current_scale)
+	_root_window.content_scale_stretch = Window.CONTENT_SCALE_STRETCH_INTEGER
+
+
+func _refresh_display_geometry() -> void:
 	_geometry_refresh_queued = false
 
 	if _root_window == null:
@@ -162,12 +179,11 @@ func _refresh_content_scale() -> void:
 
 	current_physical_size = _root_window.size
 	current_scale = _resolve_scale()
-	current_logical_size = _calculate_logical_size(current_physical_size, current_scale)
-
-	_root_window.content_scale_size = current_logical_size
-	_root_window.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
-	_root_window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
-	_root_window.content_scale_stretch = Window.CONTENT_SCALE_STRETCH_INTEGER
+	_apply_content_scale()
+	current_logical_size = _calculate_logical_size(
+		current_physical_size,
+		current_scale
+	)
 
 	if current_display_mode == DisplayMode.WINDOWED:
 		current_windowed_size = current_physical_size
@@ -193,7 +209,7 @@ func _queue_geometry_refresh() -> void:
 		return
 
 	_geometry_refresh_queued = true
-	call_deferred("_refresh_content_scale")
+	call_deferred("_refresh_display_geometry")
 
 
 func _on_root_window_size_changed() -> void:
@@ -210,7 +226,7 @@ func _on_root_window_size_changed() -> void:
 func _resolve_scale() -> int:
 	match current_scale_mode:
 		ScaleMode.AUTO:
-			return _get_best_auto_scale()
+			return _get_best_auto_scale_for_current_screen()
 		ScaleMode.SCALE_1X:
 			return 1
 		ScaleMode.SCALE_2X:
@@ -223,17 +239,25 @@ func _resolve_scale() -> int:
 	return 2
 
 
-func _get_best_auto_scale() -> int:
-	var physical_size: Vector2i = current_windowed_size
-
-	if _root_window != null and _root_window.size.x > 0 and _root_window.size.y > 0:
-		physical_size = _root_window.size
-
-	var upper_bound: int = clampi(max_auto_scale, MIN_PIXEL_SCALE, MAX_PIXEL_SCALE)
+func _get_best_auto_scale_for_current_screen() -> int:
+	# AUTO representa a densidade recomendada para o monitor, não uma reação
+	# ao tamanho atual da janela. Assim, redimensionar a janela aumenta ou
+	# reduz o workspace sem consumir o espaço novo trocando de escala.
+	var screen_index: int = DisplayServer.window_get_current_screen()
+	var usable_rect: Rect2i = DisplayServer.screen_get_usable_rect(screen_index)
+	var available_physical_size: Vector2i = usable_rect.size
+	var upper_bound: int = clampi(
+		max_auto_scale,
+		MIN_PIXEL_SCALE,
+		MAX_PIXEL_SCALE
+	)
 	var best_scale: int = MIN_PIXEL_SCALE
 
 	for candidate_scale in range(MIN_PIXEL_SCALE, upper_bound + 1):
-		var candidate_workspace: Vector2i = _calculate_logical_size(physical_size, candidate_scale)
+		var candidate_workspace: Vector2i = _calculate_logical_size(
+			available_physical_size,
+			candidate_scale
+		)
 
 		if (
 			candidate_workspace.x >= minimum_auto_workspace.x
@@ -260,20 +284,12 @@ func _sanitize_windowed_size(requested_size: Vector2i) -> Vector2i:
 	)
 
 
-func _snap_physical_size_to_scale(physical_size: Vector2i, scale: int) -> Vector2i:
-	var safe_scale: int = max(MIN_PIXEL_SCALE, scale)
-	var sanitized_size: Vector2i = _sanitize_windowed_size(physical_size)
-
-	return Vector2i(
-		max(safe_scale, int(round(float(sanitized_size.x) / safe_scale)) * safe_scale),
-		max(safe_scale, int(round(float(sanitized_size.y) / safe_scale)) * safe_scale)
-	)
-
-
 func _center_window_on_current_screen(window_size: Vector2i) -> void:
 	var screen_index: int = DisplayServer.window_get_current_screen()
 	var usable_rect: Rect2i = DisplayServer.screen_get_usable_rect(screen_index)
-	var centered_position: Vector2i = usable_rect.position + ((usable_rect.size - window_size) / 2)
+	var centered_position: Vector2i = usable_rect.position + (
+		(usable_rect.size - window_size) / 2
+	)
 	_root_window.position = centered_position
 
 
@@ -339,4 +355,6 @@ func _save_settings() -> void:
 	var err: Error = config.save(CONFIG_PATH)
 
 	if err != OK:
-		push_error("KubuDisplaySettings: failed to save settings. Error %s." % err)
+		push_error(
+			"KubuDisplaySettings: failed to save settings. Error %s." % err
+		)
