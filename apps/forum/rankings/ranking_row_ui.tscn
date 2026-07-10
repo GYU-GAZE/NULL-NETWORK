@@ -1,26 +1,35 @@
-[gd_scene format=3 uid="uid://5i7rt18tc1v2"]
+[gd_scene load_steps=3 format=3 uid="uid://5i7rt18tc1v2"]
 
-[ext_resource type="Script" uid="uid://sj2n48ryfj5v" path="res://apps/forum/rankings/ranking_row_ui.gd" id="1_tslle"]
+[ext_resource type="Script" uid="uid://sj2n48ryfj5v" path="res://apps/forum/rankings/ranking_row_ui.gd" id="1_script"]
+[ext_resource type="Theme" path="res://data/assets/themes/null_channel_ui.tres" id="2_theme"]
 
-[node name="RankingRowUi" type="PanelContainer" unique_id=621506018]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="RankingRowUi" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 56)
 size_flags_horizontal = 3
-script = ExtResource("1_tslle")
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
 
-[node name="MainHBox" type="HBoxContainer" parent="." unique_id=370285830]
+[node name="RowMargin" type="MarginContainer" parent="."]
 layout_mode = 2
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 5
 
-[node name="RankLabel" type="Label" parent="MainHBox" unique_id=1520382355]
+[node name="MainHBox" type="HBoxContainer" parent="RowMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RankLabel" type="Label" parent="RowMargin/MainHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(35, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.78, 0.94, 1)
+theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="AvatarRect" type="TextureRect" parent="MainHBox" unique_id=1583548702]
+[node name="AvatarRect" type="TextureRect" parent="RowMargin/MainHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
@@ -28,53 +37,66 @@ size_flags_vertical = 0
 expand_mode = 1
 stretch_mode = 5
 
-[node name="PlayerVBox" type="VBoxContainer" parent="MainHBox" unique_id=1016319986]
+[node name="PlayerVBox" type="VBoxContainer" parent="RowMargin/MainHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 1
 
-[node name="NameButton" type="Button" parent="MainHBox/PlayerVBox" unique_id=1438901368]
+[node name="NameButton" type="Button" parent="RowMargin/MainHBox/PlayerVBox"]
 unique_name_in_owner = true
 layout_mode = 2
+alignment = 0
 
-[node name="TitleLabel" type="Label" parent="MainHBox/PlayerVBox" unique_id=425595245]
+[node name="TitleLabel" type="Label" parent="RowMargin/MainHBox/PlayerVBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.47, 0.6, 0.7, 1)
+theme_override_font_sizes/font_size = 13
 clip_text = true
 
-[node name="ScoreLabel" type="Label" parent="MainHBox" unique_id=1930514493]
+[node name="ScoreLabel" type="Label" parent="RowMargin/MainHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.86, 0.92, 1)
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="LevelLabel" type="Label" parent="MainHBox" unique_id=525248385]
+[node name="LevelLabel" type="Label" parent="RowMargin/MainHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(35, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.8, 0.88, 1)
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="PartnerAPKLabel" type="Label" parent="MainHBox" unique_id=1158143611]
+[node name="PartnerAPKLabel" type="Label" parent="RowMargin/MainHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(75, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.73, 0.84, 1)
 horizontal_alignment = 1
+vertical_alignment = 1
 clip_text = true
 
-[node name="ServerHBox" type="HBoxContainer" parent="MainHBox" unique_id=1530499478]
+[node name="ServerHBox" type="HBoxContainer" parent="RowMargin/MainHBox"]
 custom_minimum_size = Vector2(130, 0)
 layout_mode = 2
+theme_override_constants/separation = 5
 
-[node name="ServerLabel" type="Label" parent="MainHBox/ServerHBox" unique_id=1318818345]
+[node name="ServerLabel" type="Label" parent="RowMargin/MainHBox/ServerHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.48, 0.61, 0.7, 1)
 horizontal_alignment = 1
+vertical_alignment = 1
 clip_text = true
 
-[node name="ServerFlagRect" type="TextureRect" parent="MainHBox/ServerHBox" unique_id=320633659]
+[node name="ServerFlagRect" type="TextureRect" parent="RowMargin/MainHBox/ServerHBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(14, 10)
+custom_minimum_size = Vector2(18, 12)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
