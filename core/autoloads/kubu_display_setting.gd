@@ -1,14 +1,6 @@
 extends Node
 class_name KubuDisplaySettings
 
-signal display_scale_changed(scale: int, physical_size: Vector2i)
-signal display_geometry_changed(
-	scale: int,
-	physical_size: Vector2i,
-	logical_size: Vector2i,
-	display_mode: DisplayMode
-)
-
 enum ScaleMode {
 	AUTO,
 	SCALE_1X,
@@ -22,6 +14,14 @@ enum DisplayMode {
 	BORDERLESS_FULLSCREEN,
 	EXCLUSIVE_FULLSCREEN
 }
+
+signal display_scale_changed(scale: int, physical_size: Vector2i)
+signal display_geometry_changed(
+	scale: int,
+	physical_size: Vector2i,
+	logical_size: Vector2i,
+	display_mode: DisplayMode
+)
 
 const CONFIG_PATH: String = "user://display_settings.cfg"
 const MIN_PIXEL_SCALE: int = 1
