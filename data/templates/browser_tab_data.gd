@@ -7,7 +7,7 @@ class_name BrowserTabData
 
 var history: Array[String] = []
 var history_index: int = -1
-var custom_site_state: Dictionary = {}
+var site_state: Dictionary = {}
 
 
 func navigate_to(url: String, title: String = "", icon: Texture2D = null) -> void:
@@ -19,7 +19,6 @@ func navigate_to(url: String, title: String = "", icon: Texture2D = null) -> voi
 
 	history.append(url)
 	history_index = history.size() - 1
-
 	current_url = url
 
 	set_page_title(title)
@@ -53,15 +52,12 @@ func go_forward() -> String:
 
 
 func set_page_title(title: String) -> void:
-	if title.is_empty():
-		page_title = current_url
-	else:
-		page_title = title
+	page_title = current_url if title.is_empty() else title
 
 
 func set_favicon(icon: Texture2D) -> void:
 	favicon = icon
 
 
-func clear_custom_site_state() -> void:
-	custom_site_state = {}
+func clear_site_state() -> void:
+	site_state = {}
