@@ -9,8 +9,11 @@ signal alerts_requested
 @export var fallback_rank_label: String = "#999 Worldwide"
 @export var banner_texture: Texture2D
 @export var banner_logical_size: Vector2 = Vector2(256, 40)
+@export var hide_banner_below_width: float = 420.0
 
+@onready var header_hbox: HBoxContainer = %HeaderHBox
 @onready var banner_rect: TextureRect = %BannerRect
+@onready var user_block: HBoxContainer = %UserBlock
 @onready var username_label: Label = %UsernameLabel
 @onready var user_rank_label: Label = %UserRankLabel
 @onready var user_avatar_rect: TextureRect = %UserAvatarRect
@@ -29,6 +32,11 @@ func _ready() -> void:
 	_connect_alerts_button()
 	refresh_player()
 	set_alerts_badge_visible(false)
+
+	if not resized.is_connected(_apply_responsive_layout):
+		resized.connect(_apply_responsive_layout)
+
+	call_deferred("_apply_responsive_layout")
 
 
 func refresh_player() -> void:
@@ -82,6 +90,23 @@ func _apply_banner() -> void:
 	banner_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 
 
+func _apply_responsive_layout() -> void:
+	var available_width: float = size.x
+
+	if available_width <= 0.0:
+		available_width = get_viewport_rect().size.x
+
+	banner_rect.visible = available_width >= hide_banner_below_width
+
+	if banner_rect.visible:
+		banner_rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		user_block.size_flags_horizontal = Control.SIZE_SHRINK_END
+	else:
+		user_block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	header_hbox.queue_sort()
+
+
 func _connect_navigation_buttons() -> void:
 	_connect_site_action_button(home_btn)
 	_connect_site_action_button(threads_btn)
@@ -94,28 +119,29 @@ func _connect_site_action_button(button: Button) -> void:
 		return
 
 	if not button.has_signal("browser_navigation_requested"):
-		push_warning("NullChannelHeader: botão '%s' não possui signal browser_navigation_requested." % button.name)
+		push_warning(
+			"NullChannelHeader: botão '%s' não possui browser_navigation_requested." % button.name
+		)
 		return
 
-	if not button.browser_navigation_requested.is_connected(_on_button_navigation_requested):
-		button.browser_navigation_requested.connect(_on_button_navigation_requested)
+	var callback := Callable(self, "_on_button_navigation_requested")
+
+	if not button.is_connected("browser_navigation_requested", callback):
+		button.connect("browser_navigation_requested", callback)
 
 
 func _connect_alerts_button() -> void:
 	if not alerts_btn.pressed.is_connected(_on_alerts_pressed):
 		alerts_btn.pressed.connect(_on_alerts_pressed)
 
-	if alerts_notification_badge is Control:
-		alerts_notification_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	alerts_notification_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _on_button_navigation_requested(url: String) -> void:
 	var clean_url: String = url.strip_edges()
 
-	if clean_url.is_empty():
-		return
-
-	navigation_requested.emit(clean_url)
+	if not clean_url.is_empty():
+		navigation_requested.emit(clean_url)
 
 
 func _on_alerts_pressed() -> void:
