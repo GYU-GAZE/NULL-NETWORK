@@ -8,5 +8,5 @@ script = ExtResource("1_uihgy")
 url = "null.net/profile/"
 page_title = "Profile"
 match_as_prefix = true
-custom_site_scene = ExtResource("1_ygbm3")
+site_scene = ExtResource("1_ygbm3")
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"
