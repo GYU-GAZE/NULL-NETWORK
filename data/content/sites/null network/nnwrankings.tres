@@ -7,5 +7,5 @@
 script = ExtResource("3_hh78u")
 url = "null.net/playerrankings"
 page_title = "null NETWORK - Player Rankings"
-custom_site_scene = ExtResource("1_bml4i")
+site_scene = ExtResource("1_bml4i")
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"
