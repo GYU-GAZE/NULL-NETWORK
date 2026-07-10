@@ -1,19 +1,31 @@
-[gd_scene format=3 uid="uid://df710bluwtcbp"]
+[gd_scene load_steps=4 format=3 uid="uid://df710bluwtcbp"]
 
-[ext_resource type="Script" uid="uid://7b1im6w8fy41" path="res://apps/browser/home/browser_home_app.gd" id="1_i1hwu"]
-[ext_resource type="PackedScene" uid="uid://clrecf8xmiaol" path="res://apps/browser/home/browser_home_card.tscn" id="2_3gjt3"]
+[ext_resource type="Script" uid="uid://7b1im6w8fy41" path="res://apps/browser/home/browser_home_app.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://clrecf8xmiaol" path="res://apps/browser/home/browser_home_card.tscn" id="2_card"]
+[ext_resource type="Theme" path="res://data/assets/themes/null_channel_ui.tres" id="3_theme"]
 
-[node name="BrowserHomeApp" type="Control" unique_id=1709414757]
+[node name="BrowserHomeApp" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_i1hwu")
-site_card_scene = ExtResource("2_3gjt3")
+theme = ExtResource("3_theme")
+script = ExtResource("1_script")
+site_card_scene = ExtResource("2_card")
 
-[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=421971853]
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.015, 0.02, 0.03, 1)
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -22,47 +34,127 @@ grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer" unique_id=1089521768]
+[node name="OuterMargin" type="MarginContainer" parent="ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 18
 
-[node name="MainVBox" type="VBoxContainer" parent="ScrollContainer/MarginContainer" unique_id=785739053]
+[node name="MainVBox" type="VBoxContainer" parent="ScrollContainer/OuterMargin"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="TitleLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=201471974]
-layout_mode = 2
-text = "KubuOS Browser Home"
-
-[node name="SubtitleLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=1866958631]
-layout_mode = 2
-text = "Recently accessed network locations and pinned sites."
-
-[node name="Separator1" type="HSeparator" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=1394830103]
+[node name="HeroPanel" type="PanelContainer" parent="ScrollContainer/OuterMargin/MainVBox"]
 layout_mode = 2
 
-[node name="PinnedTitleLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=990799620]
+[node name="HeroMargin" type="MarginContainer" parent="ScrollContainer/OuterMargin/MainVBox/HeroPanel"]
 layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="HeroHBox" type="HBoxContainer" parent="ScrollContainer/OuterMargin/MainVBox/HeroPanel/HeroMargin"]
+layout_mode = 2
+
+[node name="HeroVBox" type="VBoxContainer" parent="ScrollContainer/OuterMargin/MainVBox/HeroPanel/HeroMargin/HeroHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="EyebrowLabel" type="Label" parent="ScrollContainer/OuterMargin/MainVBox/HeroPanel/HeroMargin/HeroHBox/HeroVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.39, 0.69, 0.85, 1)
+theme_override_font_sizes/font_size = 12
+text = "KUBUOS NETWORK DIRECTORY"
+
+[node name="TitleLabel" type="Label" parent="ScrollContainer/OuterMargin/MainVBox/HeroPanel/HeroMargin/HeroHBox/HeroVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.91, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "Where do you want to go?"
+
+[node name="SubtitleLabel" type="Label" parent="ScrollContainer/OuterMargin/MainVBox/HeroPanel/HeroMargin/HeroHBox/HeroVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.49, 0.62, 0.71, 1)
+text = "Your saved locations and browsing history are collected here."
+autowrap_mode = 2
+
+[node name="ConnectionStatus" type="Label" parent="ScrollContainer/OuterMargin/MainVBox/HeroPanel/HeroMargin/HeroHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.37, 0.82, 0.61, 1)
+text = "● CONNECTED"
+vertical_alignment = 1
+
+[node name="PinnedPanel" type="PanelContainer" parent="ScrollContainer/OuterMargin/MainVBox"]
+layout_mode = 2
+
+[node name="PinnedMargin" type="MarginContainer" parent="ScrollContainer/OuterMargin/MainVBox/PinnedPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="PinnedVBox" type="VBoxContainer" parent="ScrollContainer/OuterMargin/MainVBox/PinnedPanel/PinnedMargin"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="PinnedTitleHBox" type="HBoxContainer" parent="ScrollContainer/OuterMargin/MainVBox/PinnedPanel/PinnedMargin/PinnedVBox"]
+layout_mode = 2
+
+[node name="PinnedTitleLabel" type="Label" parent="ScrollContainer/OuterMargin/MainVBox/PinnedPanel/PinnedMargin/PinnedVBox/PinnedTitleHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.89, 0.96, 1)
 text = "PINNED SITES"
 
-[node name="PinnedContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=1783494577]
+[node name="PinnedHint" type="Label" parent="ScrollContainer/OuterMargin/MainVBox/PinnedPanel/PinnedMargin/PinnedVBox/PinnedTitleHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.39, 0.49, 0.57, 1)
+theme_override_font_sizes/font_size = 12
+text = "Favorites"
+horizontal_alignment = 2
+
+[node name="PinnedContainer" type="VBoxContainer" parent="ScrollContainer/OuterMargin/MainVBox/PinnedPanel/PinnedMargin/PinnedVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Separator2" type="HSeparator" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=1799331614]
+[node name="RecentPanel" type="PanelContainer" parent="ScrollContainer/OuterMargin/MainVBox"]
 layout_mode = 2
 
-[node name="RecentTitleLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=1576448451]
+[node name="RecentMargin" type="MarginContainer" parent="ScrollContainer/OuterMargin/MainVBox/RecentPanel"]
 layout_mode = 2
-text = "RECENT SITES"
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
 
-[node name="RecentContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=158860992]
+[node name="RecentVBox" type="VBoxContainer" parent="ScrollContainer/OuterMargin/MainVBox/RecentPanel/RecentMargin"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="RecentTitleHBox" type="HBoxContainer" parent="ScrollContainer/OuterMargin/MainVBox/RecentPanel/RecentMargin/RecentVBox"]
+layout_mode = 2
+
+[node name="RecentTitleLabel" type="Label" parent="ScrollContainer/OuterMargin/MainVBox/RecentPanel/RecentMargin/RecentVBox/RecentTitleHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.89, 0.96, 1)
+text = "RECENT ACTIVITY"
+
+[node name="RecentHint" type="Label" parent="ScrollContainer/OuterMargin/MainVBox/RecentPanel/RecentMargin/RecentVBox/RecentTitleHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.39, 0.49, 0.57, 1)
+theme_override_font_sizes/font_size = 12
+text = "Latest first"
+horizontal_alignment = 2
+
+[node name="RecentContainer" type="VBoxContainer" parent="ScrollContainer/OuterMargin/MainVBox/RecentPanel/RecentMargin/RecentVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
