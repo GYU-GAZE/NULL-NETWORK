@@ -16,12 +16,19 @@ enum ProfileTab {
 
 @export_category("Threads")
 @export var thread_row_scene: PackedScene
+@export var thread_url_prefix: String = "null.net/forums/thread/"
+@export var thread_hide_author_below_width: float = 620.0
+@export var thread_hide_last_reply_below_width: float = 500.0
+@export var thread_hide_replies_below_width: float = 380.0
 
 @export_category("Friend Cards")
 @export var friend_card_scene: PackedScene
-
-@export_category("Routing")
-@export var thread_url_prefix: String = "null.net/forums/thread/"
+@export var compact_friend_card_size: Vector2 = Vector2(72, 88)
+@export var full_friend_card_size: Vector2 = Vector2(104, 128)
+@export var compact_grid_target_width: float = 84.0
+@export var full_grid_target_width: float = 116.0
+@export var max_preview_columns: int = 4
+@export var max_friend_columns: int = 6
 
 var current_user: NetworkUserData
 var current_tab: ProfileTab = ProfileTab.ABOUT
@@ -70,52 +77,55 @@ var current_tab: ProfileTab = ProfileTab.ABOUT
 
 func _ready() -> void:
 	_connect_site_header()
+	_connect_tab_buttons()
 
-	about_btn.pressed.connect(_show_about_tab)
-	threads_tab_btn.pressed.connect(_show_threads_tab)
-	friends_tab_btn.pressed.connect(_show_friends_tab)
+	if not resized.is_connected(_apply_responsive_layout):
+		resized.connect(_apply_responsive_layout)
 
 	_load_user(default_user_id)
 	_show_about_tab()
+	call_deferred("_apply_responsive_layout")
+
 
 func _connect_site_header() -> void:
-	if not is_instance_valid(site_header):
-		return
-
 	site_header.refresh_player()
-	site_header.configure_navigation(
-		true,
-		true,
-		true,
-		false
-	)
+	site_header.configure_navigation(true, true, true, false)
 
 	if not site_header.navigation_requested.is_connected(_on_site_header_navigation_requested):
 		site_header.navigation_requested.connect(_on_site_header_navigation_requested)
 
 
+func _connect_tab_buttons() -> void:
+	if not about_btn.pressed.is_connected(_show_about_tab):
+		about_btn.pressed.connect(_show_about_tab)
+
+	if not threads_tab_btn.pressed.is_connected(_show_threads_tab):
+		threads_tab_btn.pressed.connect(_show_threads_tab)
+
+	if not friends_tab_btn.pressed.is_connected(_show_friends_tab):
+		friends_tab_btn.pressed.connect(_show_friends_tab)
+
+
 func _on_site_header_navigation_requested(url: String) -> void:
 	var clean_url: String = url.strip_edges()
 
-	if clean_url.is_empty():
-		return
+	if not clean_url.is_empty():
+		browser_navigation_requested.emit(clean_url)
 
-	browser_navigation_requested.emit(clean_url)
 
 func set_browser_url(url: String) -> void:
 	var user_id: String = _extract_user_id_from_url(url)
 
-	if user_id.is_empty():
-		return
-
-	_load_user(user_id)
+	if not user_id.is_empty():
+		_load_user(user_id)
 
 
 func _extract_user_id_from_url(url: String) -> String:
-	var clean_url: String = url.strip_edges()
+	var clean_url: String = SimulatedDNS.normalize_url(url)
+	var clean_prefix: String = SimulatedDNS.normalize_url(profile_url_prefix)
 
-	if clean_url.begins_with(profile_url_prefix):
-		return clean_url.trim_prefix(profile_url_prefix)
+	if clean_url.begins_with(clean_prefix):
+		return clean_url.trim_prefix(clean_prefix).strip_edges()
 
 	return clean_url
 
@@ -124,7 +134,7 @@ func _load_user(user_id: String) -> void:
 	var target_id: String = user_id.strip_edges()
 
 	if target_id.is_empty():
-		target_id = default_user_id
+		target_id = default_user_id.strip_edges()
 
 	if target_id.is_empty():
 		_render_missing_user("unknown")
@@ -143,10 +153,7 @@ func _render_missing_user(user_id: String) -> void:
 	current_user = null
 
 	avatar_rect.texture = null
-	name_label.text = "USER NOT FOUND"
-	user_id_label.text = "#404"
-
-	avatar_rect.texture = null
+	profile_banner_rect.texture = null
 	name_label.text = "USER NOT FOUND"
 	user_id_label.text = "#404"
 	title_badge.text = "MISSING"
@@ -155,7 +162,6 @@ func _render_missing_user(user_id: String) -> void:
 	status_value_label.text = "-"
 	joined_value_label.text = "-"
 	last_seen_value_label.text = "-"
-	profile_banner_rect.texture = null
 
 	bio_text.bbcode_enabled = true
 	bio_text.text = "[center][b]404 PROFILE NOT FOUND[/b][/center]\n\nCould not find user: %s" % user_id
@@ -168,6 +174,10 @@ func _render_missing_user(user_id: String) -> void:
 	_clear_container(friends_grid)
 	_clear_container(user_threads_container)
 
+	friends_preview_title_label.text = "FRIENDS (0)"
+	friends_title_label.text = "FRIENDS (0)"
+	threads_title_label.text = "THREADS (0)"
+
 
 func _render_user() -> void:
 	_render_left_profile_card()
@@ -176,6 +186,8 @@ func _render_user() -> void:
 	_rebuild_friends_preview()
 	_rebuild_full_friends()
 	_rebuild_user_threads()
+	_apply_responsive_layout()
+
 
 func _render_left_profile_card() -> void:
 	avatar_rect.texture = current_user.avatar
@@ -211,13 +223,16 @@ func _render_stats() -> void:
 
 
 func _set_stat_labels_empty() -> void:
-	rank_value_label.text = "-"
-	score_value_label.text = "-"
-	level_value_label.text = "-"
-	partner_value_label.text = "-"
-	reputation_value_label.text = "-"
-	posts_value_label.text = "-"
-	threads_value_label.text = "-"
+	for label in [
+		rank_value_label,
+		score_value_label,
+		level_value_label,
+		partner_value_label,
+		reputation_value_label,
+		posts_value_label,
+		threads_value_label
+	]:
+		label.text = "-"
 
 
 func _show_about_tab() -> void:
@@ -244,11 +259,13 @@ func _apply_tab_visibility() -> void:
 	threads_tab_btn.button_pressed = current_tab == ProfileTab.THREADS
 	friends_tab_btn.button_pressed = current_tab == ProfileTab.FRIENDS
 
+
 func _get_current_user_friends() -> Array[NetworkUserData]:
 	if current_user == null:
 		return []
 
 	return NetworkUserDatabase.get_resolved_friends_for_user(current_user)
+
 
 func _rebuild_friends_preview() -> void:
 	_clear_container(friends_preview_grid)
@@ -257,7 +274,6 @@ func _rebuild_friends_preview() -> void:
 		return
 
 	var friends: Array[NetworkUserData] = _get_current_user_friends()
-
 	friends_preview_title_label.text = "FRIENDS (%d)" % friends.size()
 
 	if friends.is_empty():
@@ -269,10 +285,8 @@ func _rebuild_friends_preview() -> void:
 	for i in range(count):
 		var friend: NetworkUserData = friends[i]
 
-		if friend == null:
-			continue
-
-		friends_preview_grid.add_child(_create_friend_card(friend, true))
+		if friend != null:
+			friends_preview_grid.add_child(_create_friend_card(friend, true))
 
 
 func _rebuild_full_friends() -> void:
@@ -282,7 +296,6 @@ func _rebuild_full_friends() -> void:
 		return
 
 	var friends: Array[NetworkUserData] = _get_current_user_friends()
-
 	friends_title_label.text = "FRIENDS (%d)" % friends.size()
 
 	if friends.is_empty():
@@ -290,10 +303,8 @@ func _rebuild_full_friends() -> void:
 		return
 
 	for friend in friends:
-		if friend == null:
-			continue
-
-		friends_grid.add_child(_create_friend_card(friend, false))
+		if friend != null:
+			friends_grid.add_child(_create_friend_card(friend, false))
 
 
 func _create_friend_card(friend: NetworkUserData, compact: bool = false) -> Control:
@@ -305,19 +316,11 @@ func _create_friend_card(friend: NetworkUserData, compact: bool = false) -> Cont
 			card.friend_selected.connect(_on_friend_pressed)
 			return card
 
-	var button: Button = Button.new()
-
-	if compact:
-		button.custom_minimum_size = Vector2(80, 96)
-	else:
-		button.custom_minimum_size = Vector2(120, 150)
-
+	var button := Button.new()
+	button.custom_minimum_size = compact_friend_card_size if compact else full_friend_card_size
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	button.text = "%s\n%s" % [
-		friend.display_name,
-		friend.get_global_rank_label()
-	]
+	button.text = "%s\n%s" % [friend.display_name, friend.get_global_rank_label()]
 	button.icon = friend.avatar
 	button.expand_icon = true
 	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -326,7 +329,6 @@ func _create_friend_card(friend: NetworkUserData, compact: bool = false) -> Cont
 	button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	button.clip_text = true
 	button.pressed.connect(_on_friend_pressed.bind(friend))
-
 	return button
 
 
@@ -336,10 +338,8 @@ func _on_friend_pressed(user: NetworkUserData) -> void:
 
 	var url: String = user.get_profile_url()
 
-	if url.is_empty():
-		return
-
-	browser_navigation_requested.emit(url)
+	if not url.is_empty():
+		browser_navigation_requested.emit(url)
 
 
 func _rebuild_user_threads() -> void:
@@ -348,7 +348,10 @@ func _rebuild_user_threads() -> void:
 	if current_user == null:
 		return
 
-	var user_threads: Array[ThreadButtonData] = ForumThreadDatabase.get_threads_started_by_user(current_user, true)
+	var user_threads: Array[ThreadButtonData] = ForumThreadDatabase.get_threads_started_by_user(
+		current_user,
+		true
+	)
 
 	threads_title_label.text = "THREADS BY %s (%d)" % [
 		current_user.display_name,
@@ -360,17 +363,24 @@ func _rebuild_user_threads() -> void:
 		return
 
 	for thread_data in user_threads:
-		if thread_row_scene != null:
-			var row: ForumThreadRowUI = thread_row_scene.instantiate() as ForumThreadRowUI
-			user_threads_container.add_child(row)
-			row.setup(thread_data)
-			row.thread_selected.connect(_on_profile_thread_selected)
-		else:
+		if thread_row_scene == null:
 			user_threads_container.add_child(_create_thread_fallback_button(thread_data))
+			continue
+
+		var row: ForumThreadRowUI = thread_row_scene.instantiate() as ForumThreadRowUI
+
+		if row == null:
+			user_threads_container.add_child(_create_thread_fallback_button(thread_data))
+			continue
+
+		user_threads_container.add_child(row)
+		_apply_profile_thread_row_layout(row)
+		row.setup(thread_data)
+		row.thread_selected.connect(_on_profile_thread_selected)
 
 
 func _create_thread_fallback_button(thread_data: ThreadButtonData) -> Button:
-	var button: Button = Button.new()
+	var button := Button.new()
 
 	if thread_data == null or thread_data.thread_ref == null:
 		button.text = "Missing thread"
@@ -391,26 +401,66 @@ func _on_profile_thread_selected(thread: ForumThread) -> void:
 	if thread == null:
 		return
 
-	if thread.thread_id.strip_edges().is_empty():
+	var thread_id: String = thread.thread_id.strip_edges()
+
+	if thread_id.is_empty():
 		browser_navigation_requested.emit("null.net/forums")
 		return
 
-	browser_navigation_requested.emit("%s%s" % [
-		thread_url_prefix,
-		thread.thread_id
-	])
+	browser_navigation_requested.emit("%s%s" % [thread_url_prefix, thread_id])
+
+
+func _apply_responsive_layout() -> void:
+	if not is_node_ready():
+		return
+
+	var available_width: float = size.x
+
+	if available_width <= 0.0:
+		available_width = get_viewport_rect().size.x
+
+	friends_preview_grid.columns = _calculate_grid_columns(
+		available_width,
+		compact_grid_target_width,
+		max_preview_columns
+	)
+	friends_grid.columns = _calculate_grid_columns(
+		available_width,
+		full_grid_target_width,
+		max_friend_columns
+	)
+
+	for child in user_threads_container.get_children():
+		if child is ForumThreadRowUI:
+			_apply_profile_thread_row_layout(child as ForumThreadRowUI)
+
+
+func _calculate_grid_columns(
+	available_width: float,
+	target_column_width: float,
+	maximum_columns: int
+) -> int:
+	var safe_target_width: float = max(1.0, target_column_width)
+	var calculated: int = int(floor(max(1.0, available_width) / safe_target_width))
+	return clampi(calculated, 1, max(1, maximum_columns))
+
+
+func _apply_profile_thread_row_layout(row: ForumThreadRowUI) -> void:
+	var available_width: float = size.x
+	row.apply_column_visibility(
+		available_width >= thread_hide_replies_below_width,
+		available_width >= thread_hide_last_reply_below_width,
+		available_width >= thread_hide_author_below_width
+	)
 
 
 func _get_rank_stars_text(user: NetworkUserData) -> String:
 	if user.global_rank <= 3:
 		return "★★★★★"
-
 	if user.global_rank <= 10:
 		return "★★★★"
-
 	if user.global_rank <= 50:
 		return "★★★"
-
 	if user.global_rank <= 100:
 		return "★★"
 
@@ -433,13 +483,13 @@ func _format_number(value: int) -> String:
 
 
 func _add_empty_label(container: Control, message: String) -> void:
-	var label: Label = Label.new()
+	var label := Label.new()
 	label.text = message
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	container.add_child(label)
 
 
-func _clear_container(container: Control) -> void:
+func _clear_container(container: Node) -> void:
 	for child in container.get_children():
+		container.remove_child(child)
 		child.queue_free()
-	
