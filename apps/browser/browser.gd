@@ -157,6 +157,10 @@ func _refresh_tab_buttons() -> void:
 	_clear_control_children(new_tab_button_holder)
 	_refresh_tab_layout_only()
 
+	if tab_button_scene == null:
+		push_error("BrowserApp: tab_button_scene is not configured.")
+		return
+
 	for i in range(tabs.size()):
 		var tab: BrowserTabData = tabs[i]
 		var tab_button := tab_button_scene.instantiate() as BrowserTabButton
@@ -479,6 +483,8 @@ func _connect_browser_navigation_signals(root: Node) -> void:
 
 		if not root.is_connected("browser_navigation_requested", navigation_callable):
 			root.connect("browser_navigation_requested", navigation_callable)
+
+		return
 
 	for child in root.get_children():
 		_connect_browser_navigation_signals(child)
