@@ -6,8 +6,11 @@
 
 [resource]
 script = ExtResource("3_khd0v")
-app_id = "notifications"
-app_name = "Notifications"
+app_id = "navigator"
+app_name = "Navigator"
 app_icon = ExtResource("1_jveos")
 app_scene = ExtResource("2_4j6fk")
+default_window_size = Vector2(250, 250)
+min_window_size = Vector2(200, 150)
+can_resize = true
 metadata/_custom_type_script = "uid://b2kr16bkp27ck"
