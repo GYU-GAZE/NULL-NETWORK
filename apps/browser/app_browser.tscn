@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dcoqma7h6c75u"]
+[gd_scene load_steps=8 format=3 uid="uid://dcoqma7h6c75u"]
 
 [ext_resource type="Script" uid="uid://cwms4o3bngg47" path="res://apps/browser/browser.gd" id="1_mufrk"]
 [ext_resource type="PackedScene" uid="uid://c15t5fwjule8g" path="res://apps/browser/browser_tab_button.tscn" id="2_4noms"]
@@ -6,8 +6,9 @@
 [ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="4_kj561"]
 [ext_resource type="Script" uid="uid://bre1yc202tlqa" path="res://systems/ui/alert_layer.gd" id="4_rgo1m"]
 [ext_resource type="PackedScene" uid="uid://dlkm01xdtlvo2" path="res://systems/ui/alert_box.tscn" id="5_l1ivm"]
+[ext_resource type="Theme" path="res://data/assets/themes/null_channel_ui.tres" id="6_site_theme"]
 
-[node name="BrowserApp" type="Panel" unique_id=1373929234]
+[node name="BrowserApp" type="Panel"]
 clip_contents = true
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -16,7 +17,7 @@ tab_button_scene = ExtResource("2_4noms")
 new_tab_button_scene = ExtResource("3_fx11j")
 home_url = "kubus://home"
 
-[node name="MainVBox" type="VBoxContainer" parent="." unique_id=1051088920]
+[node name="MainVBox" type="VBoxContainer" parent="."]
 clip_contents = true
 layout_mode = 1
 anchors_preset = 15
@@ -25,34 +26,34 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TabBarMargin" type="MarginContainer" parent="MainVBox" unique_id=1396745387]
+[node name="TabBarMargin" type="MarginContainer" parent="MainVBox"]
 layout_mode = 2
 size_flags_vertical = 0
 
-[node name="TabBarHBox" type="HBoxContainer" parent="MainVBox/TabBarMargin" unique_id=464703524]
+[node name="TabBarHBox" type="HBoxContainer" parent="MainVBox/TabBarMargin"]
 layout_mode = 2
 size_flags_vertical = 0
 
-[node name="TabScroll" type="ScrollContainer" parent="MainVBox/TabBarMargin/TabBarHBox" unique_id=1726268003]
+[node name="TabScroll" type="ScrollContainer" parent="MainVBox/TabBarMargin/TabBarHBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 vertical_scroll_mode = 0
 
-[node name="TabButtonContainer" type="HBoxContainer" parent="MainVBox/TabBarMargin/TabBarHBox/TabScroll" unique_id=754968146]
+[node name="TabButtonContainer" type="HBoxContainer" parent="MainVBox/TabBarMargin/TabBarHBox/TabScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
-[node name="NewTabButtonHolder" type="MarginContainer" parent="MainVBox/TabBarMargin/TabBarHBox" unique_id=2050815140]
+[node name="NewTabButtonHolder" type="MarginContainer" parent="MainVBox/TabBarMargin/TabBarHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 
-[node name="AddressBarMargin" type="MarginContainer" parent="MainVBox" unique_id=237390264]
+[node name="AddressBarMargin" type="MarginContainer" parent="MainVBox"]
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/margin_left = 10
@@ -60,58 +61,65 @@ theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 0
 
-[node name="AddressBarHBox" type="HBoxContainer" parent="MainVBox/AddressBarMargin" unique_id=1593441352]
+[node name="AddressBarHBox" type="HBoxContainer" parent="MainVBox/AddressBarMargin"]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="BrowserBackBtn" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=2070172410]
+[node name="BrowserBackBtn" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "<"
 
-[node name="HomeBtn" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=1371956060]
+[node name="HomeBtn" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox"]
 layout_mode = 2
 text = "H"
 script = ExtResource("4_kj561")
 target_url = "kubus://home"
 
-[node name="UrlLineEdit" type="LineEdit" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=93702499]
+[node name="UrlLineEdit" type="LineEdit" parent="MainVBox/AddressBarMargin/AddressBarHBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GoButton" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=645379301]
+[node name="GoButton" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Ir"
+text = "GO"
 
-[node name="FavoriteButton" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=251522193]
+[node name="FavoriteButton" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Add Favorite"
 text = "☆"
 
-[node name="Divider" type="HSeparator" parent="MainVBox" unique_id=831126565]
+[node name="Divider" type="HSeparator" parent="MainVBox"]
 layout_mode = 2
 
-[node name="ContentArea" type="Control" parent="MainVBox" unique_id=1133759272]
+[node name="ContentArea" type="Control" parent="MainVBox"]
+unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="NormalSiteScroll" type="ScrollContainer" parent="MainVBox/ContentArea" unique_id=175349413]
+[node name="NormalSiteScroll" type="ScrollContainer" parent="MainVBox/ContentArea"]
 unique_name_in_owner = true
-layout_mode = 0
-offset_right = 139.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 horizontal_scroll_mode = 0
+theme = ExtResource("6_site_theme")
 
-[node name="NormalSiteContent" type="VBoxContainer" parent="MainVBox/ContentArea/NormalSiteScroll" unique_id=1631711902]
+[node name="NormalSiteContent" type="VBoxContainer" parent="MainVBox/ContentArea/NormalSiteScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="CustomSiteContainer" type="Control" parent="MainVBox/ContentArea" unique_id=608180596]
+[node name="CustomSiteContainer" type="Control" parent="MainVBox/ContentArea"]
 unique_name_in_owner = true
 visible = false
 clip_contents = true
@@ -122,9 +130,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
-size_flags_vertical = 0
+size_flags_vertical = 3
+theme = ExtResource("6_site_theme")
 
-[node name="AlertLayer" type="Control" parent="." unique_id=1159255861]
+[node name="AlertLayer" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -135,7 +144,7 @@ mouse_filter = 2
 script = ExtResource("4_rgo1m")
 alert_box_scene = ExtResource("5_l1ivm")
 
-[node name="Blocker" type="ColorRect" parent="AlertLayer" unique_id=1825705867]
+[node name="Blocker" type="ColorRect" parent="AlertLayer"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -145,7 +154,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.39215687)
 
-[node name="CenterContainer" type="CenterContainer" parent="AlertLayer" unique_id=1496226357]
+[node name="CenterContainer" type="CenterContainer" parent="AlertLayer"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
