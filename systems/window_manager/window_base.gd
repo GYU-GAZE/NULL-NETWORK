@@ -55,12 +55,9 @@ var restore_size: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	anchors_preset = Control.PRESET_TOP_LEFT
-
-	scale = Vector2(0.8, 0.8)
 	modulate.a = 0.0
 
-	var tween: Tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "scale", Vector2.ONE, tween_duration)
+	var tween: Tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(self, "modulate:a", 1.0, tween_duration)
 
 	close_button.pressed.connect(close)
@@ -72,20 +69,26 @@ func _ready() -> void:
 	_refresh_maximize_button()
 
 
-func setup(id: String, window_name: String, window_size: Vector2, minimum_size: Vector2, resize_enabled: bool) -> void:
+func setup(
+	id: String,
+	window_name: String,
+	window_size: Vector2,
+	minimum_size: Vector2,
+	resize_enabled: bool
+) -> void:
 	app_id = id
 	title_label.text = window_name
 
-	min_window_size = minimum_size
+	min_window_size = KubuOSMetrics.snap_vector(minimum_size)
 	can_resize = resize_enabled
 
 	custom_minimum_size = Vector2.ZERO
 	anchors_preset = Control.PRESET_TOP_LEFT
 
-	size = Vector2(
+	size = KubuOSMetrics.snap_vector(Vector2(
 		max(window_size.x, min_window_size.x),
 		max(window_size.y, min_window_size.y)
-	)
+	))
 
 	resize_border.visible = can_resize
 	resize_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -116,11 +119,14 @@ func _on_top_bar_gui_input(event: InputEvent) -> void:
 			accept_event()
 		else:
 			is_dragging = false
+			global_position = KubuOSMetrics.snap_vector(global_position)
 			window_moved.emit()
 			accept_event()
 
 	elif event is InputEventMouseMotion and is_dragging:
-		global_position = get_global_mouse_position() - drag_offset
+		global_position = KubuOSMetrics.snap_vector(
+			get_global_mouse_position() - drag_offset
+		)
 		window_moved.emit()
 		accept_event()
 
@@ -138,8 +144,8 @@ func maximize() -> void:
 
 	window_focused.emit()
 
-	restore_position = position
-	restore_size = size
+	restore_position = KubuOSMetrics.snap_vector(position)
+	restore_size = KubuOSMetrics.snap_vector(size)
 
 	is_dragging = false
 	is_resizing = false
@@ -147,9 +153,7 @@ func maximize() -> void:
 	resize_border.force_capture = false
 
 	is_maximized = true
-
-	position = _get_maximized_position()
-	size = _get_maximized_size()
+	apply_maximized_geometry()
 
 	_refresh_maximize_button()
 	window_moved.emit()
@@ -161,18 +165,25 @@ func restore_from_maximized() -> void:
 		return
 
 	window_focused.emit()
-
 	is_maximized = false
 
-	position = restore_position
-	size = Vector2(
+	position = KubuOSMetrics.snap_vector(restore_position)
+	size = KubuOSMetrics.snap_vector(Vector2(
 		max(restore_size.x, min_window_size.x),
 		max(restore_size.y, min_window_size.y)
-	)
+	))
 
 	_refresh_maximize_button()
 	window_moved.emit()
 	window_resized.emit()
+
+
+func apply_maximized_geometry() -> void:
+	if not is_maximized:
+		return
+
+	position = KubuOSMetrics.snap_vector(_get_maximized_position())
+	size = KubuOSMetrics.snap_vector(_get_maximized_size())
 
 
 func _get_maximized_position() -> Vector2:
@@ -227,25 +238,18 @@ func _get_resize_mode(border_mouse_pos: Vector2) -> ResizeMode:
 
 	if left and top:
 		return ResizeMode.TOP_LEFT
-
 	if right and top:
 		return ResizeMode.TOP_RIGHT
-
 	if left and bottom:
 		return ResizeMode.BOTTOM_LEFT
-
 	if right and bottom:
 		return ResizeMode.BOTTOM_RIGHT
-
 	if left:
 		return ResizeMode.LEFT
-
 	if right:
 		return ResizeMode.RIGHT
-
 	if top:
 		return ResizeMode.TOP
-
 	if bottom:
 		return ResizeMode.BOTTOM
 
@@ -253,10 +257,7 @@ func _get_resize_mode(border_mouse_pos: Vector2) -> ResizeMode:
 
 
 func _on_resize_border_gui_input(event: InputEvent) -> void:
-	if not can_resize:
-		return
-
-	if is_maximized:
+	if not can_resize or is_maximized:
 		return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -269,9 +270,9 @@ func _on_resize_border_gui_input(event: InputEvent) -> void:
 			is_resizing = true
 			resize_border.force_capture = true
 
-			resize_start_mouse = get_global_mouse_position()
-			resize_start_size = size
-			resize_start_position = position
+			resize_start_mouse = KubuOSMetrics.snap_vector(get_global_mouse_position())
+			resize_start_size = KubuOSMetrics.snap_vector(size)
+			resize_start_position = KubuOSMetrics.snap_vector(position)
 
 			window_focused.emit()
 			accept_event()
@@ -279,19 +280,20 @@ func _on_resize_border_gui_input(event: InputEvent) -> void:
 
 func pulse() -> void:
 	var tween: Tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "scale", Vector2(1.02, 1.02), 0.1)
-	tween.tween_property(self, "scale", Vector2.ONE, 0.1)
+	tween.tween_property(self, "modulate", Color(1.15, 1.15, 1.15, modulate.a), 0.08)
+	tween.tween_property(self, "modulate", Color(1.0, 1.0, 1.0, modulate.a), 0.12)
 
 
 func close() -> void:
 	close_button.disabled = true
 	maximize_button.disabled = true
+	is_dragging = false
+	is_resizing = false
+	resize_border.force_capture = false
 
-	var tween: Tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-	tween.tween_property(self, "scale", Vector2(0.8, 0.8), tween_duration)
+	var tween: Tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.tween_property(self, "modulate:a", 0.0, tween_duration)
-
-	tween.chain().tween_callback(window_closed.emit)
+	tween.tween_callback(window_closed.emit)
 
 
 func _input(event: InputEvent) -> void:
@@ -303,6 +305,8 @@ func _input(event: InputEvent) -> void:
 			is_resizing = false
 			resize_mode = ResizeMode.NONE
 			resize_border.force_capture = false
+			position = KubuOSMetrics.snap_vector(position)
+			size = KubuOSMetrics.snap_vector(size)
 			window_resized.emit()
 			get_viewport().set_input_as_handled()
 			return
@@ -316,7 +320,9 @@ func _apply_resize_from_mouse() -> void:
 	if is_maximized:
 		return
 
-	var delta: Vector2 = get_global_mouse_position() - resize_start_mouse
+	var delta: Vector2 = KubuOSMetrics.snap_vector(
+		get_global_mouse_position() - resize_start_mouse
+	)
 	var work_rect: Rect2 = _get_work_area_rect()
 
 	var work_left: float = work_rect.position.x
@@ -414,13 +420,14 @@ func _apply_resize_from_mouse() -> void:
 				work_bottom
 			)
 
-	position = Vector2(new_left, new_top)
-	size = Vector2(
+	position = KubuOSMetrics.snap_vector(Vector2(new_left, new_top))
+	size = KubuOSMetrics.snap_vector(Vector2(
 		max(min_width, new_right - new_left),
 		max(min_height, new_bottom - new_top)
-	)
+	))
 
 	window_resized.emit()
+
 
 func _get_work_area_rect() -> Rect2:
 	var parent_node: Node = get_parent()
