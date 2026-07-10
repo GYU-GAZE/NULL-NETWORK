@@ -22,11 +22,20 @@ signal thread_selected(thread: ForumThread)
 
 var thread_data: ThreadButtonData
 
+var _show_replies_column: bool = true
+var _show_last_reply_column: bool = true
+var _show_author_column: bool = true
+
 
 func _ready() -> void:
-	type_icon_button.pressed.connect(_on_thread_pressed)
-	thread_title_button.pressed.connect(_on_thread_pressed)
+	if not type_icon_button.pressed.is_connected(_on_thread_pressed):
+		type_icon_button.pressed.connect(_on_thread_pressed)
+
+	if not thread_title_button.pressed.is_connected(_on_thread_pressed):
+		thread_title_button.pressed.connect(_on_thread_pressed)
+
 	_apply_column_widths()
+	_apply_column_visibility()
 
 
 func apply_layout_widths(
@@ -35,13 +44,26 @@ func apply_layout_widths(
 	last_reply_width: float,
 	author_width: float
 ) -> void:
-	type_column_width = type_width
-	replies_column_width = replies_width
-	last_reply_column_width = last_reply_width
-	author_column_width = author_width
+	type_column_width = max(0.0, type_width)
+	replies_column_width = max(0.0, replies_width)
+	last_reply_column_width = max(0.0, last_reply_width)
+	author_column_width = max(0.0, author_width)
 
 	if is_inside_tree():
 		_apply_column_widths()
+
+
+func apply_column_visibility(
+	show_replies: bool,
+	show_last_reply: bool,
+	show_author: bool
+) -> void:
+	_show_replies_column = show_replies
+	_show_last_reply_column = show_last_reply
+	_show_author_column = show_author
+
+	if is_inside_tree():
+		_apply_column_visibility()
 
 
 func setup(data: ThreadButtonData) -> void:
@@ -52,7 +74,6 @@ func setup(data: ThreadButtonData) -> void:
 		return
 
 	show()
-
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	custom_minimum_size.x = 0
 
@@ -63,6 +84,7 @@ func setup(data: ThreadButtonData) -> void:
 	_setup_activity_columns(thread)
 	_setup_new_badge(thread)
 	_apply_visual_state(thread)
+	_apply_column_visibility()
 
 
 func _apply_column_widths() -> void:
@@ -81,6 +103,17 @@ func _apply_column_widths() -> void:
 	if is_instance_valid(author_label):
 		author_label.custom_minimum_size.x = author_column_width
 		author_label.clip_text = true
+
+
+func _apply_column_visibility() -> void:
+	if is_instance_valid(replies_label):
+		replies_label.visible = _show_replies_column
+
+	if is_instance_valid(last_reply_label):
+		last_reply_label.visible = _show_last_reply_column
+
+	if is_instance_valid(author_label):
+		author_label.visible = _show_author_column
 
 
 func _setup_type_icon(thread: ForumThread) -> void:
