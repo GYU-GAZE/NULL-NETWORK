@@ -1,9 +1,10 @@
 extends Node
 
-const DEFAULT_THREAD_DATA_FOLDERS: Array[String] = [
-	"res://data/content/forum/threads",
-	"res://data/content/updates/threads"
-]
+const DEFAULT_CONTENT_CATALOG: ForumContentCatalog = preload(
+	"res://data/content/forum/forum_content_catalog.tres"
+)
+
+@export var content_catalog: ForumContentCatalog = DEFAULT_CONTENT_CATALOG
 
 var loaded_thread_data: Array[ThreadButtonData] = []
 var threads_by_id: Dictionary = {}
@@ -17,7 +18,11 @@ func reload_threads() -> void:
 	loaded_thread_data.clear()
 	threads_by_id.clear()
 
-	for folder_path in DEFAULT_THREAD_DATA_FOLDERS:
+	if content_catalog == null:
+		push_error("ForumThreadDatabase: content_catalog não configurado.")
+		return
+
+	for folder_path in content_catalog.get_valid_thread_data_folders():
 		_load_threads_from_folder(folder_path)
 
 	_rebuild_thread_index()
@@ -37,7 +42,6 @@ func _load_threads_from_folder(folder_path: String) -> void:
 
 		if file_name.is_empty():
 			break
-
 		if file_name.begins_with("."):
 			continue
 
@@ -59,6 +63,7 @@ func _try_load_thread_resource(path: String) -> void:
 	var resource: Resource = ResourceLoader.load(path)
 
 	if resource == null:
+		push_warning("ForumThreadDatabase: falha ao carregar %s" % path)
 		return
 
 	if resource is ThreadButtonData:
@@ -72,40 +77,43 @@ func _try_load_thread_resource(path: String) -> void:
 		return
 
 	if resource is ForumThread:
-		var data := ThreadButtonData.new()
-		data.thread_ref = resource as ForumThread
-		loaded_thread_data.append(data)
+		var generated_data := ThreadButtonData.new()
+		generated_data.thread_ref = resource as ForumThread
+		loaded_thread_data.append(generated_data)
 
 
 func _rebuild_thread_index() -> void:
 	threads_by_id.clear()
+	var unique_thread_data: Array[ThreadButtonData] = []
 
 	for data in loaded_thread_data:
-		if data == null:
-			continue
-
-		if data.thread_ref == null:
+		if data == null or data.thread_ref == null:
 			continue
 
 		var thread_id: String = data.thread_ref.thread_id.strip_edges()
 
 		if thread_id.is_empty():
+			unique_thread_data.append(data)
 			continue
 
 		if threads_by_id.has(thread_id):
-			push_warning("ForumThreadDatabase: thread_id duplicado: %s" % thread_id)
+			push_warning(
+				"ForumThreadDatabase: thread_id duplicado ignorado: %s" % thread_id
+			)
+			continue
 
 		threads_by_id[thread_id] = data.thread_ref
+		unique_thread_data.append(data)
+
+	loaded_thread_data = unique_thread_data
 
 
 func get_all_thread_data() -> Array[ThreadButtonData]:
 	var result: Array[ThreadButtonData] = []
 
 	for data in loaded_thread_data:
-		if data == null:
-			continue
-
-		result.append(data)
+		if data != null:
+			result.append(data)
 
 	return result
 
@@ -116,10 +124,13 @@ func get_thread_by_id(thread_id: String) -> ForumThread:
 	if clean_thread_id.is_empty():
 		return null
 
-	return threads_by_id.get(clean_thread_id, null)
+	return threads_by_id.get(clean_thread_id, null) as ForumThread
 
 
-func get_threads_started_by_user(user: NetworkUserData, visible_only: bool = true) -> Array[ThreadButtonData]:
+func get_threads_started_by_user(
+	user: NetworkUserData,
+	visible_only: bool = true
+) -> Array[ThreadButtonData]:
 	var result: Array[ThreadButtonData] = []
 
 	if user == null:
@@ -128,16 +139,12 @@ func get_threads_started_by_user(user: NetworkUserData, visible_only: bool = tru
 	for data in loaded_thread_data:
 		if data == null or data.thread_ref == null:
 			continue
-
 		if visible_only and not data.is_visible():
 			continue
 
 		var author_post: ForumPost = data.thread_ref.get_author_post()
 
-		if author_post == null:
-			continue
-
-		if author_post.author == null:
+		if author_post == null or author_post.author == null:
 			continue
 
 		if author_post.author.user_id == user.user_id:
@@ -150,13 +157,10 @@ func get_threads_started_by_user(user: NetworkUserData, visible_only: bool = tru
 func _sort_thread_data(a: ThreadButtonData, b: ThreadButtonData) -> bool:
 	if a == null or a.thread_ref == null:
 		return false
-
 	if b == null or b.thread_ref == null:
 		return true
-
 	if a.is_pinned() != b.is_pinned():
 		return a.is_pinned()
-
 	if a.thread_ref.popularity_score != b.thread_ref.popularity_score:
 		return a.thread_ref.popularity_score > b.thread_ref.popularity_score
 
