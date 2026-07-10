@@ -36,10 +36,9 @@ KubuDisplaySetting="*uid://cj1646w44qblw"
 
 [display]
 
-window/size/viewport_width=960
-window/size/viewport_height=540
-window/stretch/mode="viewport"
-window/stretch/scale_mode="integer"
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="disabled"
 
 [gui]
 
