@@ -12,8 +12,11 @@ enum ForumViewFilter {
 	ARCHIVED
 }
 
-@export_category("Forum Database")
-@export var thread_list: Array[ThreadButtonData] = []
+const MODE_THREAD_LIST: StringName = &"thread_list"
+const MODE_ALERTS: StringName = &"alerts"
+const MODE_THREAD: StringName = &"thread"
+
+@export_category("UI Scenes")
 @export var post_ui_scene: PackedScene
 @export var thread_row_scene: PackedScene
 @export var alert_card_scene: PackedScene
@@ -41,11 +44,14 @@ enum ForumViewFilter {
 @export var show_rankings_navigation: bool = true
 @export var show_watch_button: bool = true
 
-@export_category("Compact Layout")
+@export_category("Thread Table Layout")
 @export var type_column_width: float = 48.0
 @export var replies_column_width: float = 42.0
 @export var last_reply_column_width: float = 86.0
 @export var author_column_width: float = 80.0
+@export var hide_author_below_width: float = 620.0
+@export var hide_last_reply_below_width: float = 500.0
+@export var hide_replies_below_width: float = 380.0
 
 @onready var master_scroll: ScrollContainer = %MasterScroll
 
@@ -76,39 +82,47 @@ enum ForumViewFilter {
 @onready var last_reply_header_label: Label = %LastReplyHeaderLabel
 @onready var author_header_label: Label = %AuthorHeaderLabel
 
-var current_mode: String = "thread_list"
+var current_mode: StringName = MODE_THREAD_LIST
 var current_thread_id: String = ""
 var current_filter: ForumViewFilter = ForumViewFilter.TRENDING
 var current_search_query: String = ""
 
+var _show_replies_column: bool = true
+var _show_last_reply_column: bool = true
+var _show_author_column: bool = true
+
 
 func _ready() -> void:
-	_reload_folder_threads()
-	_apply_compact_layout()
+	_reload_threads()
 	_apply_feature_visibility()
+	_apply_column_widths()
 
 	_connect_main_nav()
 	_connect_filter_tabs()
 	_connect_search_bar()
 	_connect_reader_actions()
 
-	_show_thread_list_page()
-	_refresh_filter_buttons()
-	_refresh_thread_list()
-	_refresh_alerts_badge()
-	_refresh_watch_button()
+	if not resized.is_connected(_apply_responsive_layout):
+		resized.connect(_apply_responsive_layout)
 
 	if not GlobalSignals.time_advanced.is_connected(_on_time_advanced):
 		GlobalSignals.time_advanced.connect(_on_time_advanced)
 
 	if not GameState.game_state_changed.is_connected(_on_game_state_changed):
 		GameState.game_state_changed.connect(_on_game_state_changed)
-		
+
 	if not ForumThreadWatcher.watched_alerts_changed.is_connected(_on_watched_alerts_changed):
 		ForumThreadWatcher.watched_alerts_changed.connect(_on_watched_alerts_changed)
 
+	_show_thread_list_page()
+	_refresh_filter_buttons()
+	_refresh_thread_list()
+	_refresh_alerts_badge()
+	_refresh_watch_button()
+	call_deferred("_apply_responsive_layout")
 
-func _reload_folder_threads() -> void:
+
+func _reload_threads() -> void:
 	ForumThreadDatabase.reload_threads()
 
 
@@ -116,33 +130,21 @@ func _get_all_thread_data() -> Array[ThreadButtonData]:
 	var result: Array[ThreadButtonData] = []
 	var seen_thread_ids: Dictionary = {}
 
-	for data in thread_list:
-		_append_unique_thread_data(result, seen_thread_ids, data)
-
 	for data in ForumThreadDatabase.get_all_thread_data():
-		_append_unique_thread_data(result, seen_thread_ids, data)
+		if data == null or data.thread_ref == null:
+			continue
+
+		var thread_id: String = data.thread_ref.thread_id.strip_edges()
+
+		if not thread_id.is_empty():
+			if seen_thread_ids.has(thread_id):
+				continue
+
+			seen_thread_ids[thread_id] = true
+
+		result.append(data)
 
 	return result
-
-
-func _append_unique_thread_data(result: Array[ThreadButtonData], seen_thread_ids: Dictionary, data: ThreadButtonData) -> void:
-	if data == null:
-		return
-
-	if data.thread_ref == null:
-		return
-
-	var thread_id: String = data.thread_ref.thread_id.strip_edges()
-
-	if thread_id.is_empty():
-		result.append(data)
-		return
-
-	if seen_thread_ids.has(thread_id):
-		return
-
-	seen_thread_ids[thread_id] = true
-	result.append(data)
 
 
 func _apply_feature_visibility() -> void:
@@ -152,7 +154,6 @@ func _apply_feature_visibility() -> void:
 		show_rankings_navigation,
 		show_alerts_navigation
 	)
-
 	site_header.set_alerts_badge_visible(false)
 
 	trending_btn.visible = show_filter_bar
@@ -166,7 +167,8 @@ func _apply_feature_visibility() -> void:
 	search_btn.visible = show_search_bar
 	clear_search_btn.visible = show_search_bar
 
-func _apply_compact_layout() -> void:
+
+func _apply_column_widths() -> void:
 	_set_column_width(type_header_label, type_column_width)
 	_set_column_width(replies_header_label, replies_column_width)
 	_set_column_width(last_reply_header_label, last_reply_column_width)
@@ -181,8 +183,41 @@ func _set_column_width(control: Control, width: float) -> void:
 	control.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 
 	if control is Label:
-		var label := control as Label
-		label.clip_text = true
+		(control as Label).clip_text = true
+
+
+func _apply_responsive_layout() -> void:
+	var available_width: float = size.x
+
+	if available_width <= 0.0:
+		available_width = get_viewport_rect().size.x
+
+	_show_author_column = available_width >= hide_author_below_width
+	_show_last_reply_column = available_width >= hide_last_reply_below_width
+	_show_replies_column = available_width >= hide_replies_below_width
+
+	author_header_label.visible = _show_author_column
+	last_reply_header_label.visible = _show_last_reply_column
+	replies_header_label.visible = _show_replies_column
+
+	for child in thread_list_container.get_children():
+		if child is ForumThreadRowUI:
+			_apply_row_layout(child as ForumThreadRowUI)
+
+
+func _apply_row_layout(row: ForumThreadRowUI) -> void:
+	row.apply_layout_widths(
+		type_column_width,
+		replies_column_width,
+		last_reply_column_width,
+		author_column_width
+	)
+	row.apply_column_visibility(
+		_show_replies_column,
+		_show_last_reply_column,
+		_show_author_column
+	)
+
 
 func _connect_main_nav() -> void:
 	if not site_header.navigation_requested.is_connected(_on_site_header_navigation_requested):
@@ -204,8 +239,10 @@ func _connect_filter_tabs() -> void:
 func _connect_filter_button(button: Button, filter: ForumViewFilter) -> void:
 	button.toggle_mode = true
 
-	if not button.pressed.is_connected(_on_filter_pressed.bind(filter)):
-		button.pressed.connect(_on_filter_pressed.bind(filter))
+	var callback: Callable = _on_filter_pressed.bind(filter)
+
+	if not button.pressed.is_connected(callback):
+		button.pressed.connect(callback)
 
 
 func _connect_search_bar() -> void:
@@ -230,7 +267,7 @@ func _connect_reader_actions() -> void:
 
 
 func _show_thread_list_page() -> void:
-	current_mode = "thread_list"
+	current_mode = MODE_THREAD_LIST
 	current_thread_id = ""
 
 	thread_list_page.show()
@@ -242,7 +279,7 @@ func _show_thread_list_page() -> void:
 
 
 func _show_alerts_page() -> void:
-	current_mode = "alerts"
+	current_mode = MODE_ALERTS
 	current_thread_id = ""
 
 	thread_list_page.hide()
@@ -251,7 +288,6 @@ func _show_alerts_page() -> void:
 
 	_refresh_watch_button()
 	_rebuild_alerts_page()
-
 	master_scroll.scroll_vertical = 0
 
 
@@ -265,8 +301,7 @@ func _show_reader_page() -> void:
 
 
 func _refresh_thread_list() -> void:
-	for child in thread_list_container.get_children():
-		child.queue_free()
+	_clear_container(thread_list_container)
 
 	if auto_watch_visible_threads:
 		_auto_watch_visible_threads()
@@ -274,10 +309,7 @@ func _refresh_thread_list() -> void:
 	var visible_threads: Array[ThreadButtonData] = _get_visible_threads()
 
 	if visible_threads.is_empty():
-		var empty_label: Label = Label.new()
-		empty_label.text = "Nenhuma thread encontrada."
-		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		thread_list_container.add_child(empty_label)
+		_add_empty_label(thread_list_container, "Nenhuma thread encontrada.")
 		return
 
 	for data in visible_threads:
@@ -296,19 +328,14 @@ func _get_visible_threads() -> Array[ThreadButtonData]:
 	for data in _get_all_thread_data():
 		if data == null or data.thread_ref == null:
 			continue
-
 		if not data.is_visible():
 			continue
-
 		if data.thread_ref.get_visible_posts().is_empty():
 			continue
-
 		if not _is_category_visible(data.thread_ref.thread_category):
 			continue
-
 		if not _passes_filter(data):
 			continue
-
 		if not data.matches_search(current_search_query):
 			continue
 
@@ -319,10 +346,7 @@ func _get_visible_threads() -> Array[ThreadButtonData]:
 
 
 func _is_category_visible(category: ForumThread.ThreadCategory) -> bool:
-	if visible_categories.is_empty():
-		return true
-
-	return visible_categories.has(category)
+	return visible_categories.is_empty() or visible_categories.has(category)
 
 
 func _passes_filter(data: ThreadButtonData) -> bool:
@@ -334,31 +358,14 @@ func _passes_filter(data: ThreadButtonData) -> bool:
 	match current_filter:
 		ForumViewFilter.TRENDING:
 			return not data.is_archived()
-
 		ForumViewFilter.SOCIAL:
-			return (
-				not data.is_archived()
-				and thread.thread_category == ForumThread.ThreadCategory.SOCIAL
-			)
-
+			return not data.is_archived() and thread.thread_category == ForumThread.ThreadCategory.SOCIAL
 		ForumViewFilter.RUMORS:
-			return (
-				not data.is_archived()
-				and thread.thread_category == ForumThread.ThreadCategory.RUMOR
-			)
-
+			return not data.is_archived() and thread.thread_category == ForumThread.ThreadCategory.RUMOR
 		ForumViewFilter.GUIDES:
-			return (
-				not data.is_archived()
-				and thread.thread_category == ForumThread.ThreadCategory.GUIDE
-			)
-
+			return not data.is_archived() and thread.thread_category == ForumThread.ThreadCategory.GUIDE
 		ForumViewFilter.HELP:
-			return (
-				not data.is_archived()
-				and thread.thread_category == ForumThread.ThreadCategory.HELP
-			)
-
+			return not data.is_archived() and thread.thread_category == ForumThread.ThreadCategory.HELP
 		ForumViewFilter.ARCHIVED:
 			return data.is_archived()
 
@@ -368,13 +375,10 @@ func _passes_filter(data: ThreadButtonData) -> bool:
 func _sort_threads(a: ThreadButtonData, b: ThreadButtonData) -> bool:
 	if a == null or a.thread_ref == null:
 		return false
-
 	if b == null or b.thread_ref == null:
 		return true
-
 	if a.is_pinned() != b.is_pinned():
 		return a.is_pinned()
-
 	if a.thread_ref.popularity_score != b.thread_ref.popularity_score:
 		return a.thread_ref.popularity_score > b.thread_ref.popularity_score
 
@@ -386,56 +390,35 @@ func _add_thread_row(data: ThreadButtonData) -> void:
 		push_error("ForumApp: thread_row_scene não configurada.")
 		return
 
-	var instance: Node = thread_row_scene.instantiate()
+	var row: ForumThreadRowUI = thread_row_scene.instantiate() as ForumThreadRowUI
 
-	if instance == null:
-		push_error("ForumApp: thread_row_scene.instantiate() retornou null.")
+	if row == null:
+		push_error("ForumApp: thread_row_scene precisa instanciar ForumThreadRowUI.")
 		return
 
-	if not instance is ForumThreadRowUI:
-		push_error("ForumApp: thread_row_scene precisa ter root ForumThreadRowUI.")
-		instance.queue_free()
-		return
-
-	var row: ForumThreadRowUI = instance as ForumThreadRowUI
 	thread_list_container.add_child(row)
-
-	row.apply_layout_widths(
-		type_column_width,
-		replies_column_width,
-		last_reply_column_width,
-		author_column_width
-	)
-
+	_apply_row_layout(row)
 	row.setup(data)
-	row.thread_selected.connect(_open_thread)
+	row.thread_selected.connect(_on_thread_selected)
+	thread_list_container.add_child(HSeparator.new())
 
-	var separator: HSeparator = HSeparator.new()
-	thread_list_container.add_child(separator)
 
 func _add_alert_card(data: ThreadButtonData) -> void:
 	if alert_card_scene == null:
 		push_error("ForumApp: alert_card_scene não configurada.")
 		return
 
-	var instance: Node = alert_card_scene.instantiate()
+	var card: ForumAlertCard = alert_card_scene.instantiate() as ForumAlertCard
 
-	if instance == null:
-		push_error("ForumApp: alert_card_scene.instantiate() retornou null.")
+	if card == null:
+		push_error("ForumApp: alert_card_scene precisa instanciar ForumAlertCard.")
 		return
 
-	if not instance is ForumAlertCard:
-		push_error("ForumApp: alert_card_scene precisa ter root ForumAlertCard.")
-		instance.queue_free()
-		return
-
-	var card: ForumAlertCard = instance as ForumAlertCard
 	alerts_page.add_child(card)
-
 	card.setup(data)
-	card.alert_selected.connect(_open_thread)
-
+	card.alert_selected.connect(_on_thread_selected)
 	alerts_page.add_child(HSeparator.new())
+
 
 func _refresh_filter_buttons() -> void:
 	trending_btn.button_pressed = current_filter == ForumViewFilter.TRENDING
@@ -454,9 +437,7 @@ func _on_filter_pressed(filter: ForumViewFilter) -> void:
 
 func _on_search_changed(new_text: String) -> void:
 	current_search_query = new_text
-
 	var caret_column: int = search_input.caret_column
-
 	_refresh_thread_list()
 	call_deferred("_restore_search_focus", caret_column)
 
@@ -486,11 +467,24 @@ func _on_clear_search_pressed() -> void:
 	search_input.grab_focus()
 
 
+func _on_thread_selected(thread: ForumThread) -> void:
+	if thread == null:
+		return
+
+	var thread_id: String = thread.thread_id.strip_edges()
+
+	if thread_id.is_empty():
+		_open_thread(thread)
+		return
+
+	browser_navigation_requested.emit("%s%s" % [thread_url_prefix, thread_id])
+
+
 func _open_thread(thread: ForumThread) -> void:
 	if thread == null:
 		return
 
-	current_mode = "thread"
+	current_mode = MODE_THREAD
 	current_thread_id = thread.thread_id
 
 	if mark_threads_as_read_when_opened:
@@ -504,28 +498,37 @@ func _open_thread(thread: ForumThread) -> void:
 		thread.thread_title
 	]
 
-	for child in post_list.get_children():
-		child.queue_free()
+	_rebuild_current_thread_reader(thread)
+	_refresh_thread_list()
+	_refresh_alerts_badge()
+	_show_reader_page()
 
+
+func _rebuild_current_thread_reader(thread: ForumThread) -> void:
+	_clear_container(post_list)
 	_build_thread_reader_header(thread)
+
+	if post_ui_scene == null:
+		push_error("ForumApp: post_ui_scene não configurada.")
+		return
 
 	for post in thread.get_visible_posts():
 		if post == null:
 			continue
 
 		var post_instance: ForumPostUI = post_ui_scene.instantiate() as ForumPostUI
+
+		if post_instance == null:
+			push_error("ForumApp: post_ui_scene precisa instanciar ForumPostUI.")
+			continue
+
 		post_list.add_child(post_instance)
 		post_instance.link_clicked.connect(_on_post_link_clicked)
 		post_instance.setup(post)
 
-	_refresh_thread_list()
-	_refresh_alerts_badge()
-	_refresh_watch_button()
-	_show_reader_page()
-
 
 func _build_thread_reader_header(thread: ForumThread) -> void:
-	var meta_label: RichTextLabel = RichTextLabel.new()
+	var meta_label := RichTextLabel.new()
 	meta_label.bbcode_enabled = true
 	meta_label.fit_content = true
 	meta_label.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -543,20 +546,15 @@ func _build_thread_reader_header(thread: ForumThread) -> void:
 
 
 func _format_tags(tags: Array[String]) -> String:
-	if tags.is_empty():
-		return "—"
-
-	var output: String = ""
+	var formatted_tags: Array[String] = []
 
 	for tag in tags:
 		var clean_tag: String = tag.strip_edges()
 
-		if clean_tag.is_empty():
-			continue
+		if not clean_tag.is_empty():
+			formatted_tags.append("#%s" % clean_tag)
 
-		output += "#%s " % clean_tag
-
-	return output.strip_edges()
+	return "—" if formatted_tags.is_empty() else " ".join(formatted_tags)
 
 
 func _get_thread_status_text(thread: ForumThread) -> String:
@@ -564,20 +562,14 @@ func _get_thread_status_text(thread: ForumThread) -> String:
 
 	if thread.is_pinned:
 		status_parts.append("PINNED")
-
 	if thread.is_locked:
 		status_parts.append("LOCKED")
-
 	if thread.is_archived:
 		status_parts.append("ARCHIVED")
-
 	if GameState.is_thread_watched(thread.thread_id):
 		status_parts.append("WATCHED")
 
-	if status_parts.is_empty():
-		return "ACTIVE"
-
-	return ", ".join(status_parts)
+	return "ACTIVE" if status_parts.is_empty() else ", ".join(status_parts)
 
 
 func _on_post_link_clicked(url: String) -> void:
@@ -585,7 +577,7 @@ func _on_post_link_clicked(url: String) -> void:
 
 
 func _open_thread_by_id(thread_id: String) -> void:
-	var thread: ForumThread = _find_thread_by_id(thread_id)
+	var thread: ForumThread = ForumThreadDatabase.get_thread_by_id(thread_id)
 
 	if thread == null:
 		_show_thread_list_page()
@@ -594,48 +586,30 @@ func _open_thread_by_id(thread_id: String) -> void:
 	_open_thread(thread)
 
 
-func _find_thread_by_id(thread_id: String) -> ForumThread:
-	for data in _get_all_thread_data():
-		if data == null or data.thread_ref == null:
-			continue
-
-		if data.thread_ref.thread_id == thread_id:
-			return data.thread_ref
-
-	return null
-
-
 func _rebuild_alerts_page() -> void:
-	for child in alerts_page.get_children():
-		child.queue_free()
+	_clear_container(alerts_page)
 
-	var title_label: Label = Label.new()
+	var title_label := Label.new()
 	title_label.text = "ALERTS"
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.add_theme_font_size_override("font_size", 24)
 	alerts_page.add_child(title_label)
 
-	var description_label: Label = Label.new()
+	var description_label := Label.new()
 	description_label.text = "Watched threads with unread updates."
 	description_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	alerts_page.add_child(description_label)
-
 	alerts_page.add_child(HSeparator.new())
 
-	var alert_threads: Array[ThreadButtonData] = _get_alert_threads()
+	var alert_threads: Array[ThreadButtonData] = ForumThreadWatcher.get_alert_thread_data()
 
 	if alert_threads.is_empty():
-		var empty_label: Label = Label.new()
-		empty_label.text = "Nenhum alerta novo."
-		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		alerts_page.add_child(empty_label)
+		_add_empty_label(alerts_page, "Nenhum alerta novo.")
 		return
 
 	for data in alert_threads:
 		_add_alert_card(data)
 
-func _get_alert_threads() -> Array[ThreadButtonData]:
-	return ForumThreadWatcher.get_alert_thread_data()
 
 func _refresh_alerts_badge() -> void:
 	if not show_alerts_navigation:
@@ -646,11 +620,7 @@ func _refresh_alerts_badge() -> void:
 
 
 func _refresh_watch_button() -> void:
-	if not show_watch_button:
-		watch_thread_btn.hide()
-		return
-
-	if current_mode != "thread" or current_thread_id.is_empty():
+	if not show_watch_button or current_mode != MODE_THREAD or current_thread_id.is_empty():
 		watch_thread_btn.hide()
 		return
 
@@ -669,170 +639,78 @@ func _on_watch_thread_pressed() -> void:
 		return
 
 	GameState.toggle_thread_watch(current_thread_id)
-
 	_refresh_watch_button()
 	_refresh_alerts_badge()
-
-	if current_mode == "thread":
-		var thread: ForumThread = _find_thread_by_id(current_thread_id)
-
-		if thread != null:
-			reader_title_label.text = "%s %s" % [
-				thread.get_thread_label_text(),
-				thread.thread_title
-			]
 
 
 func _auto_watch_visible_threads() -> void:
 	for data in _get_all_thread_data():
 		if data == null or data.thread_ref == null:
 			continue
-
-		if not data.is_visible():
+		if not data.is_visible() or data.is_archived():
 			continue
-
-		if data.is_archived():
-			continue
-
 		if not _is_category_visible(data.thread_ref.thread_category):
 			continue
 
 		GameState.watch_thread(data.thread_ref.thread_id)
 
 
-func _notify_new_watched_thread_alerts() -> void:
-	for data in _get_all_thread_data():
-		if data == null or data.thread_ref == null:
-			continue
-
-		if not data.is_visible():
-			continue
-
-		if data.is_archived():
-			continue
-
-		if not _is_category_visible(data.thread_ref.thread_category):
-			continue
-
-		var thread: ForumThread = data.thread_ref
-
-		GameState.sync_thread_read_state(
-			thread.thread_id,
-			thread.get_visibility_signature()
-		)
-
-		var notification_key: String = _get_watch_notification_key(thread)
-
-		UniversalNotifications.push(
-			thread.get_watched_notification_title(),
-			thread.get_watched_notification_message()
-		)
-
-
-func _get_watch_notification_key(thread: ForumThread) -> String:
-	if thread == null:
-		return ""
-
-	return "%s::%s" % [
-		thread.thread_id,
-		thread.get_visibility_signature()
-	]
-
-
 func _on_time_advanced(_period: int, _days_passed: int, _cal_day: int, _cal_month: String) -> void:
-	_reload_folder_threads()
+	_reload_threads()
 
 	if auto_watch_visible_threads:
 		_auto_watch_visible_threads()
 
-	_refresh_thread_list()
-	_refresh_alerts_badge()
-
-	if current_mode == "alerts":
-		_rebuild_alerts_page()
-
-	if current_mode == "thread" and not current_thread_id.is_empty():
-		var current_thread: ForumThread = _find_thread_by_id(current_thread_id)
-
-		if current_thread != null:
-			_rebuild_current_thread_reader(current_thread)
+	_refresh_current_view()
 
 
 func _on_game_state_changed() -> void:
+	_refresh_current_view()
+
+
+func _refresh_current_view() -> void:
 	_refresh_thread_list()
 	_refresh_alerts_badge()
 
-	if current_mode == "alerts":
+	if current_mode == MODE_ALERTS:
 		_rebuild_alerts_page()
-
-	if current_mode == "thread" and not current_thread_id.is_empty():
-		var current_thread: ForumThread = _find_thread_by_id(current_thread_id)
+	elif current_mode == MODE_THREAD and not current_thread_id.is_empty():
+		var current_thread: ForumThread = ForumThreadDatabase.get_thread_by_id(current_thread_id)
 
 		if current_thread != null:
 			_rebuild_current_thread_reader(current_thread)
 
-
-func _rebuild_current_thread_reader(thread: ForumThread) -> void:
-	for child in post_list.get_children():
-		child.queue_free()
-
-	_build_thread_reader_header(thread)
-
-	for post in thread.get_visible_posts():
-		if post == null:
-			continue
-
-		var post_instance: ForumPostUI = post_ui_scene.instantiate() as ForumPostUI
-		post_list.add_child(post_instance)
-		post_instance.link_clicked.connect(_on_post_link_clicked)
-		post_instance.setup(post)
-
-
-func _on_threads_btn_pressed() -> void:
-	_show_thread_list_page()
-	_refresh_thread_list()
-	_refresh_alerts_badge()
-
-
-func _on_alerts_btn_pressed() -> void:
-	_show_alerts_page()
-	_refresh_alerts_badge()
 
 func set_browser_url(url: String) -> void:
 	var thread_id: String = _extract_thread_id_from_url(url)
 
-	if thread_id.is_empty():
-		return
-
-	_open_thread_by_id(thread_id)
+	if not thread_id.is_empty():
+		_open_thread_by_id(thread_id)
 
 
 func _extract_thread_id_from_url(url: String) -> String:
-	var clean_url: String = url.strip_edges()
+	var clean_url: String = SimulatedDNS.normalize_url(url)
+	var clean_prefix: String = SimulatedDNS.normalize_url(thread_url_prefix)
 
-	if clean_url.begins_with(thread_url_prefix):
-		return clean_url.trim_prefix(thread_url_prefix).strip_edges()
+	if clean_url.begins_with(clean_prefix):
+		return clean_url.trim_prefix(clean_prefix).strip_edges()
 
 	return ""
 
+
 func handle_browser_back() -> bool:
-	if reader_container.visible:
-		_show_thread_list_page()
-		_refresh_thread_list()
-		_refresh_alerts_badge()
-		return true
+	if current_mode != MODE_ALERTS:
+		return false
 
-	if alerts_page.visible:
-		_show_thread_list_page()
-		_refresh_thread_list()
-		_refresh_alerts_badge()
-		return true
+	_show_thread_list_page()
+	_refresh_thread_list()
+	_refresh_alerts_badge()
+	return true
 
-	return false
 
 func get_browser_state() -> Dictionary:
 	return {
-		"mode": current_mode,
+		"mode": String(current_mode),
 		"thread_id": current_thread_id,
 		"filter": current_filter,
 		"search": current_search_query
@@ -845,18 +723,17 @@ func restore_browser_state(state: Dictionary) -> void:
 
 	current_filter = int(state.get("filter", ForumViewFilter.TRENDING)) as ForumViewFilter
 	current_search_query = str(state.get("search", ""))
-
 	search_input.text = current_search_query
 	_refresh_filter_buttons()
 
-	var mode: String = str(state.get("mode", "thread_list"))
+	var mode: StringName = StringName(str(state.get("mode", String(MODE_THREAD_LIST))))
 	var thread_id: String = str(state.get("thread_id", ""))
 
-	if mode == "thread" and not thread_id.is_empty():
+	if mode == MODE_THREAD and not thread_id.is_empty():
 		_open_thread_by_id(thread_id)
 		return
 
-	if mode == "alerts":
+	if mode == MODE_ALERTS:
 		_show_alerts_page()
 		return
 
@@ -864,16 +741,18 @@ func restore_browser_state(state: Dictionary) -> void:
 	_refresh_thread_list()
 	_refresh_alerts_badge()
 
+
 func _on_watched_alerts_changed() -> void:
 	_refresh_alerts_badge()
 
-	if current_mode == "alerts":
+	if current_mode == MODE_ALERTS:
 		_rebuild_alerts_page()
+
 
 func _on_site_header_navigation_requested(url: String) -> void:
 	var target_url: String = url.strip_edges()
 
-	if target_url == forum_home_url:
+	if SimulatedDNS.normalize_url(target_url) == SimulatedDNS.normalize_url(forum_home_url):
 		_show_thread_list_page()
 		_refresh_filter_buttons()
 		_refresh_thread_list()
@@ -884,3 +763,17 @@ func _on_site_header_navigation_requested(url: String) -> void:
 
 func _on_site_header_alerts_requested() -> void:
 	_show_alerts_page()
+
+
+func _add_empty_label(container: Control, message: String) -> void:
+	var label := Label.new()
+	label.text = message
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	container.add_child(label)
+
+
+func _clear_container(container: Node) -> void:
+	for child in container.get_children():
+		container.remove_child(child)
+		child.queue_free()
