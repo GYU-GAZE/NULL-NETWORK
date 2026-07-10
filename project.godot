@@ -4,7 +4,7 @@
 ;
 ; Format:
 ;   [section] ; section goes between []
-;   param=value ; assign values to parameters
+;   param=value ; param is assigned to value
 
 config_version=5
 
@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="NULL- NETWORk"
-run/main_scene="uid://celg3otohqa16"
+run/main_scene="res://core/main.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -23,16 +23,16 @@ config/icon="res://icon.svg"
 
 GlobalSignals="*res://core/autoloads/global_signals.gd"
 TimeManager="*res://core/autoloads/time_manager.gd"
-SimulatedDNS="*uid://bptitsuqumy4e"
-CombatManager="*uid://dya47f8vc1y21"
-GameState="*uid://bcrfrujoy08hd"
-NetworkUserDatabase="*uid://hgxhi0xngeti"
-UniversalNotifications="*uid://76i2tpbcma6u"
-UniversalAlerts="*uid://c0hyybnt1hst3"
-ForumThreadDatabase="*uid://bpdyhjd4pvl84"
-ForumThreadWatcher="*uid://dr6lhsur8ec0t"
-KubuOSMetrics="*uid://c6c2hs74gfwis"
-KubuDisplaySetting="*uid://cj1646w44qblw"
+SimulatedDNS="*res://core/autoloads/simulated_dns.tscn"
+CombatManager="*res://apps/combat/combat_manager.gd"
+GameState="*res://core/autoloads/game_state.gd"
+NetworkUserDatabase="*res://core/autoloads/network_user_database.gd"
+UniversalNotifications="*res://core/autoloads/universal_notifications.gd"
+UniversalAlerts="*res://core/autoloads/universal_alerts.gd"
+ForumThreadDatabase="*res://core/autoloads/forum_thread_database.gd"
+ForumThreadWatcher="*res://core/autoloads/forum_thread_watcher.gd"
+KubuOSMetrics="*res://core/autoloads/kubu_os_metrics.gd"
+KubuDisplaySetting="*res://core/autoloads/kubu_display_setting.gd"
 
 [display]
 
@@ -45,7 +45,7 @@ window/stretch/mode="disabled"
 theme/default_font_antialiasing=0
 theme/default_font_hinting=0
 theme/default_font_subpixel_positioning=0
-theme/custom="uid://b7gxuuxwdgv0u"
+theme/custom="res://data/assets/themes/kubuOS.tres"
 
 [rendering]
 
