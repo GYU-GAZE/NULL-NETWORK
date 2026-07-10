@@ -20,12 +20,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Provision CI-only fallback font
+      - name: Prepare CI project copy
         run: |
-          if [ ! -f data/assets/fonts/Silver.ttf ]; then
-            echo "Silver.ttf is not versioned; using DejaVu Sans only for headless validation."
-            cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf data/assets/fonts/Silver.ttf
-          fi
+          echo "The repository does not contain Silver.ttf; disabling only the custom theme in the runner copy."
+          sed -i '/^theme\/custom=/d' project.godot
 
       - name: Download Godot 4.6.3
         run: |
@@ -35,16 +33,32 @@ jobs:
           unzip -q godot.zip
           chmod +x Godot_v4.6.3-stable_linux.x86_64
 
-      - name: Import and validate project
+      - name: Import project
+        shell: bash
         run: |
+          set -o pipefail
           ./Godot_v4.6.3-stable_linux.x86_64 \
             --headless \
             --editor \
             --path . \
             --quit-after 2 \
-            --verbose 2>&1 | tee godot-validation.log
+            --verbose 2>&1 | tee godot-import.log
 
-          if grep -E "SCRIPT ERROR|Parse Error|Failed to load script|Cannot get class" godot-validation.log; then
+      - name: Run main scene headlessly
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            --quit-after 2 \
+            --verbose 2>&1 | tee godot-runtime.log
+
+      - name: Reject script and resource errors
+        run: |
+          cat godot-import.log godot-runtime.log > godot-validation.log
+
+          if grep -E "SCRIPT ERROR|Parse Error|Failed to load script|Cannot get class|Failed loading resource" godot-validation.log; then
             echo "Godot reported script or resource loading errors."
             exit 1
           fi
@@ -54,5 +68,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: godot-validation-log
-          path: godot-validation.log
+          path: |
+            godot-import.log
+            godot-runtime.log
+            godot-validation.log
           if-no-files-found: ignore
