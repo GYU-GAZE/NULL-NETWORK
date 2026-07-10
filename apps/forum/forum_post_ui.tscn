@@ -1,70 +1,110 @@
-[gd_scene format=3 uid="uid://c1eml51sqyj5c"]
+[gd_scene load_steps=4 format=3 uid="uid://c1eml51sqyj5c"]
 
-[ext_resource type="Script" uid="uid://cbh0iplcjal7t" path="res://apps/forum/forum_post_ui.gd" id="1_c64ud"]
-[ext_resource type="Script" uid="uid://di40e5wgij1k4" path="res://apps/browser/site_rich_text_label.gd" id="2_ttvaj"]
+[ext_resource type="Script" uid="uid://cbh0iplcjal7t" path="res://apps/forum/forum_post_ui.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://di40e5wgij1k4" path="res://apps/browser/site_rich_text_label.gd" id="2_rich"]
+[ext_resource type="Theme" path="res://data/assets/themes/null_channel_ui.tres" id="3_theme"]
 
-[node name="PostUi" type="PanelContainer" unique_id=94172056]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="PostUi" type="PanelContainer"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
-script = ExtResource("1_c64ud")
+theme = ExtResource("3_theme")
+script = ExtResource("1_script")
 
-[node name="Margin" type="MarginContainer" parent="." unique_id=237471960]
+[node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
 
-[node name="MainHBox" type="HBoxContainer" parent="Margin" unique_id=827933404]
+[node name="MainHBox" type="HBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ProfilePanel" type="PanelContainer" parent="Margin/MainHBox"]
+custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
 
-[node name="ProfileVBox" type="VBoxContainer" parent="Margin/MainHBox" unique_id=1258659162]
-custom_minimum_size = Vector2(112, 0)
+[node name="ProfileMargin" type="MarginContainer" parent="Margin/MainHBox/ProfilePanel"]
 layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
-[node name="AvatarRect" type="TextureRect" parent="Margin/MainHBox/ProfileVBox" unique_id=984234090]
+[node name="ProfileVBox" type="VBoxContainer" parent="Margin/MainHBox/ProfilePanel/ProfileMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="AvatarRect" type="TextureRect" parent="Margin/MainHBox/ProfilePanel/ProfileMargin/ProfileVBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
-size_flags_horizontal = 0
+size_flags_horizontal = 4
 size_flags_vertical = 0
 expand_mode = 1
 stretch_mode = 5
 
-[node name="UsernameButton" type="Button" parent="Margin/MainHBox/ProfileVBox" unique_id=1600624082]
+[node name="UsernameButton" type="Button" parent="Margin/MainHBox/ProfilePanel/ProfileMargin/ProfileVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 mouse_default_cursor_shape = 2
-flat = true
-alignment = 0
+alignment = 1
 text_overrun_behavior = 5
 clip_text = true
 
-[node name="TitleLabel" type="Label" parent="Margin/MainHBox/ProfileVBox" unique_id=539185310]
+[node name="TitleLabel" type="Label" parent="Margin/MainHBox/ProfilePanel/ProfileMargin/ProfileVBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.75, 0.93, 1)
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+autowrap_mode = 2
 
-[node name="LocationLabel" type="Label" parent="Margin/MainHBox/ProfileVBox" unique_id=688615149]
+[node name="LocationLabel" type="Label" parent="Margin/MainHBox/ProfilePanel/ProfileMargin/ProfileVBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.44, 0.55, 0.63, 1)
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+autowrap_mode = 2
 
-[node name="ContentVBox" type="VBoxContainer" parent="Margin/MainHBox" unique_id=564451217]
+[node name="ContentVBox" type="VBoxContainer" parent="Margin/MainHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="PostHeader" type="HBoxContainer" parent="Margin/MainHBox/ContentVBox"]
+layout_mode = 2
+
+[node name="PostMarker" type="Label" parent="Margin/MainHBox/ContentVBox/PostHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.28, 0.52, 0.67, 1)
+theme_override_font_sizes/font_size = 12
+text = "MESSAGE"
+
+[node name="PostHeaderSpacer" type="Control" parent="Margin/MainHBox/ContentVBox/PostHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TextContent" type="RichTextLabel" parent="Margin/MainHBox/ContentVBox" unique_id=876917943]
+[node name="PostState" type="Label" parent="Margin/MainHBox/ContentVBox/PostHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.34, 0.7, 0.56, 1)
+theme_override_font_sizes/font_size = 12
+text = "VERIFIED DELIVERY"
+
+[node name="PostSeparator" type="HSeparator" parent="Margin/MainHBox/ContentVBox"]
+layout_mode = 2
+
+[node name="TextContent" type="RichTextLabel" parent="Margin/MainHBox/ContentVBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 fit_content = true
 scroll_active = false
 autowrap_mode = 2
-script = ExtResource("2_ttvaj")
+script = ExtResource("2_rich")
 metadata/_custom_type_script = "uid://di40e5wgij1k4"
