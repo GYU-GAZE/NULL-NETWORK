@@ -21,22 +21,19 @@ theme_override_constants/margin_bottom = 12
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="ProfilePanel" type="PanelContainer" parent="Margin/MainHBox"]
+[node name="ProfileVBox" type="VBoxContainer" parent="Margin/MainHBox"]
 custom_minimum_size = Vector2(128, 0)
-layout_mode = 2
-
-[node name="ProfileMargin" type="MarginContainer" parent="Margin/MainHBox/ProfilePanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="ProfileVBox" type="VBoxContainer" parent="Margin/MainHBox/ProfilePanel/ProfileMargin"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="AvatarRect" type="TextureRect" parent="Margin/MainHBox/ProfilePanel/ProfileMargin/ProfileVBox"]
+[node name="ProfileLabel" type="Label" parent="Margin/MainHBox/ProfileVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.28, 0.52, 0.67, 1)
+theme_override_font_sizes/font_size = 12
+text = "OPERATOR"
+horizontal_alignment = 1
+
+[node name="AvatarRect" type="TextureRect" parent="Margin/MainHBox/ProfileVBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
@@ -45,7 +42,7 @@ size_flags_vertical = 0
 expand_mode = 1
 stretch_mode = 5
 
-[node name="UsernameButton" type="Button" parent="Margin/MainHBox/ProfilePanel/ProfileMargin/ProfileVBox"]
+[node name="UsernameButton" type="Button" parent="Margin/MainHBox/ProfileVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
@@ -54,7 +51,7 @@ alignment = 1
 text_overrun_behavior = 5
 clip_text = true
 
-[node name="TitleLabel" type="Label" parent="Margin/MainHBox/ProfilePanel/ProfileMargin/ProfileVBox"]
+[node name="TitleLabel" type="Label" parent="Margin/MainHBox/ProfileVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.38, 0.75, 0.93, 1)
@@ -62,7 +59,7 @@ theme_override_font_sizes/font_size = 13
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="LocationLabel" type="Label" parent="Margin/MainHBox/ProfilePanel/ProfileMargin/ProfileVBox"]
+[node name="LocationLabel" type="Label" parent="Margin/MainHBox/ProfileVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.44, 0.55, 0.63, 1)
