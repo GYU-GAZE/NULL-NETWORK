@@ -6,11 +6,6 @@
 
 [node name="NullChannelHeader" type="PanelContainer" unique_id=1050287416]
 custom_minimum_size = Vector2(0, 72)
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 size_flags_horizontal = 3
 script = ExtResource("1_t7py2")
 
@@ -26,6 +21,7 @@ theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 4
 
 [node name="HeaderHBox" type="HBoxContainer" parent="HeaderVBox/HeaderMargin" unique_id=24243142]
+unique_name_in_owner = true
 layout_mode = 2
 
 [node name="BannerRect" type="TextureRect" parent="HeaderVBox/HeaderMargin/HeaderHBox" unique_id=730160190]
@@ -38,9 +34,11 @@ expand_mode = 2
 stretch_mode = 5
 
 [node name="UserBlock" type="HBoxContainer" parent="HeaderVBox/HeaderMargin/HeaderHBox" unique_id=934832956]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
 size_flags_horizontal = 8
+alignment = 2
 
 [node name="UserInfoVBox" type="VBoxContainer" parent="HeaderVBox/HeaderMargin/HeaderHBox/UserBlock" unique_id=1898589862]
 layout_mode = 2
@@ -63,7 +61,6 @@ text = "#999 Worldwide"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 0
 texture = ExtResource("2_tcew5")
 expand_mode = 2
@@ -79,7 +76,7 @@ theme_override_constants/margin_top = 2
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 2
 
-[node name="NavbarHBox" type="HBoxContainer" parent="HeaderVBox/MainNavBarPanel/NavBarMargin" unique_id=994780494]
+[node name="NavbarHBox" type="HFlowContainer" parent="HeaderVBox/MainNavBarPanel/NavBarMargin" unique_id=994780494]
 modulate = Color(0.25765854, 0.25765854, 0.25765854, 1)
 self_modulate = Color(0.22352941, 0.22352941, 0.22352941, 1)
 layout_mode = 2
@@ -89,7 +86,6 @@ alignment = 1
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
-size_flags_horizontal = 0
 text = "Home"
 script = ExtResource("3_tcew5")
 target_url = "null.net"
@@ -98,7 +94,6 @@ target_url = "null.net"
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
-size_flags_horizontal = 0
 text = "Threads"
 script = ExtResource("3_tcew5")
 target_url = "null.net/forums"
@@ -107,9 +102,7 @@ target_url = "null.net/forums"
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
-size_flags_horizontal = 0
-text = "Updates
-"
+text = "Updates"
 script = ExtResource("3_tcew5")
 target_url = "null.net/updates"
 
@@ -117,14 +110,9 @@ target_url = "null.net/updates"
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
-size_flags_horizontal = 0
 text = "Ranking"
 script = ExtResource("3_tcew5")
 target_url = "null.net/playerrankings"
-
-[node name="NavSpacer" type="Control" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=380275048]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="AlertsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1984097093]
 unique_name_in_owner = true
