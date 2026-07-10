@@ -1,11 +1,19 @@
 extends Control
 class_name BrowserApp
 
+@export_category("Browser Scenes")
 @export var tab_button_scene: PackedScene
 @export var new_tab_button_scene: PackedScene
+@export var error_page_scene: PackedScene
 
 @export_category("Browser Routes")
 @export var home_url: String = "home"
+
+@export_category("Tab Layout")
+@export var tab_width: float = 160.0
+@export var new_tab_button_width: float = 36.0
+@export var tab_bar_reserved_margin: float = 24.0
+@export var minimum_tab_scroll_width: float = 200.0
 
 @export_category("Favorite Button")
 @export var favorite_add_text: String = "☆"
@@ -28,13 +36,10 @@ class_name BrowserApp
 @onready var favorite_button: Button = %FavoriteButton
 
 @onready var content_area: Control = %ContentArea
-@onready var normal_site_scroll: ScrollContainer = %NormalSiteScroll
-@onready var normal_site_content: VBoxContainer = %NormalSiteContent
-@onready var custom_site_container: Control = %CustomSiteContainer
+@onready var site_container: Control = %SiteContainer
 
 var tabs: Array[BrowserTabData] = []
 var current_tab_index: int = -1
-var last_known_size: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
@@ -45,9 +50,12 @@ func _ready() -> void:
 	browser_back_btn.pressed.connect(_on_browser_back_pressed)
 	favorite_button.pressed.connect(_on_favorite_pressed)
 
-	_connect_browser_navigation_signals(self)
+	if not resized.is_connected(_refresh_tab_layout_only):
+		resized.connect(_refresh_tab_layout_only)
 
+	_connect_browser_navigation_signals(self)
 	_create_tab(home_url)
+
 
 func _apply_browser_shell_layout() -> void:
 	custom_minimum_size = Vector2.ZERO
@@ -55,62 +63,43 @@ func _apply_browser_shell_layout() -> void:
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	clip_contents = true
 
-	if is_instance_valid(content_area):
-		content_area.custom_minimum_size = Vector2.ZERO
-		content_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		content_area.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		content_area.clip_contents = true
+	content_area.custom_minimum_size = Vector2.ZERO
+	content_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content_area.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content_area.clip_contents = true
 
-	if is_instance_valid(normal_site_scroll):
-		normal_site_scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
-		normal_site_scroll.custom_minimum_size = Vector2.ZERO
-		normal_site_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		normal_site_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	site_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	site_container.custom_minimum_size = Vector2.ZERO
+	site_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	site_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	site_container.clip_contents = true
 
-	if is_instance_valid(custom_site_container):
-		custom_site_container.set_anchors_preset(Control.PRESET_FULL_RECT)
-		custom_site_container.custom_minimum_size = Vector2.ZERO
-		custom_site_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		custom_site_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		custom_site_container.clip_contents = true
-
-		if not custom_site_container.resized.is_connected(_resize_current_custom_site):
-			custom_site_container.resized.connect(_resize_current_custom_site)
+	if not site_container.resized.is_connected(_resize_current_site):
+		site_container.resized.connect(_resize_current_site)
 
 
-func _show_normal_site_mode() -> void:
-	custom_site_container.hide()
-	normal_site_scroll.show()
-
-
-func _show_custom_site_mode() -> void:
-	normal_site_scroll.hide()
-	custom_site_container.show()
-
-
-func _resize_current_custom_site() -> void:
-	if not is_instance_valid(custom_site_container):
-		return
-
-	for child in custom_site_container.get_children():
+func _resize_current_site() -> void:
+	for child in site_container.get_children():
 		if child is Control:
 			var control := child as Control
+			control.set_anchors_preset(Control.PRESET_FULL_RECT)
 			control.position = Vector2.ZERO
-			control.size = custom_site_container.size
+			control.size = site_container.size
+
 
 func _on_go_pressed() -> void:
 	_load_page(url_line_edit.text)
 
 
 func _create_tab(start_url: String = "") -> void:
-	_save_current_custom_site_state()
+	_save_current_site_state()
 
 	var tab := BrowserTabData.new()
 	tabs.append(tab)
 	current_tab_index = tabs.size() - 1
 
 	if start_url.is_empty():
-		_clear_containers()
+		_clear_site_container()
 		url_line_edit.text = ""
 		_refresh_tab_buttons()
 		_refresh_favorite_button()
@@ -127,12 +116,14 @@ func _close_tab(tab_index: int) -> void:
 		return
 
 	if tab_index == current_tab_index:
-		_save_current_custom_site_state()
+		_save_current_site_state()
 
 	tabs.remove_at(tab_index)
 
-	if current_tab_index >= tabs.size():
-		current_tab_index = tabs.size() - 1
+	if tab_index < current_tab_index:
+		current_tab_index -= 1
+	elif tab_index == current_tab_index:
+		current_tab_index = min(tab_index, tabs.size() - 1)
 
 	_render_current_tab()
 	_refresh_tab_buttons()
@@ -146,8 +137,7 @@ func _switch_tab(tab_index: int) -> void:
 	if tab_index == current_tab_index:
 		return
 
-	_save_current_custom_site_state()
-
+	_save_current_site_state()
 	current_tab_index = tab_index
 
 	_render_current_tab()
@@ -163,21 +153,19 @@ func _get_current_tab() -> BrowserTabData:
 
 
 func _refresh_tab_buttons() -> void:
-	for child in tab_button_container.get_children():
-		child.queue_free()
-
-	for child in new_tab_button_holder.get_children():
-		child.queue_free()
-
-	var tab_width: float = 160.0
+	_clear_control_children(tab_button_container)
+	_clear_control_children(new_tab_button_holder)
 	_refresh_tab_layout_only()
 
 	for i in range(tabs.size()):
-		var tab := tabs[i]
+		var tab: BrowserTabData = tabs[i]
+		var tab_button := tab_button_scene.instantiate() as BrowserTabButton
 
-		var tab_button: BrowserTabButton = tab_button_scene.instantiate() as BrowserTabButton
+		if tab_button == null:
+			push_error("BrowserApp: tab_button_scene must instantiate BrowserTabButton.")
+			continue
+
 		tab_button_container.add_child(tab_button)
-
 		tab_button.setup(
 			i,
 			tab.page_title,
@@ -186,26 +174,35 @@ func _refresh_tab_buttons() -> void:
 			tabs.size() > 1,
 			tab_width
 		)
-
 		tab_button.tab_selected.connect(_switch_tab)
 		tab_button.tab_close_requested.connect(_close_tab)
 
+	if new_tab_button_scene == null:
+		push_error("BrowserApp: new_tab_button_scene is not configured.")
+		return
+
 	var new_tab_button := new_tab_button_scene.instantiate() as Button
-	new_tab_button.custom_minimum_size.x = 36.0
+
+	if new_tab_button == null:
+		push_error("BrowserApp: new_tab_button_scene must instantiate Button.")
+		return
+
+	new_tab_button.custom_minimum_size.x = new_tab_button_width
 	new_tab_button.pressed.connect(func(): _create_tab(home_url))
 	new_tab_button_holder.add_child(new_tab_button)
 
 
 func _load_page(target_url: String, is_history_nav: bool = false) -> void:
-	if target_url.is_empty():
+	var clean_url: String = SimulatedDNS.normalize_url(target_url)
+
+	if clean_url.is_empty():
 		return
 
-	var clean_url: String = target_url.strip_edges()
 	var tab := _get_current_tab()
 
 	if not is_history_nav:
-		_save_current_custom_site_state()
-		tab.clear_custom_site_state()
+		_save_current_site_state()
+		tab.clear_site_state()
 
 	var page: WebsitePage = SimulatedDNS.fetch_page(clean_url)
 
@@ -233,11 +230,10 @@ func _load_page(target_url: String, is_history_nav: bool = false) -> void:
 
 func _render_current_tab() -> void:
 	var tab := _get_current_tab()
-
 	url_line_edit.text = tab.current_url
 
 	if tab.current_url.is_empty():
-		_clear_containers()
+		_clear_site_container()
 		_refresh_favorite_button()
 		return
 
@@ -246,58 +242,63 @@ func _render_current_tab() -> void:
 
 
 func _render_url(target_url: String) -> void:
-	_clear_containers()
+	_clear_site_container()
 
 	var page: WebsitePage = SimulatedDNS.fetch_page(target_url)
 
 	if page == null:
-		_render_403_error()
+		_render_error_page(
+			"403",
+			"CONNECTION REFUSED",
+			"The server refused the connection or the domain does not exist.",
+			target_url
+		)
 		return
 
 	var tab := _get_current_tab()
 	tab.set_page_title(page.page_title)
 	tab.set_favicon(page.favicon)
 
-	if page.custom_site_scene == null:
-		tab.clear_custom_site_state()
-		_render_missing_scene_error(page)
+	if page.site_scene == null:
+		tab.clear_site_state()
+		_render_error_page(
+			"500",
+			"PAGE SCENE MISSING",
+			"The route exists, but its WebsitePage has no site_scene configured.",
+			page.url
+		)
 		_refresh_tab_buttons()
 		_refresh_favorite_button()
 		return
 
-	_render_custom_site(page.custom_site_scene, tab.custom_site_state)
+	_render_site(page.site_scene, tab.site_state)
 	_refresh_tab_buttons()
 	_refresh_favorite_button()
 
 
 func _on_browser_back_pressed() -> void:
-	if custom_site_container.get_child_count() > 0:
-		var current_app = custom_site_container.get_child(0)
+	if site_container.get_child_count() > 0:
+		var current_site: Node = site_container.get_child(0)
 
-		if current_app.has_method("handle_browser_back"):
-			var handled_by_app: bool = current_app.handle_browser_back()
+		if current_site.has_method("handle_browser_back"):
+			var handled_by_site: bool = bool(current_site.call("handle_browser_back"))
 
-			if handled_by_app:
-				_save_current_custom_site_state()
+			if handled_by_site:
+				_save_current_site_state()
 				_refresh_favorite_button()
 				return
 
 	var tab := _get_current_tab()
 
 	if tab.can_go_back():
-		var previous_url := tab.go_back()
+		var previous_url: String = tab.go_back()
 		_load_page(previous_url, true)
-	else:
-		print("Histórico vazio, não há para onde voltar.")
 
 
 func _on_favorite_pressed() -> void:
 	var tab := _get_current_tab()
 
-	if tab.current_url.is_empty():
-		return
-
-	if tab.current_url == home_url:
+	if tab.current_url.is_empty() or _is_home_url(tab.current_url):
 		return
 
 	GameState.toggle_browser_site_pin(
@@ -315,7 +316,7 @@ func _refresh_favorite_button() -> void:
 
 	var tab := _get_current_tab()
 
-	if tab.current_url.is_empty() or tab.current_url == home_url:
+	if tab.current_url.is_empty() or _is_home_url(tab.current_url):
 		_apply_favorite_button_visual(
 			false,
 			favorite_blocked_text,
@@ -340,76 +341,92 @@ func _refresh_favorite_button() -> void:
 		)
 
 
-func _apply_favorite_button_visual(enabled: bool, button_text: String, button_icon: Texture2D, tooltip: String) -> void:
+func _apply_favorite_button_visual(
+	enabled: bool,
+	button_text: String,
+	button_icon: Texture2D,
+	tooltip: String
+) -> void:
 	favorite_button.disabled = not enabled
 	favorite_button.text = button_text
 	favorite_button.icon = button_icon
 	favorite_button.tooltip_text = tooltip
 
 
-func _save_current_custom_site_state() -> void:
+func _save_current_site_state() -> void:
 	if current_tab_index < 0 or current_tab_index >= tabs.size():
 		return
 
 	var tab := tabs[current_tab_index]
 
-	if custom_site_container.get_child_count() <= 0:
-		tab.clear_custom_site_state()
+	if site_container.get_child_count() <= 0:
+		tab.clear_site_state()
 		return
 
-	var current_app = custom_site_container.get_child(0)
+	var current_site: Node = site_container.get_child(0)
 
-	if current_app.has_method("get_browser_state"):
-		tab.custom_site_state = current_app.get_browser_state()
+	if not current_site.has_method("get_browser_state"):
+		tab.clear_site_state()
+		return
+
+	var returned_state: Variant = current_site.call("get_browser_state")
+
+	if returned_state is Dictionary:
+		tab.site_state = (returned_state as Dictionary).duplicate(true)
 	else:
-		tab.clear_custom_site_state()
+		tab.clear_site_state()
 
 
-func _clear_containers() -> void:
-	for child in normal_site_content.get_children():
-		child.queue_free()
-
-	for child in custom_site_container.get_children():
-		child.queue_free()
+func _clear_site_container() -> void:
+	_clear_control_children(site_container)
 
 
-func _render_403_error() -> void:
-	_show_normal_site_mode()
+func _render_error_page(
+	error_code: String,
+	error_title: String,
+	error_message: String,
+	requested_url: String
+) -> void:
+	if error_page_scene != null:
+		var instance: Node = error_page_scene.instantiate()
 
-	var error_label := Label.new()
-	error_label.text = "ERRO 403: CONNECTION REFUSED\n\nO servidor recusou a conexão ou o domínio não existe."
-	error_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	error_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	error_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	normal_site_content.add_child(error_label)
+		if instance != null:
+			site_container.add_child(instance)
+			_configure_site_control(instance)
+
+			if instance.has_method("setup"):
+				instance.call("setup", error_code, error_title, error_message, requested_url)
+
+			return
+
+	var fallback_label := Label.new()
+	fallback_label.text = "%s: %s\n\n%s\n\n%s" % [
+		error_code,
+		error_title,
+		error_message,
+		requested_url
+	]
+	fallback_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	fallback_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	fallback_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	site_container.add_child(fallback_label)
+	_configure_site_control(fallback_label)
 
 
-func _render_missing_scene_error(page: WebsitePage) -> void:
-	_show_normal_site_mode()
-
-	var error_label := Label.new()
-	error_label.text = "ERRO 500: PAGE SCENE MISSING\n\nA rota '%s' existe, mas não possui custom_site_scene configurada." % page.url
-	error_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	error_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	error_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	normal_site_content.add_child(error_label)
-
-
-func _render_custom_site(scene: PackedScene, state: Dictionary = {}) -> void:
-	_show_custom_site_mode()
-
+func _render_site(scene: PackedScene, state: Dictionary = {}) -> void:
 	var instance: Node = scene.instantiate()
-	custom_site_container.add_child(instance)
 
-	if instance is Control:
-		var control := instance as Control
-		control.set_anchors_preset(Control.PRESET_FULL_RECT)
-		control.position = Vector2.ZERO
-		control.size = custom_site_container.size
-		control.custom_minimum_size = Vector2.ZERO
-		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	if instance == null:
+		_render_error_page(
+			"500",
+			"PAGE INSTANTIATION FAILED",
+			"The configured page scene could not be instantiated.",
+			_get_current_tab().current_url
+		)
+		return
 
+	site_container.add_child(instance)
+	_configure_site_control(instance)
 	_connect_browser_navigation_signals(instance)
 
 	var tab := _get_current_tab()
@@ -418,26 +435,27 @@ func _render_custom_site(scene: PackedScene, state: Dictionary = {}) -> void:
 		instance.call_deferred("set_browser_url", tab.current_url)
 
 	if instance.has_method("restore_browser_state"):
-		instance.call_deferred("restore_browser_state", state)
+		instance.call_deferred("restore_browser_state", state.duplicate(true))
 
-	_resize_current_custom_site()
+	_resize_current_site()
 
 
-func _process(_delta: float) -> void:
-	if size == last_known_size:
+func _configure_site_control(instance: Node) -> void:
+	if not instance is Control:
 		return
 
-	last_known_size = size
-	_refresh_tab_layout_only()
+	var control := instance as Control
+	control.set_anchors_preset(Control.PRESET_FULL_RECT)
+	control.position = Vector2.ZERO
+	control.size = site_container.size
+	control.custom_minimum_size = Vector2.ZERO
+	control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	control.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
 
 func _refresh_tab_layout_only() -> void:
 	if not is_instance_valid(tab_scroll):
 		return
-
-	var tab_width: float = 160.0
-	var new_tab_button_width: float = 36.0
-	var tab_bar_margin: float = 24.0
 
 	var tab_count: int = tabs.size()
 	var tab_spacing: float = 0.0
@@ -446,15 +464,31 @@ func _refresh_tab_layout_only() -> void:
 		tab_spacing = float(tab_button_container.get_theme_constant("separation")) * float(max(0, tab_count - 1))
 
 	var total_tabs_width: float = (tab_width * float(tab_count)) + tab_spacing
-	var max_scroll_width: float = max(200.0, size.x - new_tab_button_width - tab_bar_margin)
+	var max_scroll_width: float = max(
+		minimum_tab_scroll_width,
+		size.x - new_tab_button_width - tab_bar_reserved_margin
+	)
 
 	tab_scroll.custom_minimum_size.x = min(total_tabs_width, max_scroll_width)
 	tab_scroll.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 
+
 func _connect_browser_navigation_signals(root: Node) -> void:
 	if root.has_signal("browser_navigation_requested"):
-		if not root.is_connected("browser_navigation_requested", Callable(self, "_load_page")):
-			root.connect("browser_navigation_requested", Callable(self, "_load_page"))
+		var navigation_callable := Callable(self, "_load_page")
+
+		if not root.is_connected("browser_navigation_requested", navigation_callable):
+			root.connect("browser_navigation_requested", navigation_callable)
 
 	for child in root.get_children():
 		_connect_browser_navigation_signals(child)
+
+
+func _clear_control_children(container: Node) -> void:
+	for child in container.get_children():
+		container.remove_child(child)
+		child.queue_free()
+
+
+func _is_home_url(url: String) -> bool:
+	return SimulatedDNS.normalize_url(url) == SimulatedDNS.normalize_url(home_url)
