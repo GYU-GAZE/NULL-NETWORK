@@ -20,10 +20,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Prepare CI project copy
+      - name: Prepare CI-only asset placeholders
+        shell: bash
         run: |
-          echo "The repository does not contain Silver.ttf; disabling only the custom theme in the runner copy."
-          sed -i '/^theme\/custom=/d' project.godot
+          set -euo pipefail
+
+          while IFS= read -r -d '' import_file; do
+            source_file="${import_file%.import}"
+
+            if [ -f "$source_file" ]; then
+              continue
+            fi
+
+            extension="${source_file##*.}"
+            echo "Missing raw asset: $source_file"
+
+            case "$extension" in
+              png)
+                printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl8gWQAAAAASUVORK5CYII=' \
+                  | base64 --decode > "$source_file"
+                ;;
+              ttf)
+                cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf "$source_file"
+                ;;
+              *)
+                echo "Unsupported missing asset type: $source_file"
+                exit 1
+                ;;
+            esac
+
+            rm -f "$import_file"
+          done < <(find data -type f -name '*.import' -print0)
 
       - name: Download Godot 4.6.3
         run: |
