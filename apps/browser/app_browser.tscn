@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dcoqma7h6c75u"]
+[gd_scene load_steps=7 format=3 uid="uid://dcoqma7h6c75u"]
 
 [ext_resource type="Script" uid="uid://cwms4o3bngg47" path="res://apps/browser/browser.gd" id="1_mufrk"]
 [ext_resource type="PackedScene" uid="uid://c15t5fwjule8g" path="res://apps/browser/browser_tab_button.tscn" id="2_4noms"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="4_kj561"]
 [ext_resource type="Script" uid="uid://bre1yc202tlqa" path="res://systems/ui/alert_layer.gd" id="4_rgo1m"]
 [ext_resource type="PackedScene" uid="uid://dlkm01xdtlvo2" path="res://systems/ui/alert_box.tscn" id="5_l1ivm"]
+[ext_resource type="PackedScene" path="res://apps/browser/browser_error_page.tscn" id="6_error"]
 
 [node name="BrowserApp" type="Panel" unique_id=1373929234]
 clip_contents = true
@@ -14,6 +15,7 @@ size_flags_vertical = 3
 script = ExtResource("1_mufrk")
 tab_button_scene = ExtResource("2_4noms")
 new_tab_button_scene = ExtResource("3_fx11j")
+error_page_scene = ExtResource("6_error")
 home_url = "kubus://home"
 
 [node name="MainVBox" type="VBoxContainer" parent="." unique_id=1051088920]
@@ -97,23 +99,11 @@ layout_mode = 2
 [node name="ContentArea" type="Control" parent="MainVBox" unique_id=1133759272]
 clip_contents = true
 layout_mode = 2
-size_flags_vertical = 3
-
-[node name="NormalSiteScroll" type="ScrollContainer" parent="MainVBox/ContentArea" unique_id=175349413]
-unique_name_in_owner = true
-layout_mode = 0
-offset_right = 139.0
-horizontal_scroll_mode = 0
-
-[node name="NormalSiteContent" type="VBoxContainer" parent="MainVBox/ContentArea/NormalSiteScroll" unique_id=1631711902]
-unique_name_in_owner = true
-layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="CustomSiteContainer" type="Control" parent="MainVBox/ContentArea" unique_id=608180596]
+[node name="SiteContainer" type="Control" parent="MainVBox/ContentArea" unique_id=608180596]
 unique_name_in_owner = true
-visible = false
 clip_contents = true
 layout_mode = 1
 anchors_preset = 15
@@ -122,7 +112,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
-size_flags_vertical = 0
+size_flags_vertical = 3
 
 [node name="AlertLayer" type="Control" parent="." unique_id=1159255861]
 layout_mode = 1
