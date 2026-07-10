@@ -1,190 +1,285 @@
-[gd_scene format=3 uid="uid://d2wc20x3ldl5k"]
+[gd_scene load_steps=7 format=3 uid="uid://d2wc20x3ldl5k"]
 
-[ext_resource type="Script" uid="uid://bxkoo8h0n8e23" path="res://apps/forum/forum_app.gd" id="1_goqfn"]
-[ext_resource type="PackedScene" uid="uid://c1eml51sqyj5c" path="res://apps/forum/forum_post_ui.tscn" id="4_2d478"]
-[ext_resource type="PackedScene" uid="uid://bsmlmh5xi4r03" path="res://apps/forum/forum_alert_card.tscn" id="4_jseev"]
-[ext_resource type="PackedScene" uid="uid://bpbbjyyqep1sg" path="res://apps/forum/null_channel_header.tscn" id="5_chltv"]
-[ext_resource type="PackedScene" uid="uid://v0ask2g51gcm" path="res://apps/forum/forum_thread_row_ui.tscn" id="5_jseev"]
+[ext_resource type="Script" uid="uid://bxkoo8h0n8e23" path="res://apps/forum/forum_app.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://c1eml51sqyj5c" path="res://apps/forum/forum_post_ui.tscn" id="2_post"]
+[ext_resource type="PackedScene" uid="uid://bsmlmh5xi4r03" path="res://apps/forum/forum_alert_card.tscn" id="3_alert"]
+[ext_resource type="PackedScene" uid="uid://bpbbjyyqep1sg" path="res://apps/forum/null_channel_header.tscn" id="4_header"]
+[ext_resource type="PackedScene" uid="uid://v0ask2g51gcm" path="res://apps/forum/forum_thread_row_ui.tscn" id="5_row"]
+[ext_resource type="Theme" path="res://data/assets/themes/null_channel_ui.tres" id="6_theme"]
 
-[node name="ForumApp" type="PanelContainer" unique_id=1643493238]
-offset_right = 960.0
-offset_bottom = 540.0
+[node name="ForumApp" type="PanelContainer"]
 size_flags_horizontal = 3
-script = ExtResource("1_goqfn")
-post_ui_scene = ExtResource("4_2d478")
-thread_row_scene = ExtResource("5_jseev")
-alert_card_scene = ExtResource("4_jseev")
+size_flags_vertical = 3
+theme = ExtResource("6_theme")
+script = ExtResource("1_script")
+post_ui_scene = ExtResource("2_post")
+thread_row_scene = ExtResource("5_row")
+alert_card_scene = ExtResource("3_alert")
 
-[node name="MasterScroll" type="ScrollContainer" parent="." unique_id=1604201622]
+[node name="MasterScroll" type="ScrollContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="PageVBox" type="VBoxContainer" parent="MasterScroll" unique_id=24340731]
+[node name="PageVBox" type="VBoxContainer" parent="MasterScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="SiteHeader" parent="MasterScroll/PageVBox" instance=ExtResource("4_header")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 16
+
+[node name="ThreadListPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="SiteHeader" parent="MasterScroll/PageVBox" unique_id=1050287416 instance=ExtResource("5_chltv")]
+[node name="ForumIntroPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage"]
+layout_mode = 2
+
+[node name="ForumIntroMargin" type="MarginContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ForumIntroPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="ForumIntroHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ForumIntroPanel/ForumIntroMargin"]
+layout_mode = 2
+
+[node name="ForumIntroVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ForumIntroPanel/ForumIntroMargin/ForumIntroHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="ForumTitle" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ForumIntroPanel/ForumIntroMargin/ForumIntroHBox/ForumIntroVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 24
+text = "NULL CHANNEL"
+
+[node name="ForumDescription" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ForumIntroPanel/ForumIntroMargin/ForumIntroHBox/ForumIntroVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.62, 0.72, 1)
+text = "Live discussion, field reports, guides and community noise."
+autowrap_mode = 2
+
+[node name="ForumStatus" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ForumIntroPanel/ForumIntroMargin/ForumIntroHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.82, 0.63, 1)
+text = "● NODE ONLINE"
+vertical_alignment = 1
+
+[node name="ThreadTypeTabsPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage"]
+layout_mode = 2
+
+[node name="ThreadTypeTabsMargin" type="MarginContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="ThreadTypeTabsHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsMargin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="TrendingBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsMargin/ThreadTypeTabsHBox"]
 unique_name_in_owner = true
-layout_mode = 2
-
-[node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=1833793142]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 12
-
-[node name="ThreadListPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=1195254683]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="ThreadTypeTabsPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage" unique_id=1912109280]
-layout_mode = 2
-
-[node name="ThreadTypeTabsHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel" unique_id=284693550]
-layout_mode = 2
-
-[node name="TrendingBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=66220868]
-unique_name_in_owner = true
-clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
 text = "TRENDING"
 
-[node name="SocialBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=1199021360]
+[node name="SocialBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsMargin/ThreadTypeTabsHBox"]
 unique_name_in_owner = true
-clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
 text = "SOCIAL"
 
-[node name="RumorsBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=93564674]
+[node name="RumorsBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsMargin/ThreadTypeTabsHBox"]
 unique_name_in_owner = true
-clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
-text = "RUMORS"
+text = "RUMOURS"
 
-[node name="GuidesBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=839607493]
+[node name="GuidesBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsMargin/ThreadTypeTabsHBox"]
 unique_name_in_owner = true
-clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
 text = "GUIDES"
 
-[node name="HelpBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=914829697]
+[node name="HelpBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsMargin/ThreadTypeTabsHBox"]
 unique_name_in_owner = true
-clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
 text = "HELP"
 
-[node name="ArchivedBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsHBox" unique_id=1181931581]
+[node name="ArchivedBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadTypeTabsPanel/ThreadTypeTabsMargin/ThreadTypeTabsHBox"]
 unique_name_in_owner = true
-clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
-text = "ARCHIVED"
+text = "ARCHIVE"
 
-[node name="SearchBarPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage" unique_id=326616070]
+[node name="SearchBarPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage"]
 layout_mode = 2
 
-[node name="SearchBarHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel" unique_id=338836288]
+[node name="SearchBarMargin" type="MarginContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="SearchBarHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel/SearchBarMargin"]
 layout_mode = 2
 
-[node name="SearchInput" type="LineEdit" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel/SearchBarHBox" unique_id=772114499]
+[node name="SearchIcon" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel/SearchBarMargin/SearchBarHBox"]
+layout_mode = 2
+text = "⌕"
+vertical_alignment = 1
+
+[node name="SearchInput" type="LineEdit" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel/SearchBarMargin/SearchBarHBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "Search threads, users, or tags..."
+placeholder_text = "Search threads, users, tags or post content..."
 
-[node name="SearchBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel/SearchBarHBox" unique_id=1082947240]
+[node name="SearchBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel/SearchBarMargin/SearchBarHBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Search"
+text = "SEARCH"
 
-[node name="ClearSearchBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel/SearchBarHBox" unique_id=529726060]
+[node name="ClearSearchBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/SearchBarPanel/SearchBarMargin/SearchBarHBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Clear"
+text = "RESET"
 
-[node name="ThreadListHeader" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage" unique_id=863783881]
+[node name="ThreadListPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage"]
+layout_mode = 2
+
+[node name="ThreadListVBox" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListPanel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="ThreadListHeader" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListPanel/ThreadListVBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
+theme_override_constants/separation = 8
 
-[node name="TypeHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=1918684334]
-custom_minimum_size = Vector2(90, 0)
+[node name="TypeHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListPanel/ThreadListVBox/ThreadListHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.57, 0.69, 1)
+theme_override_font_sizes/font_size = 12
 text = "TYPE"
+horizontal_alignment = 1
 
-[node name="ThreadHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=1628584177]
+[node name="ThreadHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListPanel/ThreadListVBox/ThreadListHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "THREAD"
+theme_override_colors/font_color = Color(0.38, 0.57, 0.69, 1)
+theme_override_font_sizes/font_size = 12
+text = "DISCUSSION"
 
-[node name="RepliesHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=616873302]
-custom_minimum_size = Vector2(70, 0)
+[node name="RepliesHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListPanel/ThreadListVBox/ThreadListHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.57, 0.69, 1)
+theme_override_font_sizes/font_size = 12
 text = "REPLIES"
+horizontal_alignment = 1
 
-[node name="LastReplyHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=731144364]
-custom_minimum_size = Vector2(140, 0)
+[node name="LastReplyHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListPanel/ThreadListVBox/ThreadListHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(86, 0)
 layout_mode = 2
-text = "LAST REPLY"
+theme_override_colors/font_color = Color(0.38, 0.57, 0.69, 1)
+theme_override_font_sizes/font_size = 12
+text = "LATEST"
 
-[node name="AuthorHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListHeader" unique_id=2072254690]
-custom_minimum_size = Vector2(120, 0)
+[node name="AuthorHeaderLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListPanel/ThreadListVBox/ThreadListHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
-text = "AUTHOR"
+theme_override_colors/font_color = Color(0.38, 0.57, 0.69, 1)
+theme_override_font_sizes/font_size = 12
+text = "STARTED BY"
+horizontal_alignment = 1
 
-[node name="ThreadList" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage" unique_id=345993463]
+[node name="HeaderSeparator" type="HSeparator" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListPanel/ThreadListVBox"]
+layout_mode = 2
+
+[node name="ThreadList" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage/ThreadListPanel/ThreadListVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 2
 
-[node name="ReaderContainer" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=547838893]
+[node name="ReaderContainer" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/separation = 10
 
-[node name="ReaderTopBar" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=1970215264]
+[node name="ReaderHeaderPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer"]
 layout_mode = 2
 
-[node name="ReaderTitleLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderTopBar" unique_id=91619794]
-unique_name_in_owner = true
+[node name="ReaderHeaderMargin" type="MarginContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderHeaderPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="ReaderTopBar" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderHeaderPanel/ReaderHeaderMargin"]
 layout_mode = 2
 
-[node name="ReaderSpacer" type="Control" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderTopBar" unique_id=1189386675]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="WatchThreadBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderTopBar" unique_id=255008541]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Watch Thread"
-
-[node name="PostList" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=637423438]
+[node name="ReaderTitleLabel" type="Label" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderHeaderPanel/ReaderHeaderMargin/ReaderTopBar"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.9, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 22
+autowrap_mode = 2
 
-[node name="TopNav" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer" unique_id=342336655]
+[node name="WatchThreadBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer/ReaderHeaderPanel/ReaderHeaderMargin/ReaderTopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "WATCH THREAD"
+
+[node name="PostList" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="TopNav" type="HBoxContainer" parent="MasterScroll/PageVBox/ContentArea/ReaderContainer"]
 layout_mode = 2
 
-[node name="AlertsPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=93287149]
+[node name="AlertsPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+theme_override_constants/separation = 8
