@@ -8,5 +8,5 @@ script = ExtResource("1_edca3")
 url = "kubus://home"
 page_title = "Home"
 record_in_browser_history = false
-custom_site_scene = ExtResource("1_y30ad")
+site_scene = ExtResource("1_y30ad")
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"
