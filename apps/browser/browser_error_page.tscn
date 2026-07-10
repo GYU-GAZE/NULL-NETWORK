@@ -1,0 +1,56 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/browser/browser_error_page.gd" id="1_error"]
+
+[node name="BrowserErrorPage" type="PanelContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_error")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 2
+
+[node name="ErrorMargin" type="MarginContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="ErrorVBox" type="VBoxContainer" parent="CenterContainer/ErrorMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CodeLabel" type="Label" parent="CenterContainer/ErrorMargin/ErrorVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "403"
+horizontal_alignment = 1
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/ErrorMargin/ErrorVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "CONNECTION REFUSED"
+horizontal_alignment = 1
+
+[node name="MessageLabel" type="Label" parent="CenterContainer/ErrorMargin/ErrorVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "The requested network location could not be loaded."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="UrlLabel" type="Label" parent="CenterContainer/ErrorMargin/ErrorVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "null.net/missing"
+horizontal_alignment = 1
+autowrap_mode = 2
