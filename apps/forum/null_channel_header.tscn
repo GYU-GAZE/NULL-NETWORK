@@ -1,142 +1,161 @@
-[gd_scene format=3 uid="uid://bpbbjyyqep1sg"]
+[gd_scene load_steps=5 format=3 uid="uid://bpbbjyyqep1sg"]
 
-[ext_resource type="Script" uid="uid://dferouqi83ljf" path="res://apps/forum/null_channel_header.gd" id="1_t7py2"]
-[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="2_tcew5"]
-[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="3_tcew5"]
+[ext_resource type="Script" uid="uid://dferouqi83ljf" path="res://apps/forum/null_channel_header.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="2_icon"]
+[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="3_action"]
+[ext_resource type="Theme" path="res://data/assets/themes/null_channel_ui.tres" id="4_theme"]
 
-[node name="NullChannelHeader" type="PanelContainer" unique_id=1050287416]
-custom_minimum_size = Vector2(0, 72)
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="NullChannelHeader" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 108)
 size_flags_horizontal = 3
-script = ExtResource("1_t7py2")
+theme = ExtResource("4_theme")
+script = ExtResource("1_script")
 
-[node name="HeaderVBox" type="VBoxContainer" parent="." unique_id=1368720595]
+[node name="HeaderVBox" type="VBoxContainer" parent="."]
 layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="IdentityPanel" type="PanelContainer" parent="HeaderVBox"]
+layout_mode = 2
+
+[node name="IdentityMargin" type="MarginContainer" parent="HeaderVBox/IdentityPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="IdentityHBox" type="HBoxContainer" parent="HeaderVBox/IdentityPanel/IdentityMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BannerStack" type="VBoxContainer" parent="HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 2
 
-[node name="HeaderMargin" type="MarginContainer" parent="HeaderVBox" unique_id=787082523]
-layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 4
-
-[node name="HeaderHBox" type="HBoxContainer" parent="HeaderVBox/HeaderMargin" unique_id=24243142]
-layout_mode = 2
-
-[node name="BannerRect" type="TextureRect" parent="HeaderVBox/HeaderMargin/HeaderHBox" unique_id=730160190]
+[node name="BannerRect" type="TextureRect" parent="HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox/BannerStack"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(256, 40)
 layout_mode = 2
-size_flags_horizontal = 3
-texture = ExtResource("2_tcew5")
+texture = ExtResource("2_icon")
 expand_mode = 2
 stretch_mode = 5
 
-[node name="UserBlock" type="HBoxContainer" parent="HeaderVBox/HeaderMargin/HeaderHBox" unique_id=934832956]
-custom_minimum_size = Vector2(128, 0)
+[node name="SiteDescriptor" type="Label" parent="HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox/BannerStack"]
 layout_mode = 2
-size_flags_horizontal = 8
+theme_override_colors/font_color = Color(0.42, 0.63, 0.76, 1)
+theme_override_font_sizes/font_size = 13
+text = "COMMUNITY NETWORK  /  TOKYO NODE"
 
-[node name="UserInfoVBox" type="VBoxContainer" parent="HeaderVBox/HeaderMargin/HeaderHBox/UserBlock" unique_id=1898589862]
+[node name="UserCard" type="PanelContainer" parent="HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox"]
+custom_minimum_size = Vector2(210, 0)
 layout_mode = 2
 
-[node name="LoggedInAsLabel" type="Label" parent="HeaderVBox/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=855642232]
+[node name="UserCardMargin" type="MarginContainer" parent="HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox/UserCard"]
 layout_mode = 2
-text = "LOGGED IN AS:"
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
 
-[node name="UsernameLabel" type="Label" parent="HeaderVBox/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=558136063]
+[node name="UserBlock" type="HBoxContainer" parent="HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox/UserCard/UserCardMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="UserAvatarRect" type="TextureRect" parent="HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox/UserCard/UserCardMargin/UserBlock"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+texture = ExtResource("2_icon")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="UserInfoVBox" type="VBoxContainer" parent="HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox/UserCard/UserCardMargin/UserBlock"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="LoggedInAsLabel" type="Label" parent="HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox/UserCard/UserCardMargin/UserBlock/UserInfoVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.52, 0.62, 1)
+theme_override_font_sizes/font_size = 12
+text = "SIGNED IN"
+
+[node name="UsernameLabel" type="Label" parent="HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox/UserCard/UserCardMargin/UserBlock/UserInfoVBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.96, 1, 1)
 text = "null.guy"
 
-[node name="UserRankLabel" type="Label" parent="HeaderVBox/HeaderMargin/HeaderHBox/UserBlock/UserInfoVBox" unique_id=1469160510]
+[node name="UserRankLabel" type="Label" parent="HeaderVBox/IdentityPanel/IdentityMargin/IdentityHBox/UserCard/UserCardMargin/UserBlock/UserInfoVBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.73, 0.9, 1)
+theme_override_font_sizes/font_size = 13
 text = "#999 Worldwide"
 
-[node name="UserAvatarRect" type="TextureRect" parent="HeaderVBox/HeaderMargin/HeaderHBox/UserBlock" unique_id=1918521082]
+[node name="MainNavBarPanel" type="PanelContainer" parent="HeaderVBox"]
+layout_mode = 2
+
+[node name="NavBarMargin" type="MarginContainer" parent="HeaderVBox/MainNavBarPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="NavbarHBox" type="HBoxContainer" parent="HeaderVBox/MainNavBarPanel/NavBarMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HomeBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 0
-texture = ExtResource("2_tcew5")
-expand_mode = 2
-stretch_mode = 5
-
-[node name="MainNavBarPanel" type="PanelContainer" parent="HeaderVBox" unique_id=1071308217]
-layout_mode = 2
-
-[node name="NavBarMargin" type="MarginContainer" parent="HeaderVBox/MainNavBarPanel" unique_id=1143755250]
-layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 2
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 2
-
-[node name="NavbarHBox" type="HBoxContainer" parent="HeaderVBox/MainNavBarPanel/NavBarMargin" unique_id=994780494]
-modulate = Color(0.25765854, 0.25765854, 0.25765854, 1)
-self_modulate = Color(0.22352941, 0.22352941, 0.22352941, 1)
-layout_mode = 2
-alignment = 1
-
-[node name="HomeBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1530510066]
-unique_name_in_owner = true
-clip_contents = true
-layout_mode = 2
-size_flags_horizontal = 0
-text = "Home"
-script = ExtResource("3_tcew5")
+text = "HOME"
+script = ExtResource("3_action")
 target_url = "null.net"
 
-[node name="ThreadsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=458510602]
+[node name="ThreadsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox"]
 unique_name_in_owner = true
-clip_contents = true
 layout_mode = 2
-size_flags_horizontal = 0
-text = "Threads"
-script = ExtResource("3_tcew5")
+text = "THREADS"
+script = ExtResource("3_action")
 target_url = "null.net/forums"
 
-[node name="UpdatesBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1216798712]
+[node name="UpdatesBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox"]
 unique_name_in_owner = true
-clip_contents = true
 layout_mode = 2
-size_flags_horizontal = 0
-text = "Updates
-"
-script = ExtResource("3_tcew5")
+text = "UPDATES"
+script = ExtResource("3_action")
 target_url = "null.net/updates"
 
-[node name="RankingsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1349775164]
+[node name="RankingsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox"]
 unique_name_in_owner = true
-clip_contents = true
 layout_mode = 2
-size_flags_horizontal = 0
-text = "Ranking"
-script = ExtResource("3_tcew5")
+text = "RANKINGS"
+script = ExtResource("3_action")
 target_url = "null.net/playerrankings"
 
-[node name="NavSpacer" type="Control" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=380275048]
+[node name="NavSpacer" type="Control" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="AlertsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1984097093]
+[node name="AlertsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Alerts"
+text = "ALERTS"
 
-[node name="AlertsNotificationBadge" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox/AlertsBtn" unique_id=862717973]
+[node name="AlertsNotificationBadge" type="Label" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox/AlertsBtn"]
 unique_name_in_owner = true
 visible = false
-layout_direction = 3
 layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
+offset_left = -3.0
+offset_top = -5.0
+offset_right = 9.0
+offset_bottom = 7.0
+theme_override_colors/font_color = Color(1, 0.42, 0.42, 1)
+theme_override_font_sizes/font_size = 12
 text = "!"
-icon_alignment = 2
+horizontal_alignment = 1
+vertical_alignment = 1
