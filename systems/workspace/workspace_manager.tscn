@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://8g2y08hbwa6r"]
+
+[node name="WorkspaceManager" type="Control" unique_id=855904997]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ActiveWorkspaceContainer" type="Control" parent="." unique_id=2094918754]
+unique_name_in_owner = true
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2

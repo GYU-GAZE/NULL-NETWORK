@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://1sfbm60f4wjd" path="res://systems/desktop/desktop.tscn" id="1_desktop"]
 [ext_resource type="Script" uid="uid://b2kr16bkp27ck" path="res://data/templates/app_resource.gd" id="2_app_type"]
+[ext_resource type="PackedScene" uid="uid://8g2y08hbwa6r" path="res://systems/workspace/workspace_manager.tscn" id="2_rayt5"]
 [ext_resource type="Resource" uid="uid://bliwlevigfyfv" path="res://data/content/apps/app_browser.tres" id="3_browser"]
 [ext_resource type="Resource" uid="uid://c1rtqiahmygmm" path="res://data/content/apps/app_navigator.tres" id="4_navigator"]
 [ext_resource type="PackedScene" uid="uid://dbcmrbcstca3l" path="res://systems/window_manager/window_manager.tscn" id="5_window_manager"]
@@ -9,10 +10,16 @@
 [ext_resource type="PackedScene" uid="uid://b65wapqwc7vgi" path="res://systems/desktop/kubu_top_taskbar.tscn" id="6_taskbar"]
 [ext_resource type="PackedScene" uid="uid://b80q2304dxkkp" path="res://systems/ui/kubu_notification_panel.tscn" id="7_notification_panel"]
 [ext_resource type="PackedScene" uid="uid://bhd3dga5ag1j1" path="res://systems/ui/notification_layer.tscn" id="8_notification_layer"]
+[ext_resource type="PackedScene" uid="uid://w14nl6xxwxew" path="res://systems/desktop/dock/kubu_dock_item.tscn" id="10_xhu5d"]
 
 [node name="Main" type="Node" unique_id=977689112]
 
 [node name="Desktop" parent="." unique_id=522692328 instance=ExtResource("1_desktop")]
+
+[node name="WorkspaceLayer" type="CanvasLayer" parent="." unique_id=851651910]
+layer = 5
+
+[node name="WorkspaceManager" parent="WorkspaceLayer" unique_id=855904997 instance=ExtResource("2_rayt5")]
 
 [node name="WindowManagerLayer" type="CanvasLayer" parent="." unique_id=241559017]
 layer = 10
@@ -33,4 +40,4 @@ custom_minimum_size = Vector2(0, 22)
 
 [node name="KubuBottomDock" parent="OSChromeLayer" unique_id=1185085997 instance=ExtResource("6_kagtj")]
 dock_apps = Array[ExtResource("2_app_type")]([ExtResource("3_browser"), ExtResource("4_navigator")])
-dock_item_scene = ExtResource("6_kagtj")
+dock_item_scene = ExtResource("10_xhu5d")

@@ -32,7 +32,7 @@ var _hover_tween: Tween
 
 
 func _ready() -> void:
-	icon_button.pressed.connect(_on_icon_button_pressed)
+	icon_button.gui_input.connect(_on_icon_button_pressed)
 	icon_button.mouse_entered.connect(_on_mouse_entered)
 	icon_button.mouse_exited.connect(_on_mouse_exited)
 
@@ -123,8 +123,23 @@ func _refresh_visual_state() -> void:
 	state_indicator.visible = false
 
 
-func _on_icon_button_pressed() -> void:
+func _on_icon_button_pressed(event: InputEvent) -> void:
+	if not event is InputEventMouseButton:
+		return
+
+	var mouse_event := event as InputEventMouseButton
+
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
+		return
+
+	if not mouse_event.pressed:
+		return
+
 	if app_data == null:
+		return
+
+	if mouse_event.double_click and _is_running:
+		GlobalSignals.request_close_app.emit(app_data.app_id)
 		return
 
 	activated.emit(app_data)

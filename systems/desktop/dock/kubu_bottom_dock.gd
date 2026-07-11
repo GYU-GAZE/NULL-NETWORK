@@ -113,7 +113,7 @@ func _on_item_activated(app: AppResource) -> void:
 			GlobalSignals.request_open_app.emit(app)
 
 		AppResource.PresentationMode.WORKSPACE:
-			GlobalSignals.request_activate_workspace.emit(app.app_id)
+			GlobalSignals.request_activate_workspace.emit(app)
 
 
 func _on_app_opened(app_id: String) -> void:

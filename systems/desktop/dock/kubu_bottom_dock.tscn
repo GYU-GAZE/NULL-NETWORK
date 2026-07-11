@@ -40,6 +40,7 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 4
 
-[node name="HBoxContainer" type="HBoxContainer" parent="BottomMargin/DockCenter/DockPanel/DockMargin" unique_id=1849414833]
+[node name="AppContainer" type="HBoxContainer" parent="BottomMargin/DockCenter/DockPanel/DockMargin" unique_id=1849414833]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 7

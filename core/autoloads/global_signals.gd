@@ -2,7 +2,7 @@ extends Node
 
 signal request_open_app(app: AppResource)
 signal request_close_app(app_id: String)
-signal request_activate_workspace(workspace_id: String)
+signal request_activate_workspace(app: AppResource)
 
 signal app_opened(app_id: String)
 signal app_closed(app_id: String)
