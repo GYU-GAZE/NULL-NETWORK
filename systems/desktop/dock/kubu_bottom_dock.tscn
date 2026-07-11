@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://bsm16kkm5j4eu"]
+
+[ext_resource type="Script" uid="uid://74re1a3348oo" path="res://systems/desktop/dock/kubu_bottom_dock.gd" id="1_lf386"]
+
+[node name="KubuBottomDock" type="Control" unique_id=1185085997]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_lf386")
+
+[node name="BottomMargin" type="MarginContainer" parent="." unique_id=1369808385]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -86.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="DockCenter" type="CenterContainer" parent="BottomMargin" unique_id=454933231]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="DockPanel" type="PanelContainer" parent="BottomMargin/DockCenter" unique_id=1899037788]
+custom_minimum_size = Vector2(0, 74)
+layout_mode = 2
+
+[node name="DockMargin" type="MarginContainer" parent="BottomMargin/DockCenter/DockPanel" unique_id=98814161]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BottomMargin/DockCenter/DockPanel/DockMargin" unique_id=1849414833]
+layout_mode = 2
+theme_override_constants/separation = 7

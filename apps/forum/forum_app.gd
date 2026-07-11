@@ -713,7 +713,8 @@ func get_browser_state() -> Dictionary:
 		"mode": String(current_mode),
 		"thread_id": current_thread_id,
 		"filter": current_filter,
-		"search": current_search_query
+		"search": current_search_query,
+		"scroll_vertical": master_scroll.scroll_vertical
 	}
 
 
@@ -721,25 +722,60 @@ func restore_browser_state(state: Dictionary) -> void:
 	if state.is_empty():
 		return
 
-	current_filter = int(state.get("filter", ForumViewFilter.TRENDING)) as ForumViewFilter
-	current_search_query = str(state.get("search", ""))
+	current_filter = int(
+		state.get(
+			"filter",
+			ForumViewFilter.TRENDING
+		)
+	) as ForumViewFilter
+
+	current_search_query = str(
+		state.get("search", "")
+	)
+
 	search_input.text = current_search_query
 	_refresh_filter_buttons()
 
-	var mode: StringName = StringName(str(state.get("mode", String(MODE_THREAD_LIST))))
-	var thread_id: String = str(state.get("thread_id", ""))
+	var mode := StringName(
+		str(
+			state.get(
+				"mode",
+				String(MODE_THREAD_LIST)
+			)
+		)
+	)
+
+	var thread_id: String = str(
+		state.get("thread_id", "")
+	)
+
+	var restored_scroll: int = maxi(
+		0,
+		int(state.get("scroll_vertical", 0))
+	)
 
 	if mode == MODE_THREAD and not thread_id.is_empty():
 		_open_thread_by_id(thread_id)
-		return
-
-	if mode == MODE_ALERTS:
+	elif mode == MODE_ALERTS:
 		_show_alerts_page()
+	else:
+		_show_thread_list_page()
+		_refresh_thread_list()
+		_refresh_alerts_badge()
+
+	call_deferred(
+		"_restore_scroll_position",
+		restored_scroll
+	)
+
+
+func _restore_scroll_position(scroll_value: int) -> void:
+	await get_tree().process_frame
+
+	if not is_instance_valid(master_scroll):
 		return
 
-	_show_thread_list_page()
-	_refresh_thread_list()
-	_refresh_alerts_badge()
+	master_scroll.scroll_vertical = maxi(0, scroll_value)
 
 
 func _on_watched_alerts_changed() -> void:

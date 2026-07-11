@@ -12,6 +12,7 @@ class_name WindowManager
 
 var open_windows: Dictionary = {}
 var saved_window_states: Dictionary = {}
+var focused_app_id: String = ""
 
 var _last_work_rect: Rect2 = Rect2()
 var _last_pixel_scale: int = 1
@@ -42,7 +43,11 @@ func _on_request_open_app(app: AppResource) -> void:
 	if app == null:
 		return
 
-	var app_id: String = app.app_id
+	var app_id: String = app.app_id.strip_edges()
+
+	if app_id.is_empty():
+		push_error("WindowManager: AppResource has an empty app_id.")
+		return
 
 	if open_windows.has(app_id):
 		focus_window(app_id)
@@ -51,13 +56,15 @@ func _on_request_open_app(app: AppResource) -> void:
 	var new_window: WindowBase = window_base_scene.instantiate() as WindowBase
 
 	if new_window == null:
-		push_error("WindowManager: window_base_scene did not instantiate a WindowBase.")
+		push_error(
+			"WindowManager: window_base_scene did not instantiate a WindowBase."
+		)
 		return
 
 	add_child(new_window)
 
 	new_window.setup(
-		app.app_id,
+		app_id,
 		app.app_name,
 		app.default_window_size,
 		app.min_window_size,
@@ -66,15 +73,29 @@ func _on_request_open_app(app: AppResource) -> void:
 
 	open_windows[app_id] = new_window
 
-	if app.app_scene:
+	if app.app_scene != null:
 		var app_instance: Node = app.app_scene.instantiate()
-		new_window.content_container.add_child(app_instance)
 
-		if app_instance is Control:
-			var app_control := app_instance as Control
-			app_control.custom_minimum_size = Vector2.ZERO
-			app_control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			app_control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		if app_instance == null:
+			push_error(
+				"WindowManager: app_scene for '%s' could not be instantiated."
+				% app_id
+			)
+		else:
+			new_window.content_container.add_child(app_instance)
+
+			if app_instance is Control:
+				var app_control := app_instance as Control
+				app_control.custom_minimum_size = Vector2.ZERO
+				app_control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				app_control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+			_restore_app_session_state(app_id, app_instance)
+	else:
+		push_warning(
+			"WindowManager: AppResource '%s' has no app_scene."
+			% app_id
+		)
 
 	_apply_saved_or_default_window_state(app_id, new_window)
 
@@ -83,6 +104,7 @@ func _on_request_open_app(app: AppResource) -> void:
 	new_window.window_moved.connect(_on_window_changed.bind(app_id))
 	new_window.window_resized.connect(_on_window_changed.bind(app_id))
 
+	GlobalSignals.app_opened.emit(app_id)
 	focus_window(app_id)
 
 
@@ -91,8 +113,16 @@ func focus_window(app_id: String) -> void:
 		return
 
 	var window: WindowBase = open_windows[app_id]
+
+	if window == null:
+		return
+
+	focused_app_id = app_id
+
 	window.move_to_front()
 	window.pulse()
+
+	GlobalSignals.app_focused.emit(app_id)
 
 
 func close_window(app_id: String) -> void:
@@ -105,11 +135,84 @@ func _on_window_closed(app_id: String) -> void:
 		return
 
 	var window: WindowBase = open_windows[app_id]
+
+	_save_app_session_state(app_id, window)
 	_save_window_state(app_id, window)
 
 	open_windows.erase(app_id)
+
+	if focused_app_id == app_id:
+		focused_app_id = ""
+		GlobalSignals.app_focused.emit("")
+
+	GlobalSignals.app_closed.emit(app_id)
+
 	window.queue_free()
 
+func _restore_app_session_state(
+	app_id: String,
+	app_instance: Node
+) -> void:
+	if app_instance == null:
+		return
+
+	if not AppSessionStore.has_app_state(app_id):
+		return
+
+	if not app_instance.has_method("restore_app_session_state"):
+		return
+
+	var stored_state: Dictionary = AppSessionStore.get_app_state(app_id)
+
+	app_instance.call_deferred(
+		"restore_app_session_state",
+		stored_state
+	)
+
+
+func _save_app_session_state(
+	app_id: String,
+	window: WindowBase
+) -> void:
+	if app_id.is_empty() or window == null:
+		return
+
+	var app_instance: Node = _get_window_app_instance(window)
+
+	if app_instance == null:
+		return
+
+	if not app_instance.has_method("get_app_session_state"):
+		return
+
+	var returned_state: Variant = app_instance.call(
+		"get_app_session_state"
+	)
+
+	if not returned_state is Dictionary:
+		push_warning(
+			"WindowManager: app '%s' returned a non-Dictionary session state."
+			% app_id
+		)
+		return
+
+	AppSessionStore.save_app_state(
+		app_id,
+		returned_state as Dictionary
+	)
+
+
+func _get_window_app_instance(window: WindowBase) -> Node:
+	if window == null:
+		return null
+
+	if not is_instance_valid(window.content_container):
+		return null
+
+	if window.content_container.get_child_count() <= 0:
+		return null
+
+	return window.content_container.get_child(0)
 
 func _on_window_changed(app_id: String) -> void:
 	if not open_windows.has(app_id):

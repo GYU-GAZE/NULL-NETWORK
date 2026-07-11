@@ -1,5 +1,6 @@
 extends Control
 class_name BrowserApp
+const SESSION_STATE_VERSION: int = 1
 
 @export_category("Browser Scenes")
 @export var tab_button_scene: PackedScene
@@ -498,3 +499,70 @@ func _clear_control_children(container: Node) -> void:
 
 func _is_home_url(url: String) -> bool:
 	return SimulatedDNS.normalize_url(url) == SimulatedDNS.normalize_url(home_url)
+
+func get_app_session_state() -> Dictionary:
+	_save_current_site_state()
+
+	var serialized_tabs: Array[Dictionary] = []
+
+	for tab in tabs:
+		if tab == null:
+			continue
+
+		serialized_tabs.append(tab.to_session_state())
+
+	return {
+		"version": SESSION_STATE_VERSION,
+		"current_tab_index": current_tab_index,
+		"tabs": serialized_tabs
+	}
+
+
+func restore_app_session_state(state: Dictionary) -> void:
+	if state.is_empty():
+		return
+
+	var saved_version: int = int(state.get("version", 0))
+
+	if saved_version > SESSION_STATE_VERSION:
+		push_warning(
+			"BrowserApp: session version %d is newer than supported version %d."
+			% [saved_version, SESSION_STATE_VERSION]
+		)
+		return
+
+	var raw_tabs: Variant = state.get("tabs", [])
+
+	if not raw_tabs is Array:
+		push_warning("BrowserApp: stored tabs value is not an Array.")
+		return
+
+	var restored_tabs: Array[BrowserTabData] = []
+
+	for raw_tab_state in raw_tabs:
+		if not raw_tab_state is Dictionary:
+			continue
+
+		var restored_tab: BrowserTabData = (
+			BrowserTabData.from_session_state(
+				raw_tab_state as Dictionary
+			)
+		)
+
+		if restored_tab != null:
+			restored_tabs.append(restored_tab)
+
+	if restored_tabs.is_empty():
+		return
+
+	tabs = restored_tabs
+	current_tab_index = clampi(
+		int(state.get("current_tab_index", 0)),
+		0,
+		tabs.size() - 1
+	)
+
+	_clear_site_container()
+	_render_current_tab()
+	_refresh_tab_buttons()
+	_refresh_favorite_button()
