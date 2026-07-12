@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://b2jukdy0iqin4"]
 
 [ext_resource type="Script" uid="uid://ckvkd6ckteaqr" path="res://apps/navigator/app_navigator.gd" id="1_bqhse"]
+[ext_resource type="Resource" uid="uid://bhuvy1mqbcl1y" path="res://data/content/map/world_map.tres" id="2_6045y"]
+[ext_resource type="PackedScene" uid="uid://bh2dywcre5tcr" path="res://apps/navigator/ui/navigator_location_marker.tscn" id="2_i80et"]
 
 [node name="AppNavigator" type="Control" unique_id=1687208961]
 layout_mode = 3
@@ -10,6 +12,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_bqhse")
+world_data = ExtResource("2_6045y")
+marker_scene = ExtResource("2_i80et")
 
 [node name="WorldMapLayer" type="Control" parent="." unique_id=1103856258]
 unique_name_in_owner = true
@@ -37,6 +41,7 @@ layout_mode = 1
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+mouse_filter = 2
 
 [node name="MapBackground" type="TextureRect" parent="WorldMapLayer/MapViewport/MapContent" unique_id=575665119]
 unique_name_in_owner = true

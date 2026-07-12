@@ -39,6 +39,7 @@ var _map_pointer_pressed: bool = false
 var _map_dragging: bool = false
 var _map_press_position: Vector2 = Vector2.ZERO
 var _map_last_pointer_position: Vector2 = Vector2.ZERO
+var _current_pan_normalized: Vector2 = Vector2(0.5, 0.5)
 
 
 func _ready() -> void:
@@ -68,10 +69,20 @@ func _initialize_world_map() -> void:
 	_apply_map_geometry()
 
 	if world_data != null:
-		set_pan_normalized(world_data.initial_pan_normalized)
-	else:
-		_clamp_map_position()
+		_current_pan_normalized = Vector2(
+			clampf(
+				world_data.initial_pan_normalized.x,
+				0.0,
+				1.0
+			),
+			clampf(
+				world_data.initial_pan_normalized.y,
+				0.0,
+				1.0
+			)
+		)
 
+	set_pan_normalized(_current_pan_normalized)
 	_refresh_marker_positions()
 
 
@@ -92,29 +103,43 @@ func _apply_map_geometry() -> void:
 	if world_data == null:
 		return
 
-	var resolved_map_size: Vector2 = world_data.get_resolved_map_size()
-
-	if resolved_map_size.x <= 0.0 or resolved_map_size.y <= 0.0:
-		push_error(
-		"NavigatorApp: world_data requires a valid map texture "
-		+ "or map_logical_size."
+	var resolved_map_size: Vector2 = (
+		world_data.get_resolved_map_size()
 	)
-	return
 
-	var clean_map_size: Vector2 = KubuOSMetrics.snap_vector(
-	resolved_map_size
-)
+	if (
+		resolved_map_size.x <= 0.0
+		or resolved_map_size.y <= 0.0
+	):
+		push_error(
+			"NavigatorApp: world_data requires a valid map texture "
+			+ "or map_logical_size."
+		)
+		return
 
-	map_content.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	map_content.size = KubuOSMetrics.snap_vector(clean_map_size)
+	var clean_map_size: Vector2 = (
+		KubuOSMetrics.snap_vector(resolved_map_size)
+	)
 
-	map_background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	map_content.set_anchors_preset(
+		Control.PRESET_TOP_LEFT
+	)
+	map_content.position = (
+		KubuOSMetrics.snap_vector(map_content.position)
+	)
+	map_content.size = clean_map_size
+
+	map_background.set_anchors_preset(
+		Control.PRESET_FULL_RECT
+	)
 	map_background.position = Vector2.ZERO
-	map_background.size = map_content.size
+	map_background.size = clean_map_size
 
-	marker_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	marker_layer.set_anchors_preset(
+		Control.PRESET_FULL_RECT
+	)
 	marker_layer.position = Vector2.ZERO
-	marker_layer.size = map_content.size
+	marker_layer.size = clean_map_size
 
 
 func _rebuild_markers() -> void:
@@ -217,7 +242,7 @@ func _on_map_viewport_resized() -> void:
 
 func _refresh_after_viewport_resize() -> void:
 	_apply_map_geometry()
-	_clamp_map_position()
+	set_pan_normalized(_current_pan_normalized)
 	_refresh_marker_positions()
 
 
@@ -270,6 +295,8 @@ func _handle_map_mouse_motion(event: InputEventMouseMotion) -> void:
 	map_content.position += movement_delta
 	_clamp_map_position()
 
+	_current_pan_normalized = get_pan_normalized()
+
 	map_viewport.accept_event()
 
 
@@ -315,6 +342,7 @@ func set_pan_normalized(normalized_pan: Vector2) -> void:
 		clampf(normalized_pan.x, 0.0, 1.0),
 		clampf(normalized_pan.y, 0.0, 1.0)
 	)
+	_current_pan_normalized = clean_pan
 
 	map_content.position = Vector2(
 		_normalized_pan_to_axis_position(
