@@ -15,6 +15,7 @@ signal thread_selected(thread: ForumThread)
 @onready var thread_title_button: Button = %ThreadTitleButton
 @onready var new_badge: Control = %NewBadge
 @onready var thread_summary_label: Label = %ThreadSummaryLabel
+@onready var compact_metadata_label: Label = %CompactMetadataLabel
 
 @onready var replies_label: Label = %RepliesLabel
 @onready var last_reply_label: Label = %LastReplyLabel
@@ -115,6 +116,38 @@ func _apply_column_visibility() -> void:
 	if is_instance_valid(author_label):
 		author_label.visible = _show_author_column
 
+	_refresh_compact_metadata()
+
+
+func _refresh_compact_metadata() -> void:
+	if not is_instance_valid(compact_metadata_label):
+		return
+
+	if thread_data == null or thread_data.thread_ref == null:
+		compact_metadata_label.hide()
+		return
+
+	var thread: ForumThread = thread_data.thread_ref
+	var parts: Array[String] = []
+
+	if not _show_replies_column:
+		parts.append("%d replies" % thread.get_reply_count())
+
+	if not _show_last_reply_column:
+		var last_reply_text: String = thread.get_last_reply_author()
+		var time_label: String = thread.get_last_reply_time_label()
+
+		if not time_label.is_empty():
+			last_reply_text += ", %s" % time_label
+
+		parts.append("Last: %s" % last_reply_text)
+
+	if not _show_author_column:
+		parts.append("Author: %s" % thread.get_thread_author())
+
+	compact_metadata_label.text = " • ".join(parts)
+	compact_metadata_label.visible = not parts.is_empty()
+
 
 func _setup_type_icon(thread: ForumThread) -> void:
 	type_icon_button.text = thread.get_category_icon_text()
@@ -161,6 +194,8 @@ func _setup_activity_columns(thread: ForumThread) -> void:
 	author_label.custom_minimum_size.x = author_column_width
 	author_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	author_label.clip_text = true
+
+	_refresh_compact_metadata()
 
 
 func _setup_new_badge(thread: ForumThread) -> void:
