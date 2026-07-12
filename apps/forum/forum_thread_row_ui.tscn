@@ -44,6 +44,12 @@ layout_mode = 2
 autowrap_mode = 3
 clip_text = true
 
+[node name="CompactMetadataLabel" type="Label" parent="MainHBox/ThreadInfoVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+autowrap_mode = 3
+
 [node name="RepliesLabel" type="Label" parent="MainHBox" unique_id=471085690]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 0)
