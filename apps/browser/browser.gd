@@ -1,6 +1,13 @@
 extends Control
 class_name BrowserApp
+
 const SESSION_STATE_VERSION: int = 1
+
+enum ResponsiveMode {
+	COMPACT,
+	STANDARD,
+	WIDE
+}
 
 @export_category("Browser Scenes")
 @export var tab_button_scene: PackedScene
@@ -10,11 +17,22 @@ const SESSION_STATE_VERSION: int = 1
 @export_category("Browser Routes")
 @export var home_url: String = "home"
 
+@export_category("Responsive Breakpoints")
+@export var compact_width_breakpoint: float = 480.0
+@export var compact_height_breakpoint: float = 280.0
+@export var wide_width_breakpoint: float = 760.0
+@export var wide_height_breakpoint: float = 400.0
+
 @export_category("Tab Layout")
 @export var tab_width: float = 160.0
+@export var standard_tab_width: float = 136.0
+@export var compact_tab_width: float = 112.0
 @export var new_tab_button_width: float = 36.0
+@export var compact_new_tab_button_width: float = 32.0
 @export var tab_bar_reserved_margin: float = 24.0
 @export var minimum_tab_scroll_width: float = 200.0
+@export var standard_minimum_tab_scroll_width: float = 160.0
+@export var compact_minimum_tab_scroll_width: float = 96.0
 
 @export_category("Favorite Button")
 @export var favorite_add_text: String = "☆"
@@ -27,10 +45,13 @@ const SESSION_STATE_VERSION: int = 1
 @export var favorite_remove_tooltip: String = "Remove favorite"
 @export var favorite_blocked_tooltip: String = "This page cannot be favorited"
 
+@onready var tab_bar_margin: MarginContainer = $MainVBox/TabBarMargin
 @onready var tab_button_container: HBoxContainer = %TabButtonContainer
 @onready var new_tab_button_holder: MarginContainer = %NewTabButtonHolder
 @onready var tab_scroll: ScrollContainer = %TabScroll
 
+@onready var address_bar_margin: MarginContainer = $MainVBox/AddressBarMargin
+@onready var home_button: Button = $MainVBox/AddressBarMargin/AddressBarHBox/HomeBtn
 @onready var url_line_edit: LineEdit = %UrlLineEdit
 @onready var go_button: Button = %GoButton
 @onready var browser_back_btn: Button = %BrowserBackBtn
@@ -41,6 +62,12 @@ const SESSION_STATE_VERSION: int = 1
 
 var tabs: Array[BrowserTabData] = []
 var current_tab_index: int = -1
+var current_responsive_mode: ResponsiveMode = ResponsiveMode.STANDARD
+
+var _active_tab_width: float = 136.0
+var _active_new_tab_button_width: float = 36.0
+var _active_minimum_tab_scroll_width: float = 160.0
+var _active_tab_bar_reserved_margin: float = 24.0
 
 
 func _ready() -> void:
@@ -51,10 +78,11 @@ func _ready() -> void:
 	browser_back_btn.pressed.connect(_on_browser_back_pressed)
 	favorite_button.pressed.connect(_on_favorite_pressed)
 
-	if not resized.is_connected(_refresh_tab_layout_only):
-		resized.connect(_refresh_tab_layout_only)
+	if not resized.is_connected(_on_browser_resized):
+		resized.connect(_on_browser_resized)
 
 	_connect_browser_navigation_signals(self)
+	_apply_responsive_layout()
 	_create_tab(home_url)
 
 
@@ -79,6 +107,86 @@ func _apply_browser_shell_layout() -> void:
 		site_container.resized.connect(_resize_current_site)
 
 
+func on_window_presentation_changed(
+	_state: int,
+	content_size: Vector2
+) -> void:
+	_apply_responsive_layout(content_size)
+
+
+func _on_browser_resized() -> void:
+	_apply_responsive_layout(size)
+
+
+func _apply_responsive_layout(forced_size: Vector2 = Vector2.ZERO) -> void:
+	var available_size: Vector2 = forced_size
+
+	if available_size.x <= 0.0 or available_size.y <= 0.0:
+		available_size = size
+
+	if available_size.x <= 0.0 or available_size.y <= 0.0:
+		available_size = get_viewport_rect().size
+
+	var previous_mode: ResponsiveMode = current_responsive_mode
+
+	if (
+		available_size.x < compact_width_breakpoint
+		or available_size.y < compact_height_breakpoint
+	):
+		current_responsive_mode = ResponsiveMode.COMPACT
+	elif (
+		available_size.x >= wide_width_breakpoint
+		and available_size.y >= wide_height_breakpoint
+	):
+		current_responsive_mode = ResponsiveMode.WIDE
+	else:
+		current_responsive_mode = ResponsiveMode.STANDARD
+
+	match current_responsive_mode:
+		ResponsiveMode.COMPACT:
+			_active_tab_width = compact_tab_width
+			_active_new_tab_button_width = compact_new_tab_button_width
+			_active_minimum_tab_scroll_width = compact_minimum_tab_scroll_width
+			_active_tab_bar_reserved_margin = 8.0
+			home_button.visible = false
+			go_button.visible = false
+			_set_shell_margin(4)
+		ResponsiveMode.STANDARD:
+			_active_tab_width = standard_tab_width
+			_active_new_tab_button_width = new_tab_button_width
+			_active_minimum_tab_scroll_width = standard_minimum_tab_scroll_width
+			_active_tab_bar_reserved_margin = 16.0
+			home_button.visible = true
+			go_button.visible = true
+			_set_shell_margin(6)
+		ResponsiveMode.WIDE:
+			_active_tab_width = tab_width
+			_active_new_tab_button_width = new_tab_button_width
+			_active_minimum_tab_scroll_width = minimum_tab_scroll_width
+			_active_tab_bar_reserved_margin = tab_bar_reserved_margin
+			home_button.visible = true
+			go_button.visible = true
+			_set_shell_margin(10)
+
+	new_tab_button_holder.custom_minimum_size.x = _active_new_tab_button_width
+
+	if previous_mode != current_responsive_mode and not tabs.is_empty():
+		_refresh_tab_buttons()
+	else:
+		_refresh_tab_layout_only()
+
+	call_deferred("_notify_current_site_layout")
+
+
+func _set_shell_margin(margin: int) -> void:
+	address_bar_margin.add_theme_constant_override("margin_left", margin)
+	address_bar_margin.add_theme_constant_override("margin_right", margin)
+	address_bar_margin.add_theme_constant_override("margin_top", 4)
+
+	tab_bar_margin.add_theme_constant_override("margin_left", margin)
+	tab_bar_margin.add_theme_constant_override("margin_right", margin)
+
+
 func _resize_current_site() -> void:
 	for child in site_container.get_children():
 		if child is Control:
@@ -86,6 +194,22 @@ func _resize_current_site() -> void:
 			control.set_anchors_preset(Control.PRESET_FULL_RECT)
 			control.position = Vector2.ZERO
 			control.size = site_container.size
+
+	_notify_current_site_layout()
+
+
+func _notify_current_site_layout() -> void:
+	if site_container.get_child_count() <= 0:
+		return
+
+	var current_site: Node = site_container.get_child(0)
+
+	if current_site.has_method("apply_browser_layout"):
+		current_site.call(
+			"apply_browser_layout",
+			int(current_responsive_mode),
+			KubuOSMetrics.snap_vector(site_container.size)
+		)
 
 
 func _on_go_pressed() -> void:
@@ -177,7 +301,7 @@ func _refresh_tab_buttons() -> void:
 			tab.favicon,
 			i == current_tab_index,
 			tabs.size() > 1,
-			tab_width
+			_active_tab_width
 		)
 		tab_button.tab_selected.connect(_switch_tab)
 		tab_button.tab_close_requested.connect(_close_tab)
@@ -192,7 +316,7 @@ func _refresh_tab_buttons() -> void:
 		push_error("BrowserApp: new_tab_button_scene must instantiate Button.")
 		return
 
-	new_tab_button.custom_minimum_size.x = new_tab_button_width
+	new_tab_button.custom_minimum_size.x = _active_new_tab_button_width
 	new_tab_button.pressed.connect(func(): _create_tab(home_url))
 	new_tab_button_holder.add_child(new_tab_button)
 
@@ -402,6 +526,7 @@ func _render_error_page(
 			if instance.has_method("setup"):
 				instance.call("setup", error_code, error_title, error_message, requested_url)
 
+			_notify_current_site_layout()
 			return
 
 	var fallback_label := Label.new()
@@ -466,12 +591,14 @@ func _refresh_tab_layout_only() -> void:
 	var tab_spacing: float = 0.0
 
 	if is_instance_valid(tab_button_container):
-		tab_spacing = float(tab_button_container.get_theme_constant("separation")) * float(max(0, tab_count - 1))
+		tab_spacing = float(
+			tab_button_container.get_theme_constant("separation")
+		) * float(max(0, tab_count - 1))
 
-	var total_tabs_width: float = (tab_width * float(tab_count)) + tab_spacing
+	var total_tabs_width: float = (_active_tab_width * float(tab_count)) + tab_spacing
 	var max_scroll_width: float = max(
-		minimum_tab_scroll_width,
-		size.x - new_tab_button_width - tab_bar_reserved_margin
+		_active_minimum_tab_scroll_width,
+		size.x - _active_new_tab_button_width - _active_tab_bar_reserved_margin
 	)
 
 	tab_scroll.custom_minimum_size.x = min(total_tabs_width, max_scroll_width)
@@ -499,6 +626,7 @@ func _clear_control_children(container: Node) -> void:
 
 func _is_home_url(url: String) -> bool:
 	return SimulatedDNS.normalize_url(url) == SimulatedDNS.normalize_url(home_url)
+
 
 func get_app_session_state() -> Dictionary:
 	_save_current_site_state()
@@ -566,3 +694,4 @@ func restore_app_session_state(state: Dictionary) -> void:
 	_render_current_tab()
 	_refresh_tab_buttons()
 	_refresh_favorite_button()
+	_apply_responsive_layout()
