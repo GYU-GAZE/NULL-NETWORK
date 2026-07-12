@@ -5,6 +5,7 @@ signal window_closed
 signal window_focused
 signal window_moved
 signal window_resized
+signal presentation_changed(state: int, content_size: Vector2)
 
 enum ResizeMode {
 	NONE,
@@ -18,6 +19,13 @@ enum ResizeMode {
 	BOTTOM_RIGHT
 }
 
+enum PresentationState {
+	COMPACT,
+	PREFERRED,
+	CUSTOM,
+	MAXIMIZED
+}
+
 @export_category("Window Animation")
 @export var tween_duration: float = 0.25
 @export var opening_scale: Vector2 = Vector2(0.8, 0.8)
@@ -29,12 +37,18 @@ enum ResizeMode {
 @export var border_size: float = 8.0
 
 @export_category("Window Buttons")
-@export var maximize_button_text: String = "□"
-@export var restore_button_text: String = "❐"
+@export var compact_button_text: String = "C"
+@export var preferred_button_text: String = "P"
+@export var maximize_button_text: String = "M"
+@export var restore_button_text: String = "R"
 @export var maximize_button_icon: Texture2D
 @export var restore_button_icon: Texture2D
 
 var app_id: String = ""
+var window_profile: WindowPresentationProfile
+
+var presentation_state: PresentationState = PresentationState.CUSTOM
+var restore_presentation_state: PresentationState = PresentationState.PREFERRED
 
 var is_dragging: bool = false
 var drag_offset: Vector2 = Vector2.ZERO
@@ -54,10 +68,13 @@ var restore_size: Vector2 = Vector2.ZERO
 
 var _animation_tween: Tween
 var _is_closing: bool = false
+var _presentation_emit_queued: bool = false
 
 @onready var title_label: Label = %TitleLabel
-@onready var close_button: Button = %CloseButton
+@onready var compact_button: Button = %CompactButton
+@onready var preferred_button: Button = %PreferredButton
 @onready var maximize_button: Button = %MaximizeButton
+@onready var close_button: Button = %CloseButton
 @onready var content_container: MarginContainer = %ContentContainer
 @onready var top_bar: Control = %TopBar
 @onready var resize_border: ResizeBorder = %ResizeBorder
@@ -66,45 +83,101 @@ var _is_closing: bool = false
 func _ready() -> void:
 	anchors_preset = Control.PRESET_TOP_LEFT
 
-	close_button.pressed.connect(close)
+	compact_button.pressed.connect(apply_compact)
+	preferred_button.pressed.connect(apply_preferred)
 	maximize_button.pressed.connect(toggle_maximized)
+	close_button.pressed.connect(close)
 	top_bar.gui_input.connect(_on_top_bar_gui_input)
 	resize_border.gui_input.connect(_on_resize_border_gui_input)
 
-	if not resized.is_connected(_refresh_pivot_offset):
-		resized.connect(_refresh_pivot_offset)
+	if not resized.is_connected(_on_control_resized):
+		resized.connect(_on_control_resized)
 
-	_refresh_maximize_button()
+	_refresh_presentation_buttons()
 	call_deferred("play_open_animation")
 
 
 func setup(
 	id: String,
 	window_name: String,
-	window_size: Vector2,
-	minimum_size: Vector2,
-	resize_enabled: bool
+	profile: WindowPresentationProfile
 ) -> void:
 	app_id = id
 	title_label.text = window_name
 
-	min_window_size = KubuOSMetrics.snap_vector(minimum_size)
-	can_resize = resize_enabled
+	window_profile = profile
+	if window_profile == null:
+		window_profile = WindowPresentationProfile.new()
+
+	min_window_size = KubuOSMetrics.snap_vector(window_profile.get_minimum_size())
+	can_resize = window_profile.allow_manual_resize
 
 	custom_minimum_size = Vector2.ZERO
 	anchors_preset = Control.PRESET_TOP_LEFT
 
-	size = KubuOSMetrics.snap_vector(Vector2(
-		max(window_size.x, min_window_size.x),
-		max(window_size.y, min_window_size.y)
-	))
+	presentation_state = _get_initial_presentation_state()
+	restore_presentation_state = presentation_state
+	size = KubuOSMetrics.snap_vector(window_profile.get_initial_size())
 
-	resize_border.visible = can_resize
 	resize_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resize_border.border_size = border_size
 
 	_refresh_pivot_offset()
-	_refresh_maximize_button()
+	_refresh_presentation_buttons()
+	_queue_presentation_changed()
+
+
+func get_initial_presentation_state() -> PresentationState:
+	return _get_initial_presentation_state()
+
+
+func get_compact_size() -> Vector2:
+	return KubuOSMetrics.snap_vector(window_profile.get_compact_size())
+
+
+func get_preferred_size() -> Vector2:
+	return KubuOSMetrics.snap_vector(window_profile.get_preferred_size())
+
+
+func supports_compact() -> bool:
+	return window_profile != null and window_profile.allow_compact
+
+
+func supports_preferred() -> bool:
+	return window_profile != null and window_profile.allow_preferred
+
+
+func supports_maximized() -> bool:
+	return window_profile != null and window_profile.allow_maximized
+
+
+func apply_restored_geometry(
+	new_position: Vector2,
+	new_size: Vector2,
+	new_state: int,
+	should_maximize: bool = false,
+	saved_restore_state: int = PresentationState.PREFERRED
+) -> void:
+	is_maximized = false
+	position = KubuOSMetrics.snap_vector(new_position)
+	size = KubuOSMetrics.snap_vector(Vector2(
+		max(min_window_size.x, new_size.x),
+		max(min_window_size.y, new_size.y)
+	))
+	presentation_state = _sanitize_presentation_state(new_state)
+	restore_presentation_state = _sanitize_presentation_state(saved_restore_state)
+
+	if should_maximize and supports_maximized():
+		restore_position = position
+		restore_size = size
+		if restore_presentation_state == PresentationState.MAXIMIZED:
+			restore_presentation_state = PresentationState.PREFERRED
+		is_maximized = true
+		presentation_state = PresentationState.MAXIMIZED
+		apply_maximized_geometry()
+
+	_refresh_presentation_buttons()
+	_queue_presentation_changed()
 
 
 func play_open_animation() -> void:
@@ -133,7 +206,7 @@ func _gui_input(event: InputEvent) -> void:
 
 func _on_top_bar_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.double_click:
+		if event.double_click and supports_maximized():
 			toggle_maximized()
 			accept_event()
 			return
@@ -160,7 +233,47 @@ func _on_top_bar_gui_input(event: InputEvent) -> void:
 		accept_event()
 
 
+func apply_compact() -> void:
+	if not supports_compact():
+		return
+
+	_apply_preset(PresentationState.COMPACT, get_compact_size())
+
+
+func apply_preferred() -> void:
+	if not supports_preferred():
+		return
+
+	_apply_preset(PresentationState.PREFERRED, get_preferred_size())
+
+
+func _apply_preset(state: PresentationState, target_size: Vector2) -> void:
+	window_focused.emit()
+
+	var source_rect := Rect2(position, size)
+	if is_maximized:
+		source_rect = Rect2(restore_position, restore_size)
+		is_maximized = false
+
+	var center: Vector2 = source_rect.position + (source_rect.size * 0.5)
+	size = KubuOSMetrics.snap_vector(Vector2(
+		max(min_window_size.x, target_size.x),
+		max(min_window_size.y, target_size.y)
+	))
+	position = KubuOSMetrics.snap_vector(center - (size * 0.5))
+	presentation_state = state
+	restore_presentation_state = state
+
+	_refresh_presentation_buttons()
+	window_moved.emit()
+	window_resized.emit()
+	_queue_presentation_changed()
+
+
 func toggle_maximized() -> void:
+	if not supports_maximized():
+		return
+
 	if is_maximized:
 		restore_from_maximized()
 	else:
@@ -168,13 +281,14 @@ func toggle_maximized() -> void:
 
 
 func maximize() -> void:
-	if is_maximized:
+	if is_maximized or not supports_maximized():
 		return
 
 	window_focused.emit()
 
 	restore_position = KubuOSMetrics.snap_vector(position)
 	restore_size = KubuOSMetrics.snap_vector(size)
+	restore_presentation_state = presentation_state
 
 	is_dragging = false
 	is_resizing = false
@@ -182,11 +296,13 @@ func maximize() -> void:
 	resize_border.force_capture = false
 
 	is_maximized = true
+	presentation_state = PresentationState.MAXIMIZED
 	apply_maximized_geometry()
 
-	_refresh_maximize_button()
+	_refresh_presentation_buttons()
 	window_moved.emit()
 	window_resized.emit()
+	_queue_presentation_changed()
 
 
 func restore_from_maximized() -> void:
@@ -195,6 +311,7 @@ func restore_from_maximized() -> void:
 
 	window_focused.emit()
 	is_maximized = false
+	presentation_state = restore_presentation_state
 
 	position = KubuOSMetrics.snap_vector(restore_position)
 	size = KubuOSMetrics.snap_vector(Vector2(
@@ -202,9 +319,10 @@ func restore_from_maximized() -> void:
 		max(restore_size.y, min_window_size.y)
 	))
 
-	_refresh_maximize_button()
+	_refresh_presentation_buttons()
 	window_moved.emit()
 	window_resized.emit()
+	_queue_presentation_changed()
 
 
 func apply_maximized_geometry() -> void:
@@ -214,6 +332,7 @@ func apply_maximized_geometry() -> void:
 	position = KubuOSMetrics.snap_vector(_get_maximized_position())
 	size = KubuOSMetrics.snap_vector(_get_maximized_size())
 	_refresh_pivot_offset()
+	_queue_presentation_changed()
 
 
 func _get_maximized_position() -> Vector2:
@@ -239,12 +358,22 @@ func _get_maximized_size() -> Vector2:
 	return get_viewport_rect().size
 
 
-func _refresh_maximize_button() -> void:
-	if not is_instance_valid(maximize_button):
+func _refresh_presentation_buttons() -> void:
+	if not is_instance_valid(compact_button):
 		return
 
-	maximize_button.visible = can_resize
-	maximize_button.disabled = not can_resize
+	compact_button.text = compact_button_text
+	compact_button.tooltip_text = "Compact"
+	compact_button.visible = supports_compact()
+	compact_button.disabled = presentation_state == PresentationState.COMPACT
+
+	preferred_button.text = preferred_button_text
+	preferred_button.tooltip_text = "Preferred size"
+	preferred_button.visible = supports_preferred()
+	preferred_button.disabled = presentation_state == PresentationState.PREFERRED
+
+	maximize_button.visible = supports_maximized()
+	maximize_button.disabled = not supports_maximized()
 
 	if is_maximized:
 		maximize_button.text = restore_button_text
@@ -332,8 +461,10 @@ func close() -> void:
 		return
 
 	_is_closing = true
-	close_button.disabled = true
+	compact_button.disabled = true
+	preferred_button.disabled = true
 	maximize_button.disabled = true
+	close_button.disabled = true
 	is_dragging = false
 	is_resizing = false
 	resize_border.force_capture = false
@@ -362,7 +493,11 @@ func _input(event: InputEvent) -> void:
 			resize_border.force_capture = false
 			position = KubuOSMetrics.snap_vector(position)
 			size = KubuOSMetrics.snap_vector(size)
+			presentation_state = PresentationState.CUSTOM
+			restore_presentation_state = PresentationState.CUSTOM
+			_refresh_presentation_buttons()
 			window_resized.emit()
+			_queue_presentation_changed()
 			get_viewport().set_input_as_handled()
 			return
 
@@ -401,28 +536,21 @@ func _apply_resize_from_mouse() -> void:
 	match resize_mode:
 		ResizeMode.RIGHT:
 			new_right = clamp(start_right + delta.x, start_left + min_width, work_right)
-
 		ResizeMode.BOTTOM:
 			new_bottom = clamp(start_bottom + delta.y, start_top + min_height, work_bottom)
-
 		ResizeMode.BOTTOM_RIGHT:
 			new_right = clamp(start_right + delta.x, start_left + min_width, work_right)
 			new_bottom = clamp(start_bottom + delta.y, start_top + min_height, work_bottom)
-
 		ResizeMode.LEFT:
 			new_left = clamp(start_left + delta.x, work_left, start_right - min_width)
-
 		ResizeMode.TOP:
 			new_top = clamp(start_top + delta.y, work_top, start_bottom - min_height)
-
 		ResizeMode.TOP_LEFT:
 			new_left = clamp(start_left + delta.x, work_left, start_right - min_width)
 			new_top = clamp(start_top + delta.y, work_top, start_bottom - min_height)
-
 		ResizeMode.TOP_RIGHT:
 			new_right = clamp(start_right + delta.x, start_left + min_width, work_right)
 			new_top = clamp(start_top + delta.y, work_top, start_bottom - min_height)
-
 		ResizeMode.BOTTOM_LEFT:
 			new_left = clamp(start_left + delta.x, work_left, start_right - min_width)
 			new_bottom = clamp(start_bottom + delta.y, start_top + min_height, work_bottom)
@@ -434,6 +562,7 @@ func _apply_resize_from_mouse() -> void:
 	))
 
 	window_resized.emit()
+	_queue_presentation_changed()
 
 
 func _get_work_area_rect() -> Rect2:
@@ -452,6 +581,54 @@ func _get_work_area_rect() -> Rect2:
 		return Rect2(Vector2.ZERO, parent_control.size)
 
 	return Rect2(Vector2.ZERO, get_viewport_rect().size)
+
+
+func _get_initial_presentation_state() -> PresentationState:
+	if window_profile == null:
+		return PresentationState.PREFERRED
+
+	match window_profile.initial_presentation:
+		WindowPresentationProfile.InitialPresentation.COMPACT:
+			return PresentationState.COMPACT
+		WindowPresentationProfile.InitialPresentation.PREFERRED:
+			return PresentationState.PREFERRED
+		WindowPresentationProfile.InitialPresentation.MAXIMIZED:
+			return PresentationState.MAXIMIZED
+
+	return PresentationState.PREFERRED
+
+
+func _sanitize_presentation_state(value: int) -> PresentationState:
+	if value < 0 or value >= PresentationState.size():
+		return PresentationState.CUSTOM
+
+	return value as PresentationState
+
+
+func _on_control_resized() -> void:
+	_refresh_pivot_offset()
+	_queue_presentation_changed()
+
+
+func _queue_presentation_changed() -> void:
+	if _presentation_emit_queued:
+		return
+
+	_presentation_emit_queued = true
+	call_deferred("_emit_presentation_changed")
+
+
+func _emit_presentation_changed() -> void:
+	_presentation_emit_queued = false
+
+	if not is_inside_tree():
+		return
+
+	var content_size: Vector2 = size
+	if is_instance_valid(content_container):
+		content_size = content_container.size
+
+	presentation_changed.emit(int(presentation_state), KubuOSMetrics.snap_vector(content_size))
 
 
 func _refresh_pivot_offset() -> void:
