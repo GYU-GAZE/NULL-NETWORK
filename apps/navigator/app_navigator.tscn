@@ -1,29 +1,119 @@
 [gd_scene format=3 uid="uid://b2jukdy0iqin4"]
 
 [ext_resource type="Script" uid="uid://ckvkd6ckteaqr" path="res://apps/navigator/app_navigator.gd" id="1_bqhse"]
-[ext_resource type="Script" uid="uid://c81tcrqrtfpb5" path="res://data/templates/map_location.gd" id="2_h65ck"]
-[ext_resource type="Resource" uid="uid://csosrd43b0u55" path="res://data/content/encounters/AkihabaraLocation.tres" id="3_plepu"]
 
-[node name="AppNavigator" type="Panel" unique_id=2140236202]
+[node name="AppNavigator" type="Control" unique_id=1687208961]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_bqhse")
-all_locations = Array[ExtResource("2_h65ck")]([ExtResource("3_plepu")])
 
-[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1314679755]
+[node name="MapCanvas" type="Control" parent="." unique_id=1103856258]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MapBackground" type="TextureRect" parent="MapCanvas" unique_id=575665119]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+
+[node name="MarkerLayer" type="Control" parent="MapCanvas" unique_id=2127851390]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SelectionPanel" type="PanelContainer" parent="." unique_id=1504370091]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -280.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 196.0
+grow_horizontal = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="SelectionPanel" unique_id=1142547418]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SelectionPanel/MarginContainer" unique_id=1088681299]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LocationNameLabel" type="Label" parent="SelectionPanel/MarginContainer/VBoxContainer" unique_id=743033781]
+unique_name_in_owner = true
+layout_mode = 2
+text = "No location selected"
+
+[node name="LocationSubtitleLabel" type="Label" parent="SelectionPanel/MarginContainer/VBoxContainer" unique_id=1481405731]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="LocationDescriptionLabel" type="Label" parent="SelectionPanel/MarginContainer/VBoxContainer" unique_id=1734351260]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "Select a location on the map."
+autowrap_mode = 2
+
+[node name="ScanButton" type="Button" parent="." unique_id=1426728960]
+unique_name_in_owner = true
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_left = 1012.0
+offset_top = 176.0
+offset_right = 1252.0
+offset_bottom = 184.0
+text = "SCAN"
 
-[node name="LocationList" type="VBoxContainer" parent="HBoxContainer" unique_id=714431656]
-unique_name_in_owner = true
-layout_mode = 2
+[node name="EncounterContainer" type="Control" parent="." unique_id=588069769]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="LocationDetails" type="VBoxContainer" parent="HBoxContainer" unique_id=1410831204]
-unique_name_in_owner = true
-layout_mode = 2
+[node name="DialogueContainer" type="Control" parent="." unique_id=1546891465]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="NameLabel" type="Label" parent="HBoxContainer/LocationDetails" unique_id=294352643]
-layout_mode = 2
-
-[node name="BtnScan" type="Button" parent="HBoxContainer/LocationDetails" unique_id=865560310]
-unique_name_in_owner = true
-layout_mode = 2
+[node name="TransitionLayer" type="Control" parent="." unique_id=1855997012]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://bh2dywcre5tcr"]
+
+[ext_resource type="Script" uid="uid://br2qomgi03ff6" path="res://apps/navigator/ui/navigator_location_marker.gd" id="1_ne6ka"]
+
+[node name="NavigatorLocationMarker" type="Button" unique_id=975061471]
+custom_minimum_size = Vector2(180, 52)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+script = ExtResource("1_ne6ka")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=979799339]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=368748594]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="MarginContainer/HBoxContainer" unique_id=1036061263]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 3
+
+[node name="Texts" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=2041132747]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/HBoxContainer/Texts" unique_id=265283672]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Location"
+
+[node name="SubtitleLabel" type="Label" parent="MarginContainer/HBoxContainer/Texts" unique_id=1865919623]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Subtitle"
