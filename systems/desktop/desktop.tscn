@@ -20,88 +20,95 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="TopBarHBox" type="HBoxContainer" parent="." unique_id=1514375072]
+[node name="CenterArea" type="CenterContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -452.0
-offset_top = -74.0
-offset_right = 452.0
-offset_bottom = 74.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopBarHBox" type="HBoxContainer" parent="CenterArea" unique_id=1514375072]
+layout_mode = 2
 alignment = 1
 
-[node name="ClockContainer" type="VBoxContainer" parent="TopBarHBox" unique_id=14701623]
+[node name="ClockContainer" type="VBoxContainer" parent="CenterArea/TopBarHBox" unique_id=14701623]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="TopRow" type="HBoxContainer" parent="TopBarHBox/ClockContainer" unique_id=319440990]
+[node name="TopRow" type="HBoxContainer" parent="CenterArea/TopBarHBox/ClockContainer" unique_id=319440990]
 layout_mode = 2
 alignment = 1
 
-[node name="PeriodLabel" type="Label" parent="TopBarHBox/ClockContainer/TopRow" unique_id=1752006140]
+[node name="PeriodLabel" type="Label" parent="CenterArea/TopBarHBox/ClockContainer/TopRow" unique_id=1752006140]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 80
-text = "OVOXCELENTE"
+text = "DAY 1/6"
 
-[node name="Spacer" type="Control" parent="TopBarHBox/ClockContainer/TopRow" unique_id=3276150]
+[node name="Spacer" type="Control" parent="CenterArea/TopBarHBox/ClockContainer/TopRow" unique_id=3276150]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
-[node name="DateStack" type="VBoxContainer" parent="TopBarHBox/ClockContainer/TopRow" unique_id=1718888914]
+[node name="DateStack" type="VBoxContainer" parent="CenterArea/TopBarHBox/ClockContainer/TopRow" unique_id=1718888914]
 layout_mode = 2
 theme_override_constants/separation = -4
 
-[node name="DayLabel" type="Label" parent="TopBarHBox/ClockContainer/TopRow/DateStack" unique_id=1972762778]
+[node name="DayLabel" type="Label" parent="CenterArea/TopBarHBox/ClockContainer/TopRow/DateStack" unique_id=1972762778]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 40
-text = "mondo"
+text = "01"
 
-[node name="MonthLabel" type="Label" parent="TopBarHBox/ClockContainer/TopRow/DateStack" unique_id=112264624]
+[node name="MonthLabel" type="Label" parent="CenterArea/TopBarHBox/ClockContainer/TopRow/DateStack" unique_id=112264624]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 40
-text = "grosso"
+text = "JAN"
 
-[node name="BottomRow" type="HBoxContainer" parent="TopBarHBox/ClockContainer" unique_id=477191052]
+[node name="BottomRow" type="HBoxContainer" parent="CenterArea/TopBarHBox/ClockContainer" unique_id=477191052]
 layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="DaysPassedLabel" type="Label" parent="TopBarHBox/ClockContainer/BottomRow" unique_id=1190002433]
+[node name="DaysPassedLabel" type="Label" parent="CenterArea/TopBarHBox/ClockContainer/BottomRow" unique_id=1190002433]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Eu sou"
+text = "Dia 0 | Ações restantes: 6"
 
-[node name="DebugTimeButton" type="Button" parent="TopBarHBox" unique_id=1918941758]
+[node name="DebugTimeButton" type="Button" parent="CenterArea/TopBarHBox" unique_id=1918941758]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 0
 text = "Debug: Passar tempo"
 
 [node name="DisplayScalePanel" type="PanelContainer" parent="." unique_id=749841381]
-layout_mode = 0
-offset_left = 615.0
-offset_top = 230.0
-offset_right = 741.0
-offset_bottom = 309.0
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -254.0
+offset_top = 27.0
+offset_right = -8.0
+offset_bottom = 112.0
+grow_horizontal = 0
 
 [node name="ScaleMargin" type="MarginContainer" parent="DisplayScalePanel" unique_id=1874318105]
 layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
 
 [node name="ScaleVBox" type="VBoxContainer" parent="DisplayScalePanel/ScaleMargin" unique_id=1414320017]
 layout_mode = 2
 
 [node name="ScaleTitleLabel" type="Label" parent="DisplayScalePanel/ScaleMargin/ScaleVBox" unique_id=501231794]
 layout_mode = 2
-text = "DISPLAY SCALE"
+text = "PIXEL SCALE"
 
 [node name="ScaleButtonsHBox" type="HBoxContainer" parent="DisplayScalePanel/ScaleMargin/ScaleVBox" unique_id=246388107]
 layout_mode = 2
@@ -109,26 +116,19 @@ layout_mode = 2
 [node name="Scale1xButton" type="Button" parent="DisplayScalePanel/ScaleMargin/ScaleVBox/ScaleButtonsHBox" unique_id=1717657694]
 unique_name_in_owner = true
 layout_mode = 2
+toggle_mode = true
 text = "1x"
 
 [node name="Scale2xButton" type="Button" parent="DisplayScalePanel/ScaleMargin/ScaleVBox/ScaleButtonsHBox" unique_id=1224184622]
 unique_name_in_owner = true
 layout_mode = 2
+toggle_mode = true
 text = "2x"
-
-[node name="Scale3xButton" type="Button" parent="DisplayScalePanel/ScaleMargin/ScaleVBox/ScaleButtonsHBox" unique_id=911309741]
-unique_name_in_owner = true
-layout_mode = 2
-text = "3x"
-
-[node name="Scale4xButton" type="Button" parent="DisplayScalePanel/ScaleMargin/ScaleVBox/ScaleButtonsHBox" unique_id=1850967579]
-unique_name_in_owner = true
-layout_mode = 2
-text = "4x"
 
 [node name="ScaleAutoButton" type="Button" parent="DisplayScalePanel/ScaleMargin/ScaleVBox/ScaleButtonsHBox" unique_id=782420629]
 unique_name_in_owner = true
 layout_mode = 2
+toggle_mode = true
 text = "AUTO"
 
 [node name="ScaleStatusLabel" type="Label" parent="DisplayScalePanel/ScaleMargin/ScaleVBox" unique_id=1404678576]
