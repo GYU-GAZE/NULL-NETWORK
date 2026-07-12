@@ -11,7 +11,8 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_bqhse")
 
-[node name="MapCanvas" type="Control" parent="." unique_id=1103856258]
+[node name="WorldMapLayer" type="Control" parent="." unique_id=1103856258]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,7 +21,24 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="MapBackground" type="TextureRect" parent="MapCanvas" unique_id=575665119]
+[node name="MapViewport" type="Control" parent="WorldMapLayer" unique_id=1370273893]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MapContent" type="Control" parent="WorldMapLayer/MapViewport" unique_id=369855696]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MapBackground" type="TextureRect" parent="WorldMapLayer/MapViewport/MapContent" unique_id=575665119]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -31,7 +49,7 @@ grow_vertical = 2
 mouse_filter = 2
 expand_mode = 1
 
-[node name="MarkerLayer" type="Control" parent="MapCanvas" unique_id=2127851390]
+[node name="MarkerLayer" type="Control" parent="WorldMapLayer/MapViewport/MapContent" unique_id=2127851390]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
