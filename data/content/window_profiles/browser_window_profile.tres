@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="WindowPresentationProfile" format=3]
+
+[ext_resource type="Script" path="res://data/templates/window_presentation_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+compact_size = Vector2(360, 240)
+preferred_size = Vector2(720, 330)
+minimum_custom_size = Vector2(320, 220)
+allow_compact = true
+allow_preferred = true
+allow_maximized = true
+allow_manual_resize = true
+initial_presentation = 1
