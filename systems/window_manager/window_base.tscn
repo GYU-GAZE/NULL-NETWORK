@@ -32,14 +32,29 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+clip_text = true
+
+[node name="CompactButton" type="Button" parent="Background/MainVBox/TopBar/TopBarHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 0)
+layout_mode = 2
+text = "C"
+
+[node name="PreferredButton" type="Button" parent="Background/MainVBox/TopBar/TopBarHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 0)
+layout_mode = 2
+text = "P"
 
 [node name="MaximizeButton" type="Button" parent="Background/MainVBox/TopBar/TopBarHBox" unique_id=71444025]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 0)
 layout_mode = 2
-text = "□"
+text = "M"
 
 [node name="CloseButton" type="Button" parent="Background/MainVBox/TopBar/TopBarHBox" unique_id=1703673678]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 0)
 layout_mode = 2
 text = "X"
 
