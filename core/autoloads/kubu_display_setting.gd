@@ -4,9 +4,7 @@ class_name KubuDisplaySettings
 enum ScaleMode {
 	AUTO,
 	SCALE_1X,
-	SCALE_2X,
-	SCALE_3X,
-	SCALE_4X
+	SCALE_2X
 }
 
 enum DisplayMode {
@@ -25,19 +23,18 @@ signal display_geometry_changed(
 
 const CONFIG_PATH: String = "user://display_settings.cfg"
 const MIN_PIXEL_SCALE: int = 1
-const MAX_PIXEL_SCALE: int = 4
+const MAX_PIXEL_SCALE: int = 2
 
 @export_category("Defaults")
 @export var default_scale_mode: ScaleMode = ScaleMode.SCALE_2X
 @export var default_display_mode: DisplayMode = DisplayMode.WINDOWED
 @export var default_windowed_size: Vector2i = Vector2i(1280, 720)
 
-@export_category("Windowed Mode")
-@export var minimum_windowed_size: Vector2i = Vector2i(640, 360)
+@export_category("Logical Workspace")
+@export var minimum_logical_window_size: Vector2i = Vector2i(640, 360)
 @export var center_window_after_apply: bool = false
 
 @export_category("Automatic Pixel Scale")
-@export var max_auto_scale: int = MAX_PIXEL_SCALE
 @export var minimum_auto_workspace: Vector2i = Vector2i(640, 360)
 
 var current_scale_mode: ScaleMode = ScaleMode.SCALE_2X
@@ -102,6 +99,7 @@ func apply_display_settings() -> void:
 	current_scale = _resolve_scale()
 	_apply_window_mode()
 	_apply_content_scale()
+	_apply_minimum_window_size()
 
 	if current_display_mode == DisplayMode.WINDOWED:
 		var target_size: Vector2i = _sanitize_windowed_size(current_windowed_size)
@@ -148,27 +146,32 @@ func _apply_window_mode() -> void:
 		DisplayMode.WINDOWED:
 			_root_window.mode = Window.MODE_WINDOWED
 			_root_window.borderless = false
-
 		DisplayMode.BORDERLESS_FULLSCREEN:
 			_root_window.borderless = true
 			_root_window.mode = Window.MODE_FULLSCREEN
-
 		DisplayMode.EXCLUSIVE_FULLSCREEN:
 			_root_window.borderless = false
 			_root_window.mode = Window.MODE_EXCLUSIVE_FULLSCREEN
 
 
 func _apply_content_scale() -> void:
-	# O KubuOS funciona como uma aplicação de desktop escalável:
-	# a janela define o espaço disponível e content_scale_factor define
-	# quantos pixels físicos cada unidade lógica ocupa.
-	#
-	# CONTENT_SCALE_MODE_DISABLED impede o Godot de preservar um framebuffer
-	# virtual fixo, eliminando letterbox e permitindo que a área útil cresça.
+	## O framebuffer lógico cresce e encolhe com a janela. Apenas a densidade
+	## visual muda entre 1x e 2x, mantendo todos os tamanhos de UI em inteiros.
 	_root_window.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	_root_window.content_scale_size = Vector2i.ZERO
 	_root_window.content_scale_factor = float(current_scale)
 	_root_window.content_scale_stretch = Window.CONTENT_SCALE_STRETCH_INTEGER
+
+
+func _apply_minimum_window_size() -> void:
+	if _root_window == null:
+		return
+
+	if current_display_mode != DisplayMode.WINDOWED:
+		_root_window.min_size = Vector2i.ZERO
+		return
+
+	_root_window.min_size = _get_physical_minimum_window_size()
 
 
 func _refresh_display_geometry() -> void:
@@ -180,6 +183,7 @@ func _refresh_display_geometry() -> void:
 	current_physical_size = _root_window.size
 	current_scale = _resolve_scale()
 	_apply_content_scale()
+	_apply_minimum_window_size()
 	current_logical_size = _calculate_logical_size(
 		current_physical_size,
 		current_scale
@@ -231,41 +235,26 @@ func _resolve_scale() -> int:
 			return 1
 		ScaleMode.SCALE_2X:
 			return 2
-		ScaleMode.SCALE_3X:
-			return 3
-		ScaleMode.SCALE_4X:
-			return 4
 
 	return 2
 
 
 func _get_best_auto_scale_for_current_screen() -> int:
-	# AUTO representa a densidade recomendada para o monitor, não uma reação
-	# ao tamanho atual da janela. Assim, redimensionar a janela aumenta ou
-	# reduz o workspace sem consumir o espaço novo trocando de escala.
 	var screen_index: int = DisplayServer.window_get_current_screen()
 	var usable_rect: Rect2i = DisplayServer.screen_get_usable_rect(screen_index)
 	var available_physical_size: Vector2i = usable_rect.size
-	var upper_bound: int = clampi(
-		max_auto_scale,
-		MIN_PIXEL_SCALE,
-		MAX_PIXEL_SCALE
+	var required_for_2x := Vector2i(
+		minimum_auto_workspace.x * 2,
+		minimum_auto_workspace.y * 2
 	)
-	var best_scale: int = MIN_PIXEL_SCALE
 
-	for candidate_scale in range(MIN_PIXEL_SCALE, upper_bound + 1):
-		var candidate_workspace: Vector2i = _calculate_logical_size(
-			available_physical_size,
-			candidate_scale
-		)
+	if (
+		available_physical_size.x >= required_for_2x.x
+		and available_physical_size.y >= required_for_2x.y
+	):
+		return 2
 
-		if (
-			candidate_workspace.x >= minimum_auto_workspace.x
-			and candidate_workspace.y >= minimum_auto_workspace.y
-		):
-			best_scale = candidate_scale
-
-	return best_scale
+	return 1
 
 
 func _calculate_logical_size(physical_size: Vector2i, scale: int) -> Vector2i:
@@ -277,10 +266,26 @@ func _calculate_logical_size(physical_size: Vector2i, scale: int) -> Vector2i:
 	)
 
 
-func _sanitize_windowed_size(requested_size: Vector2i) -> Vector2i:
+func _get_physical_minimum_window_size() -> Vector2i:
+	var screen_index: int = DisplayServer.window_get_current_screen()
+	var usable_rect: Rect2i = DisplayServer.screen_get_usable_rect(screen_index)
+	var requested := Vector2i(
+		minimum_logical_window_size.x * current_scale,
+		minimum_logical_window_size.y * current_scale
+	)
+
 	return Vector2i(
-		max(minimum_windowed_size.x, requested_size.x),
-		max(minimum_windowed_size.y, requested_size.y)
+		min(requested.x, max(1, usable_rect.size.x)),
+		min(requested.y, max(1, usable_rect.size.y))
+	)
+
+
+func _sanitize_windowed_size(requested_size: Vector2i) -> Vector2i:
+	var minimum_size: Vector2i = _get_physical_minimum_window_size()
+
+	return Vector2i(
+		max(minimum_size.x, requested_size.x),
+		max(minimum_size.y, requested_size.y)
 	)
 
 
@@ -296,12 +301,14 @@ func _center_window_on_current_screen(window_size: Vector2i) -> void:
 func _load_settings() -> void:
 	current_scale_mode = default_scale_mode
 	current_display_mode = default_display_mode
-	current_windowed_size = _sanitize_windowed_size(default_windowed_size)
+	current_scale = 2 if default_scale_mode != ScaleMode.SCALE_1X else 1
+	current_windowed_size = default_windowed_size
 
 	var config := ConfigFile.new()
 	var err: Error = config.load(CONFIG_PATH)
 
 	if err != OK:
+		current_windowed_size = _sanitize_windowed_size(current_windowed_size)
 		return
 
 	var saved_scale_mode: int = int(config.get_value(
@@ -312,6 +319,8 @@ func _load_settings() -> void:
 
 	if saved_scale_mode >= 0 and saved_scale_mode < ScaleMode.size():
 		current_scale_mode = saved_scale_mode as ScaleMode
+
+	current_scale = _resolve_scale()
 
 	var saved_display_mode: int = int(config.get_value(
 		"display",
