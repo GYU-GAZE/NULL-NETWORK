@@ -1,4 +1,4 @@
-extends WindowBase
+extends "res://systems/window_manager/window_base.gd"
 class_name WindowBaseChrome
 
 @export_category("Pixel Focus Feedback")
