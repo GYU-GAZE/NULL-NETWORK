@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dcoqma7h6c75u"]
+[gd_scene load_steps=11 format=3 uid="uid://dcoqma7h6c75u"]
 
 [ext_resource type="Script" uid="uid://cwms4o3bngg47" path="res://apps/browser/browser.gd" id="1_mufrk"]
 [ext_resource type="PackedScene" uid="uid://c15t5fwjule8g" path="res://apps/browser/browser_tab_button.tscn" id="2_4noms"]
@@ -7,16 +7,45 @@
 [ext_resource type="Script" uid="uid://bre1yc202tlqa" path="res://systems/ui/alert_layer.gd" id="4_rgo1m"]
 [ext_resource type="PackedScene" uid="uid://dlkm01xdtlvo2" path="res://systems/ui/alert_box.tscn" id="5_l1ivm"]
 [ext_resource type="PackedScene" path="res://apps/browser/browser_error_page.tscn" id="6_error"]
+[ext_resource type="Script" path="res://apps/browser/browser_chrome_skin.gd" id="7_chrome"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_browser_root"]
+bg_color = Color(0.0117647, 0.0196078, 0.0352941, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.117647, 0.145098, 0.223529, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_tab_bar"]
+bg_color = Color(0.027451, 0.0352941, 0.0627451, 1)
+border_width_bottom = 1
+border_color = Color(0.14902, 0.180392, 0.266667, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_address_bar"]
+bg_color = Color(0.0156863, 0.0235294, 0.0431373, 1)
+border_width_bottom = 1
+border_color = Color(0.176471, 0.207843, 0.301961, 1)
 
 [node name="BrowserApp" type="Panel" unique_id=1373929234]
 clip_contents = true
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBox_browser_root")
 script = ExtResource("1_mufrk")
 tab_button_scene = ExtResource("2_4noms")
 new_tab_button_scene = ExtResource("3_fx11j")
 error_page_scene = ExtResource("6_error")
 home_url = "kubus://home"
+tab_width = 128.0
+standard_tab_width = 116.0
+compact_tab_width = 96.0
+new_tab_button_width = 22.0
+compact_new_tab_button_width = 20.0
+tab_bar_reserved_margin = 10.0
+minimum_tab_scroll_width = 140.0
+standard_minimum_tab_scroll_width = 110.0
+compact_minimum_tab_scroll_width = 72.0
 
 [node name="MainVBox" type="VBoxContainer" parent="." unique_id=1051088920]
 clip_contents = true
@@ -26,20 +55,33 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 0
 
 [node name="TabBarMargin" type="MarginContainer" parent="MainVBox" unique_id=1396745387]
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_vertical = 0
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 4
+
+[node name="TabBarBackground" type="Panel" parent="MainVBox/TabBarMargin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBox_tab_bar")
 
 [node name="TabBarHBox" type="HBoxContainer" parent="MainVBox/TabBarMargin" unique_id=464703524]
 layout_mode = 2
 size_flags_vertical = 0
+theme_override_constants/separation = 2
 
 [node name="TabScroll" type="ScrollContainer" parent="MainVBox/TabBarMargin/TabBarHBox" unique_id=1726268003]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+horizontal_scroll_mode = 2
 vertical_scroll_mode = 0
 
 [node name="TabButtonContainer" type="HBoxContainer" parent="MainVBox/TabBarMargin/TabBarHBox/TabScroll" unique_id=754968146]
@@ -47,53 +89,75 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+theme_override_constants/separation = 1
 
 [node name="NewTabButtonHolder" type="MarginContainer" parent="MainVBox/TabBarMargin/TabBarHBox" unique_id=2050815140]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(42, 0)
+custom_minimum_size = Vector2(20, 18)
 layout_mode = 2
 size_flags_horizontal = 0
 
 [node name="AddressBarMargin" type="MarginContainer" parent="MainVBox" unique_id=237390264]
+custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 0
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 2
+
+[node name="AddressBarBackground" type="Panel" parent="MainVBox/AddressBarMargin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBox_address_bar")
 
 [node name="AddressBarHBox" type="HBoxContainer" parent="MainVBox/AddressBarMargin" unique_id=1593441352]
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_constants/separation = 3
 
 [node name="BrowserBackBtn" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=2070172410]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+focus_mode = 0
+tooltip_text = "Back"
 text = "<"
 
 [node name="HomeBtn" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=1371956060]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
+focus_mode = 0
+tooltip_text = "Home"
 text = "H"
 script = ExtResource("4_kj561")
 target_url = "kubus://home"
 
 [node name="UrlLineEdit" type="LineEdit" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=93702499]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
 size_flags_horizontal = 3
+placeholder_text = "ENTER ADDRESS"
+caret_blink = true
 
 [node name="GoButton" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=645379301]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
-text = "Ir"
+focus_mode = 0
+tooltip_text = "Go"
+text = ">"
 
 [node name="FavoriteButton" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=251522193]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
-tooltip_text = "Add Favorite"
+focus_mode = 0
+tooltip_text = "Favorite"
 text = "☆"
 
 [node name="Divider" type="HSeparator" parent="MainVBox" unique_id=831126565]
+custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 
 [node name="ContentArea" type="Control" parent="MainVBox" unique_id=1133759272]
@@ -115,6 +179,9 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
+[node name="ChromeSkin" type="Node" parent="."]
+script = ExtResource("7_chrome")
+
 [node name="AlertLayer" type="Control" parent="." unique_id=1159255861]
 layout_mode = 1
 anchors_preset = 15
@@ -134,7 +201,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.39215687)
+color = Color(0, 0, 0, 0.647059)
 
 [node name="CenterContainer" type="CenterContainer" parent="AlertLayer" unique_id=1496226357]
 unique_name_in_owner = true
