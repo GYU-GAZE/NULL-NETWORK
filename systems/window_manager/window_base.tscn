@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://cseroyflpgr45"]
 
-[ext_resource type="Script" uid="uid://blqtxemaoenof" path="res://systems/window_manager/window_base.gd" id="1_ok15t"]
+[ext_resource type="Script" path="res://systems/window_manager/window_base_chrome.gd" id="1_ok15t"]
 [ext_resource type="Script" uid="uid://q5f0xi531joq" path="res://systems/window_manager/resize_border.gd" id="2_w5ju6"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_window_frame"]
