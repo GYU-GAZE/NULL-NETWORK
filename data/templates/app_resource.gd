@@ -39,6 +39,8 @@ func resolve_window_profile() -> WindowPresentationProfile:
 	legacy_profile.compact_size = min_window_size
 	legacy_profile.preferred_size = default_window_size
 	legacy_profile.minimum_custom_size = min_window_size
+	legacy_profile.minimum_outer_size = Vector2(96, 12)
+	legacy_profile.allow_adaptive_pixel_density = can_resize
 	legacy_profile.allow_compact = false
 	legacy_profile.allow_preferred = true
 	legacy_profile.allow_maximized = can_resize
