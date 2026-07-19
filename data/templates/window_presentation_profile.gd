@@ -1,8 +1,16 @@
 extends Resource
 class_name WindowPresentationProfile
 
-## Descreve os tamanhos lógicos e os modos de apresentação de uma janela.
-## Os valores são medidos no workspace lógico do KubuOS, antes da escala 1x/2x.
+## Configura os tamanhos e a densidade visual de uma janela do KubuOS.
+##
+## O desktop inteiro é renderizado em 2x. Enquanto a janela estiver acima de
+## minimum_custom_size, seu conteúdo acompanha essa densidade. Ao atravessar
+## esse limite, somente a janela passa a ser desenhada em 1x, sem alterar a
+## escala do restante do jogo.
+##
+## minimum_outer_size é o único limite rígido de resize. Ele deve permitir que
+## o frame e a barra superior continuem acessíveis mesmo quando o conteúdo não
+## tiver mais espaço visível.
 
 enum InitialPresentation {
 	COMPACT,
@@ -13,7 +21,18 @@ enum InitialPresentation {
 @export_category("Logical Window Sizes")
 @export var compact_size: Vector2 = Vector2(360, 240)
 @export var preferred_size: Vector2 = Vector2(720, 360)
+
+## Mantido com este nome para preservar compatibilidade com Resources atuais.
+## Agora representa o limite de transição 2x -> 1x, não o limite rígido.
 @export var minimum_custom_size: Vector2 = Vector2(320, 220)
+
+## Menor tamanho externo permitido no workspace 2x. Em densidade 1x, a área
+## interna possui o dobro dessas dimensões antes da transformação visual.
+@export var minimum_outer_size: Vector2 = Vector2(96, 12)
+
+@export_category("Adaptive Pixel Density")
+@export var allow_adaptive_pixel_density: bool = true
+@export var density_hysteresis: Vector2 = Vector2(16, 12)
 
 @export_category("Available Presentations")
 @export var allow_compact: bool = true
@@ -24,7 +43,24 @@ enum InitialPresentation {
 
 
 func get_minimum_size() -> Vector2:
-	return _sanitize_size(minimum_custom_size)
+	return _sanitize_size(minimum_outer_size)
+
+
+func get_scale_switch_size() -> Vector2:
+	var hard_minimum: Vector2 = get_minimum_size()
+	var requested: Vector2 = _sanitize_size(minimum_custom_size)
+
+	return Vector2(
+		max(hard_minimum.x, requested.x),
+		max(hard_minimum.y, requested.y)
+	)
+
+
+func get_density_hysteresis() -> Vector2:
+	return Vector2(
+		max(0.0, round(density_hysteresis.x)),
+		max(0.0, round(density_hysteresis.y))
+	)
 
 
 func get_compact_size() -> Vector2:
