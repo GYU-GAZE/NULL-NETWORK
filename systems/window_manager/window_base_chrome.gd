@@ -3,7 +3,6 @@ class_name WindowBaseChrome
 
 signal pixel_density_changed(pixel_density: int, content_size: Vector2)
 
-const DESKTOP_PIXEL_DENSITY: int = 2
 const WINDOW_PIXEL_DENSITY_1X: int = 1
 const WINDOW_PIXEL_DENSITY_2X: int = 2
 
@@ -39,7 +38,7 @@ func get_visual_content_size() -> Vector2:
 	if is_instance_valid(content_container):
 		return KubuOSMetrics.snap_vector(content_container.size)
 
-	return KubuOSMetrics.snap_vector(_get_internal_visual_size())
+	return _get_internal_visual_size()
 
 
 func pulse() -> void:
@@ -72,7 +71,9 @@ func _refresh_adaptive_pixel_density(force: bool = false) -> void:
 	)
 
 	current_window_pixel_density = target_density
-	_visual_scale = float(current_window_pixel_density) / float(DESKTOP_PIXEL_DENSITY)
+	_visual_scale = KubuOSMetrics.get_window_visual_scale(
+		current_window_pixel_density
+	)
 	_sync_visual_root_geometry()
 
 	if density_changed:
@@ -112,7 +113,7 @@ func _sync_visual_root_geometry() -> void:
 	if not is_instance_valid(visual_root):
 		return
 
-	var safe_scale: float = max(0.5, _visual_scale)
+	var safe_scale: float = max(0.01, _visual_scale)
 	visual_root.position = Vector2.ZERO
 	visual_root.pivot_offset = Vector2.ZERO
 	visual_root.scale = Vector2(safe_scale, safe_scale)
@@ -120,12 +121,10 @@ func _sync_visual_root_geometry() -> void:
 
 
 func _get_internal_visual_size() -> Vector2:
-	var safe_scale: float = max(0.5, _visual_scale)
-
-	return KubuOSMetrics.snap_vector(Vector2(
-		max(1.0, size.x / safe_scale),
-		max(1.0, size.y / safe_scale)
-	))
+	return KubuOSMetrics.get_window_internal_size(
+		size,
+		current_window_pixel_density
+	)
 
 
 func _queue_density_changed() -> void:
