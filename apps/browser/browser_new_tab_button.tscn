@@ -1,4 +1,7 @@
 [gd_scene format=3 uid="uid://br0t7kf5rrafw"]
 
 [node name="BrowserNewTabButton" type="Button" unique_id=1096621383]
-text = "|+|"
+custom_minimum_size = Vector2(20, 18)
+focus_mode = 0
+tooltip_text = "New tab"
+text = "+"

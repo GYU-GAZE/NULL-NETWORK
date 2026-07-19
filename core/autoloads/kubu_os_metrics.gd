@@ -7,12 +7,14 @@ signal display_state_changed(
 	logical_workspace_size: Vector2i
 )
 
+const DESKTOP_PIXEL_DENSITY: int = 2
+
 @export_category("Reference Workspace")
 @export var reference_workspace: Vector2 = Vector2(960, 540)
 
 @export_category("OS Chrome — Logical Units")
 @export var taskbar_height: float = 19.0
-@export var dock_height: float = 86.0
+@export var dock_height: float = 64.0
 @export var reserved_left_width: float = 0.0
 @export var reserved_right_width: float = 0.0
 
@@ -29,7 +31,7 @@ signal display_state_changed(
 @export_category("Windows — Logical Units")
 @export var default_window_margin: float = 0.0
 
-var pixel_scale: int = 1
+var pixel_scale: int = DESKTOP_PIXEL_DENSITY
 var physical_size: Vector2i = Vector2i.ZERO
 var logical_workspace_size: Vector2i = Vector2i.ZERO
 
@@ -88,6 +90,31 @@ func get_work_area_rect(parent_size: Vector2) -> Rect2:
 		get_work_area_position(),
 		get_work_area_size(parent_size)
 	)
+
+
+func get_window_visual_scale(window_pixel_density: int) -> float:
+	var safe_desktop_density: float = float(max(1, pixel_scale))
+	var safe_window_density: float = float(clampi(
+		window_pixel_density,
+		1,
+		max(1, pixel_scale)
+	))
+	return safe_window_density / safe_desktop_density
+
+
+func get_window_internal_size(
+	outer_size: Vector2,
+	window_pixel_density: int
+) -> Vector2:
+	var visual_scale: float = max(
+		0.01,
+		get_window_visual_scale(window_pixel_density)
+	)
+
+	return snap_vector(Vector2(
+		max(1.0, outer_size.x / visual_scale),
+		max(1.0, outer_size.y / visual_scale)
+	))
 
 
 func snap_value(value: float) -> float:

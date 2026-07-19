@@ -63,15 +63,17 @@ func _on_request_open_app(app: AppResource) -> void:
 
 	add_child(new_window)
 
-	new_window.setup(
-		app_id,
-		app.app_name,
-		app.default_window_size,
-		app.min_window_size,
-		app.can_resize
-	)
-
+	var profile: WindowPresentationProfile = app.resolve_window_profile()
+	new_window.setup(app_id, app.app_name, profile)
 	open_windows[app_id] = new_window
+
+	new_window.window_focused.connect(focus_window.bind(app_id))
+	new_window.window_closed.connect(_on_window_closed.bind(app_id))
+	new_window.window_moved.connect(_on_window_changed.bind(app_id))
+	new_window.window_resized.connect(_on_window_changed.bind(app_id))
+	new_window.presentation_changed.connect(
+		_on_window_presentation_changed.bind(app_id)
+	)
 
 	if app.app_scene != null:
 		var app_instance: Node = app.app_scene.instantiate()
@@ -98,11 +100,7 @@ func _on_request_open_app(app: AppResource) -> void:
 		)
 
 	_apply_saved_or_default_window_state(app_id, new_window)
-
-	new_window.window_focused.connect(focus_window.bind(app_id))
-	new_window.window_closed.connect(_on_window_closed.bind(app_id))
-	new_window.window_moved.connect(_on_window_changed.bind(app_id))
-	new_window.window_resized.connect(_on_window_changed.bind(app_id))
+	call_deferred("_notify_app_window_presentation", new_window)
 
 	GlobalSignals.app_opened.emit(app_id)
 	focus_window(app_id)
@@ -118,7 +116,6 @@ func focus_window(app_id: String) -> void:
 		return
 
 	focused_app_id = app_id
-
 	window.move_to_front()
 	window.pulse()
 
@@ -138,7 +135,6 @@ func _on_window_closed(app_id: String) -> void:
 
 	_save_app_session_state(app_id, window)
 	_save_window_state(app_id, window)
-
 	open_windows.erase(app_id)
 
 	if focused_app_id == app_id:
@@ -146,8 +142,8 @@ func _on_window_closed(app_id: String) -> void:
 		GlobalSignals.app_focused.emit("")
 
 	GlobalSignals.app_closed.emit(app_id)
-
 	window.queue_free()
+
 
 func _restore_app_session_state(
 	app_id: String,
@@ -163,11 +159,7 @@ func _restore_app_session_state(
 		return
 
 	var stored_state: Dictionary = AppSessionStore.get_app_state(app_id)
-
-	app_instance.call_deferred(
-		"restore_app_session_state",
-		stored_state
-	)
+	app_instance.call_deferred("restore_app_session_state", stored_state)
 
 
 func _save_app_session_state(
@@ -185,9 +177,7 @@ func _save_app_session_state(
 	if not app_instance.has_method("get_app_session_state"):
 		return
 
-	var returned_state: Variant = app_instance.call(
-		"get_app_session_state"
-	)
+	var returned_state: Variant = app_instance.call("get_app_session_state")
 
 	if not returned_state is Dictionary:
 		push_warning(
@@ -214,6 +204,7 @@ func _get_window_app_instance(window: WindowBase) -> Node:
 
 	return window.content_container.get_child(0)
 
+
 func _on_window_changed(app_id: String) -> void:
 	if not open_windows.has(app_id):
 		return
@@ -223,14 +214,54 @@ func _on_window_changed(app_id: String) -> void:
 	_save_window_state(app_id, window)
 
 
+func _on_window_presentation_changed(
+	state: int,
+	content_size: Vector2,
+	app_id: String
+) -> void:
+	if not open_windows.has(app_id):
+		return
+
+	var window: WindowBase = open_windows[app_id]
+	var app_instance: Node = _get_window_app_instance(window)
+
+	if app_instance == null:
+		return
+
+	if app_instance.has_method("on_window_presentation_changed"):
+		app_instance.call(
+			"on_window_presentation_changed",
+			state,
+			content_size
+		)
+
+
+func _notify_app_window_presentation(window: WindowBase) -> void:
+	if window == null or not is_instance_valid(window):
+		return
+
+	var content_size: Vector2 = window.size
+	if is_instance_valid(window.content_container):
+		content_size = window.content_container.size
+
+	_on_window_presentation_changed(
+		int(window.presentation_state),
+		KubuOSMetrics.snap_vector(content_size),
+		window.app_id
+	)
+
+
 func cycle_windows() -> void:
 	if open_windows.size() <= 1:
 		return
 
 	for child in get_children():
 		if child is WindowBase:
-			child.move_to_front()
-			child.pulse()
+			var window := child as WindowBase
+			window.move_to_front()
+			window.pulse()
+			focused_app_id = window.app_id
+			GlobalSignals.app_focused.emit(window.app_id)
 			break
 
 
@@ -294,6 +325,10 @@ func _refresh_window_layout() -> void:
 
 	var new_work_rect: Rect2 = get_work_area_rect()
 	var new_pixel_scale: int = KubuOSMetrics.get_pixel_scale()
+	var work_area_changed: bool = (
+		_is_valid_work_rect(_last_work_rect)
+		and not _last_work_rect.is_equal_approx(new_work_rect)
+	)
 	var scale_changed: bool = (
 		_last_pixel_scale > 0
 		and new_pixel_scale != _last_pixel_scale
@@ -306,24 +341,33 @@ func _refresh_window_layout() -> void:
 		var window := value as WindowBase
 
 		if window.is_maximized:
-			if scale_changed and _is_valid_work_rect(_last_work_rect):
-				var restore_rect := Rect2(window.restore_position, window.restore_size)
-				var remapped_restore := _remap_rect_between_work_areas(
-					restore_rect,
+			if (work_area_changed or scale_changed) and _is_valid_work_rect(_last_work_rect):
+				window.restore_position = _remap_position_between_work_areas(
+					window.restore_position,
+					window.restore_size,
 					_last_work_rect,
 					new_work_rect
 				)
-				window.restore_position = remapped_restore.position
-				window.restore_size = remapped_restore.size
+				window.restore_size = _fit_size_to_work_area(
+					window.restore_size,
+					window.min_window_size,
+					new_work_rect.size
+				)
 
 			window.apply_maximized_geometry()
 		else:
-			if scale_changed and _is_valid_work_rect(_last_work_rect):
-				_remap_window_between_work_areas(window, _last_work_rect, new_work_rect)
-			else:
-				_clamp_window_to_work_area(window)
+			if (work_area_changed or scale_changed) and _is_valid_work_rect(_last_work_rect):
+				window.position = _remap_position_between_work_areas(
+					window.position,
+					window.size,
+					_last_work_rect,
+					new_work_rect
+				)
+
+			_adapt_window_to_work_area(window, new_work_rect)
 
 		_save_window_state(window.app_id, window)
+		call_deferred("_notify_app_window_presentation", window)
 
 	_last_work_rect = new_work_rect
 	_last_pixel_scale = new_pixel_scale
@@ -340,60 +384,134 @@ func _apply_saved_or_default_window_state(app_id: String, window: WindowBase) ->
 
 
 func _apply_saved_window_state(state: Dictionary, window: WindowBase) -> void:
-	var target_rect := Rect2(
-		state.get("position", window.position),
-		state.get("size", window.size)
-	)
-
-	var saved_scale: int = int(state.get("pixel_scale", KubuOSMetrics.get_pixel_scale()))
-	var saved_work_rect: Rect2 = state.get("work_rect", Rect2())
 	var current_work_rect: Rect2 = get_work_area_rect()
+	var saved_work_rect: Rect2 = state.get("work_rect", Rect2())
+	var target_position: Vector2 = state.get("position", window.position)
+	var target_size: Vector2 = state.get("size", window.size)
+	var target_state: int = int(state.get(
+		"presentation_state",
+		WindowBase.PresentationState.CUSTOM
+	))
+	var should_maximize: bool = bool(state.get("is_maximized", false))
+	var restore_state: int = int(state.get(
+		"restore_presentation_state",
+		target_state
+	))
 
-	if (
-		saved_scale != KubuOSMetrics.get_pixel_scale()
-		and _is_valid_work_rect(saved_work_rect)
-	):
-		target_rect = _remap_rect_between_work_areas(
-			target_rect,
+	if _is_valid_work_rect(saved_work_rect):
+		target_position = _remap_position_between_work_areas(
+			target_position,
+			target_size,
 			saved_work_rect,
 			current_work_rect
 		)
 
-	window.size = _fit_size_to_work_area(
-		target_rect.size,
-		window.min_window_size,
+	var resolved: Dictionary = _resolve_size_for_work_area(
+		window,
+		target_size,
+		target_state,
 		current_work_rect.size
 	)
-	window.position = KubuOSMetrics.snap_vector(target_rect.position)
+	target_size = resolved["size"]
+	target_state = int(resolved["state"])
+
+	window.apply_restored_geometry(
+		target_position,
+		target_size,
+		target_state,
+		should_maximize,
+		restore_state
+	)
 
 
 func _apply_default_window_state(window: WindowBase) -> void:
 	var work_rect: Rect2 = get_work_area_rect()
-	var reference_size: Vector2 = KubuOSMetrics.get_work_area_size(
-		KubuOSMetrics.reference_workspace
-	)
+	var target_state: int = int(window.get_initial_presentation_state())
+	var should_maximize: bool = target_state == WindowBase.PresentationState.MAXIMIZED
+	var target_size: Vector2 = window.get_preferred_size()
 
-	var size_ratio := Vector2(
-		_safe_ratio(window.size.x, reference_size.x),
-		_safe_ratio(window.size.y, reference_size.y)
-	)
+	if target_state == WindowBase.PresentationState.COMPACT:
+		target_size = window.get_compact_size()
 
-	size_ratio.x = clamp(size_ratio.x, 0.0, 1.0)
-	size_ratio.y = clamp(size_ratio.y, 0.0, 1.0)
-
-	var target_size := Vector2(
-		work_rect.size.x * size_ratio.x,
-		work_rect.size.y * size_ratio.y
-	)
-
-	window.size = _fit_size_to_work_area(
+	var resolved: Dictionary = _resolve_size_for_work_area(
+		window,
 		target_size,
-		window.min_window_size,
+		target_state,
 		work_rect.size
 	)
-	window.position = KubuOSMetrics.snap_vector(
-		work_rect.position + ((work_rect.size - window.size) / 2.0)
+	target_size = resolved["size"]
+	target_state = int(resolved["state"])
+
+	var target_position: Vector2 = KubuOSMetrics.snap_vector(
+		work_rect.position + ((work_rect.size - target_size) / 2.0)
 	)
+
+	window.apply_restored_geometry(
+		target_position,
+		target_size,
+		target_state,
+		should_maximize,
+		target_state
+	)
+
+
+func _resolve_size_for_work_area(
+	window: WindowBase,
+	requested_size: Vector2,
+	requested_state: int,
+	work_size: Vector2
+) -> Dictionary:
+	var resolved_size: Vector2 = KubuOSMetrics.snap_vector(requested_size)
+	var resolved_state: int = requested_state
+
+	if _size_fits(resolved_size, work_size):
+		return {
+			"size": resolved_size,
+			"state": resolved_state
+		}
+
+	if window.supports_compact():
+		var compact_size: Vector2 = window.get_compact_size()
+
+		if _size_fits(compact_size, work_size):
+			return {
+				"size": compact_size,
+				"state": WindowBase.PresentationState.COMPACT
+			}
+
+	resolved_size = _fit_size_to_work_area(
+		resolved_size,
+		window.min_window_size,
+		work_size
+	)
+
+	if resolved_state != WindowBase.PresentationState.COMPACT:
+		resolved_state = WindowBase.PresentationState.CUSTOM
+
+	return {
+		"size": resolved_size,
+		"state": resolved_state
+	}
+
+
+func _adapt_window_to_work_area(window: WindowBase, work_rect: Rect2) -> void:
+	var resolved: Dictionary = _resolve_size_for_work_area(
+		window,
+		window.size,
+		int(window.presentation_state),
+		work_rect.size
+	)
+	var resolved_size: Vector2 = resolved["size"]
+	var resolved_state: int = int(resolved["state"])
+
+	window.apply_restored_geometry(
+		window.position,
+		resolved_size,
+		resolved_state,
+		false,
+		resolved_state
+	)
+	_clamp_window_to_work_area(window)
 
 
 func _save_window_state(app_id: String, window: WindowBase) -> void:
@@ -402,6 +520,7 @@ func _save_window_state(app_id: String, window: WindowBase) -> void:
 
 	var saved_position: Vector2 = window.position
 	var saved_size: Vector2 = window.size
+	var saved_state: int = int(window.presentation_state)
 
 	if window.is_maximized:
 		saved_position = window.restore_position
@@ -410,54 +529,41 @@ func _save_window_state(app_id: String, window: WindowBase) -> void:
 	saved_window_states[app_id] = {
 		"position": KubuOSMetrics.snap_vector(saved_position),
 		"size": KubuOSMetrics.snap_vector(saved_size),
+		"presentation_state": saved_state,
+		"restore_presentation_state": int(window.restore_presentation_state),
+		"is_maximized": window.is_maximized,
 		"work_rect": get_work_area_rect(),
 		"pixel_scale": KubuOSMetrics.get_pixel_scale()
 	}
 
 
-func _remap_window_between_work_areas(
-	window: WindowBase,
+func _remap_position_between_work_areas(
+	source_position: Vector2,
+	source_size: Vector2,
 	old_work_rect: Rect2,
 	new_work_rect: Rect2
-) -> void:
-	var current_rect := Rect2(window.position, window.size)
-	var remapped_rect := _remap_rect_between_work_areas(
-		current_rect,
-		old_work_rect,
-		new_work_rect
-	)
-
-	window.size = _fit_size_to_work_area(
-		remapped_rect.size,
-		window.min_window_size,
-		new_work_rect.size
-	)
-	window.position = KubuOSMetrics.snap_vector(remapped_rect.position)
-	_clamp_window_to_work_area(window)
-
-
-func _remap_rect_between_work_areas(
-	source_rect: Rect2,
-	old_work_rect: Rect2,
-	new_work_rect: Rect2
-) -> Rect2:
+) -> Vector2:
 	if not _is_valid_work_rect(old_work_rect):
-		return source_rect
+		return source_position
 
+	var old_travel := Vector2(
+		max(1.0, old_work_rect.size.x - source_size.x),
+		max(1.0, old_work_rect.size.y - source_size.y)
+	)
 	var relative_position := Vector2(
-		(source_rect.position.x - old_work_rect.position.x) / old_work_rect.size.x,
-		(source_rect.position.y - old_work_rect.position.y) / old_work_rect.size.y
+		(source_position.x - old_work_rect.position.x) / old_travel.x,
+		(source_position.y - old_work_rect.position.y) / old_travel.y
 	)
-	var relative_size := Vector2(
-		source_rect.size.x / old_work_rect.size.x,
-		source_rect.size.y / old_work_rect.size.y
+	relative_position.x = clamp(relative_position.x, 0.0, 1.0)
+	relative_position.y = clamp(relative_position.y, 0.0, 1.0)
+
+	var new_travel := Vector2(
+		max(0.0, new_work_rect.size.x - source_size.x),
+		max(0.0, new_work_rect.size.y - source_size.y)
 	)
 
-	return Rect2(
-		KubuOSMetrics.snap_vector(
-			new_work_rect.position + (new_work_rect.size * relative_position)
-		),
-		KubuOSMetrics.snap_vector(new_work_rect.size * relative_size)
+	return KubuOSMetrics.snap_vector(
+		new_work_rect.position + (new_travel * relative_position)
 	)
 
 
@@ -507,11 +613,11 @@ func _fit_size_to_work_area(
 	))
 
 
-func _safe_ratio(value: float, divisor: float) -> float:
-	if divisor <= 0.0:
-		return 0.0
-
-	return value / divisor
+func _size_fits(requested_size: Vector2, work_size: Vector2) -> bool:
+	return (
+		requested_size.x <= work_size.x
+		and requested_size.y <= work_size.y
+	)
 
 
 func _is_valid_work_rect(work_rect: Rect2) -> bool:
