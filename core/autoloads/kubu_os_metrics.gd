@@ -29,7 +29,7 @@ signal display_state_changed(
 @export_category("Windows — Logical Units")
 @export var default_window_margin: float = 0.0
 
-var pixel_scale: int = 1
+var pixel_scale: int = 2
 var physical_size: Vector2i = Vector2i.ZERO
 var logical_workspace_size: Vector2i = Vector2i.ZERO
 
@@ -88,6 +88,24 @@ func get_work_area_rect(parent_size: Vector2) -> Rect2:
 		get_work_area_position(),
 		get_work_area_size(parent_size)
 	)
+
+
+func get_window_visual_scale(window_pixel_density: int) -> float:
+	var desktop_density: float = float(max(1, pixel_scale))
+	var sanitized_window_density: float = float(clampi(window_pixel_density, 1, 2))
+	return sanitized_window_density / desktop_density
+
+
+func get_window_internal_size(
+	outer_size: Vector2,
+	window_pixel_density: int
+) -> Vector2:
+	var visual_scale: float = max(
+		0.01,
+		get_window_visual_scale(window_pixel_density)
+	)
+
+	return snap_vector(outer_size / visual_scale)
 
 
 func snap_value(value: float) -> float:
