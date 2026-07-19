@@ -49,6 +49,7 @@ content_margin_right = 2.0
 content_margin_bottom = 0.0
 
 [node name="WindowBase" type="Control" unique_id=2099198820]
+clip_contents = true
 layout_mode = 3
 anchors_preset = 0
 opening_scale = Vector2(1, 1)
@@ -56,7 +57,15 @@ focus_scale = Vector2(1, 1)
 closing_scale = Vector2(1, 1)
 script = ExtResource("1_ok15t")
 
-[node name="Background" type="PanelContainer" parent="." unique_id=76806708]
+[node name="VisualRoot" type="Control" parent="."]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 0
+offset_right = 1.0
+offset_bottom = 1.0
+mouse_filter = 1
+
+[node name="Background" type="PanelContainer" parent="VisualRoot" unique_id=76806708]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -66,21 +75,21 @@ grow_vertical = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBox_window_frame")
 
-[node name="MainVBox" type="VBoxContainer" parent="Background" unique_id=1965733341]
+[node name="MainVBox" type="VBoxContainer" parent="VisualRoot/Background" unique_id=1965733341]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="TopBar" type="PanelContainer" parent="Background/MainVBox" unique_id=73891259]
+[node name="TopBar" type="PanelContainer" parent="VisualRoot/Background/MainVBox" unique_id=73891259]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 21)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBox_title_bar")
 
-[node name="TopBarHBox" type="HBoxContainer" parent="Background/MainVBox/TopBar" unique_id=452692183]
+[node name="TopBarHBox" type="HBoxContainer" parent="VisualRoot/Background/MainVBox/TopBar" unique_id=452692183]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="TitleLabel" type="Label" parent="Background/MainVBox/TopBar/TopBarHBox" unique_id=1921216842]
+[node name="TitleLabel" type="Label" parent="VisualRoot/Background/MainVBox/TopBar/TopBarHBox" unique_id=1921216842]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -89,7 +98,7 @@ text_overrun_behavior = 3
 clip_text = true
 vertical_alignment = 1
 
-[node name="CompactButton" type="Button" parent="Background/MainVBox/TopBar/TopBarHBox"]
+[node name="CompactButton" type="Button" parent="VisualRoot/Background/MainVBox/TopBar/TopBarHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
@@ -97,7 +106,7 @@ focus_mode = 0
 tooltip_text = "Compact"
 text = "C"
 
-[node name="PreferredButton" type="Button" parent="Background/MainVBox/TopBar/TopBarHBox"]
+[node name="PreferredButton" type="Button" parent="VisualRoot/Background/MainVBox/TopBar/TopBarHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
@@ -105,7 +114,7 @@ focus_mode = 0
 tooltip_text = "Preferred size"
 text = "P"
 
-[node name="MaximizeButton" type="Button" parent="Background/MainVBox/TopBar/TopBarHBox" unique_id=71444025]
+[node name="MaximizeButton" type="Button" parent="VisualRoot/Background/MainVBox/TopBar/TopBarHBox" unique_id=71444025]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
@@ -113,7 +122,7 @@ focus_mode = 0
 tooltip_text = "Maximize"
 text = "M"
 
-[node name="CloseButton" type="Button" parent="Background/MainVBox/TopBar/TopBarHBox" unique_id=1703673678]
+[node name="CloseButton" type="Button" parent="VisualRoot/Background/MainVBox/TopBar/TopBarHBox" unique_id=1703673678]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
@@ -125,7 +134,7 @@ theme_override_styles/pressed = SubResource("StyleBox_close_pressed")
 tooltip_text = "Close"
 text = "X"
 
-[node name="ContentContainer" type="MarginContainer" parent="Background/MainVBox" unique_id=1333449598]
+[node name="ContentContainer" type="MarginContainer" parent="VisualRoot/Background/MainVBox" unique_id=1333449598]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
