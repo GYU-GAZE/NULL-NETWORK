@@ -10,17 +10,22 @@ const PIXEL_DENSITY_2X: int = 2
 @export var absolute_minimum_window_size: Vector2 = Vector2(96, 12)
 @export var density_hysteresis: Vector2 = Vector2(16, 12)
 
+@export_category("Adaptive Resize Hit Area")
+@export var minimum_resize_border_size: float = 2.0
+
 @onready var visual_root: Control = %VisualRoot
 
 var scale_switch_size: Vector2 = Vector2(400, 300)
 var current_window_pixel_density: int = PIXEL_DENSITY_2X
 var _visual_scale: float = 1.0
 var _density_emit_queued: bool = false
+var _configured_resize_border_size: float = 8.0
+var _is_configured: bool = false
 
 
 func _ready() -> void:
+	_configured_resize_border_size = max(1.0, border_size)
 	super._ready()
-	_refresh_adaptive_pixel_density(true)
 
 
 func setup(
@@ -55,6 +60,7 @@ func setup(
 		max(size.y, min_window_size.y)
 	))
 
+	_is_configured = true
 	_refresh_adaptive_pixel_density(true)
 
 
@@ -71,7 +77,9 @@ func get_visual_content_size() -> Vector2:
 
 func _refresh_pivot_offset() -> void:
 	super._refresh_pivot_offset()
-	_refresh_adaptive_pixel_density()
+
+	if _is_configured:
+		_refresh_adaptive_pixel_density()
 
 
 func _refresh_adaptive_pixel_density(force: bool = false) -> void:
@@ -89,6 +97,7 @@ func _refresh_adaptive_pixel_density(force: bool = false) -> void:
 		current_window_pixel_density
 	)
 	_sync_visual_root_geometry()
+	_sync_resize_border_hit_area()
 
 	if density_changed:
 		_queue_density_changed()
@@ -122,6 +131,26 @@ func _sync_visual_root_geometry() -> void:
 	visual_root.pivot_offset = Vector2.ZERO
 	visual_root.scale = Vector2(safe_scale, safe_scale)
 	visual_root.size = _get_internal_visual_size()
+
+
+func _sync_resize_border_hit_area() -> void:
+	# ResizeBorder é irmão do VisualRoot e permanece no espaço externo da janela.
+	# Sem esta compensação, ele continuaria capturando 8 unidades do topo/lados
+	# mesmo quando a UI estivesse visualmente reduzida para 1x. Isso cobria boa
+	# parte da barra de título e dos botões, dando a impressão de hitboxes
+	# deslocadas para baixo.
+	var scaled_border_size: float = round(
+		_configured_resize_border_size * _visual_scale
+	)
+	var resolved_border_size: float = max(
+		minimum_resize_border_size,
+		scaled_border_size
+	)
+
+	border_size = resolved_border_size
+
+	if is_instance_valid(resize_border):
+		resize_border.border_size = resolved_border_size
 
 
 func _get_internal_visual_size() -> Vector2:
