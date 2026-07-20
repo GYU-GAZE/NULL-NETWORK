@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="NavigatorMarkerBadge" format=3 uid="uid://dxdpovwwqrsw2"]
+
+[ext_resource type="Script" uid="uid://iql3ypf7vjcj" path="res://data/templates/navigator_marker_badge.gd" id="1_xv6jy"]
+
+[resource]
+script = ExtResource("1_xv6jy")
+badge_id = "danger_high"
+text = "DANGER"
+tint = Color(1, 0.16078432, 0.14901961, 1)
+tooltip_text = "High EXE activity detected."
+metadata/_custom_type_script = "uid://iql3ypf7vjcj"

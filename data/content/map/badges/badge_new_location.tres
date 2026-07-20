@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="NavigatorMarkerBadge" format=3 uid="uid://dyhgus1f5axpn"]
+
+[ext_resource type="Script" uid="uid://iql3ypf7vjcj" path="res://data/templates/navigator_marker_badge.gd" id="1_cfk5d"]
+
+[resource]
+script = ExtResource("1_cfk5d")
+badge_id = "new_location"
+text = "NEW!"
+tooltip_text = "Location recently discovered."
+metadata/_custom_type_script = "uid://iql3ypf7vjcj"

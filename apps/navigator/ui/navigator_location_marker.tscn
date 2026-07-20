@@ -4,11 +4,8 @@
 
 [node name="NavigatorLocationMarker" type="Button" unique_id=975061471]
 custom_minimum_size = Vector2(180, 52)
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+offset_right = 180.0
+offset_bottom = 52.0
 focus_mode = 0
 script = ExtResource("1_ne6ka")
 
@@ -52,3 +49,22 @@ text = "Location"
 unique_name_in_owner = true
 layout_mode = 2
 text = "Subtitle"
+
+[node name="Badges" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1998605874]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="NoticeBadgeLabel" type="Label" parent="MarginContainer/HBoxContainer/Badges" unique_id=944184960]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "NEW"
+horizontal_alignment = 2
+
+[node name="DangerBadgeLabel" type="Label" parent="MarginContainer/HBoxContainer/Badges" unique_id=1793126492]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "DANGER"
+horizontal_alignment = 2
