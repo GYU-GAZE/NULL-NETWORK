@@ -9,9 +9,6 @@ signal back_requested
 @export var render_size: Vector2i = Vector2i(640, 360)
 
 @onready var background: ColorRect = %Background
-@onready var viewport_container: SubViewportContainer = (
-	%ViewportContainer
-)
 @onready var area_viewport: SubViewport = %AreaViewport
 @onready var area_root: Node2D = %AreaRoot
 
