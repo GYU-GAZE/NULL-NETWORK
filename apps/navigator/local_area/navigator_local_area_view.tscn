@@ -23,18 +23,18 @@ mouse_filter = 2
 
 [node name="ViewportContainer" type="SubViewportContainer" parent="." unique_id=891639781]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-stretch = true
 
 [node name="AreaViewport" type="SubViewport" parent="ViewportContainer" unique_id=1751936972]
 unique_name_in_owner = true
 transparent_bg = true
-size = Vector2i(1280, 720)
+size = Vector2i(640, 360)
 
 [node name="AreaRoot" type="Node2D" parent="ViewportContainer/AreaViewport" unique_id=1028145039]
 unique_name_in_owner = true
