@@ -5,6 +5,9 @@ class_name NavigatorLocalAreaView
 signal back_requested
 
 
+@export_category("Pixel-Perfect Viewport")
+@export var render_size: Vector2i = Vector2i(640, 360)
+
 @onready var background: ColorRect = %Background
 @onready var viewport_container: SubViewportContainer = (
 	%ViewportContainer
@@ -32,16 +35,8 @@ func _ready() -> void:
 			_on_back_button_pressed
 		)
 
-	if not viewport_container.resized.is_connected(
-		_sync_subviewport_size
-	):
-		viewport_container.resized.connect(
-			_sync_subviewport_size
-		)
-
 	error_label.hide()
-
-	call_deferred("_sync_subviewport_size")
+	_apply_render_size()
 
 
 func open_area(
@@ -101,7 +96,7 @@ func open_area(
 
 	_current_area_instance = local_area_instance
 
-	_sync_subviewport_size()
+	_apply_render_size()
 
 	return true
 
@@ -132,26 +127,13 @@ func _clear_current_area() -> void:
 	_current_area_instance = null
 
 
-func _sync_subviewport_size() -> void:
-	if not is_instance_valid(viewport_container):
-		return
-
+func _apply_render_size() -> void:
 	if not is_instance_valid(area_viewport):
 		return
 
-	var resolved_width: int = maxi(
-		1,
-		int(round(viewport_container.size.x))
-	)
-
-	var resolved_height: int = maxi(
-		1,
-		int(round(viewport_container.size.y))
-	)
-
 	area_viewport.size = Vector2i(
-		resolved_width,
-		resolved_height
+		maxi(1, render_size.x),
+		maxi(1, render_size.y)
 	)
 
 
