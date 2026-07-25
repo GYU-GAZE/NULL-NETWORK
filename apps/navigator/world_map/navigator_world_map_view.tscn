@@ -1,0 +1,115 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://apps/navigator/world_map/navigator_world_map_view.gd" id="1_view"]
+[ext_resource type="Resource" uid="uid://bhuvy1mqbcl1y" path="res://data/content/navigator/world_map.tres" id="2_world"]
+[ext_resource type="PackedScene" uid="uid://bh2dywcre5tcr" path="res://apps/navigator/world_map/navigator_location_marker.tscn" id="3_marker"]
+
+[node name="NavigatorWorldMapView" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_view")
+world_data = ExtResource("2_world")
+marker_scene = ExtResource("3_marker")
+
+[node name="MapViewport" type="Control" parent="."]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MapContent" type="Control" parent="MapViewport"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+
+[node name="MapBackground" type="TextureRect" parent="MapViewport/MapContent"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+
+[node name="MarkerLayer" type="Control" parent="MapViewport/MapContent"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SelectionPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -280.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 196.0
+grow_horizontal = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="SelectionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SelectionPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LocationNameLabel" type="Label" parent="SelectionPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "No location selected"
+
+[node name="LocationSubtitleLabel" type="Label" parent="SelectionPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="LocationDescriptionLabel" type="Label" parent="SelectionPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "Select a location on the map."
+autowrap_mode = 2
+
+[node name="EnterAreaButton" type="Button" parent="SelectionPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "ENTER"
+
+[node name="TransitionLayer" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DiscoveryAudio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+
