@@ -17,9 +17,6 @@ signal browser_navigation_requested(url: String)
 @export var level_column_width: float = 35.0
 @export var partner_column_width: float = 75.0
 @export var server_column_width: float = 130.0
-@export var hide_server_below_width: float = 620.0
-@export var hide_partner_below_width: float = 500.0
-@export var hide_level_below_width: float = 400.0
 
 @onready var site_header: NullChannelHeader = %SiteHeader
 @onready var title_label: Label = %TitleLabel
@@ -36,11 +33,6 @@ signal browser_navigation_requested(url: String)
 @onready var partner_header_label: Label = %PartnerHeaderLabel
 @onready var server_header_label: Label = %ServerHeaderLabel
 
-var _show_level_column: bool = true
-var _show_partner_column: bool = true
-var _show_server_column: bool = true
-
-
 func _ready() -> void:
 	site_header.configure_navigation(true, true, true, false)
 
@@ -50,12 +42,8 @@ func _ready() -> void:
 	if not refresh_btn.pressed.is_connected(_refresh_page):
 		refresh_btn.pressed.connect(_refresh_page)
 
-	if not resized.is_connected(_apply_responsive_layout):
-		resized.connect(_apply_responsive_layout)
-
 	_apply_column_widths()
 	_refresh_page()
-	call_deferred("_apply_responsive_layout")
 
 
 func _refresh_page() -> void:
@@ -68,7 +56,6 @@ func _refresh_page() -> void:
 	NetworkUserDatabase.reload_users()
 	_build_top_ranking()
 	_build_player_rank_section()
-	_apply_responsive_layout()
 
 
 func _build_top_ranking() -> void:
@@ -138,30 +125,6 @@ func _set_header_width(label: Label, width: float) -> void:
 	label.clip_text = true
 
 
-func _apply_responsive_layout() -> void:
-	var available_width: float = size.x
-
-	if available_width <= 0.0:
-		available_width = get_viewport_rect().size.x
-
-	_show_server_column = available_width >= hide_server_below_width
-	_show_partner_column = available_width >= hide_partner_below_width
-	_show_level_column = available_width >= hide_level_below_width
-
-	server_header_label.visible = _show_server_column
-	partner_header_label.visible = _show_partner_column
-	level_header_label.visible = _show_level_column
-
-	_apply_layout_to_container(ranking_list)
-	_apply_layout_to_container(player_rank_container)
-
-
-func _apply_layout_to_container(container: Node) -> void:
-	for child in container.get_children():
-		if child is RankingRowUI:
-			_apply_row_layout(child as RankingRowUI)
-
-
 func _apply_row_layout(row: RankingRowUI) -> void:
 	row.apply_layout_widths(
 		rank_column_width,
@@ -169,11 +132,6 @@ func _apply_row_layout(row: RankingRowUI) -> void:
 		level_column_width,
 		partner_column_width,
 		server_column_width
-	)
-	row.apply_column_visibility(
-		_show_level_column,
-		_show_partner_column,
-		_show_server_column
 	)
 
 
