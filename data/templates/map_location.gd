@@ -54,6 +54,8 @@ enum LocationCategory {
 ## Quando unlocked_by_default é false, todas estas flags precisam estar ativas.
 @export var required_flags: Array[String] = []
 
+@export_category("Local Area")
+@export var local_area: LocalAreaData
 
 @export_category("Encounters")
 @export var spawn_table: SpawnTable

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LocalAreaData" format=3 uid="uid://daa0karlbr0yj"]
+
+[ext_resource type="PackedScene" uid="uid://duuxv2yxedopa" path="res://apps/navigator/local_area/content/akihabara_local_area.tscn" id="1_iohrc"]
+[ext_resource type="Script" uid="uid://f3ctbbb63dv5" path="res://data/templates/local_area_data.gd" id="1_xxa2y"]
+
+[resource]
+script = ExtResource("1_xxa2y")
+area_id = "akihabara_local"
+area_name = "Akihabara"
+area_subtitle = "Electric Town"
+area_description = "Temporary local area."
+area_scene = ExtResource("1_iohrc")
+metadata/_custom_type_script = "uid://f3ctbbb63dv5"

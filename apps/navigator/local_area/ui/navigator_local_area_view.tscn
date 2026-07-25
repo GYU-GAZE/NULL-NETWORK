@@ -1,0 +1,88 @@
+[gd_scene format=3 uid="uid://6tu1c38mw7mg"]
+
+[ext_resource type="Script" uid="uid://bkahqcnxho34s" path="res://apps/navigator/local_area/ui/navigator_local_area_view.gd" id="1_huc7g"]
+
+[node name="NavigatorLocalAreaView" type="Control" unique_id=310534927]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_huc7g")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1567157905]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ViewportContainer" type="SubViewportContainer" parent="." unique_id=891639781]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="AreaViewport" type="SubViewport" parent="ViewportContainer" unique_id=1751936972]
+unique_name_in_owner = true
+transparent_bg = true
+size = Vector2i(1280, 720)
+
+[node name="AreaRoot" type="Node2D" parent="ViewportContainer/AreaViewport" unique_id=1028145039]
+unique_name_in_owner = true
+
+[node name="HeaderPanel" type="PanelContainer" parent="." unique_id=875911146]
+layout_mode = 1
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 208.0
+offset_bottom = 56.0
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="HeaderPanel" unique_id=1811126686]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HeaderPanel/MarginContainer" unique_id=1158796046]
+layout_mode = 2
+
+[node name="AreaNameLabel" type="Label" parent="HeaderPanel/MarginContainer/VBoxContainer" unique_id=999424882]
+unique_name_in_owner = true
+layout_mode = 2
+text = "LOCAL AREA"
+
+[node name="AreaSubtitleLabel" type="Label" parent="HeaderPanel/MarginContainer/VBoxContainer" unique_id=1584294208]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="ErrorLabel" type="Label" parent="." unique_id=997615087]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BackButton" type="Button" parent="." unique_id=737695948]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -32.0
+offset_top = 8.0
+offset_bottom = 37.0
+grow_horizontal = 0
+text = "BACK"

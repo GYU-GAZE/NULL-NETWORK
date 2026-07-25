@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://duuxv2yxedopa"]
+
+[ext_resource type="Script" uid="uid://cv3s5lv65wrbp" path="res://apps/navigator/local_area/navigator_local_area_scene.gd" id="1_1jjxs"]
+
+[node name="AkihabaraLocalArea" type="Node2D" unique_id=1325732743]
+script = ExtResource("1_1jjxs")
+
+[node name="Ground" type="ColorRect" parent="." unique_id=693357165]
+custom_minimum_size = Vector2(640, 360)
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+color = Color(0.08892975, 0.1368658, 0.39789444, 1)
+
+[node name="DistrictLabel" type="Label" parent="." unique_id=1208282759]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 141.0
+offset_bottom = 45.0
+text = "AKIHABARA LOCAL AREA"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EntryPoints" type="Node2D" parent="." unique_id=2144494943]
+
+[node name="DefaultEntry" type="Marker2D" parent="EntryPoints" unique_id=1375567485]
+position = Vector2(320, 180)
+
+[node name="Actors" type="Node2D" parent="." unique_id=701127880]
+
+[node name="Interactables" type="Node2D" parent="." unique_id=1866300055]
+
+[node name="AreaCamera" type="Camera2D" parent="." unique_id=766442200]
+position = Vector2(320, 180)

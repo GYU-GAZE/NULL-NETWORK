@@ -3,6 +3,7 @@ class_name NavigatorApp
 
 enum NavigatorMode {
 	WORLD_MAP,
+	LOCAL_AREA,
 	ENCOUNTER,
 	DIALOGUE
 }
@@ -28,12 +29,18 @@ var discovery_hold_duration: float = 0.30
 @onready var map_content: Control = %MapContent
 @onready var map_background: TextureRect = %MapBackground
 @onready var marker_layer: Control = %MarkerLayer
+@onready var local_area_view: NavigatorLocalAreaView = (
+	%LocalAreaView
+)
 
 @onready var selection_panel: PanelContainer = %SelectionPanel
 @onready var location_name_label: Label = %LocationNameLabel
 @onready var location_subtitle_label: Label = %LocationSubtitleLabel
 @onready var location_description_label: Label = %LocationDescriptionLabel
 @onready var scan_button: Button = %ScanButton
+@onready var enter_area_button: Button = (
+	%EnterAreaButton
+)
 
 @onready var encounter_container: Control = %EncounterContainer
 @onready var dialogue_container: Control = %DialogueContainer
@@ -98,6 +105,20 @@ func _connect_signals() -> void:
 	):
 		GlobalSignals.time_advanced.connect(
 			_on_navigator_time_advanced
+		)
+		
+	if not enter_area_button.pressed.is_connected(
+		_on_enter_area_button_pressed
+	):
+		enter_area_button.pressed.connect(
+			_on_enter_area_button_pressed
+		)
+
+	if not local_area_view.back_requested.is_connected(
+		_on_local_area_back_requested
+	):
+		local_area_view.back_requested.connect(
+			_on_local_area_back_requested
 		)
 
 
@@ -796,6 +817,8 @@ func _set_selected_location(location: MapLocation) -> void:
 		location_subtitle_label.text = ""
 		location_description_label.text = ""
 		scan_button.disabled = true
+		enter_area_button.disabled = true
+		enter_area_button.text = "ENTER"
 		return
 
 	selection_panel.show()
@@ -803,6 +826,18 @@ func _set_selected_location(location: MapLocation) -> void:
 	location_subtitle_label.text = location.location_subtitle
 	location_subtitle_label.visible = not location.location_subtitle.strip_edges().is_empty()
 	location_description_label.text = location.location_description
+	if location.local_area == null:
+		enter_area_button.disabled = true
+		enter_area_button.text = "ENTER"
+	else:
+		enter_area_button.disabled = (
+			not location.local_area.is_valid()
+		)
+
+		enter_area_button.text = (
+			location.local_area.enter_button_text
+		)
+		
 	scan_button.disabled = location.spawn_table == null
 
 
@@ -907,6 +942,7 @@ func _set_mode(mode: NavigatorMode) -> void:
 	match _current_mode:
 		NavigatorMode.WORLD_MAP:
 			world_map_layer.show()
+			local_area_view.hide()
 			encounter_container.hide()
 			dialogue_container.hide()
 
@@ -915,18 +951,27 @@ func _set_mode(mode: NavigatorMode) -> void:
 			else:
 				selection_panel.hide()
 
+		NavigatorMode.LOCAL_AREA:
+			world_map_layer.hide()
+			selection_panel.hide()
+			local_area_view.show()
+			encounter_container.hide()
+			dialogue_container.hide()
+
 		NavigatorMode.ENCOUNTER:
 			world_map_layer.hide()
 			selection_panel.hide()
+			local_area_view.hide()
 			encounter_container.show()
 			dialogue_container.hide()
 
 		NavigatorMode.DIALOGUE:
 			world_map_layer.hide()
 			selection_panel.hide()
+			local_area_view.hide()
 			encounter_container.hide()
 			dialogue_container.show()
-	
+
 	if _current_mode == NavigatorMode.WORLD_MAP:
 		call_deferred(
 			"_process_discovery_queue"
@@ -936,6 +981,8 @@ func _set_mode(mode: NavigatorMode) -> void:
 func show_world_map() -> void:
 	_set_mode(NavigatorMode.WORLD_MAP)
 
+func show_local_area() -> void:
+	_set_mode(NavigatorMode.LOCAL_AREA)
 
 func show_encounter() -> void:
 	_set_mode(NavigatorMode.ENCOUNTER)
@@ -944,6 +991,46 @@ func show_encounter() -> void:
 func show_dialogue() -> void:
 	_set_mode(NavigatorMode.DIALOGUE)
 
+func _on_enter_area_button_pressed() -> void:
+	if _selected_location == null:
+		push_warning(
+			"NavigatorApp: no location selected."
+		)
+		return
+
+	var runtime_state := (
+		NavigatorLocationStateResolver.resolve(
+			_selected_location
+		)
+	)
+
+	if not runtime_state.can_select():
+		return
+
+	var local_area: LocalAreaData = (
+		_selected_location.local_area
+	)
+
+	if local_area == null:
+		push_warning(
+			"NavigatorApp: location '%s' has no local area."
+			% _selected_location.location_name
+		)
+		return
+
+	_set_mode(NavigatorMode.LOCAL_AREA)
+
+	var opened_successfully: bool = (
+		local_area_view.open_area(local_area)
+	)
+
+	if not opened_successfully:
+		_set_mode(NavigatorMode.WORLD_MAP)
+
+
+func _on_local_area_back_requested() -> void:
+	local_area_view.close_area()
+	_set_mode(NavigatorMode.WORLD_MAP)
 
 func _on_scan_button_pressed() -> void:
 	if _selected_location == null:
