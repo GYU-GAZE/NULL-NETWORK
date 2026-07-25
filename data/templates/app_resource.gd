@@ -24,9 +24,9 @@ enum PresentationMode {
 @export_category("Window Settings")
 @export var default_window_size: Vector2 = Vector2(900, 600)
 
-## Tamanho mínimo preferido ao criar a janela.
-## Janelas adaptativas podem diminuir além dele: a troca 2x -> 1x é calculada
-## automaticamente quando o conteúdo deixa de caber em sua densidade atual.
+## Breakpoint da janela adaptativa.
+## Em 2x enquanto largura e altura forem iguais ou maiores que este valor;
+## em 1x quando qualquer eixo ficar abaixo dele.
 @export var min_window_size: Vector2 = Vector2(400, 300)
 
 @export var can_resize: bool = false
