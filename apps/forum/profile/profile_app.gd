@@ -17,18 +17,11 @@ enum ProfileTab {
 @export_category("Threads")
 @export var thread_row_scene: PackedScene
 @export var thread_url_prefix: String = "null.net/forums/thread/"
-@export var thread_hide_author_below_width: float = 620.0
-@export var thread_hide_last_reply_below_width: float = 500.0
-@export var thread_hide_replies_below_width: float = 380.0
 
 @export_category("Friend Cards")
 @export var friend_card_scene: PackedScene
 @export var compact_friend_card_size: Vector2 = Vector2(72, 88)
 @export var full_friend_card_size: Vector2 = Vector2(104, 128)
-@export var compact_grid_target_width: float = 84.0
-@export var full_grid_target_width: float = 116.0
-@export var max_preview_columns: int = 4
-@export var max_friend_columns: int = 6
 
 var current_user: NetworkUserData
 var current_tab: ProfileTab = ProfileTab.ABOUT
@@ -79,12 +72,8 @@ func _ready() -> void:
 	_connect_site_header()
 	_connect_tab_buttons()
 
-	if not resized.is_connected(_apply_responsive_layout):
-		resized.connect(_apply_responsive_layout)
-
 	_load_user(default_user_id)
 	_show_about_tab()
-	call_deferred("_apply_responsive_layout")
 
 
 func _connect_site_header() -> void:
@@ -186,7 +175,6 @@ func _render_user() -> void:
 	_rebuild_friends_preview()
 	_rebuild_full_friends()
 	_rebuild_user_threads()
-	_apply_responsive_layout()
 
 
 func _render_left_profile_card() -> void:
@@ -374,7 +362,6 @@ func _rebuild_user_threads() -> void:
 			continue
 
 		user_threads_container.add_child(row)
-		_apply_profile_thread_row_layout(row)
 		row.setup(thread_data)
 		row.thread_selected.connect(_on_profile_thread_selected)
 
@@ -408,50 +395,6 @@ func _on_profile_thread_selected(thread: ForumThread) -> void:
 		return
 
 	browser_navigation_requested.emit("%s%s" % [thread_url_prefix, thread_id])
-
-
-func _apply_responsive_layout() -> void:
-	if not is_node_ready():
-		return
-
-	var available_width: float = size.x
-
-	if available_width <= 0.0:
-		available_width = get_viewport_rect().size.x
-
-	friends_preview_grid.columns = _calculate_grid_columns(
-		available_width,
-		compact_grid_target_width,
-		max_preview_columns
-	)
-	friends_grid.columns = _calculate_grid_columns(
-		available_width,
-		full_grid_target_width,
-		max_friend_columns
-	)
-
-	for child in user_threads_container.get_children():
-		if child is ForumThreadRowUI:
-			_apply_profile_thread_row_layout(child as ForumThreadRowUI)
-
-
-func _calculate_grid_columns(
-	available_width: float,
-	target_column_width: float,
-	maximum_columns: int
-) -> int:
-	var safe_target_width: float = max(1.0, target_column_width)
-	var calculated: int = int(floor(max(1.0, available_width) / safe_target_width))
-	return clampi(calculated, 1, max(1, maximum_columns))
-
-
-func _apply_profile_thread_row_layout(row: ForumThreadRowUI) -> void:
-	var available_width: float = size.x
-	row.apply_column_visibility(
-		available_width >= thread_hide_replies_below_width,
-		available_width >= thread_hide_last_reply_below_width,
-		available_width >= thread_hide_author_below_width
-	)
 
 
 func _get_rank_stars_text(user: NetworkUserData) -> String:
