@@ -24,8 +24,9 @@ enum PresentationMode {
 @export_category("Window Settings")
 @export var default_window_size: Vector2 = Vector2(900, 600)
 
-## Limite onde a janela deixa de renderizar em 2x e passa para 1x.
-## Não bloqueia mais o resize; o limite rígido pertence à WindowBase.
+## Tamanho mínimo preferido ao criar a janela.
+## Janelas adaptativas podem diminuir além dele: a troca 2x -> 1x é calculada
+## automaticamente quando o conteúdo deixa de caber em sua densidade atual.
 @export var min_window_size: Vector2 = Vector2(400, 300)
 
 @export var can_resize: bool = false
