@@ -49,9 +49,6 @@ const MODE_THREAD: StringName = &"thread"
 @export var replies_column_width: float = 42.0
 @export var last_reply_column_width: float = 86.0
 @export var author_column_width: float = 80.0
-@export var hide_author_below_width: float = 620.0
-@export var hide_last_reply_below_width: float = 500.0
-@export var hide_replies_below_width: float = 380.0
 
 @onready var master_scroll: ScrollContainer = %MasterScroll
 
@@ -87,11 +84,6 @@ var current_thread_id: String = ""
 var current_filter: ForumViewFilter = ForumViewFilter.TRENDING
 var current_search_query: String = ""
 
-var _show_replies_column: bool = true
-var _show_last_reply_column: bool = true
-var _show_author_column: bool = true
-
-
 func _ready() -> void:
 	_reload_threads()
 	_apply_feature_visibility()
@@ -101,9 +93,6 @@ func _ready() -> void:
 	_connect_filter_tabs()
 	_connect_search_bar()
 	_connect_reader_actions()
-
-	if not resized.is_connected(_apply_responsive_layout):
-		resized.connect(_apply_responsive_layout)
 
 	if not GlobalSignals.time_advanced.is_connected(_on_time_advanced):
 		GlobalSignals.time_advanced.connect(_on_time_advanced)
@@ -119,7 +108,6 @@ func _ready() -> void:
 	_refresh_thread_list()
 	_refresh_alerts_badge()
 	_refresh_watch_button()
-	call_deferred("_apply_responsive_layout")
 
 
 func _reload_threads() -> void:
@@ -186,36 +174,12 @@ func _set_column_width(control: Control, width: float) -> void:
 		(control as Label).clip_text = true
 
 
-func _apply_responsive_layout() -> void:
-	var available_width: float = size.x
-
-	if available_width <= 0.0:
-		available_width = get_viewport_rect().size.x
-
-	_show_author_column = available_width >= hide_author_below_width
-	_show_last_reply_column = available_width >= hide_last_reply_below_width
-	_show_replies_column = available_width >= hide_replies_below_width
-
-	author_header_label.visible = _show_author_column
-	last_reply_header_label.visible = _show_last_reply_column
-	replies_header_label.visible = _show_replies_column
-
-	for child in thread_list_container.get_children():
-		if child is ForumThreadRowUI:
-			_apply_row_layout(child as ForumThreadRowUI)
-
-
 func _apply_row_layout(row: ForumThreadRowUI) -> void:
 	row.apply_layout_widths(
 		type_column_width,
 		replies_column_width,
 		last_reply_column_width,
 		author_column_width
-	)
-	row.apply_column_visibility(
-		_show_replies_column,
-		_show_last_reply_column,
-		_show_author_column
 	)
 
 
