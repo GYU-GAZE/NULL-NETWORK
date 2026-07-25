@@ -10,6 +10,9 @@ const SESSION_STATE_VERSION: int = 1
 @export_category("Browser Routes")
 @export var home_url: String = "home"
 
+@export_category("Site Canvas")
+@export var fallback_site_canvas_size: Vector2 = Vector2(600, 320)
+
 @export_category("Tab Layout")
 @export var tab_width: float = 160.0
 @export var new_tab_button_width: float = 36.0
@@ -74,19 +77,6 @@ func _apply_browser_shell_layout() -> void:
 	site_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	site_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	site_container.clip_contents = true
-
-	if not site_container.resized.is_connected(_resize_current_site):
-		site_container.resized.connect(_resize_current_site)
-
-
-func _resize_current_site() -> void:
-	for child in site_container.get_children():
-		if child is Control:
-			var control := child as Control
-			control.set_anchors_preset(Control.PRESET_FULL_RECT)
-			control.position = Vector2.ZERO
-			control.size = site_container.size
-
 
 func _on_go_pressed() -> void:
 	_load_page(url_line_edit.text)
@@ -276,7 +266,11 @@ func _render_url(target_url: String) -> void:
 		_refresh_favorite_button()
 		return
 
-	_render_site(page.site_scene, tab.site_state)
+	_render_site(
+		page.site_scene,
+		tab.site_state,
+		page.get_resolved_canvas_size()
+	)
 	_refresh_tab_buttons()
 	_refresh_favorite_button()
 
@@ -397,10 +391,19 @@ func _render_error_page(
 
 		if instance != null:
 			site_container.add_child(instance)
-			_configure_site_control(instance)
+			_configure_site_control(
+				instance,
+				fallback_site_canvas_size
+			)
 
 			if instance.has_method("setup"):
-				instance.call("setup", error_code, error_title, error_message, requested_url)
+				instance.call(
+					"setup",
+					error_code,
+					error_title,
+					error_message,
+					requested_url
+				)
 
 			return
 
@@ -415,10 +418,17 @@ func _render_error_page(
 	fallback_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	fallback_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	site_container.add_child(fallback_label)
-	_configure_site_control(fallback_label)
+	_configure_site_control(
+		fallback_label,
+		fallback_site_canvas_size
+	)
 
 
-func _render_site(scene: PackedScene, state: Dictionary = {}) -> void:
+func _render_site(
+	scene: PackedScene,
+	state: Dictionary = {},
+	canvas_size: Vector2 = Vector2(600, 320)
+) -> void:
 	var instance: Node = scene.instantiate()
 
 	if instance == null:
@@ -431,7 +441,7 @@ func _render_site(scene: PackedScene, state: Dictionary = {}) -> void:
 		return
 
 	site_container.add_child(instance)
-	_configure_site_control(instance)
+	_configure_site_control(instance, canvas_size)
 	_connect_browser_navigation_signals(instance)
 
 	var tab := _get_current_tab()
@@ -442,20 +452,26 @@ func _render_site(scene: PackedScene, state: Dictionary = {}) -> void:
 	if instance.has_method("restore_browser_state"):
 		instance.call_deferred("restore_browser_state", state.duplicate(true))
 
-	_resize_current_site()
 
-
-func _configure_site_control(instance: Node) -> void:
+func _configure_site_control(
+	instance: Node,
+	canvas_size: Vector2
+) -> void:
 	if not instance is Control:
 		return
 
 	var control := instance as Control
-	control.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var resolved_canvas_size := Vector2(
+		max(1.0, canvas_size.x),
+		max(1.0, canvas_size.y)
+	)
+
+	control.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	control.position = Vector2.ZERO
-	control.size = site_container.size
-	control.custom_minimum_size = Vector2.ZERO
-	control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	control.size = resolved_canvas_size
+	control.custom_minimum_size = resolved_canvas_size
+	control.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	control.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 
 
 func _refresh_tab_layout_only() -> void:
