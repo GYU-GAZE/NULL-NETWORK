@@ -5,6 +5,7 @@ signal window_pixel_density_changed(pixel_density: int, content_size: Vector2)
 
 const PIXEL_DENSITY_1X: int = 1
 const PIXEL_DENSITY_2X: int = 2
+const FIT_EPSILON: float = 0.5
 
 @export_category("Adaptive Pixel Density")
 @export var absolute_minimum_window_size: Vector2 = Vector2(96, 12)
@@ -15,17 +16,30 @@ const PIXEL_DENSITY_2X: int = 2
 
 @onready var visual_root: Control = %VisualRoot
 
-var scale_switch_size: Vector2 = Vector2(400, 300)
 var current_window_pixel_density: int = PIXEL_DENSITY_2X
 var _visual_scale: float = 1.0
 var _density_emit_queued: bool = false
+var _fit_validation_queued: bool = false
 var _configured_resize_border_size: float = 8.0
 var _is_configured: bool = false
+
+var _app_content_root: Control
+var _required_2x_window_size: Vector2 = Vector2.ZERO
+var _blocked_2x_axes: Vector2i = Vector2i.ZERO
 
 
 func _ready() -> void:
 	_configured_resize_border_size = max(1.0, border_size)
 	super._ready()
+
+	if not content_container.child_order_changed.is_connected(
+		_on_content_children_changed
+	):
+		content_container.child_order_changed.connect(
+			_on_content_children_changed
+		)
+
+	call_deferred("_bind_current_content_root")
 
 
 func setup(
@@ -43,13 +57,8 @@ func setup(
 		resize_enabled
 	)
 
-	# O antigo mínimo do AppResource passa a ser o breakpoint 2x -> 1x.
-	scale_switch_size = KubuOSMetrics.snap_vector(Vector2(
-		max(1.0, minimum_size.x),
-		max(1.0, minimum_size.y)
-	))
-
-	# Este é o único limite rígido da geometria externa da janela.
+	# O limite rígido da geometria externa é independente do conteúdo.
+	# A troca 2x -> 1x é resolvida depois, medindo o layout renderizado.
 	min_window_size = KubuOSMetrics.snap_vector(Vector2(
 		max(1.0, absolute_minimum_window_size.x),
 		max(1.0, absolute_minimum_window_size.y)
@@ -99,6 +108,9 @@ func _refresh_adaptive_pixel_density(force: bool = false) -> void:
 	_sync_visual_root_geometry()
 	_sync_resize_border_hit_area()
 
+	if current_window_pixel_density == PIXEL_DENSITY_2X:
+		_queue_2x_fit_validation()
+
 	if density_changed:
 		_queue_density_changed()
 
@@ -108,20 +120,35 @@ func _resolve_target_pixel_density() -> int:
 		return PIXEL_DENSITY_2X
 
 	if current_window_pixel_density == PIXEL_DENSITY_1X:
-		var recovery_size: Vector2 = scale_switch_size + Vector2(
-			max(0.0, density_hysteresis.x),
-			max(0.0, density_hysteresis.y)
-		)
-
-		if size.x >= recovery_size.x and size.y >= recovery_size.y:
+		if _has_recovered_2x_space():
 			return PIXEL_DENSITY_2X
 
 		return PIXEL_DENSITY_1X
 
-	if size.x < scale_switch_size.x or size.y < scale_switch_size.y:
-		return PIXEL_DENSITY_1X
-
 	return PIXEL_DENSITY_2X
+
+
+func _has_recovered_2x_space() -> bool:
+	if _blocked_2x_axes == Vector2i.ZERO:
+		return true
+
+	if (
+		_blocked_2x_axes.x != 0
+		and size.x
+		< _required_2x_window_size.x
+		+ max(0.0, density_hysteresis.x)
+	):
+		return false
+
+	if (
+		_blocked_2x_axes.y != 0
+		and size.y
+		< _required_2x_window_size.y
+		+ max(0.0, density_hysteresis.y)
+	):
+		return false
+
+	return true
 
 
 func _sync_visual_root_geometry() -> void:
@@ -135,10 +162,7 @@ func _sync_visual_root_geometry() -> void:
 
 func _sync_resize_border_hit_area() -> void:
 	# ResizeBorder é irmão do VisualRoot e permanece no espaço externo da janela.
-	# Sem esta compensação, ele continuaria capturando 8 unidades do topo/lados
-	# mesmo quando a UI estivesse visualmente reduzida para 1x. Isso cobria boa
-	# parte da barra de título e dos botões, dando a impressão de hitboxes
-	# deslocadas para baixo.
+	# A compensação mantém a área clicável alinhada à UI em 1x e em 2x.
 	var scaled_border_size: float = round(
 		_configured_resize_border_size * _visual_scale
 	)
@@ -158,6 +182,125 @@ func _get_internal_visual_size() -> Vector2:
 		size,
 		current_window_pixel_density
 	)
+
+
+func _on_content_children_changed() -> void:
+	call_deferred("_bind_current_content_root")
+
+
+func _bind_current_content_root() -> void:
+	var new_content_root: Control
+
+	for child in content_container.get_children():
+		if child is Control:
+			new_content_root = child as Control
+			break
+
+	if _app_content_root == new_content_root:
+		_queue_2x_fit_validation()
+		return
+
+	if (
+		is_instance_valid(_app_content_root)
+		and _app_content_root.minimum_size_changed.is_connected(
+			_on_app_minimum_size_changed
+		)
+	):
+		_app_content_root.minimum_size_changed.disconnect(
+			_on_app_minimum_size_changed
+		)
+
+	_app_content_root = new_content_root
+
+	if (
+		is_instance_valid(_app_content_root)
+		and not _app_content_root.minimum_size_changed.is_connected(
+			_on_app_minimum_size_changed
+		)
+	):
+		_app_content_root.minimum_size_changed.connect(
+			_on_app_minimum_size_changed
+		)
+
+	_queue_2x_fit_validation()
+
+
+func _on_app_minimum_size_changed() -> void:
+	_queue_2x_fit_validation()
+
+
+func _queue_2x_fit_validation() -> void:
+	if _fit_validation_queued:
+		return
+
+	_fit_validation_queued = true
+	call_deferred("_validate_2x_fit_after_layout")
+
+
+func _validate_2x_fit_after_layout() -> void:
+	# Containers atualizam seus filhos de forma adiada. Esperar um frame garante
+	# que a medição use o layout final, não o tamanho da frame anterior.
+	await get_tree().process_frame
+	_fit_validation_queued = false
+
+	if not is_inside_tree():
+		return
+
+	if current_window_pixel_density != PIXEL_DENSITY_2X:
+		return
+
+	if is_maximized or not is_instance_valid(_app_content_root):
+		return
+
+	var minimum_deficit: Vector2 = _measure_minimum_size_deficit(
+		_app_content_root
+	)
+	var blocked_axes := Vector2i(
+		1 if minimum_deficit.x > FIT_EPSILON else 0,
+		1 if minimum_deficit.y > FIT_EPSILON else 0
+	)
+
+	if blocked_axes == Vector2i.ZERO:
+		_required_2x_window_size = Vector2.ZERO
+		_blocked_2x_axes = Vector2i.ZERO
+		return
+
+	_required_2x_window_size = KubuOSMetrics.snap_vector(
+		size + minimum_deficit
+	)
+	_blocked_2x_axes = blocked_axes
+
+	current_window_pixel_density = PIXEL_DENSITY_1X
+	_refresh_adaptive_pixel_density(true)
+
+
+func _measure_minimum_size_deficit(control: Control) -> Vector2:
+	if not control.visible:
+		return Vector2.ZERO
+
+	var combined_minimum: Vector2 = control.get_combined_minimum_size()
+	var largest_deficit := Vector2(
+		max(0.0, combined_minimum.x - control.size.x),
+		max(0.0, combined_minimum.y - control.size.y)
+	)
+
+	for child in control.get_children():
+		if not child is Control:
+			continue
+
+		var child_deficit: Vector2 = _measure_minimum_size_deficit(
+			child as Control
+		)
+		largest_deficit.x = max(
+			largest_deficit.x,
+			child_deficit.x
+		)
+		largest_deficit.y = max(
+			largest_deficit.y,
+			child_deficit.y
+		)
+
+	return largest_deficit
 
 
 func _queue_density_changed() -> void:
