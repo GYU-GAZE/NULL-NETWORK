@@ -925,6 +925,31 @@ func get_selected_location() -> MapLocation:
 	return _selected_location
 
 
+func get_location_by_id(
+	location_id: String
+) -> MapLocation:
+	return _get_location_by_id(location_id)
+
+
+func select_location_by_id(
+	location_id: String
+) -> bool:
+	var location := _get_location_by_id(location_id)
+
+	if location == null:
+		return false
+
+	var runtime_state := (
+		NavigatorLocationStateResolver.resolve(location)
+	)
+
+	if not runtime_state.can_select():
+		return false
+
+	_set_selected_location(location)
+	return true
+
+
 func _on_enter_area_button_pressed() -> void:
 	if _selected_location == null:
 		push_warning(

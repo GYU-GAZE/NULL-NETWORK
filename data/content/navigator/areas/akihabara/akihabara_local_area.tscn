@@ -1,34 +1,102 @@
-[gd_scene format=3 uid="uid://duuxv2yxedopa"]
+[gd_scene load_steps=7 format=3 uid="uid://duuxv2yxedopa"]
 
-[ext_resource type="Script" uid="uid://cv3s5lv65wrbp" path="res://apps/navigator/local_area/navigator_local_area_scene.gd" id="1_1jjxs"]
+[ext_resource type="Script" uid="uid://cv3s5lv65wrbp" path="res://apps/navigator/local_area/navigator_local_area_scene.gd" id="1_area"]
+[ext_resource type="Script" path="res://apps/navigator/local_area/local_area_entry_point.gd" id="2_entry"]
+[ext_resource type="PackedScene" path="res://apps/navigator/local_area/player_controller_2d.tscn" id="3_player"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_horizontal"]
+size = Vector2(976, 16)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vertical"]
+size = Vector2(16, 556)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_obstacle"]
+size = Vector2(96, 64)
 
 [node name="AkihabaraLocalArea" type="Node2D" unique_id=1325732743]
-script = ExtResource("1_1jjxs")
+script = ExtResource("1_area")
+area_bounds = Rect2(0, 0, 960, 540)
 
 [node name="Ground" type="ColorRect" parent="." unique_id=693357165]
-custom_minimum_size = Vector2(640, 360)
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 960.0
+offset_bottom = 540.0
 mouse_filter = 2
 color = Color(0.08892975, 0.1368658, 0.39789444, 1)
+
+[node name="StreetHorizontal" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 224.0
+offset_right = 960.0
+offset_bottom = 316.0
+mouse_filter = 2
+color = Color(0.105, 0.105, 0.16, 1)
+
+[node name="StreetVertical" type="ColorRect" parent="."]
+offset_left = 432.0
+offset_top = 0.0
+offset_right = 528.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.105, 0.105, 0.16, 1)
 
 [node name="DistrictLabel" type="Label" parent="." unique_id=1208282759]
 offset_left = 24.0
 offset_top = 24.0
-offset_right = 141.0
+offset_right = 180.0
 offset_bottom = 45.0
 text = "AKIHABARA LOCAL AREA"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="Kiosk" type="ColorRect" parent="."]
+offset_left = 432.0
+offset_top = 238.0
+offset_right = 528.0
+offset_bottom = 302.0
+mouse_filter = 2
+color = Color(0.94, 0.27, 0.58, 1)
+
+[node name="WorldCollision" type="Node2D" parent="."]
+
+[node name="Boundaries" type="StaticBody2D" parent="WorldCollision"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Top" type="CollisionShape2D" parent="WorldCollision/Boundaries"]
+position = Vector2(480, -8)
+shape = SubResource("RectangleShape2D_horizontal")
+
+[node name="Bottom" type="CollisionShape2D" parent="WorldCollision/Boundaries"]
+position = Vector2(480, 548)
+shape = SubResource("RectangleShape2D_horizontal")
+
+[node name="Left" type="CollisionShape2D" parent="WorldCollision/Boundaries"]
+position = Vector2(-8, 270)
+shape = SubResource("RectangleShape2D_vertical")
+
+[node name="Right" type="CollisionShape2D" parent="WorldCollision/Boundaries"]
+position = Vector2(968, 270)
+shape = SubResource("RectangleShape2D_vertical")
+
+[node name="KioskCollision" type="StaticBody2D" parent="WorldCollision"]
+position = Vector2(480, 270)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldCollision/KioskCollision"]
+shape = SubResource("RectangleShape2D_obstacle")
+
 [node name="EntryPoints" type="Node2D" parent="." unique_id=2144494943]
+unique_name_in_owner = true
 
 [node name="DefaultEntry" type="Marker2D" parent="EntryPoints" unique_id=1375567485]
 position = Vector2(320, 180)
+script = ExtResource("2_entry")
+entry_id = "default"
 
 [node name="Actors" type="Node2D" parent="." unique_id=701127880]
 
-[node name="Interactables" type="Node2D" parent="." unique_id=1866300055]
+[node name="Player" parent="Actors" instance=ExtResource("3_player")]
+unique_name_in_owner = true
 
-[node name="AreaCamera" type="Camera2D" parent="." unique_id=766442200]
-position = Vector2(320, 180)
+[node name="Interactables" type="Node2D" parent="." unique_id=1866300055]

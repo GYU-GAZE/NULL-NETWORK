@@ -38,7 +38,9 @@ func _ready() -> void:
 
 func open_area(
 	data: LocalAreaData,
-	entry_id: String = ""
+	entry_id: String = "",
+	restored_player_position: Vector2 = Vector2.ZERO,
+	has_restored_player_position: bool = false
 ) -> bool:
 	if data == null:
 		_show_error(
@@ -52,18 +54,6 @@ func open_area(
 			% data.area_name
 		)
 		return false
-
-	_clear_current_area()
-	error_label.hide()
-
-	_current_area_data = data
-
-	background.color = data.background_color
-	area_name_label.text = data.area_name
-	area_subtitle_label.text = data.area_subtitle
-	area_subtitle_label.visible = (
-		not data.area_subtitle.strip_edges().is_empty()
-	)
 
 	var raw_instance: Node = (
 		data.area_scene.instantiate()
@@ -84,21 +74,59 @@ func open_area(
 
 		return false
 
-	local_area_instance.setup_local_area(
-		data,
-		entry_id
-	)
-
+	local_area_instance.set_area_active(false)
 	area_root.add_child(local_area_instance)
 
+	var setup_succeeded: bool = (
+		local_area_instance.setup_local_area(
+			data,
+			entry_id,
+			restored_player_position,
+			has_restored_player_position
+		)
+	)
+
+	if not setup_succeeded:
+		area_root.remove_child(local_area_instance)
+		local_area_instance.free()
+		return false
+
+	_clear_current_area(local_area_instance)
+	error_label.hide()
+
+	_current_area_data = data
 	_current_area_instance = local_area_instance
+
+	background.color = data.background_color
+	area_name_label.text = data.area_name
+	area_subtitle_label.text = data.area_subtitle
+	area_subtitle_label.visible = (
+		not data.area_subtitle.strip_edges().is_empty()
+	)
 
 	_apply_render_size()
 
 	return true
 
 
+func activate() -> void:
+	show()
+
+
+func deactivate() -> void:
+	set_interaction_enabled(false)
+	hide()
+
+
+func set_interaction_enabled(enabled: bool) -> void:
+	if not is_instance_valid(_current_area_instance):
+		return
+
+	_current_area_instance.set_area_active(enabled)
+
+
 func close_area() -> void:
+	deactivate()
 	_clear_current_area()
 
 	_current_area_data = null
@@ -106,6 +134,19 @@ func close_area() -> void:
 	area_name_label.text = ""
 	area_subtitle_label.text = ""
 	error_label.hide()
+
+
+func is_area_loaded(data: LocalAreaData) -> bool:
+	if data == null or _current_area_data == null:
+		return false
+
+	if not is_instance_valid(_current_area_instance):
+		return false
+
+	return (
+		_current_area_data.get_display_id()
+		== data.get_display_id()
+	)
 
 
 func get_current_area_data() -> LocalAreaData:
@@ -116,12 +157,37 @@ func get_current_area_instance() -> NavigatorLocalAreaScene:
 	return _current_area_instance
 
 
-func _clear_current_area() -> void:
+func get_current_player_position() -> Vector2:
+	if not is_instance_valid(_current_area_instance):
+		return Vector2.ZERO
+
+	return _current_area_instance.get_player_position()
+
+
+func get_current_entry_id() -> String:
+	if not is_instance_valid(_current_area_instance):
+		return ""
+
+	return _current_area_instance.active_entry_id
+
+
+func _clear_current_area(
+	exception: NavigatorLocalAreaScene = null
+) -> void:
 	for child in area_root.get_children():
+		if child == exception:
+			continue
+
+		if child is NavigatorLocalAreaScene:
+			(child as NavigatorLocalAreaScene).set_area_active(
+				false
+			)
+
 		area_root.remove_child(child)
 		child.queue_free()
 
-	_current_area_instance = null
+	if exception == null:
+		_current_area_instance = null
 
 
 func _apply_render_size() -> void:
