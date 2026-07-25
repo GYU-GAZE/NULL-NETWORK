@@ -37,7 +37,6 @@ var discovery_hold_duration: float = 0.30
 @onready var location_name_label: Label = %LocationNameLabel
 @onready var location_subtitle_label: Label = %LocationSubtitleLabel
 @onready var location_description_label: Label = %LocationDescriptionLabel
-@onready var scan_button: Button = %ScanButton
 @onready var enter_area_button: Button = (
 	%EnterAreaButton
 )
@@ -81,9 +80,6 @@ func _ready() -> void:
 
 
 func _connect_signals() -> void:
-	if not scan_button.pressed.is_connected(_on_scan_button_pressed):
-		scan_button.pressed.connect(_on_scan_button_pressed)
-
 	if not marker_layer.resized.is_connected(_on_marker_layer_resized):
 		marker_layer.resized.connect(_on_marker_layer_resized)
 
@@ -816,7 +812,6 @@ func _set_selected_location(location: MapLocation) -> void:
 		location_name_label.text = ""
 		location_subtitle_label.text = ""
 		location_description_label.text = ""
-		scan_button.disabled = true
 		enter_area_button.disabled = true
 		enter_area_button.text = "ENTER"
 		return
@@ -838,8 +833,6 @@ func _set_selected_location(location: MapLocation) -> void:
 			location.local_area.enter_button_text
 		)
 		
-	scan_button.disabled = location.spawn_table == null
-
 
 func _select_location_by_id(location_id: String) -> void:
 	if world_data == null:
@@ -1031,27 +1024,3 @@ func _on_enter_area_button_pressed() -> void:
 func _on_local_area_back_requested() -> void:
 	local_area_view.close_area()
 	_set_mode(NavigatorMode.WORLD_MAP)
-
-func _on_scan_button_pressed() -> void:
-	if _selected_location == null:
-		push_warning(
-			"NavigatorApp: scan requested without a selected location."
-		)
-		return
-
-	if _selected_location.spawn_table == null:
-		push_warning(
-			"NavigatorApp: location '%s' has no SpawnTable."
-			% _selected_location.location_name
-		)
-		return
-
-	var encounter: CombatEncounter = (
-		_selected_location.spawn_table.roll_encounter()
-	)
-
-	if encounter == null:
-		print("NavigatorApp: no encounter was rolled.")
-		return
-
-	GlobalSignals.request_combat.emit(encounter)

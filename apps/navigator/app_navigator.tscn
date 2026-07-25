@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://b2jukdy0iqin4"]
 
 [ext_resource type="Script" uid="uid://ckvkd6ckteaqr" path="res://apps/navigator/app_navigator.gd" id="1_bqhse"]
-[ext_resource type="Resource" uid="uid://bhuvy1mqbcl1y" path="res://data/content/map/world_map.tres" id="2_6045y"]
-[ext_resource type="PackedScene" uid="uid://bh2dywcre5tcr" path="res://apps/navigator/ui/navigator_location_marker.tscn" id="2_i80et"]
-[ext_resource type="PackedScene" uid="uid://6tu1c38mw7mg" path="res://apps/navigator/local_area/ui/navigator_local_area_view.tscn" id="4_2eqnt"]
+[ext_resource type="Resource" uid="uid://bhuvy1mqbcl1y" path="res://data/content/navigator/world_map.tres" id="2_6045y"]
+[ext_resource type="PackedScene" uid="uid://bh2dywcre5tcr" path="res://apps/navigator/world_map/navigator_location_marker.tscn" id="2_i80et"]
+[ext_resource type="PackedScene" uid="uid://6tu1c38mw7mg" path="res://apps/navigator/local_area/navigator_local_area_view.tscn" id="4_2eqnt"]
 
 [node name="AppNavigator" type="Control" unique_id=1687208961]
 layout_mode = 3
@@ -110,21 +110,11 @@ size_flags_vertical = 3
 text = "Select a location on the map."
 autowrap_mode = 2
 
-[node name="Actions" type="HBoxContainer" parent="SelectionPanel/MarginContainer/VBoxContainer" unique_id=48647865]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="EnterAreaButton" type="Button" parent="SelectionPanel/MarginContainer/VBoxContainer/Actions" unique_id=971114613]
+[node name="EnterAreaButton" type="Button" parent="SelectionPanel/MarginContainer/VBoxContainer" unique_id=971114613]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "ENTER"
-
-[node name="ScanButton" type="Button" parent="SelectionPanel/MarginContainer/VBoxContainer/Actions" unique_id=1426728960]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "SCAN"
 
 [node name="EncounterContainer" type="Control" parent="." unique_id=588069769]
 unique_name_in_owner = true

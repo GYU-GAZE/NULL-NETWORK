@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="NavigatorMarkerBadge" format=3 uid="uid://wyvfqv3nhw81"]
 
-[ext_resource type="Script" uid="uid://iql3ypf7vjcj" path="res://data/templates/navigator_marker_badge.gd" id="1_l6udk"]
+[ext_resource type="Script" uid="uid://iql3ypf7vjcj" path="res://data/templates/navigator/navigator_marker_badge.gd" id="1_l6udk"]
 
 [resource]
 script = ExtResource("1_l6udk")

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MapLocation" format=3 uid="uid://csosrd43b0u55"]
+
+[ext_resource type="Resource" uid="uid://wyvfqv3nhw81" path="res://data/content/navigator/badges/badge_main_story.tres" id="1_m4hl2"]
+[ext_resource type="Script" uid="uid://c81tcrqrtfpb5" path="res://data/templates/navigator/map_location.gd" id="1_pl7wp"]
+[ext_resource type="Resource" uid="uid://dxdpovwwqrsw2" path="res://data/content/navigator/badges/badge_danger_high.tres" id="2_1ctih"]
+[ext_resource type="Resource" uid="uid://d2c5qbnpgb6xw" path="res://data/content/navigator/areas/akihabara/akihabara_spawn_table.tres" id="2_1dvhy"]
+[ext_resource type="Resource" uid="uid://daa0karlbr0yj" path="res://data/content/navigator/areas/akihabara/akihabara_local_area.tres" id="3_22bp3"]
+
+[resource]
+script = ExtResource("1_pl7wp")
+location_id = "akihabara"
+location_name = "Akiba District"
+location_subtitle = "EXE Zone"
+location_description = "Most otaku place ever!!"
+activity_badge = ExtResource("1_m4hl2")
+danger_badge = ExtResource("2_1ctih")
+local_area = ExtResource("3_22bp3")
+spawn_table = ExtResource("2_1dvhy")
+metadata/_custom_type_script = "uid://c81tcrqrtfpb5"

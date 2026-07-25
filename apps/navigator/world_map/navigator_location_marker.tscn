@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bh2dywcre5tcr"]
 
-[ext_resource type="Script" uid="uid://br2qomgi03ff6" path="res://apps/navigator/ui/navigator_location_marker.gd" id="1_ne6ka"]
+[ext_resource type="Script" uid="uid://br2qomgi03ff6" path="res://apps/navigator/world_map/navigator_location_marker.gd" id="1_ne6ka"]
 
 [node name="NavigatorLocationMarker" type="Button" unique_id=975061471]
 custom_minimum_size = Vector2(180, 52)

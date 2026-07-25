@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://6tu1c38mw7mg"]
 
-[ext_resource type="Script" uid="uid://bkahqcnxho34s" path="res://apps/navigator/local_area/ui/navigator_local_area_view.gd" id="1_huc7g"]
+[ext_resource type="Script" uid="uid://bkahqcnxho34s" path="res://apps/navigator/local_area/navigator_local_area_view.gd" id="1_huc7g"]
 
 [node name="NavigatorLocalAreaView" type="Control" unique_id=310534927]
 layout_mode = 3
