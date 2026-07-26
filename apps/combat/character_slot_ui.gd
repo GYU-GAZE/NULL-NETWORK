@@ -316,10 +316,6 @@ func _build_actor_slot() -> void:
 	header.horizontal_alignment = (
 		HORIZONTAL_ALIGNMENT_CENTER
 	)
-	header.add_theme_font_size_override(
-		"font_size",
-		8
-	)
 	content.add_child(header)
 	content.add_child(HSeparator.new())
 
@@ -390,10 +386,6 @@ func _create_bar(
 	)
 	label.horizontal_alignment = (
 		HORIZONTAL_ALIGNMENT_CENTER
-	)
-	label.add_theme_font_size_override(
-		"font_size",
-		8
 	)
 	label.add_theme_color_override(
 		"font_shadow_color",
