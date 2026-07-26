@@ -75,7 +75,7 @@ func set_input_enabled(enabled: bool) -> void:
 	if not enabled:
 		velocity = Vector2.ZERO
 	else:
-		call_deferred("_refresh_camera_position")
+		call_deferred("_refresh_camera_position", true)
 
 
 func configure_camera_bounds(bounds: Rect2) -> void:
@@ -91,23 +91,23 @@ func configure_camera_bounds(bounds: Rect2) -> void:
 	_camera_bounds = bounds
 	_has_camera_bounds = true
 
-	var bounds_end: Vector2 = bounds.end
-
-	area_camera.limit_left = floori(bounds.position.x)
-	area_camera.limit_top = floori(bounds.position.y)
-	area_camera.limit_right = ceili(bounds_end.x)
-	area_camera.limit_bottom = ceili(bounds_end.y)
+	# A posição da câmera já é limitada abaixo usando o tamanho real
+	# do SubViewport. Manter também os limits nativos criaria dois
+	# clamps concorrentes durante um resize.
+	area_camera.limit_enabled = false
 	area_camera.position_smoothing_enabled = false
 	area_camera.enabled = true
 	area_camera.reset_smoothing()
-	call_deferred("_refresh_camera_position")
+	call_deferred("_refresh_camera_position", true)
 
 
 func get_facing_direction() -> Vector2:
 	return _last_facing
 
 
-func _refresh_camera_position() -> void:
+func _refresh_camera_position(
+	force_scroll_update: bool = false
+) -> void:
 	if (
 		not _has_camera_bounds
 		or not is_instance_valid(area_camera)
@@ -124,9 +124,10 @@ func _refresh_camera_position() -> void:
 		maxf(0.001, absf(area_camera.zoom.x)),
 		maxf(0.001, absf(area_camera.zoom.y))
 	)
-	var half_view_size: Vector2 = (
-		(viewport_size / safe_zoom) * 0.5
+	var visible_world_size: Vector2 = (
+		viewport_size / safe_zoom
 	)
+	var half_view_size: Vector2 = visible_world_size * 0.5
 	var minimum_center: Vector2 = (
 		_camera_bounds.position + half_view_size
 	)
@@ -148,9 +149,12 @@ func _refresh_camera_position() -> void:
 		_camera_bounds.get_center().y
 	)
 
-	area_camera.position = to_local(
-		target_center.round()
-	)
+	# Coordenadas globais evitam que o deslocamento herdado do Player
+	# interfira no novo enquadramento durante um resize.
+	area_camera.global_position = target_center.round()
+
+	if force_scroll_update:
+		area_camera.force_update_scroll()
 
 
 func _clamp_camera_axis(
@@ -166,7 +170,7 @@ func _clamp_camera_axis(
 
 
 func _on_viewport_size_changed() -> void:
-	call_deferred("_refresh_camera_position")
+	call_deferred("_refresh_camera_position", true)
 
 
 func _update_facing(input_direction: Vector2) -> void:
