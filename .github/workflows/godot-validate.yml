@@ -92,7 +92,7 @@ jobs:
           ./Godot_v4.6.3-stable_linux.x86_64 \
             --headless \
             --path . \
-            --script res://tests/combat/combat_runtime_test.gd \
+            tests/combat/combat_runtime_test.tscn \
             2>&1 | tee godot-combat-test.log
 
       - name: Restore project settings
