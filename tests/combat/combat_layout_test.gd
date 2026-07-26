@@ -6,8 +6,8 @@ const COMBAT_SCENE: PackedScene = preload(
 const TEST_ENCOUNTER: CombatEncounter = preload(
 	"res://data/content/combat/1v1.tres"
 )
-const ENCOUNTER_2X_BREAKPOINT := Vector2(530, 325)
-const LARGE_2X_COMBAT_SIZE := Vector2(640, 360)
+const ENCOUNTER_2X_BREAKPOINT := Vector2(530, 377)
+const LARGE_2X_COMBAT_SIZE := Vector2(640, 377)
 const DEFAULT_OUTER_COMBAT_SIZE := Vector2(640, 255)
 const LAYOUT_EPSILON: float = 1.0
 const DENSITY_1X_VISUAL_SCALE := Vector2(0.5, 0.5)
@@ -53,6 +53,9 @@ func _run_test() -> void:
 
 	await get_tree().process_frame
 	await get_tree().process_frame
+
+	if not await _status_icons_render(combat_app):
+		return
 
 	if not _combat_uses_kubu_font_density(combat_app):
 		return
@@ -146,6 +149,9 @@ func _run_test() -> void:
 	if not _timeline_is_centered(combat_app):
 		return
 
+	if not _timeline_slots_are_square(combat_app):
+		return
+
 	if not await _combat_inherits_adaptive_scale(
 		combat_app,
 		adaptive_visual_root
@@ -201,11 +207,19 @@ func _combat_uses_kubu_font_density(
 	var timeline_bar := combat_app.get_node(
 		"ContentMargin/BattleBox/CenterHBox/TimelineScroll/TimelineBar"
 	) as HBoxContainer
+	var first_timeline_slot := (
+		timeline_bar.get_child(0) as CenterContainer
+	)
 	var first_timeline_card := (
-		timeline_bar.get_child(0) as PanelContainer
+		first_timeline_slot.get_child(0) as PanelContainer
+	)
+	var timeline_box := (
+		first_timeline_card.get_child(0) as VBoxContainer
 	)
 	var timeline_label := (
-		first_timeline_card.get_child(0).get_child(0) as Label
+		timeline_box.get_child(
+			timeline_box.get_child_count() - 1
+		) as Label
 	)
 	text_controls.append(timeline_label)
 
@@ -259,6 +273,120 @@ func _combat_uses_kubu_font_density(
 				]
 			)
 			return false
+
+	return true
+
+
+func _status_icons_render(
+	combat_app: CombatApp
+) -> bool:
+	var player: Variant = CombatManager.get_player_actor()
+	var barrier := load(
+		"res://data/content/combat/status_effects/defense_up.tres"
+	) as StatusEffectData
+
+	if player == null or barrier == null:
+		_fail("Barrier status UI fixture did not load.")
+		return false
+
+	player["active_statuses"].append(
+		CombatStatusInstance.create(
+			barrier,
+			3,
+			int(player.get("uid", -1)),
+			CombatManager.current_cycle
+		)
+	)
+	combat_app.refresh_combat_field()
+	await get_tree().process_frame
+
+	var allies := combat_app.get_node(
+		"ContentMargin/BattleBox/AlliesContainer"
+	) as HBoxContainer
+	var player_slot := (
+		allies.get_child(0) as CharacterSlotUI
+	)
+	var status_row := player_slot.find_child(
+		"StatusRow",
+		true,
+		false
+	) as HBoxContainer
+
+	if status_row == null or status_row.get_child_count() != 1:
+		_fail("BARRIER status icon did not render above the actor.")
+		return false
+
+	var status_icon := status_row.get_child(0) as Control
+	var tooltip := status_icon.tooltip_text
+
+	if (
+		not tooltip.contains("BARRIER")
+		or not tooltip.contains("Stacks: 3/99")
+		or not tooltip.contains("Duration: permanent")
+	):
+		_fail(
+			"Status tooltip does not explain name, stacks and duration."
+		)
+		return false
+
+	return true
+
+
+func _timeline_slots_are_square(
+	combat_app: CombatApp
+) -> bool:
+	var timeline_bar := combat_app.get_node(
+		"ContentMargin/BattleBox/CenterHBox/TimelineScroll/TimelineBar"
+	) as HBoxContainer
+	var found_module_icon: bool = false
+
+	for child in timeline_bar.get_children():
+		var slot_center := child as CenterContainer
+
+		if (
+			slot_center == null
+			or slot_center.get_child_count() == 0
+		):
+			continue
+
+		var panel := slot_center.get_child(0) as PanelContainer
+
+		if panel == null:
+			continue
+
+		if (
+			not is_equal_approx(
+				panel.custom_minimum_size.x,
+				panel.custom_minimum_size.y
+			)
+			or not is_equal_approx(
+				panel.size.x,
+				panel.size.y
+			)
+		):
+			_fail(
+				"Timeline action slot is not square: min=%s size=%s."
+				% [
+					panel.custom_minimum_size,
+					panel.size
+				]
+			)
+			return false
+
+		var box := panel.get_child(0) as VBoxContainer
+
+		if (
+			box != null
+			and box.get_child_count() >= 2
+			and box.get_child(0) is TextureRect
+		):
+			found_module_icon = true
+
+	if not found_module_icon:
+		_fail(
+			"No timeline action rendered its Module icon above the name."
+		)
+		return false
 
 	return true
 

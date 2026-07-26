@@ -15,6 +15,7 @@ signal floating_text_requested(
 )
 signal timeline_generated(actions: Array)
 signal stats_updated
+signal runtime_slots_changed
 signal action_executed(
 	index: int,
 	action_data: Dictionary
@@ -30,6 +31,9 @@ const UNSTABILITY_STATUS: StatusEffectData = preload(
 
 var ally_team: Array = [null, null, null, null]
 var enemy_team: Array = [null, null, null, null]
+var ally_position_slots: Array[CombatRuntimeSlot] = []
+var enemy_position_slots: Array[CombatRuntimeSlot] = []
+var action_slots: Array[CombatRuntimeSlot] = []
 var current_cycle_actions: Array = []
 var current_cycle: int = 0
 
@@ -38,6 +42,8 @@ var _current_encounter: CombatEncounter
 var _encounter_active: bool = false
 var _next_uid: int = 1
 var _next_event_id: int = 1
+var _next_dynamic_action_id: int = 1
+var _is_executing_cycle: bool = false
 
 
 func load_encounter(
@@ -63,6 +69,7 @@ func load_encounter(
 
 	_current_encounter = encounter
 	_encounter_active = true
+	_initialize_runtime_slots()
 
 	_load_team_from_slots(
 		encounter.ally_slots,
@@ -89,12 +96,17 @@ func load_encounter(
 func reset_encounter() -> void:
 	ally_team = [null, null, null, null]
 	enemy_team = [null, null, null, null]
+	ally_position_slots.clear()
+	enemy_position_slots.clear()
+	action_slots.clear()
 	current_cycle_actions.clear()
 	current_cycle = 0
 	_current_encounter = null
 	_encounter_active = false
 	_next_uid = 1
 	_next_event_id = 1
+	_next_dynamic_action_id = 1
+	_is_executing_cycle = false
 
 
 func is_encounter_active() -> bool:
@@ -125,14 +137,18 @@ func rebuild_timeline() -> void:
 		enemy_team
 	)
 
-	for action_slot in range(TEAM_SIZE):
-		_append_timeline_action(
-			ally_actors,
-			action_slot
+	for runtime_slot in action_slots:
+		if runtime_slot == null or not runtime_slot.enabled:
+			continue
+
+		var actors := (
+			ally_actors
+			if runtime_slot.is_ally
+			else enemy_actors
 		)
 		_append_timeline_action(
-			enemy_actors,
-			action_slot
+			actors,
+			runtime_slot
 		)
 
 	timeline_generated.emit(current_cycle_actions)
@@ -208,12 +224,209 @@ func swap_ally_slots(
 	):
 		return false
 
+	if (
+		not ally_position_slots[target_index].enabled
+	):
+		return false
+
 	var temporary: Variant = ally_team[target_index]
+
+	if (
+		not ally_position_slots[source_index].enabled
+		and temporary != null
+	):
+		return false
+
 	ally_team[target_index] = ally_team[source_index]
 	ally_team[source_index] = temporary
 	rebuild_timeline()
 	stats_updated.emit()
 	return true
+
+
+func get_position_slots(
+	is_ally: bool
+) -> Array[CombatRuntimeSlot]:
+	return (
+		ally_position_slots
+		if is_ally
+		else enemy_position_slots
+	)
+
+
+func get_position_slot(
+	is_ally: bool,
+	slot_index: int
+) -> CombatRuntimeSlot:
+	var slots := get_position_slots(is_ally)
+
+	if slot_index < 0 or slot_index >= slots.size():
+		return null
+
+	return slots[slot_index]
+
+
+func get_runtime_slot(
+	slot_id: StringName
+) -> CombatRuntimeSlot:
+	for slot in (
+		ally_position_slots
+		+ enemy_position_slots
+		+ action_slots
+	):
+		if slot != null and slot.slot_id == slot_id:
+			return slot
+
+	return null
+
+
+func set_runtime_slot_enabled(
+	slot_id: StringName,
+	enabled: bool
+) -> bool:
+	var slot := get_runtime_slot(slot_id)
+
+	if slot == null:
+		return false
+
+	slot.enabled = enabled
+	runtime_slots_changed.emit()
+	stats_updated.emit()
+	_refresh_timeline_after_slot_change()
+	return true
+
+
+func move_actor_to_position(
+	actor_uid: int,
+	destination_slot_id: StringName,
+	swap_occupants: bool = true
+) -> bool:
+	var destination := get_runtime_slot(
+		destination_slot_id
+	)
+	var actor: Variant = _find_combatant_by_uid(actor_uid)
+
+	if (
+		destination == null
+		or destination.slot_kind
+		!= CombatRuntimeSlot.SlotKind.POSITION
+		or not destination.enabled
+		or not (actor is Dictionary)
+		or bool(actor.get("is_ally", false))
+		!= destination.is_ally
+	):
+		return false
+
+	var team := (
+		ally_team
+		if destination.is_ally
+		else enemy_team
+	)
+	var source_index := team.find(actor)
+
+	if source_index < 0:
+		return false
+
+	var destination_index := destination.logical_index
+	var occupant: Variant = team[destination_index]
+	var source_slot := get_position_slot(
+		destination.is_ally,
+		source_index
+	)
+
+	if occupant != null and not swap_occupants:
+		return false
+
+	if (
+		source_slot != null
+		and not source_slot.enabled
+		and occupant != null
+	):
+		return false
+
+	team[destination_index] = actor
+	team[source_index] = occupant
+	runtime_slots_changed.emit()
+	stats_updated.emit()
+	_refresh_timeline_after_slot_change()
+	return true
+
+
+func add_action_slot(
+	is_ally: bool,
+	actor_index: int,
+	insert_index: int = -1
+) -> StringName:
+	var team_name := "ally" if is_ally else "enemy"
+	var slot_id := StringName(
+		"%s.action.extra.%d"
+		% [team_name, _next_dynamic_action_id]
+	)
+	_next_dynamic_action_id += 1
+
+	var target_index := insert_index
+
+	if target_index < 0:
+		target_index = action_slots.size()
+
+	target_index = clampi(
+		target_index,
+		0,
+		action_slots.size()
+	)
+	var slot := CombatRuntimeSlot.create(
+		slot_id,
+		CombatRuntimeSlot.SlotKind.ACTION,
+		is_ally,
+		clampi(actor_index, 0, TEAM_SIZE - 1),
+		target_index,
+		true
+	)
+	action_slots.insert(target_index, slot)
+	_normalize_action_slot_order()
+	runtime_slots_changed.emit()
+	_refresh_timeline_after_slot_change()
+	return slot_id
+
+
+func move_action_slot(
+	slot_id: StringName,
+	destination_order: int
+) -> bool:
+	var slot := get_runtime_slot(slot_id)
+
+	if (
+		slot == null
+		or slot.slot_kind
+		!= CombatRuntimeSlot.SlotKind.ACTION
+	):
+		return false
+
+	var source_index := action_slots.find(slot)
+
+	if source_index < 0:
+		return false
+
+	action_slots.remove_at(source_index)
+	action_slots.insert(
+		clampi(
+			destination_order,
+			0,
+			action_slots.size()
+		),
+		slot
+	)
+	_normalize_action_slot_order()
+	runtime_slots_changed.emit()
+	_refresh_timeline_after_slot_change()
+	return true
+
+
+func _refresh_timeline_after_slot_change() -> void:
+	if _is_executing_cycle:
+		return
+
+	rebuild_timeline()
 
 
 func set_player_module(
@@ -245,6 +458,45 @@ func get_effective_stat(
 	)
 
 
+func get_barrier_stacks(
+	actor: Dictionary
+) -> int:
+	var total: int = 0
+
+	for instance in actor.get("active_statuses", []):
+		if (
+			instance is CombatStatusInstance
+			and instance.data != null
+			and instance.data.damage_rule
+			== StatusEffectData.DamageRule.BARRIER
+		):
+			total += instance.stacks
+
+	return total
+
+
+func was_targeted_by_classification(
+	actor: Dictionary,
+	classification: StringName,
+	cycles_ago: int = 1
+) -> bool:
+	var expected_cycle := current_cycle - cycles_ago
+
+	for entry in actor.get(
+		"module_targeting_history",
+		[]
+	):
+		if (
+			int(entry.get("cycle", -1))
+			== expected_cycle
+			and entry.get("classification", &"")
+			== classification
+		):
+			return true
+
+	return false
+
+
 func preview_action(
 	action: Dictionary
 ) -> Dictionary:
@@ -263,44 +515,65 @@ func preview_action(
 		CombatConstants.TriggerTiming.MODULE_USED
 	)
 
-	for effect in module.combat_effects:
-		if effect == null:
-			continue
+	var virtual_barriers: Dictionary = {}
 
-		if (
-			effect.effect_type
-			== CombatEffectData.EffectType.SPAWN_DUMMY
-		):
-			preview["lines"].append(
-				effect.describe()
-			)
-			continue
+	for execution_index in range(module.execution_count):
+		context.execution_index = execution_index
+		context.execution_count = module.execution_count
 
-		var targets := resolve_targets(
-			effect.target_selector,
-			actor,
-			context,
-			actor
-		)
+		for effect in module.combat_effects:
+			if effect == null:
+				continue
 
-		if targets.is_empty():
-			preview["lines"].append(
-				"%s: no valid target."
-				% effect.describe()
-			)
-			continue
+			if (
+				effect.effect_type
+				== CombatEffectData.EffectType.SPAWN_DUMMY
+			):
+				preview["lines"].append(
+					effect.describe()
+				)
+				continue
 
-		for target in targets:
-			var entry := _preview_effect(
+			if effect.effect_type in [
+				CombatEffectData.EffectType.SET_SLOT_ENABLED,
+				CombatEffectData.EffectType.MOVE_ACTOR,
+				CombatEffectData.EffectType.ADD_ACTION_SLOT,
+				CombatEffectData.EffectType.MOVE_ACTION_SLOT
+			]:
+				preview["lines"].append(
+					effect.describe()
+				)
+				continue
+
+			var targets := resolve_targets(
+				effect.target_selector,
 				actor,
-				target,
-				module,
-				effect,
-				context
+				context,
+				actor
 			)
 
-			if not entry.is_empty():
-				preview["entries"].append(entry)
+			if targets.is_empty():
+				preview["lines"].append(
+					"%s: no valid target."
+					% effect.describe()
+				)
+				continue
+
+			for target in targets:
+				var entry := _preview_effect(
+					actor,
+					target,
+					module,
+					effect,
+					context,
+					virtual_barriers
+				)
+
+				if not entry.is_empty():
+					_merge_preview_entry(
+						preview["entries"],
+						entry
+					)
 
 	return preview
 
@@ -323,6 +596,19 @@ func get_module_tooltip(
 		"Cost: %d STB"
 		% module.stability_cost
 	)
+
+	if module.execution_count > 1:
+		lines.append(
+			"Executions: %d"
+			% module.execution_count
+		)
+
+	if not module.classification.is_empty():
+		lines.append(
+			"Classification: %s"
+			% module.classification
+		)
+
 	lines.append_array(module.describe_effects())
 
 	if not action.is_empty():
@@ -346,7 +632,8 @@ func get_result_metadata() -> Dictionary:
 	return {
 		"cycles": current_cycle,
 		"allies": _team_snapshot(ally_team),
-		"enemies": _team_snapshot(enemy_team)
+		"enemies": _team_snapshot(enemy_team),
+		"runtime_slots": _runtime_slot_snapshot()
 	}
 
 
@@ -456,6 +743,110 @@ func resolve_targets(
 	return result
 
 
+func resolve_runtime_slots(
+	selector: CombatSlotSelector,
+	caster: Dictionary,
+	context: CombatEventContext = null
+) -> Array[CombatRuntimeSlot]:
+	var result: Array[CombatRuntimeSlot] = []
+
+	if selector == null:
+		return result
+
+	if selector.use_context_slot and context != null:
+		var context_id := (
+			context.position_slot_id
+			if selector.slot_kind
+			== CombatSlotSelector.SlotKind.POSITION
+			else context.action_slot_id
+		)
+		var context_slot := get_runtime_slot(context_id)
+
+		if (
+			context_slot != null
+			and (
+				selector.include_disabled
+				or context_slot.enabled
+			)
+		):
+			result.append(context_slot)
+
+		return result
+
+	var expected_kind := (
+		CombatRuntimeSlot.SlotKind.POSITION
+		if selector.slot_kind
+		== CombatSlotSelector.SlotKind.POSITION
+		else CombatRuntimeSlot.SlotKind.ACTION
+	)
+	var candidates: Array[CombatRuntimeSlot] = []
+
+	if expected_kind == CombatRuntimeSlot.SlotKind.POSITION:
+		candidates.append_array(ally_position_slots)
+		candidates.append_array(enemy_position_slots)
+	else:
+		candidates.append_array(action_slots)
+
+	for slot in candidates:
+		if (
+			slot == null
+			or slot.slot_kind != expected_kind
+			or (
+				not selector.include_disabled
+				and not slot.enabled
+			)
+		):
+			continue
+
+		if (
+			not selector.slot_id.is_empty()
+			and slot.slot_id != selector.slot_id
+		):
+			continue
+
+		if (
+			selector.slot_index >= 0
+			and slot.logical_index
+			!= selector.slot_index
+		):
+			continue
+
+		if not _slot_matches_team_relation(
+			slot,
+			selector.team_relation,
+			caster
+		):
+			continue
+
+		result.append(slot)
+
+	return result
+
+
+func _slot_matches_team_relation(
+	slot: CombatRuntimeSlot,
+	relation: CombatSlotSelector.TeamRelation,
+	caster: Dictionary
+) -> bool:
+	var caster_is_ally := bool(
+		caster.get("is_ally", false)
+	)
+
+	match relation:
+		CombatSlotSelector.TeamRelation.CASTER_TEAM:
+			return slot.is_ally == caster_is_ally
+		CombatSlotSelector.TeamRelation.OPPOSING_TEAM:
+			return slot.is_ally != caster_is_ally
+		CombatSlotSelector.TeamRelation.ALLY_TEAM:
+			return slot.is_ally
+		CombatSlotSelector.TeamRelation.ENEMY_TEAM:
+			return not slot.is_ally
+		CombatSlotSelector.TeamRelation.ANY_TEAM:
+			return true
+
+	return false
+
+
 func _load_team_from_slots(
 	slot_data_list: Array[CombatSlotData],
 	target_team: Array,
@@ -478,6 +869,58 @@ func _load_team_from_slots(
 			is_ally,
 			is_ally and index == 0
 		)
+
+
+func _initialize_runtime_slots() -> void:
+	ally_position_slots.clear()
+	enemy_position_slots.clear()
+	action_slots.clear()
+
+	for index in range(TEAM_SIZE):
+		ally_position_slots.append(
+			CombatRuntimeSlot.create(
+				StringName("ally.position.%d" % index),
+				CombatRuntimeSlot.SlotKind.POSITION,
+				true,
+				index,
+				index
+			)
+		)
+		enemy_position_slots.append(
+			CombatRuntimeSlot.create(
+				StringName("enemy.position.%d" % index),
+				CombatRuntimeSlot.SlotKind.POSITION,
+				false,
+				index,
+				index
+			)
+		)
+		action_slots.append(
+			CombatRuntimeSlot.create(
+				StringName("ally.action.%d" % index),
+				CombatRuntimeSlot.SlotKind.ACTION,
+				true,
+				index,
+				index * 2
+			)
+		)
+		action_slots.append(
+			CombatRuntimeSlot.create(
+				StringName("enemy.action.%d" % index),
+				CombatRuntimeSlot.SlotKind.ACTION,
+				false,
+				index,
+				(index * 2) + 1
+			)
+		)
+
+	_normalize_action_slot_order()
+	runtime_slots_changed.emit()
+
+
+func _normalize_action_slot_order() -> void:
+	for index in range(action_slots.size()):
+		action_slots[index].order_index = index
 
 
 func _create_combatant(
@@ -516,7 +959,8 @@ func _create_combatant(
 		"remaining_cycles": -1,
 		"spawned_cycle": -1,
 		"active_statuses": [],
-		"runtime_effects": []
+		"runtime_effects": [],
+		"module_targeting_history": []
 	}
 	return actor
 
@@ -552,7 +996,8 @@ func _create_dummy(
 		"remaining_cycles": data.duration_cycles,
 		"spawned_cycle": current_cycle,
 		"active_statuses": [],
-		"runtime_effects": []
+		"runtime_effects": [],
+		"module_targeting_history": []
 	}
 	var context := _make_context(
 		CombatConstants.TriggerTiming.DUMMY_CREATED,
@@ -608,8 +1053,10 @@ func _create_dummy(
 
 func _append_timeline_action(
 	actors: Array,
-	action_slot: int
+	runtime_slot: CombatRuntimeSlot
 ) -> void:
+	var action_slot := runtime_slot.logical_index
+
 	if action_slot >= actors.size():
 		return
 
@@ -632,6 +1079,10 @@ func _append_timeline_action(
 		"actor": actor,
 		"module": module,
 		"action_slot": action_slot,
+		"action_slot_id": runtime_slot.slot_id,
+		"position_slot_id": _get_actor_position_slot_id(
+			actor
+		),
 		"target": null
 	}
 	action["target"] = _get_action_primary_target(
@@ -723,6 +1174,7 @@ func _execute_cycle_animated() -> void:
 
 
 func _begin_cycle() -> void:
+	_is_executing_cycle = true
 	current_cycle += 1
 	combat_log_added.emit(
 		"\n[color=yellow]--- CYCLE %d ---[/color]"
@@ -809,14 +1261,37 @@ func _execute_action(
 			CombatConstants.TriggerTiming.MODULE_USED,
 			timeline_index
 		)
-		_dispatch_event(module_context)
-		_execute_effects(
-			actor,
-			module.combat_effects,
-			module,
-			module_context,
-			actor
+		module_context.execution_count = (
+			module.execution_count
 		)
+		_dispatch_event(module_context)
+
+		for execution_index in range(
+			module.execution_count
+		):
+			if float(actor.get("hp", 0.0)) <= 0.0:
+				break
+
+			var execution_context := (
+				_context_from_action(
+					action,
+					CombatConstants.TriggerTiming.MODULE_USED,
+					timeline_index
+				)
+			)
+			execution_context.execution_index = (
+				execution_index
+			)
+			execution_context.execution_count = (
+				module.execution_count
+			)
+			_execute_effects(
+				actor,
+				module.combat_effects,
+				module,
+				execution_context,
+				actor
+			)
 
 	action_executed.emit(
 		timeline_index,
@@ -852,6 +1327,20 @@ func _execute_effects(
 			continue
 
 		if effect.effect_type in [
+			CombatEffectData.EffectType.SET_SLOT_ENABLED,
+			CombatEffectData.EffectType.MOVE_ACTOR,
+			CombatEffectData.EffectType.ADD_ACTION_SLOT,
+			CombatEffectData.EffectType.MOVE_ACTION_SLOT
+		]:
+			_execute_slot_effect(
+				caster,
+				effect,
+				context,
+				holder
+			)
+			continue
+
+		if effect.effect_type in [
 			CombatEffectData.EffectType.MODIFY_DAMAGE_TAKEN,
 			CombatEffectData.EffectType.MODIFY_DAMAGE_DEALT
 		]:
@@ -882,6 +1371,122 @@ func _execute_effects(
 				holder,
 				status_instance
 			)
+
+
+func _execute_slot_effect(
+	caster: Dictionary,
+	effect: CombatEffectData,
+	context: CombatEventContext,
+	holder: Dictionary
+) -> void:
+	var slots := resolve_runtime_slots(
+		effect.slot_selector,
+		caster,
+		context
+	)
+
+	match effect.effect_type:
+		CombatEffectData.EffectType.SET_SLOT_ENABLED:
+			if slots.is_empty():
+				_fail_effect(
+					caster,
+					"No runtime slot matched."
+				)
+				return
+
+			for slot in slots:
+				slot.enabled = effect.slot_enabled
+				combat_log_added.emit(
+					"> %s was %s."
+					% [
+						slot.describe(),
+						"enabled"
+							if effect.slot_enabled
+							else "disabled"
+					]
+				)
+
+			runtime_slots_changed.emit()
+			stats_updated.emit()
+			_refresh_timeline_after_slot_change()
+
+		CombatEffectData.EffectType.MOVE_ACTOR:
+			if slots.is_empty():
+				_fail_effect(
+					caster,
+					"No destination position matched."
+				)
+				return
+
+			var targets := resolve_targets(
+				effect.target_selector,
+				caster,
+				context,
+				holder
+			)
+
+			if targets.is_empty():
+				_fail_effect(
+					caster,
+					"No actor matched the move effect."
+				)
+				return
+
+			var destination := slots[0]
+			var moved := move_actor_to_position(
+				int(targets[0].get("uid", -1)),
+				destination.slot_id,
+				effect.swap_occupants_when_moving
+			)
+
+			if not moved:
+				_fail_effect(
+					caster,
+					"Actor could not move to %s."
+					% destination.describe()
+				)
+
+		CombatEffectData.EffectType.ADD_ACTION_SLOT:
+			var add_for_ally := bool(
+				caster.get("is_ally", false)
+			)
+
+			if not effect.add_action_for_caster_team:
+				add_for_ally = not add_for_ally
+
+			var insertion_index := action_slots.size()
+
+			if not slots.is_empty():
+				insertion_index = action_slots.find(
+					slots[0]
+				)
+
+				if effect.insert_action_after_selection:
+					insertion_index += 1
+
+			var created_id := add_action_slot(
+				add_for_ally,
+				effect.added_action_actor_index,
+				insertion_index
+			)
+			combat_log_added.emit(
+				"> Added action slot %s."
+				% created_id
+			)
+
+		CombatEffectData.EffectType.MOVE_ACTION_SLOT:
+			if slots.is_empty():
+				_fail_effect(
+					caster,
+					"No action slot matched."
+				)
+				return
+
+			for slot in slots:
+				move_action_slot(
+					slot.slot_id,
+					effect.destination_action_order
+				)
 
 
 func _execute_effect_on_target(
@@ -1003,6 +1608,13 @@ func _apply_damage(
 	if target == null:
 		return
 
+	_record_module_targeting(
+		caster,
+		target,
+		module,
+		parent_context
+	)
+
 	var accuracy := (
 		effect.accuracy_override
 		if effect.accuracy_override >= 0.0
@@ -1026,6 +1638,14 @@ func _apply_damage(
 			"MISS!",
 			Color.GRAY
 		)
+		return
+
+	if _consume_barrier_stack(
+		caster,
+		target,
+		module,
+		parent_context
+	):
 		return
 
 	var damage := _calculate_damage(
@@ -1090,7 +1710,11 @@ func _apply_damage(
 		parent_context.action_slot,
 		parent_context.timeline_index,
 		damage,
-		parent_context.event_depth + 1
+		parent_context.event_depth + 1,
+		parent_context.action_slot_id,
+		parent_context.position_slot_id,
+		parent_context.execution_index,
+		parent_context.execution_count
 	)
 	_dispatch_event(dealt_context)
 
@@ -1102,12 +1726,110 @@ func _apply_damage(
 		parent_context.action_slot,
 		parent_context.timeline_index,
 		damage,
-		parent_context.event_depth + 1
+		parent_context.event_depth + 1,
+		parent_context.action_slot_id,
+		parent_context.position_slot_id,
+		parent_context.execution_index,
+		parent_context.execution_count
 	)
 	_dispatch_event(received_context)
 
 	if float(target.get("hp", 0.0)) <= 0.0:
 		_defeat_actor(target, received_context)
+
+
+func _consume_barrier_stack(
+	caster: Dictionary,
+	target: Dictionary,
+	module: ModuleData,
+	parent_context: CombatEventContext
+) -> bool:
+	for instance in target.get(
+		"active_statuses",
+		[]
+	).duplicate():
+		if (
+			not (instance is CombatStatusInstance)
+			or instance.data == null
+			or instance.data.damage_rule
+			!= StatusEffectData.DamageRule.BARRIER
+			or instance.stacks <= 0
+		):
+			continue
+
+		var consumed := mini(
+			instance.stacks,
+			instance.data.stacks_consumed_per_hit
+		)
+		instance.stacks -= consumed
+		floating_text_requested.emit(
+			target,
+			"BLOCKED!",
+			Color.CYAN
+		)
+		combat_log_added.emit(
+			"> %s's %s blocked the hit (%d left)."
+			% [
+				target.get("name", "Entity"),
+				instance.data.display_name,
+				instance.stacks
+			]
+		)
+
+		var blocked_context := _make_context(
+			CombatConstants.TriggerTiming.DAMAGE_BLOCKED,
+			caster,
+			target,
+			module,
+			parent_context.action_slot,
+			parent_context.timeline_index,
+			0.0,
+			parent_context.event_depth + 1,
+			parent_context.action_slot_id,
+			parent_context.position_slot_id,
+			parent_context.execution_index,
+			parent_context.execution_count
+		)
+		_dispatch_event(blocked_context)
+
+		if instance.stacks <= 0:
+			_expire_status(
+				target,
+				instance,
+				blocked_context
+			)
+
+		stats_updated.emit()
+		return true
+
+	return false
+
+
+func _record_module_targeting(
+	caster: Dictionary,
+	target: Dictionary,
+	module: ModuleData,
+	context: CombatEventContext
+) -> void:
+	if module == null:
+		return
+
+	var history: Array = target.get(
+		"module_targeting_history",
+		[]
+	)
+	history.append({
+		"cycle": current_cycle,
+		"source_uid": caster.get("uid", -1),
+		"module_id": module.module_id,
+		"classification": module.classification,
+		"action_slot_id": context.action_slot_id
+	})
+
+	while history.size() > 32:
+		history.pop_front()
+
+	target["module_targeting_history"] = history
 
 
 func _apply_heal(
@@ -1227,18 +1949,22 @@ func _apply_status(
 		]
 	)
 
-	_dispatch_event(
-		_make_context(
-			CombatConstants.TriggerTiming.STATUS_APPLIED,
-			caster,
-			target,
-			parent_context.module,
-			parent_context.action_slot,
-			parent_context.timeline_index,
-			stacks,
-			parent_context.event_depth + 1
-		)
+	var applied_context := _make_context(
+		CombatConstants.TriggerTiming.STATUS_APPLIED,
+		caster,
+		target,
+		parent_context.module,
+		parent_context.action_slot,
+		parent_context.timeline_index,
+		stacks,
+		parent_context.event_depth + 1,
+		parent_context.action_slot_id,
+		parent_context.position_slot_id,
+		parent_context.execution_index,
+		parent_context.execution_count
 	)
+	applied_context.status = status
+	_dispatch_event(applied_context)
 
 
 func _stack_status(
@@ -1571,6 +2297,7 @@ func _finish_non_terminal_cycle() -> void:
 	_tick_dummy_durations()
 	_desfragment_enemies()
 	stats_updated.emit()
+	_is_executing_cycle = false
 
 	if _has_terminal_state():
 		_finish_terminal_cycle()
@@ -1583,6 +2310,7 @@ func _finish_non_terminal_cycle() -> void:
 
 func _finish_terminal_cycle() -> void:
 	_encounter_active = false
+	_is_executing_cycle = false
 	stats_updated.emit()
 	cycle_completed.emit(current_cycle)
 
@@ -1704,18 +2432,22 @@ func _expire_status(
 		return
 
 	instance.expiring = true
-	_dispatch_event(
-		_make_context(
-			CombatConstants.TriggerTiming.STATUS_EXPIRED,
-			holder,
-			holder,
-			parent_context.module,
-			parent_context.action_slot,
-			parent_context.timeline_index,
-			0.0,
-			parent_context.event_depth + 1
-		)
+	var expired_context := _make_context(
+		CombatConstants.TriggerTiming.STATUS_EXPIRED,
+		holder,
+		holder,
+		parent_context.module,
+		parent_context.action_slot,
+		parent_context.timeline_index,
+		0.0,
+		parent_context.event_depth + 1,
+		parent_context.action_slot_id,
+		parent_context.position_slot_id,
+		parent_context.execution_index,
+		parent_context.execution_count
 	)
+	expired_context.status = instance.data
+	_dispatch_event(expired_context)
 	statuses.erase(instance)
 
 
@@ -1997,7 +2729,8 @@ func _preview_effect(
 	target: Dictionary,
 	module: ModuleData,
 	effect: CombatEffectData,
-	context: CombatEventContext
+	context: CombatEventContext,
+	virtual_barriers: Dictionary
 ) -> Dictionary:
 	var amount := _evaluate_formula(
 		effect.value_formula,
@@ -2017,6 +2750,36 @@ func _preview_effect(
 
 	match effect.effect_type:
 		CombatEffectData.EffectType.DAMAGE:
+			var target_uid := int(
+				target.get("uid", -1)
+			)
+
+			if not virtual_barriers.has(target_uid):
+				virtual_barriers[target_uid] = (
+					get_barrier_stacks(target)
+				)
+
+			var barrier_stacks := int(
+				virtual_barriers[target_uid]
+			)
+
+			if barrier_stacks > 0:
+				var consumption := (
+					_get_barrier_consumption(target)
+				)
+				virtual_barriers[target_uid] = maxi(
+					0,
+					barrier_stacks - consumption
+				)
+				entry["summary"] = (
+					"%s: BLOCKED (%d barrier left)"
+					% [
+						target.get("name", "Entity"),
+						virtual_barriers[target_uid]
+					]
+				)
+				return entry
+
 			var damage := _calculate_damage(
 				caster,
 				target,
@@ -2058,6 +2821,50 @@ func _preview_effect(
 			]
 
 	return entry
+
+
+func _merge_preview_entry(
+	entries: Array,
+	entry: Dictionary
+) -> void:
+	for existing in entries:
+		if (
+			int(existing.get("target_uid", -1))
+			!= int(entry.get("target_uid", -1))
+		):
+			continue
+
+		existing["hp_delta"] = int(
+			existing.get("hp_delta", 0)
+		) + int(entry.get("hp_delta", 0))
+		existing["stability_delta"] = int(
+			existing.get("stability_delta", 0)
+		) + int(entry.get("stability_delta", 0))
+		existing["summary"] = "%s | %s" % [
+			existing.get("summary", ""),
+			entry.get("summary", "")
+		]
+		return
+
+	entries.append(entry)
+
+
+func _get_barrier_consumption(
+	actor: Dictionary
+) -> int:
+	for instance in actor.get("active_statuses", []):
+		if (
+			instance is CombatStatusInstance
+			and instance.data != null
+			and instance.data.damage_rule
+			== StatusEffectData.DamageRule.BARRIER
+		):
+			return maxi(
+				1,
+				instance.data.stacks_consumed_per_hit
+			)
+
+	return 1
 
 
 func _base_stat(
@@ -2399,7 +3206,13 @@ func _find_dummy_spawn_slot(
 	match effect.spawn_slot_rule:
 		CombatEffectData.SpawnSlotRule.FIRST_EMPTY, CombatEffectData.SpawnSlotRule.LEFTMOST_EMPTY:
 			for index in range(team.size()):
-				if team[index] == null:
+				if (
+					team[index] == null
+					and _position_accepts_new_actor(
+						team,
+						index
+					)
+				):
 					return index
 
 		CombatEffectData.SpawnSlotRule.RIGHTMOST_EMPTY:
@@ -2408,12 +3221,25 @@ func _find_dummy_spawn_slot(
 				-1,
 				-1
 			):
-				if team[index] == null:
+				if (
+					team[index] == null
+					and _position_accepts_new_actor(
+						team,
+						index
+					)
+				):
 					return index
 
 		CombatEffectData.SpawnSlotRule.ADJACENT_LEFT:
 			var left := caster_index - 1
-			if left >= 0 and team[left] == null:
+			if (
+				left >= 0
+				and team[left] == null
+				and _position_accepts_new_actor(
+					team,
+					left
+				)
+			):
 				return left
 
 		CombatEffectData.SpawnSlotRule.ADJACENT_RIGHT:
@@ -2421,6 +3247,10 @@ func _find_dummy_spawn_slot(
 			if (
 				right < team.size()
 				and team[right] == null
+				and _position_accepts_new_actor(
+					team,
+					right
+				)
 			):
 				return right
 
@@ -2428,10 +3258,26 @@ func _find_dummy_spawn_slot(
 			if (
 				team[effect.specific_spawn_slot]
 				== null
+				and _position_accepts_new_actor(
+					team,
+					effect.specific_spawn_slot
+				)
 			):
 				return effect.specific_spawn_slot
 
 	return -1
+
+
+func _position_accepts_new_actor(
+	team: Array,
+	slot_index: int
+) -> bool:
+	var is_ally_team := is_same(team, ally_team)
+	var slot := get_position_slot(
+		is_ally_team,
+		slot_index
+	)
+	return slot != null and slot.enabled
 
 
 func _resolve_redirect_target(
@@ -2552,17 +3398,41 @@ func _has_terminal_state() -> bool:
 
 
 func _desfragment_enemies() -> void:
-	var survivors := _get_valid_targets(
-		enemy_team,
-		false
-	)
 	var gravity_slots := [1, 0, 2, 3]
-	enemy_team = [null, null, null, null]
+	var movable_survivors: Array = []
+	var next_team: Array = [null, null, null, null]
 
-	for index in range(survivors.size()):
-		enemy_team[gravity_slots[index]] = (
-			survivors[index]
+	for index in range(TEAM_SIZE):
+		var actor: Variant = enemy_team[index]
+
+		if not _is_valid_target(actor, false):
+			continue
+
+		if not enemy_position_slots[index].enabled:
+			next_team[index] = actor
+		else:
+			movable_survivors.append(actor)
+
+	var available_gravity_slots: Array[int] = []
+
+	for slot_index in gravity_slots:
+		if (
+			enemy_position_slots[slot_index].enabled
+			and next_team[slot_index] == null
+		):
+			available_gravity_slots.append(slot_index)
+
+	for index in range(
+		mini(
+			movable_survivors.size(),
+			available_gravity_slots.size()
 		)
+	):
+		next_team[available_gravity_slots[index]] = (
+			movable_survivors[index]
+		)
+
+	enemy_team = next_team
 
 
 func _roll_accuracy(
@@ -2624,7 +3494,17 @@ func _context_from_action(
 		action.get("target"),
 		action.get("module"),
 		int(action.get("action_slot", -1)),
-		timeline_index
+		timeline_index,
+		0.0,
+		0,
+		StringName(action.get(
+			"action_slot_id",
+			&""
+		)),
+		StringName(action.get(
+			"position_slot_id",
+			&""
+		))
 	)
 
 
@@ -2636,7 +3516,11 @@ func _make_context(
 	action_slot: int = -1,
 	timeline_index: int = -1,
 	amount: float = 0.0,
-	depth: int = 0
+	depth: int = 0,
+	action_slot_id: StringName = &"",
+	position_slot_id: StringName = &"",
+	execution_index: int = 0,
+	execution_count: int = 1
 ) -> CombatEventContext:
 	var context := CombatEventContext.create(
 		timing,
@@ -2648,10 +3532,34 @@ func _make_context(
 		timeline_index,
 		amount,
 		depth,
-		_next_event_id
+		_next_event_id,
+		action_slot_id,
+		position_slot_id,
+		execution_index,
+		execution_count
 	)
 	_next_event_id += 1
 	return context
+
+
+func _get_actor_position_slot_id(
+	actor: Dictionary
+) -> StringName:
+	var team := (
+		ally_team
+		if bool(actor.get("is_ally", false))
+		else enemy_team
+	)
+	var index := team.find(actor)
+
+	if index < 0:
+		return &""
+
+	var slot := get_position_slot(
+		bool(actor.get("is_ally", false)),
+		index
+	)
+	return slot.slot_id if slot != null else &""
 
 
 func _consume_uid() -> int:
@@ -2683,7 +3591,34 @@ func _team_snapshot(
 			"is_dummy": actor.get(
 				"is_dummy",
 				false
+			),
+			"position_slot_id": (
+				_get_actor_position_slot_id(actor)
 			)
+		})
+
+	return snapshot
+
+
+func _runtime_slot_snapshot() -> Array[Dictionary]:
+	var snapshot: Array[Dictionary] = []
+
+	for slot in (
+		ally_position_slots
+		+ enemy_position_slots
+		+ action_slots
+	):
+		if slot == null:
+			continue
+
+		snapshot.append({
+			"slot_id": slot.slot_id,
+			"slot_kind": slot.slot_kind,
+			"is_ally": slot.is_ally,
+			"logical_index": slot.logical_index,
+			"order_index": slot.order_index,
+			"enabled": slot.enabled,
+			"is_dynamic": slot.is_dynamic
 		})
 
 	return snapshot

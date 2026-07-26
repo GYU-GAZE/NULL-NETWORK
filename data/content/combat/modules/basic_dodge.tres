@@ -26,6 +26,7 @@ can_crit = false
 script = ExtResource("1_module")
 module_id = &"basic_dodge"
 module_name = "Dodge"
+classification = &"defense"
 description = "Raises DODGE for the remainder of the cycle."
 stability_cost = 30
 module_tags = 20

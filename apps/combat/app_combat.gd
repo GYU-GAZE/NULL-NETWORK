@@ -277,7 +277,15 @@ func _draw_team(
 	for index in range(4):
 		var slot := CharacterSlotUI.new()
 		container.add_child(slot)
-		slot.setup(team_array[index], index, is_ally)
+		slot.setup(
+			team_array[index],
+			index,
+			is_ally,
+			CombatManager.get_position_slot(
+				is_ally,
+				index
+			)
+		)
 
 		if team_array[index] != null:
 			var actor_uid: int = int(
@@ -291,8 +299,16 @@ func _on_timeline_generated(actions: Array) -> void:
 		child.queue_free()
 
 	for action in actions:
+		var slot_center := CenterContainer.new()
+		slot_center.custom_minimum_size = Vector2(48, 48)
+		slot_center.size_flags_horizontal = (
+			Control.SIZE_SHRINK_CENTER
+		)
+
 		var panel := PanelContainer.new()
-		panel.custom_minimum_size = Vector2(48, 54)
+		panel.custom_minimum_size = Vector2(48, 48)
+		panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
 		var module: ModuleData = action.module
 
@@ -338,10 +354,42 @@ func _on_timeline_generated(actions: Array) -> void:
 
 		var module_box := VBoxContainer.new()
 		module_box.alignment = BoxContainer.ALIGNMENT_CENTER
+		module_box.add_theme_constant_override(
+			"separation",
+			1
+		)
+
+		if module != null and module.module_icon != null:
+			var icon := TextureRect.new()
+			icon.texture = module.module_icon
+			icon.expand_mode = (
+				TextureRect.EXPAND_IGNORE_SIZE
+			)
+			icon.stretch_mode = (
+				TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			)
+			icon.custom_minimum_size = Vector2(8, 8)
+			module_box.add_child(icon)
+		else:
+			var icon_fallback := ColorRect.new()
+			icon_fallback.color = background_color.lightened(0.35)
+			icon_fallback.custom_minimum_size = (
+				Vector2(8, 8)
+			)
+			icon_fallback.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			module_box.add_child(icon_fallback)
 
 		var label := Label.new()
 		label.text = (
-			module.module_name
+			(
+				"%s ×%d"
+				% [
+					module.module_name,
+					module.execution_count
+				]
+				if module.execution_count > 1
+				else module.module_name
+			)
 			if module != null
 			else "VAZIO"
 		)
@@ -354,20 +402,9 @@ func _on_timeline_generated(actions: Array) -> void:
 		)
 		module_box.add_child(label)
 
-		if module != null and module.module_icon != null:
-			var icon := TextureRect.new()
-			icon.texture = module.module_icon
-			icon.expand_mode = (
-				TextureRect.EXPAND_IGNORE_SIZE
-			)
-			icon.stretch_mode = (
-				TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			)
-			icon.custom_minimum_size = Vector2(24, 24)
-			module_box.add_child(icon)
-
 		panel.add_child(module_box)
-		timeline_bar.add_child(panel)
+		slot_center.add_child(panel)
+		timeline_bar.add_child(slot_center)
 
 
 func _on_action_executed(
@@ -379,7 +416,12 @@ func _on_action_executed(
 	if index >= timeline_bar.get_child_count():
 		return
 
-	var panel := timeline_bar.get_child(index) as Control
+	var slot_center := timeline_bar.get_child(index) as Control
+
+	if slot_center == null or slot_center.get_child_count() == 0:
+		return
+
+	var panel := slot_center.get_child(0) as Control
 
 	if panel == null:
 		return

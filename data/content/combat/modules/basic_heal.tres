@@ -24,6 +24,7 @@ can_crit = false
 script = ExtResource("1_module")
 module_id = &"basic_heal"
 module_name = "Heal"
+classification = &"healing"
 description = "Restores HP to the user."
 module_tags = 2
 combat_effects = Array[ExtResource("2_effect")]([SubResource("Effect_heal")])

@@ -6,10 +6,12 @@ class_name ModuleData
 @export var module_id: StringName = &"module"
 @export var module_name: String = "New Module"
 @export var module_icon: Texture2D
+@export var classification: StringName = &""
 @export_multiline var description: String = ""
 
 @export_category("Execution")
 @export var stability_cost: int = 10
+@export_range(1, 99) var execution_count: int = 1
 @export_range(0.0, 1.0, 0.01) var accuracy: float = 1.0
 @export_flags(
 	"Damage",
@@ -38,6 +40,12 @@ func validate_data() -> PackedStringArray:
 			"Module '%s' has a negative stability cost. "
 			% module_name
 			+ "Use MODIFY_STABILITY instead."
+		)
+
+	if execution_count < 1:
+		errors.append(
+			"Module '%s' must execute at least once."
+			% module_name
 		)
 
 	if combat_effects.is_empty():

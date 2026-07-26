@@ -24,6 +24,7 @@ value_formula = SubResource("Formula_damage")
 script = ExtResource("1_module")
 module_id = &"basic_attack"
 module_name = "Attack"
+classification = &"physical_attack"
 description = "A direct physical strike."
 module_tags = 1
 combat_effects = Array[ExtResource("2_effect")]([SubResource("Effect_damage")])

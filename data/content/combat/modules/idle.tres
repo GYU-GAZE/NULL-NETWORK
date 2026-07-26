@@ -24,6 +24,7 @@ can_crit = false
 script = ExtResource("1_module")
 module_id = &"rest"
 module_name = "Rest"
+classification = &"utility"
 description = "Recovers Stability instead of spending it."
 stability_cost = 0
 module_tags = 32
