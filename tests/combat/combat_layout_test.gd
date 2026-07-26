@@ -326,10 +326,131 @@ func _combat_inherits_adaptive_scale(
 		)
 		return false
 
+	if not _combat_overlay_coordinates_are_transform_safe(
+		combat_app
+	):
+		return false
+
 	adaptive_visual_root.scale = Vector2.ONE
 	adaptive_visual_root.size = LARGE_2X_COMBAT_SIZE
 	combat_app.size = LARGE_2X_COMBAT_SIZE
 	await get_tree().process_frame
+	return true
+
+
+func _combat_overlay_coordinates_are_transform_safe(
+	combat_app: CombatApp
+) -> bool:
+	var overlay_layer := combat_app.get_node(
+		"OverlayLayer"
+	) as Control
+	var menu_box := combat_app.get_node(
+		"ContentMargin/BattleBox/CenterHBox/MenuBox"
+	) as VBoxContainer
+	var module_swap_ui := combat_app.get_node(
+		"OverlayLayer/ModuleSwapUI"
+	) as VBoxContainer
+	var floating_text_layer := combat_app.get_node(
+		"OverlayLayer/FloatingTextLayer"
+	) as Control
+
+	if (
+		overlay_layer == null
+		or menu_box == null
+		or module_swap_ui == null
+		or floating_text_layer == null
+	):
+		_fail("Required transform-safe combat overlays are missing.")
+		return false
+
+	combat_app._on_change_modules_pressed()
+
+	if not module_swap_ui.visible:
+		_fail("Module inventory did not open.")
+		return false
+
+	var expected_swap_position: Vector2 = (
+		overlay_layer.get_global_transform().affine_inverse()
+		* menu_box.global_position
+		+ Vector2(menu_box.size.x + 10, 0)
+	)
+
+	if not module_swap_ui.position.is_equal_approx(
+		expected_swap_position
+	):
+		_fail(
+			"Module inventory local position %s does not match %s at 1x."
+			% [
+				module_swap_ui.position,
+				expected_swap_position
+			]
+		)
+		return false
+
+	combat_app._on_change_modules_pressed()
+
+	if module_swap_ui.visible:
+		_fail("Module inventory did not close after coordinate test.")
+		return false
+
+	var actor_uids: Array = combat_app.actor_nodes.keys()
+
+	if actor_uids.is_empty():
+		_fail("Combat actor map is empty during floating text test.")
+		return false
+
+	var actor_uid: int = int(actor_uids[0])
+	var target_node := combat_app.actor_nodes.get(
+		actor_uid
+	) as Control
+
+	if target_node == null:
+		_fail("Floating text target is missing.")
+		return false
+
+	var previous_child_count: int = (
+		floating_text_layer.get_child_count()
+	)
+	combat_app._spawn_floating_text(
+		{"uid": actor_uid},
+		"TEST",
+		Color.WHITE
+	)
+
+	if floating_text_layer.get_child_count() != (
+		previous_child_count + 1
+	):
+		_fail("Floating text was not added to its overlay layer.")
+		return false
+
+	var floating_label := floating_text_layer.get_child(
+		previous_child_count
+	) as Label
+
+	if floating_label == null:
+		_fail("Floating text overlay did not create a Label.")
+		return false
+
+	var expected_floating_position: Vector2 = (
+		floating_text_layer.get_global_transform().affine_inverse()
+		* target_node.get_global_rect().get_center()
+		- Vector2(20, 20)
+	)
+
+	if not floating_label.position.is_equal_approx(
+		expected_floating_position
+	):
+		_fail(
+			"Floating text local position %s does not match %s at 1x."
+			% [
+				floating_label.position,
+				expected_floating_position
+			]
+		)
+		return false
+
+	floating_label.queue_free()
+	combat_app.floating_offsets.clear()
 	return true
 
 
