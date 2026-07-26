@@ -1,0 +1,76 @@
+[gd_resource type="Resource" script_class="DummyData" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://data/templates/dummy_data.gd" id="1_dummy"]
+[ext_resource type="Script" path="res://data/templates/combat_stat_formula_data.gd" id="2_stat_formula"]
+[ext_resource type="Script" path="res://data/templates/combat_value_formula.gd" id="3_formula"]
+[ext_resource type="Script" path="res://data/templates/combat_triggered_effect_data.gd" id="4_triggered"]
+[ext_resource type="Script" path="res://data/templates/combat_trigger_data.gd" id="5_trigger"]
+[ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="6_effect"]
+[ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="7_target"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="8_icon"]
+
+[sub_resource type="Resource" id="Formula_hp"]
+script = ExtResource("3_formula")
+stat = 1
+stat_multiplier = 0.3
+
+[sub_resource type="Resource" id="Stat_hp"]
+script = ExtResource("2_stat_formula")
+stat = 1
+formula = SubResource("Formula_hp")
+
+[sub_resource type="Resource" id="Formula_atk"]
+script = ExtResource("3_formula")
+stat = 5
+stat_multiplier = 0.5
+
+[sub_resource type="Resource" id="Stat_atk"]
+script = ExtResource("2_stat_formula")
+stat = 5
+formula = SubResource("Formula_atk")
+
+[sub_resource type="Resource" id="Formula_def"]
+script = ExtResource("3_formula")
+stat = 6
+stat_multiplier = 0.5
+
+[sub_resource type="Resource" id="Stat_def"]
+script = ExtResource("2_stat_formula")
+stat = 6
+formula = SubResource("Formula_def")
+
+[sub_resource type="Resource" id="Target_direct"]
+script = ExtResource("7_target")
+target_kind = 1
+
+[sub_resource type="Resource" id="Formula_damage"]
+script = ExtResource("3_formula")
+base_value = 5.0
+stat_reference = 2
+stat = 5
+stat_multiplier = 1.0
+
+[sub_resource type="Resource" id="Effect_damage"]
+script = ExtResource("6_effect")
+target_selector = SubResource("Target_direct")
+value_formula = SubResource("Formula_damage")
+can_crit = false
+
+[sub_resource type="Resource" id="Trigger_cycle_end"]
+script = ExtResource("5_trigger")
+timing = 5
+
+[sub_resource type="Resource" id="Triggered_fire"]
+script = ExtResource("4_triggered")
+trigger = SubResource("Trigger_cycle_end")
+effects = Array[ExtResource("6_effect")]([SubResource("Effect_damage")])
+
+[resource]
+script = ExtResource("1_dummy")
+dummy_id = &"basic_turret"
+display_name = "Turret"
+combat_icon = ExtResource("8_icon")
+apk_type = "XSELF"
+stat_formulas = Array[ExtResource("2_stat_formula")]([SubResource("Stat_hp"), SubResource("Stat_atk"), SubResource("Stat_def")])
+duration_cycles = 3
+triggered_effects = Array[ExtResource("4_triggered")]([SubResource("Triggered_fire")])
