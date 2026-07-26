@@ -300,7 +300,7 @@ func _on_timeline_generated(actions: Array) -> void:
 
 	for action in actions:
 		var panel := PanelContainer.new()
-		panel.custom_minimum_size = Vector2(56, 56)
+		panel.custom_minimum_size = Vector2(48, 48)
 		panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
@@ -362,7 +362,7 @@ func _on_timeline_generated(actions: Array) -> void:
 			icon.stretch_mode = (
 				TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			)
-			icon.custom_minimum_size = Vector2(24, 24)
+			icon.custom_minimum_size = Vector2(18, 18)
 			module_box.add_child(icon)
 		else:
 			var icon_fallback := Label.new()
@@ -372,7 +372,7 @@ func _on_timeline_generated(actions: Array) -> void:
 				else "?"
 			)
 			icon_fallback.custom_minimum_size = (
-				Vector2(24, 24)
+				Vector2(18, 18)
 			)
 			icon_fallback.horizontal_alignment = (
 				HORIZONTAL_ALIGNMENT_CENTER
