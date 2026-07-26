@@ -408,7 +408,9 @@ func _create_bar(
 
 
 func _show_ghost_preview() -> void:
-	var data := get_viewport().gui_get_drag_data()
+	var data: Variant = (
+		get_viewport().gui_get_drag_data()
+	)
 
 	if (
 		not (data is Dictionary)
