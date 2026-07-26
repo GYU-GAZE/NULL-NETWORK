@@ -95,6 +95,16 @@ jobs:
             tests/combat/combat_runtime_test.tscn \
             2>&1 | tee godot-combat-test.log
 
+      - name: Run combat layout test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            tests/combat/combat_layout_test.tscn \
+            2>&1 | tee godot-combat-layout-test.log
+
       - name: Restore project settings
         if: always()
         run: cp /tmp/project.godot.original project.godot
@@ -105,6 +115,7 @@ jobs:
             godot-import.log \
             godot-runtime.log \
             godot-combat-test.log \
+            godot-combat-layout-test.log \
             > godot-validation.log
 
           if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class" godot-validation.log; then
@@ -120,6 +131,14 @@ jobs:
 
           grep -q "COMBAT_RUNTIME_TEST: PASS" godot-combat-test.log
 
+          if grep -E "COMBAT_LAYOUT_TEST: " godot-combat-layout-test.log \
+            | grep -v "COMBAT_LAYOUT_TEST: PASS"; then
+            echo "The combat layout test reported an error."
+            exit 1
+          fi
+
+          grep -q "COMBAT_LAYOUT_TEST: PASS" godot-combat-layout-test.log
+
       - name: Upload validation log
         if: always()
         uses: actions/upload-artifact@v4
@@ -129,5 +148,6 @@ jobs:
             godot-import.log
             godot-runtime.log
             godot-combat-test.log
+            godot-combat-layout-test.log
             godot-validation.log
           if-no-files-found: ignore
