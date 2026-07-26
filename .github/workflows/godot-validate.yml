@@ -69,7 +69,7 @@ jobs:
             --headless \
             --editor \
             --path . \
-            --quit-after 20 \
+            --import \
             --verbose 2>&1 | tee godot-import.log
 
       - name: Run main scene headlessly
