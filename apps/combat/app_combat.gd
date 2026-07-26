@@ -21,6 +21,8 @@ var actor_nodes: Dictionary = {}
 @onready var allies_container: HBoxContainer = %AlliesContainer
 @onready var combat_log: RichTextLabel = %CombatLog
 
+@onready var overlay_layer: Control = %OverlayLayer
+@onready var floating_text_layer: Control = %FloatingTextLayer
 @onready var hover_tooltip: PanelContainer = %HoverTooltip
 @onready var tooltip_label: Label = %TooltipLabel
 
@@ -216,14 +218,14 @@ func _spawn_floating_text(
 		"shadow_outline_size",
 		4
 	)
-	add_child(label)
+	floating_text_layer.add_child(label)
 
 	var current_offset: int = int(
 		floating_offsets.get(key, 0)
 	)
 
 	label.position = (
-		to_local(
+		floating_text_layer.to_local(
 			target_node.get_global_rect().get_center()
 		)
 		- Vector2(20, 20 + current_offset)
@@ -497,7 +499,9 @@ func _on_change_modules_pressed() -> void:
 
 	refresh_module_ui()
 	module_swap_ui.position = (
-		to_local(menu_box.global_position)
+		overlay_layer.to_local(
+			menu_box.global_position
+		)
 		+ Vector2(menu_box.size.x + 10, 0)
 	)
 
