@@ -88,7 +88,7 @@ func _test_timeline_and_preview(
 	if _combat_manager.current_cycle_actions.is_empty():
 		return
 
-	var preview := _combat_manager.preview_action(
+	var preview: Dictionary = _combat_manager.preview_action(
 		_combat_manager.current_cycle_actions[0]
 	)
 	_check(
@@ -225,7 +225,9 @@ func _test_combat_resolution(
 		"1v1 did not end in the expected victory."
 	)
 
-	var metadata := _combat_manager.get_result_metadata()
+	var metadata: Dictionary = (
+		_combat_manager.get_result_metadata()
+	)
 	_check(
 		int(metadata.get("cycles", 0)) > 0,
 		"Combat result metadata contains no cycle count."
@@ -246,9 +248,11 @@ func _on_action_executed(
 
 	var actor: Dictionary = action.get("actor", {})
 	var base_def := float(actor.get("def", 0.0))
-	var effective_def := _combat_manager.get_effective_stat(
-		actor,
-		CombatConstants.Stat.DEF
+	var effective_def: float = float(
+		_combat_manager.get_effective_stat(
+			actor,
+			CombatConstants.Stat.DEF
+		)
 	)
 	_observed_defense_bonus = (
 		effective_def > base_def
