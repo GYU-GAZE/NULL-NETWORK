@@ -194,10 +194,10 @@ func _combat_uses_kubu_font_density(
 			"ContentMargin/BattleBox/CenterHBox/MenuBox/RunAwayBtn"
 		) as Control,
 		combat_app.get_node(
-			"ModuleSwapUI/Title"
+			"OverlayLayer/ModuleSwapUI/Title"
 		) as Control,
 		combat_app.get_node(
-			"ResolutionScreen/ResolutionCenter/ResolutionBox/ResolutionTitle"
+			"OverlayLayer/ResolutionScreen/ResolutionCenter/ResolutionBox/ResolutionTitle"
 		) as Control
 	]
 
@@ -272,9 +272,16 @@ func _combat_inherits_adaptive_scale(
 ) -> bool:
 	var overlay_controls: Array[Control] = [
 		combat_app,
-		combat_app.get_node("ModuleSwapUI") as Control,
-		combat_app.get_node("HoverTooltip") as Control,
-		combat_app.get_node("ResolutionScreen") as Control
+		combat_app.get_node("OverlayLayer") as Control,
+		combat_app.get_node(
+			"OverlayLayer/ModuleSwapUI"
+		) as Control,
+		combat_app.get_node(
+			"OverlayLayer/HoverTooltip"
+		) as Control,
+		combat_app.get_node(
+			"OverlayLayer/ResolutionScreen"
+		) as Control
 	]
 
 	adaptive_visual_root.scale = (
