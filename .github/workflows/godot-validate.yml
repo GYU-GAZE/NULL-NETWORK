@@ -74,9 +74,6 @@ jobs:
             --quit-after 20 \
             --verbose 2>&1 | tee godot-import.log
 
-      - name: Restore project settings
-        run: cp /tmp/project.godot.original project.godot
-
       - name: Run main scene headlessly
         shell: bash
         run: |
@@ -97,6 +94,10 @@ jobs:
             --path . \
             --script res://tests/combat/combat_runtime_test.gd \
             2>&1 | tee godot-combat-test.log
+
+      - name: Restore project settings
+        if: always()
+        run: cp /tmp/project.godot.original project.godot
 
       - name: Reject script and resource errors
         run: |
