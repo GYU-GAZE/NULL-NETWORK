@@ -206,7 +206,7 @@ func _test_runtime_slots(
 	var slot_module := _make_disable_action_slot_module(
 		&"enemy.action.0"
 	)
-	var enemy := _first_living(
+	var enemy: Variant = _first_living(
 		_combat_manager.enemy_team
 	)
 

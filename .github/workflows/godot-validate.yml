@@ -92,6 +92,7 @@ jobs:
           ./Godot_v4.6.3-stable_linux.x86_64 \
             --headless \
             --path . \
+            --quit-after 60 \
             tests/combat/combat_runtime_test.tscn \
             2>&1 | tee godot-combat-test.log
 
