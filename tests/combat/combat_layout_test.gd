@@ -212,14 +212,14 @@ func _combat_uses_kubu_font_density(
 	)
 	text_controls.append(timeline_label)
 
-	var enemies := combat_app.get_node(
-		"ContentMargin/BattleBox/EnemiesContainer"
+	var allies := combat_app.get_node(
+		"ContentMargin/BattleBox/AlliesContainer"
 	) as HBoxContainer
-	var first_enemy_slot := (
-		enemies.get_child(0) as CharacterSlotUI
+	var player_slot := (
+		allies.get_child(0) as CharacterSlotUI
 	)
 	var actor_frame := (
-		first_enemy_slot.get_child(0) as PanelContainer
+		player_slot.get_child(0) as PanelContainer
 	)
 	var actor_content := (
 		actor_frame.get_child(0) as VBoxContainer
@@ -228,7 +228,7 @@ func _combat_uses_kubu_font_density(
 		actor_content.get_child(0) as Label
 	)
 	var hp_bar := (
-		first_enemy_slot.get_child(1) as ProgressBar
+		player_slot.get_child(1) as ProgressBar
 	)
 	var hp_label := hp_bar.get_child(0) as Label
 	text_controls.append(actor_header)
