@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://b2jukdy0iqin4"]
+[gd_scene load_steps=5 format=3 uid="uid://b2jukdy0iqin4"]
 
 [ext_resource type="Script" uid="uid://ckvkd6ckteaqr" path="res://apps/navigator/app_navigator.gd" id="1_app"]
 [ext_resource type="PackedScene" path="res://apps/navigator/world_map/navigator_world_map_view.tscn" id="2_world"]
 [ext_resource type="PackedScene" uid="uid://6tu1c38mw7mg" path="res://apps/navigator/local_area/navigator_local_area_view.tscn" id="3_local"]
+[ext_resource type="PackedScene" uid="uid://c7acibtxdt54a" path="res://apps/combat/app_combat.tscn" id="4_combat"]
 
 [node name="AppNavigator" type="Control" unique_id=1687208961]
 layout_mode = 3
@@ -31,7 +32,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
+
+[node name="CombatApp" parent="EncounterContainer" instance=ExtResource("4_combat")]
+unique_name_in_owner = true
+layout_mode = 1
 
 [node name="DialogueContainer" type="Control" parent="." unique_id=1546891465]
 unique_name_in_owner = true

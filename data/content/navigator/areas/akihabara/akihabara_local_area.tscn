@@ -1,8 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://duuxv2yxedopa"]
+[gd_scene load_steps=13 format=3 uid="uid://duuxv2yxedopa"]
 
 [ext_resource type="Script" uid="uid://cv3s5lv65wrbp" path="res://apps/navigator/local_area/navigator_local_area_scene.gd" id="1_area"]
 [ext_resource type="Script" path="res://apps/navigator/local_area/local_area_entry_point.gd" id="2_entry"]
 [ext_resource type="PackedScene" path="res://apps/navigator/local_area/player_controller_2d.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://apps/navigator/local_area/interactions/local_area_interactable.tscn" id="4_interactable"]
+[ext_resource type="Script" path="res://apps/navigator/local_area/interactions/local_area_interaction_data.gd" id="5_interaction_data"]
+[ext_resource type="PackedScene" path="res://apps/navigator/local_area/actors/local_area_exe_actor.tscn" id="6_exe"]
+[ext_resource type="Resource" uid="uid://cdxjje47qsri2" path="res://data/content/combat/1v1.tres" id="7_encounter"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_horizontal"]
 size = Vector2(1936, 16)
@@ -12,6 +16,20 @@ size = Vector2(16, 1096)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_obstacle"]
 size = Vector2(96, 64)
+
+[sub_resource type="Resource" id="InteractionData_kiosk"]
+script = ExtResource("5_interaction_data")
+interaction_id = "akihabara_kiosk"
+display_name = "Information Kiosk"
+prompt_verb = "EXAMINE"
+response_text = "The public terminal is offline. Its screen still repeats: CONNECTION TO NULL NETWORK REQUIRED."
+
+[sub_resource type="Resource" id="InteractionData_test_exe"]
+script = ExtResource("5_interaction_data")
+interaction_id = "akihabara_test_exe"
+display_name = "Rattildus.exe"
+kind = 1
+prompt_verb = "FIGHT"
 
 [node name="AkihabaraLocalArea" type="Node2D" unique_id=1325732743]
 script = ExtResource("1_area")
@@ -100,3 +118,15 @@ entry_id = "default"
 unique_name_in_owner = true
 
 [node name="Interactables" type="Node2D" parent="." unique_id=1866300055]
+
+[node name="KioskInteractable" parent="Interactables" instance=ExtResource("4_interactable")]
+position = Vector2(960, 540)
+scale = Vector2(2.5, 2)
+interaction_data = SubResource("InteractionData_kiosk")
+interaction_priority = 5
+
+[node name="TestEXE" parent="Interactables" instance=ExtResource("6_exe")]
+position = Vector2(760, 540)
+interaction_data = SubResource("InteractionData_test_exe")
+interaction_priority = 10
+encounter = ExtResource("7_encounter")

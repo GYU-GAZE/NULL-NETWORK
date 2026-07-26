@@ -1,12 +1,32 @@
-[gd_resource type="Resource" script_class="CombatEncounter" format=3 uid="uid://i24s2c766jts"]
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=9 format=3 uid="uid://i24s2c766jts"]
 
-[ext_resource type="Script" uid="uid://d1ggms7hchm4m" path="res://data/templates/character_loadout.gd" id="1_j51na"]
-[ext_resource type="Resource" uid="uid://bqndw73t6o3d3" path="res://data/content/combat/loadouts/main_character.tres" id="2_d2p86"]
-[ext_resource type="Script" uid="uid://cpylubw8n7yf8" path="res://data/templates/combat_encounter.gd" id="2_owbw0"]
-[ext_resource type="Resource" uid="uid://c6qnhguv6agkv" path="res://data/content/combat/loadouts/enemy_rattus.tres" id="3_sxvmy"]
+[ext_resource type="Script" uid="uid://cpylubw8n7yf8" path="res://data/templates/combat_encounter.gd" id="1_encounter"]
+[ext_resource type="Script" path="res://data/templates/combat_slot_data.gd" id="2_slot"]
+[ext_resource type="Resource" uid="uid://bqndw73t6o3d3" path="res://data/content/combat/loadouts/main_character.tres" id="3_player"]
+[ext_resource type="Resource" uid="uid://c6qnhguv6agkv" path="res://data/content/combat/loadouts/enemy_rattus.tres" id="4_enemy"]
+
+[sub_resource type="Resource" id="CombatSlotData_player"]
+script = ExtResource("2_slot")
+character = ExtResource("3_player")
+
+[sub_resource type="Resource" id="CombatSlotData_enemy_left"]
+script = ExtResource("2_slot")
+character = ExtResource("4_enemy")
+
+[sub_resource type="Resource" id="CombatSlotData_enemy_center"]
+script = ExtResource("2_slot")
+slot_index = 1
+character = ExtResource("4_enemy")
+
+[sub_resource type="Resource" id="CombatSlotData_enemy_right"]
+script = ExtResource("2_slot")
+slot_index = 2
+character = ExtResource("4_enemy")
 
 [resource]
-script = ExtResource("2_owbw0")
-allies = Array[ExtResource("1_j51na")]([ExtResource("2_d2p86")])
-enemies = Array[ExtResource("1_j51na")]([ExtResource("3_sxvmy"), ExtResource("3_sxvmy"), ExtResource("3_sxvmy")])
+script = ExtResource("1_encounter")
+encounter_id = "test_rattildus_3v1"
+encounter_name = "Three Rattildus"
+ally_slots = Array[ExtResource("2_slot")]([SubResource("CombatSlotData_player")])
+enemy_slots = Array[ExtResource("2_slot")]([SubResource("CombatSlotData_enemy_left"), SubResource("CombatSlotData_enemy_center"), SubResource("CombatSlotData_enemy_right")])
 metadata/_custom_type_script = "uid://cpylubw8n7yf8"

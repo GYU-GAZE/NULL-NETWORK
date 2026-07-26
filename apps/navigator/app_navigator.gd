@@ -10,7 +10,7 @@ enum NavigatorMode {
 }
 
 
-const SESSION_STATE_VERSION: int = 1
+const SESSION_STATE_VERSION: int = 2
 const APP_ID: String = "navigator"
 
 
@@ -20,13 +20,19 @@ const APP_ID: String = "navigator"
 @onready var local_area_view: NavigatorLocalAreaView = (
 	%LocalAreaView
 )
-@onready var encounter_container: Control = %EncounterContainer
-@onready var dialogue_container: Control = %DialogueContainer
+@onready var encounter_container: Control = (
+	%EncounterContainer
+)
+@onready var dialogue_container: Control = (
+	%DialogueContainer
+)
+@onready var combat_app: CombatApp = %CombatApp
 
 
 var _current_mode: NavigatorMode = NavigatorMode.WORLD_MAP
 var _current_location_id: String = ""
 var _is_app_active: bool = false
+var _pending_exe_actor: LocalAreaExeActor
 
 
 func _ready() -> void:
@@ -47,6 +53,20 @@ func _connect_signals() -> void:
 	):
 		local_area_view.back_requested.connect(
 			_on_local_area_back_requested
+		)
+
+	if not local_area_view.interaction_requested.is_connected(
+		_on_local_area_interaction_requested
+	):
+		local_area_view.interaction_requested.connect(
+			_on_local_area_interaction_requested
+		)
+
+	if not combat_app.combat_finished.is_connected(
+		_on_combat_finished
+	):
+		combat_app.combat_finished.connect(
+			_on_combat_finished
 		)
 
 	if not GlobalSignals.app_focused.is_connected(
@@ -108,6 +128,9 @@ func show_local_area() -> void:
 
 
 func show_encounter() -> void:
+	if not combat_app.is_encounter_active():
+		return
+
 	_set_mode(NavigatorMode.ENCOUNTER)
 
 
@@ -141,9 +164,14 @@ func get_app_session_state() -> Dictionary:
 		!= null
 	)
 
+	var saved_mode: NavigatorMode = _current_mode
+
+	if saved_mode == NavigatorMode.ENCOUNTER:
+		saved_mode = NavigatorMode.LOCAL_AREA
+
 	return {
 		"version": SESSION_STATE_VERSION,
-		"mode": int(_current_mode),
+		"mode": int(saved_mode),
 		"selected_location_id": selected_location_id,
 		"current_location_id": _current_location_id,
 		"current_local_area_id": current_local_area_id,
@@ -153,6 +181,9 @@ func get_app_session_state() -> Dictionary:
 		"has_player_position": has_player_position,
 		"player_position": (
 			local_area_view.get_current_player_position()
+		),
+		"local_area_runtime_state": (
+			local_area_view.get_current_runtime_state()
 		)
 	}
 
@@ -242,6 +273,17 @@ func restore_app_session_state(
 	if has_saved_position:
 		saved_position = saved_position_value
 
+	var raw_runtime_state: Variant = state.get(
+		"local_area_runtime_state",
+		{}
+	)
+	var saved_runtime_state: Dictionary = {}
+
+	if raw_runtime_state is Dictionary:
+		saved_runtime_state = (
+			raw_runtime_state as Dictionary
+		)
+
 	var opened_successfully: bool = (
 		local_area_view.open_area(
 			saved_location.local_area,
@@ -249,7 +291,8 @@ func restore_app_session_state(
 				state.get("current_entry_id", "")
 			),
 			saved_position,
-			has_saved_position
+			has_saved_position,
+			saved_runtime_state
 		)
 	)
 
@@ -328,6 +371,95 @@ func _on_world_map_enter_area_requested(
 		TimeManager.advance_action(
 			location.travel_action_cost
 		)
+
+
+func _on_local_area_interaction_requested(
+	target: LocalAreaInteractable
+) -> void:
+	if (
+		target == null
+		or target.interaction_data == null
+	):
+		return
+
+	var data: LocalAreaInteractionData = (
+		target.interaction_data
+	)
+
+	match data.kind:
+		LocalAreaInteractionData.InteractionKind.EXAMINE:
+			local_area_view.show_interaction_message(
+				data.response_text
+			)
+
+			if data.action_cost > 0:
+				TimeManager.advance_action(
+					data.action_cost
+				)
+
+		LocalAreaInteractionData.InteractionKind.ENCOUNTER:
+			var exe_actor := target as LocalAreaExeActor
+
+			if exe_actor == null:
+				push_error(
+					"NavigatorApp: encounter interaction '%s' "
+					% data.get_display_id()
+					+ "must inherit LocalAreaExeActor."
+				)
+				return
+
+			_start_exe_encounter(exe_actor)
+
+		_:
+			push_warning(
+				"NavigatorApp: interaction kind %d for '%s' "
+				% [data.kind, data.get_display_id()]
+				+ "has no handler yet."
+			)
+
+
+func _start_exe_encounter(
+	exe_actor: LocalAreaExeActor
+) -> void:
+	if exe_actor.encounter == null:
+		push_error(
+			"NavigatorApp: EXE '%s' has no encounter."
+			% exe_actor.get_interaction_id()
+		)
+		return
+
+	_pending_exe_actor = exe_actor
+	_set_mode(NavigatorMode.ENCOUNTER)
+
+	if combat_app.start_encounter(exe_actor.encounter):
+		return
+
+	_pending_exe_actor = null
+	_set_mode(NavigatorMode.LOCAL_AREA)
+
+
+func _on_combat_finished(
+	result: CombatResult
+) -> void:
+	var resolved_actor: LocalAreaExeActor = (
+		_pending_exe_actor
+	)
+	_pending_exe_actor = null
+
+	var action_cost: int = 0
+
+	if is_instance_valid(resolved_actor):
+		resolved_actor.apply_combat_result(result)
+		action_cost = (
+			resolved_actor.get_action_cost_for_result(
+				result
+			)
+		)
+
+	_set_mode(NavigatorMode.LOCAL_AREA)
+
+	if action_cost > 0:
+		TimeManager.advance_action(action_cost)
 
 
 func _on_local_area_back_requested() -> void:

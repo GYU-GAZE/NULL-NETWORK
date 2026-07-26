@@ -1,0 +1,66 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/navigator/local_area/interactions/local_area_interaction_prompt.gd" id="1_prompt"]
+
+[node name="LocalAreaInteractionPrompt" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_prompt")
+
+[node name="PromptStack" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -100.0
+offset_right = 220.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 2
+mouse_filter = 2
+
+[node name="MessagePanel" type="PanelContainer" parent="PromptStack"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MessageMargin" type="MarginContainer" parent="PromptStack/MessagePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="MessageLabel" type="Label" parent="PromptStack/MessagePanel/MessageMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="PromptPanel" type="PanelContainer" parent="PromptStack"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+
+[node name="PromptMargin" type="MarginContainer" parent="PromptStack/PromptPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 6
+
+[node name="PromptLabel" type="Label" parent="PromptStack/PromptPanel/PromptMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "E — INTERACT"
+horizontal_alignment = 1

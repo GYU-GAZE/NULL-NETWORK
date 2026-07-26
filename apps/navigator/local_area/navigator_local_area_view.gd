@@ -3,6 +3,9 @@ class_name NavigatorLocalAreaView
 
 
 signal back_requested
+signal interaction_requested(
+	target: LocalAreaInteractable
+)
 
 
 @export_category("Pixel-Perfect Viewport")
@@ -21,6 +24,9 @@ signal back_requested
 )
 @onready var error_label: Label = %ErrorLabel
 @onready var back_button: Button = %BackButton
+@onready var interaction_prompt: LocalAreaInteractionPrompt = (
+	%InteractionPrompt
+)
 
 
 var _current_area_data: LocalAreaData
@@ -45,6 +51,7 @@ func _ready() -> void:
 			_queue_render_size_update
 		)
 
+	interaction_prompt.clear_all()
 	_queue_render_size_update()
 
 
@@ -52,7 +59,8 @@ func open_area(
 	data: LocalAreaData,
 	entry_id: String = "",
 	restored_player_position: Vector2 = Vector2.ZERO,
-	has_restored_player_position: bool = false
+	has_restored_player_position: bool = false,
+	restored_runtime_state: Dictionary = {}
 ) -> bool:
 	if data == null:
 		_show_error(
@@ -94,7 +102,8 @@ func open_area(
 			data,
 			entry_id,
 			restored_player_position,
-			has_restored_player_position
+			has_restored_player_position,
+			restored_runtime_state
 		)
 	)
 
@@ -108,6 +117,7 @@ func open_area(
 
 	_current_area_data = data
 	_current_area_instance = local_area_instance
+	_connect_area_signals(_current_area_instance)
 
 	background.color = data.background_color
 	area_name_label.text = data.area_name
@@ -116,6 +126,7 @@ func open_area(
 		not data.area_subtitle.strip_edges().is_empty()
 	)
 
+	interaction_prompt.clear_all()
 	_queue_render_size_update()
 
 	return true
@@ -127,6 +138,7 @@ func activate() -> void:
 
 func deactivate() -> void:
 	set_interaction_enabled(false)
+	interaction_prompt.clear_all()
 	hide()
 
 
@@ -135,6 +147,13 @@ func set_interaction_enabled(enabled: bool) -> void:
 		return
 
 	_current_area_instance.set_area_active(enabled)
+
+	if not enabled:
+		interaction_prompt.clear_prompt()
+
+
+func show_interaction_message(message: String) -> void:
+	interaction_prompt.show_message(message)
 
 
 func close_area() -> void:
@@ -181,6 +200,31 @@ func get_current_entry_id() -> String:
 		return ""
 
 	return _current_area_instance.active_entry_id
+
+
+func get_current_runtime_state() -> Dictionary:
+	if not is_instance_valid(_current_area_instance):
+		return {}
+
+	return _current_area_instance.get_runtime_state()
+
+
+func _connect_area_signals(
+	area_instance: NavigatorLocalAreaScene
+) -> void:
+	if not area_instance.interaction_target_changed.is_connected(
+		_on_interaction_target_changed
+	):
+		area_instance.interaction_target_changed.connect(
+			_on_interaction_target_changed
+		)
+
+	if not area_instance.interaction_requested.is_connected(
+		_on_interaction_requested
+	):
+		area_instance.interaction_requested.connect(
+			_on_interaction_requested
+		)
 
 
 func _clear_current_area(
@@ -238,6 +282,29 @@ func _show_error(message: String) -> void:
 
 	error_label.text = message
 	error_label.show()
+
+
+func _on_interaction_target_changed(
+	target: LocalAreaInteractable
+) -> void:
+	if (
+		target == null
+		or target.interaction_data == null
+		or not is_instance_valid(_current_area_instance)
+	):
+		interaction_prompt.clear_prompt()
+		return
+
+	interaction_prompt.show_for(
+		target.interaction_data,
+		_current_area_instance.get_interact_action()
+	)
+
+
+func _on_interaction_requested(
+	target: LocalAreaInteractable
+) -> void:
+	interaction_requested.emit(target)
 
 
 func _on_back_button_pressed() -> void:

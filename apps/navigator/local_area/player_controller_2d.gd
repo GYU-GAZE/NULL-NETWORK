@@ -3,6 +3,12 @@ class_name LocalAreaPlayerController
 
 
 signal facing_changed(direction: Vector2)
+signal interaction_target_changed(
+	target: LocalAreaInteractable
+)
+signal interaction_requested(
+	target: LocalAreaInteractable
+)
 
 
 @export_category("Movement")
@@ -22,7 +28,15 @@ var move_speed: float = 120.0
 	&"local_area_move_down"
 )
 
+@export_category("Interaction")
+@export var interact_action: StringName = (
+	&"local_area_interact"
+)
+
 @onready var area_camera: Camera2D = %AreaCamera
+@onready var interaction_sensor: LocalAreaInteractionSensor = (
+	%InteractionSensor
+)
 
 
 var _input_enabled: bool = false
@@ -40,6 +54,29 @@ func _ready() -> void:
 		viewport.size_changed.connect(
 			_on_viewport_size_changed
 		)
+
+	if (
+		is_instance_valid(interaction_sensor)
+		and not interaction_sensor.target_changed.is_connected(
+			_on_interaction_target_changed
+		)
+	):
+		interaction_sensor.target_changed.connect(
+			_on_interaction_target_changed
+		)
+
+	if (
+		is_instance_valid(interaction_sensor)
+		and not interaction_sensor.interaction_requested.is_connected(
+			_on_interaction_requested
+		)
+	):
+		interaction_sensor.interaction_requested.connect(
+			_on_interaction_requested
+		)
+
+	if is_instance_valid(interaction_sensor):
+		interaction_sensor.update_facing(_last_facing)
 
 	set_input_enabled(false)
 
@@ -67,15 +104,33 @@ func _physics_process(_delta: float) -> void:
 	global_position = global_position.round()
 	_refresh_camera_position()
 
+	if (
+		is_instance_valid(interaction_sensor)
+		and not input_direction.is_zero_approx()
+	):
+		interaction_sensor.refresh_target()
+
+	if (
+		is_instance_valid(interaction_sensor)
+		and Input.is_action_just_pressed(interact_action)
+	):
+		interaction_sensor.try_interact()
+
 
 func set_input_enabled(enabled: bool) -> void:
 	_input_enabled = enabled
 	set_physics_process(enabled)
 
+	if is_instance_valid(interaction_sensor):
+		interaction_sensor.set_sensor_enabled(enabled)
+
 	if not enabled:
 		velocity = Vector2.ZERO
 	else:
-		call_deferred("_refresh_camera_position", true)
+		call_deferred(
+			"_refresh_camera_position",
+			true
+		)
 
 
 func configure_camera_bounds(bounds: Rect2) -> void:
@@ -98,11 +153,18 @@ func configure_camera_bounds(bounds: Rect2) -> void:
 	area_camera.position_smoothing_enabled = false
 	area_camera.enabled = true
 	area_camera.reset_smoothing()
-	call_deferred("_refresh_camera_position", true)
+	call_deferred(
+		"_refresh_camera_position",
+		true
+	)
 
 
 func get_facing_direction() -> Vector2:
 	return _last_facing
+
+
+func get_interact_action() -> StringName:
+	return interact_action
 
 
 func _refresh_camera_position(
@@ -127,7 +189,9 @@ func _refresh_camera_position(
 	var visible_world_size: Vector2 = (
 		viewport_size / safe_zoom
 	)
-	var half_view_size: Vector2 = visible_world_size * 0.5
+	var half_view_size: Vector2 = (
+		visible_world_size * 0.5
+	)
 	var minimum_center: Vector2 = (
 		_camera_bounds.position + half_view_size
 	)
@@ -170,19 +234,44 @@ func _clamp_camera_axis(
 
 
 func _on_viewport_size_changed() -> void:
-	call_deferred("_refresh_camera_position", true)
+	call_deferred(
+		"_refresh_camera_position",
+		true
+	)
 
 
 func _update_facing(input_direction: Vector2) -> void:
 	var resolved_facing := Vector2.ZERO
 
 	if absf(input_direction.x) > absf(input_direction.y):
-		resolved_facing.x = signf(input_direction.x)
+		resolved_facing.x = signf(
+			input_direction.x
+		)
 	else:
-		resolved_facing.y = signf(input_direction.y)
+		resolved_facing.y = signf(
+			input_direction.y
+		)
 
 	if resolved_facing == _last_facing:
 		return
 
 	_last_facing = resolved_facing
+
+	if is_instance_valid(interaction_sensor):
+		interaction_sensor.update_facing(
+			_last_facing
+		)
+
 	facing_changed.emit(_last_facing)
+
+
+func _on_interaction_target_changed(
+	target: LocalAreaInteractable
+) -> void:
+	interaction_target_changed.emit(target)
+
+
+func _on_interaction_requested(
+	target: LocalAreaInteractable
+) -> void:
+	interaction_requested.emit(target)

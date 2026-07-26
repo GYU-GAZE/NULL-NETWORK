@@ -1,12 +1,23 @@
-[gd_resource type="Resource" script_class="CombatEncounter" format=3 uid="uid://cdxjje47qsri2"]
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=7 format=3 uid="uid://cdxjje47qsri2"]
 
-[ext_resource type="Script" uid="uid://d1ggms7hchm4m" path="res://data/templates/character_loadout.gd" id="1_s2opg"]
-[ext_resource type="Resource" uid="uid://bqndw73t6o3d3" path="res://data/content/combat/loadouts/main_character.tres" id="2_ke8py"]
-[ext_resource type="Script" uid="uid://cpylubw8n7yf8" path="res://data/templates/combat_encounter.gd" id="2_lgnc6"]
-[ext_resource type="Resource" uid="uid://c6qnhguv6agkv" path="res://data/content/combat/loadouts/enemy_rattus.tres" id="3_03h4k"]
+[ext_resource type="Script" uid="uid://cpylubw8n7yf8" path="res://data/templates/combat_encounter.gd" id="1_encounter"]
+[ext_resource type="Script" path="res://data/templates/combat_slot_data.gd" id="2_slot"]
+[ext_resource type="Resource" uid="uid://bqndw73t6o3d3" path="res://data/content/combat/loadouts/main_character.tres" id="3_player"]
+[ext_resource type="Resource" uid="uid://c6qnhguv6agkv" path="res://data/content/combat/loadouts/enemy_rattus.tres" id="4_enemy"]
+
+[sub_resource type="Resource" id="CombatSlotData_player"]
+script = ExtResource("2_slot")
+character = ExtResource("3_player")
+
+[sub_resource type="Resource" id="CombatSlotData_enemy"]
+script = ExtResource("2_slot")
+slot_index = 1
+character = ExtResource("4_enemy")
 
 [resource]
-script = ExtResource("2_lgnc6")
-allies = Array[ExtResource("1_s2opg")]([ExtResource("2_ke8py")])
-enemies = Array[ExtResource("1_s2opg")]([ExtResource("3_03h4k")])
+script = ExtResource("1_encounter")
+encounter_id = "akihabara_rattildus_1v1"
+encounter_name = "Akihabara Rattildus"
+ally_slots = Array[ExtResource("2_slot")]([SubResource("CombatSlotData_player")])
+enemy_slots = Array[ExtResource("2_slot")]([SubResource("CombatSlotData_enemy")])
 metadata/_custom_type_script = "uid://cpylubw8n7yf8"

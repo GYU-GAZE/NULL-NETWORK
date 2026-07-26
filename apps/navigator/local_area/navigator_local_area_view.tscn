@@ -1,6 +1,7 @@
-[gd_scene format=3 uid="uid://6tu1c38mw7mg"]
+[gd_scene load_steps=3 format=3 uid="uid://6tu1c38mw7mg"]
 
 [ext_resource type="Script" uid="uid://bkahqcnxho34s" path="res://apps/navigator/local_area/navigator_local_area_view.gd" id="1_huc7g"]
+[ext_resource type="PackedScene" path="res://apps/navigator/local_area/interactions/local_area_interaction_prompt.tscn" id="2_prompt"]
 
 [node name="NavigatorLocalAreaView" type="Control" unique_id=310534927]
 layout_mode = 3
@@ -75,14 +76,19 @@ grow_vertical = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="InteractionPrompt" parent="." instance=ExtResource("2_prompt")]
+unique_name_in_owner = true
+layout_mode = 1
+
 [node name="BackButton" type="Button" parent="." unique_id=737695948]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -32.0
+offset_left = -64.0
 offset_top = 8.0
+offset_right = -8.0
 offset_bottom = 37.0
 grow_horizontal = 0
 text = "BACK"

@@ -2,6 +2,14 @@ extends Node2D
 class_name NavigatorLocalAreaScene
 
 
+signal interaction_target_changed(
+	target: LocalAreaInteractable
+)
+signal interaction_requested(
+	target: LocalAreaInteractable
+)
+
+
 @export_category("Area Geometry")
 @export var area_bounds: Rect2 = Rect2(
 	Vector2.ZERO,
@@ -16,11 +24,34 @@ var area_data: LocalAreaData
 var active_entry_id: String = ""
 
 
+func _ready() -> void:
+	if (
+		is_instance_valid(player)
+		and not player.interaction_target_changed.is_connected(
+			_on_player_interaction_target_changed
+		)
+	):
+		player.interaction_target_changed.connect(
+			_on_player_interaction_target_changed
+		)
+
+	if (
+		is_instance_valid(player)
+		and not player.interaction_requested.is_connected(
+			_on_player_interaction_requested
+		)
+	):
+		player.interaction_requested.connect(
+			_on_player_interaction_requested
+		)
+
+
 func setup_local_area(
 	data: LocalAreaData,
 	entry_id: String = "",
 	restored_player_position: Vector2 = Vector2.ZERO,
-	has_restored_player_position: bool = false
+	has_restored_player_position: bool = false,
+	restored_runtime_state: Dictionary = {}
 ) -> bool:
 	if data == null:
 		push_error(
@@ -76,6 +107,7 @@ func setup_local_area(
 		)
 
 	player.configure_camera_bounds(area_bounds)
+	apply_runtime_state(restored_runtime_state)
 	player.set_input_enabled(false)
 
 	return true
@@ -93,6 +125,94 @@ func get_player_position() -> Vector2:
 		return Vector2.ZERO
 
 	return player.global_position.round()
+
+
+func get_interact_action() -> StringName:
+	if not is_instance_valid(player):
+		return &"local_area_interact"
+
+	return player.get_interact_action()
+
+
+func get_runtime_state() -> Dictionary:
+	var interactable_states: Dictionary = {}
+
+	for interactable in _get_interactables():
+		var interaction_id: String = (
+			interactable.get_interaction_id()
+		)
+
+		if interaction_id.is_empty():
+			continue
+
+		if interactable_states.has(interaction_id):
+			push_warning(
+				"NavigatorLocalAreaScene: duplicate "
+				+ "interaction id '%s' while saving state."
+				% interaction_id
+			)
+			continue
+
+		interactable_states[interaction_id] = (
+			interactable.get_persistent_state()
+		)
+
+	return {
+		"interactables": interactable_states
+	}
+
+
+func apply_runtime_state(state: Dictionary) -> void:
+	var raw_interactable_states: Variant = state.get(
+		"interactables",
+		{}
+	)
+
+	if not raw_interactable_states is Dictionary:
+		return
+
+	var interactable_states := (
+		raw_interactable_states as Dictionary
+	)
+
+	for interactable in _get_interactables():
+		var interaction_id: String = (
+			interactable.get_interaction_id()
+		)
+
+		if not interactable_states.has(interaction_id):
+			continue
+
+		var raw_state: Variant = (
+			interactable_states[interaction_id]
+		)
+
+		if not raw_state is Dictionary:
+			continue
+
+		interactable.apply_persistent_state(
+			raw_state as Dictionary
+		)
+
+
+func _get_interactables() -> Array[LocalAreaInteractable]:
+	var interactables: Array[LocalAreaInteractable] = []
+	var pending_nodes: Array[Node] = [self]
+
+	while not pending_nodes.is_empty():
+		var current: Node = pending_nodes.pop_back()
+
+		for child in current.get_children():
+			pending_nodes.append(child)
+
+			var interactable := (
+				child as LocalAreaInteractable
+			)
+
+			if interactable != null:
+				interactables.append(interactable)
+
+	return interactables
 
 
 func _find_entry_point(
@@ -132,3 +252,15 @@ func _find_entry_point(
 			matching_entry = entry
 
 	return matching_entry
+
+
+func _on_player_interaction_target_changed(
+	target: LocalAreaInteractable
+) -> void:
+	interaction_target_changed.emit(target)
+
+
+func _on_player_interaction_requested(
+	target: LocalAreaInteractable
+) -> void:
+	interaction_requested.emit(target)

@@ -1,11 +1,17 @@
 extends Control
+class_name CombatApp
 
-@export var test_encounter: CombatEncounter
 
-var floating_offsets: Dictionary = {} # Guarda o "elevador" de cada personagem
+signal combat_finished(result: CombatResult)
+
+
+var floating_offsets: Dictionary = {}
+var actor_nodes: Dictionary = {}
+
 @onready var menu_box: VBoxContainer = %MenuBox
 @onready var execute_btn: Button = %ExecuteBtn
 @onready var change_modules_btn: Button = %ChangeModulesBtn
+@onready var run_away_btn: Button = %RunAwayBtn
 @onready var module_swap_ui: VBoxContainer = %ModuleSwapUI
 @onready var equipped_list: VBoxContainer = %EquippedModulesList
 @onready var inventory_list: VBoxContainer = %InventoryModulesList
@@ -13,246 +19,572 @@ var floating_offsets: Dictionary = {} # Guarda o "elevador" de cada personagem
 @onready var timeline_bar: HBoxContainer = %TimelineBar
 @onready var enemies_container: HBoxContainer = %EnemiesContainer
 @onready var allies_container: HBoxContainer = %AlliesContainer
-
-var actor_nodes: Dictionary = {} # Guarda as referências da UI de cada personagem
-@onready var combat_log: RichTextLabel = %CombatLog # Puxe o Log
+@onready var combat_log: RichTextLabel = %CombatLog
 
 @onready var hover_tooltip: PanelContainer = %HoverTooltip
 @onready var tooltip_label: Label = %TooltipLabel
 
 @onready var resolution_screen: PanelContainer = %ResolutionScreen
-@onready var res_title: Label = resolution_screen.get_node("VBoxContainer/Title")
-@onready var btn_consume: Button = %BtnConsume
-@onready var btn_purify: Button = %BtnPurify
-@onready var btn_tame: Button = %BtnTame
+@onready var resolution_title: Label = %ResolutionTitle
+@onready var continue_button: Button = %ContinueButton
+
+
+var _current_encounter: CombatEncounter
+var _pending_outcome: CombatResult.Outcome = (
+	CombatResult.Outcome.CANCELLED
+)
+var _encounter_active: bool = false
+
 
 func _ready() -> void:
-	# 1. ADICIONADO AQUI! Registra essa UI para receber o sinal do Drag & Drop
 	add_to_group("CombatUI")
-	
-	CombatManager.timeline_generated.connect(_on_timeline_generated)
-	CombatManager.stats_updated.connect(_update_field_ui)
-	CombatManager.action_executed.connect(_on_action_executed)
-	
-	execute_btn.pressed.connect(func(): 
-		execute_btn.disabled = true
-		CombatManager.execute_cycle()
-	)
-	
-	# 2. ATUALIZADO AQUI! Agora ele chama a função nova de refresh
-	change_modules_btn.pressed.connect(func():
-		module_swap_ui.visible = !module_swap_ui.visible
-		if module_swap_ui.visible: 
-			refresh_module_ui()
-			# Pega a posição do Menu e soma a largura dele + 10 pixels de respiro!
-			module_swap_ui.global_position = menu_box.global_position + Vector2(menu_box.size.x + 10, 0)
-	)
-	
-	if test_encounter:
-		CombatManager.load_encounter(test_encounter)
-	CombatManager.combat_log_added.connect(_update_log)
-	CombatManager.floating_text_requested.connect(_spawn_floating_text)
-	
-	CombatManager.combat_victory.connect(_on_victory)
-	CombatManager.combat_defeat.connect(_on_defeat)
-	CombatManager.cycle_ended_ready_for_next.connect(_on_cycle_ended)
-	
-	# AS ESCOLHAS DO GDD
-	btn_consume.pressed.connect(func():
-		print("CONSUME: XP Ganho. Destruiu o EXE.")
-		hide() # Esconde o combate para voltar ao OS/Navigator
-	)
-	btn_purify.pressed.connect(func():
-		print("PURIFY: EXE Purificado para APK. Ganhou Module Passivo.")
-		hide()
-	)
-	btn_tame.pressed.connect(func():
-		print("TAME: Trocou o seu APK atual pelo novo.")
-		hide()
-	)
-# COMO O SO CARREGOU O COMBAT MANAGER ANTES, MANDAMOS DESENHAR A TELA LOGO NO NASCIMENTO!
+	_connect_manager_signals()
+	_connect_ui_signals()
+
+	resolution_screen.hide()
+	module_swap_ui.hide()
+	hide_tooltip()
 	refresh_combat_field()
-	CombatManager._build_timeline() # Garante que a timeline apareça logo de cara
-func _update_log(msg: String) -> void:
-	if combat_log:
-		combat_log.append_text(msg + "\n")
+
+
+func start_encounter(
+	encounter: CombatEncounter
+) -> bool:
+	if encounter == null:
+		push_error(
+			"CombatApp: cannot start a null encounter."
+		)
+		return false
+
+	_current_encounter = encounter
+	_pending_outcome = CombatResult.Outcome.CANCELLED
+	_encounter_active = true
+
+	combat_log.clear()
+	floating_offsets.clear()
+	resolution_screen.hide()
+	module_swap_ui.hide()
+	hide_tooltip()
+
+	execute_btn.disabled = false
+	change_modules_btn.disabled = false
+	run_away_btn.disabled = false
+	continue_button.disabled = false
+
+	CombatManager.load_encounter(_current_encounter)
+	refresh_combat_field()
+	show()
+	return true
+
+
+func is_encounter_active() -> bool:
+	return _encounter_active
+
+
+func _connect_manager_signals() -> void:
+	if not CombatManager.timeline_generated.is_connected(
+		_on_timeline_generated
+	):
+		CombatManager.timeline_generated.connect(
+			_on_timeline_generated
+		)
+
+	if not CombatManager.stats_updated.is_connected(
+		_update_field_ui
+	):
+		CombatManager.stats_updated.connect(
+			_update_field_ui
+		)
+
+	if not CombatManager.action_executed.is_connected(
+		_on_action_executed
+	):
+		CombatManager.action_executed.connect(
+			_on_action_executed
+		)
+
+	if not CombatManager.combat_log_added.is_connected(
+		_update_log
+	):
+		CombatManager.combat_log_added.connect(
+			_update_log
+		)
+
+	if not CombatManager.floating_text_requested.is_connected(
+		_spawn_floating_text
+	):
+		CombatManager.floating_text_requested.connect(
+			_spawn_floating_text
+		)
+
+	if not CombatManager.combat_victory.is_connected(
+		_on_victory
+	):
+		CombatManager.combat_victory.connect(
+			_on_victory
+		)
+
+	if not CombatManager.combat_defeat.is_connected(
+		_on_defeat
+	):
+		CombatManager.combat_defeat.connect(
+			_on_defeat
+		)
+
+	if not CombatManager.cycle_ended_ready_for_next.is_connected(
+		_on_cycle_ended
+	):
+		CombatManager.cycle_ended_ready_for_next.connect(
+			_on_cycle_ended
+		)
+
+
+func _connect_ui_signals() -> void:
+	if not execute_btn.pressed.is_connected(
+		_on_execute_pressed
+	):
+		execute_btn.pressed.connect(
+			_on_execute_pressed
+		)
+
+	if not change_modules_btn.pressed.is_connected(
+		_on_change_modules_pressed
+	):
+		change_modules_btn.pressed.connect(
+			_on_change_modules_pressed
+		)
+
+	if not run_away_btn.pressed.is_connected(
+		_on_run_away_pressed
+	):
+		run_away_btn.pressed.connect(
+			_on_run_away_pressed
+		)
+
+	if not continue_button.pressed.is_connected(
+		_on_continue_pressed
+	):
+		continue_button.pressed.connect(
+			_on_continue_pressed
+		)
+
+
+func _update_log(message: String) -> void:
+	if not _encounter_active:
+		return
+
+	combat_log.append_text(message + "\n")
+
 
 func refresh_combat_field() -> void:
-	_update_field_ui() # Atalho usado pelo Drag&Drop
+	_update_field_ui()
 
-func _spawn_floating_text(actor: Dictionary, text: String, color: Color) -> void:
-	var key = actor.name
-	if not actor_nodes.has(key): return
-	var target_node: Control = actor_nodes[key] 
-	
-	var lbl = Label.new()
-	lbl.text = text
-	lbl.top_level = true 
-	lbl.add_theme_font_size_override("font_size", 28)
-	lbl.add_theme_color_override("font_color", color)
-	lbl.add_theme_color_override("font_shadow_color", Color.BLACK)
-	lbl.add_theme_constant_override("shadow_outline_size", 4)
-	
-	add_child(lbl)
-	
-	# Pega o andar atual do elevador (Começa no 0)
-	var current_offset = floating_offsets.get(key, 0)
-	
-	# Posição = Centro do Ícone - 20px - O Andar do Elevador
-	lbl.global_position = target_node.global_position + (target_node.size / 2.0) - Vector2(20, 20 + current_offset)
-	
-	# Sobe o elevador 35 pixels para o próximo texto que vier neste mesmo ciclo!
-	floating_offsets[key] = current_offset + 35 
-	
-	var tween = create_tween().set_parallel(true)
-	tween.tween_property(lbl, "global_position", lbl.global_position + Vector2(randf_range(-15, 15), -60), 0.8).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(lbl, "modulate:a", 0.0, 0.8).set_delay(0.2)
-	tween.chain().tween_callback(lbl.queue_free)
-	
-# ==========================================
-# RENDERIZANDO A BATALHA
-# ==========================================
-# (Atenção: Modifique a sua função _update_field_ui para retirar as cores antigas)
+
+func _spawn_floating_text(
+	actor: Dictionary,
+	text: String,
+	color: Color
+) -> void:
+	if not _encounter_active:
+		return
+
+	var key: String = str(actor.get("name", ""))
+
+	if not actor_nodes.has(key):
+		return
+
+	var target_node := actor_nodes[key] as Control
+
+	if target_node == null:
+		return
+
+	var label := Label.new()
+	label.text = text
+	label.top_level = true
+	label.add_theme_font_size_override("font_size", 28)
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override(
+		"font_shadow_color",
+		Color.BLACK
+	)
+	label.add_theme_constant_override(
+		"shadow_outline_size",
+		4
+	)
+	add_child(label)
+
+	var current_offset: int = int(
+		floating_offsets.get(key, 0)
+	)
+
+	label.global_position = (
+		target_node.global_position
+		+ (target_node.size / 2.0)
+		- Vector2(20, 20 + current_offset)
+	)
+	floating_offsets[key] = current_offset + 35
+
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(
+		label,
+		"global_position",
+		label.global_position
+		+ Vector2(randf_range(-15, 15), -60),
+		0.8
+	).set_trans(Tween.TRANS_BACK).set_ease(
+		Tween.EASE_OUT
+	)
+	tween.tween_property(
+		label,
+		"modulate:a",
+		0.0,
+		0.8
+	).set_delay(0.2)
+	tween.chain().tween_callback(label.queue_free)
+
+
 func _update_field_ui() -> void:
-	# Passamos o 'true' pros aliados ativarem o Drag&Drop
-	_draw_team(CombatManager.enemy_team, enemies_container, false)
-	_draw_team(CombatManager.ally_team, allies_container, true)
+	actor_nodes.clear()
+	_draw_team(
+		CombatManager.enemy_team,
+		enemies_container,
+		false
+	)
+	_draw_team(
+		CombatManager.ally_team,
+		allies_container,
+		true
+	)
 
-# ==========================================
-# RENDERIZANDO A BATALHA (BARRAS E ÍCONES)
-# ==========================================
-func _draw_team(team_array: Array, container: Control, is_ally: bool) -> void:
-	for c in container.get_children(): c.queue_free()
-	
-	# Agora o Container Principal só gera os 4 Slots Novinhos!
-	for i in range(4):
-		var slot = CharacterSlotUI.new()
+
+func _draw_team(
+	team_array: Array,
+	container: Control,
+	is_ally: bool
+) -> void:
+	for child in container.get_children():
+		child.queue_free()
+
+	for index in range(4):
+		var slot := CharacterSlotUI.new()
 		container.add_child(slot)
-		slot.setup(team_array[i], i, is_ally)
-		
-		# Recarrega as referências dos nós para o Dano Flutuante
-		if team_array[i] != null:
-			actor_nodes[team_array[i].name] = slot.icon_rect
-# ==========================================
-# RENDERIZANDO A TIMELINE (CORES DA FILA)
-# ==========================================
+		slot.setup(team_array[index], index, is_ally)
+
+		if team_array[index] != null:
+			var actor_name: String = str(
+				team_array[index].get("name", "")
+			)
+			actor_nodes[actor_name] = slot.icon_rect
+
+
 func _on_timeline_generated(actions: Array) -> void:
-	for c in timeline_bar.get_children(): c.queue_free()
-	
+	for child in timeline_bar.get_children():
+		child.queue_free()
+
 	for action in actions:
-		var panel = PanelContainer.new()
+		var panel := PanelContainer.new()
 		panel.custom_minimum_size = Vector2(80, 100)
-		
-		var mod = action.module
-		if mod:
-			# TOOLTIP E PREVISÃO (GHOST HP)
-			var t_text = "[%s]\n%s\nPower: %d | Custo: %d STB" % [mod.module_name, mod.description, mod.power, mod.stability_cost]
-			panel.mouse_entered.connect(func(): 
-				show_tooltip(t_text)
-				get_tree().call_group("CombatUI", "preview_timeline_action", action)
+
+		var module: ModuleData = action.module
+
+		if module != null:
+			var tooltip_text: String = (
+				"[%s]\n%s\nPower: %d | Custo: %d STB"
+				% [
+					module.module_name,
+					module.description,
+					module.power,
+					module.stability_cost
+				]
 			)
-			panel.mouse_exited.connect(func(): 
-				hide_tooltip()
-				get_tree().call_group("CombatUI", "clear_timeline_preview")
+			panel.mouse_entered.connect(
+				func() -> void:
+					show_tooltip(tooltip_text)
+					get_tree().call_group(
+						"CombatUI",
+						"preview_timeline_action",
+						action
+					)
 			)
-			
-		var bg_color = Color.CRIMSON
-		if action.actor.is_ally: bg_color = Color.DODGER_BLUE if action.actor.is_player else Color.LIME_GREEN
-		var style = StyleBoxFlat.new()
-		style.bg_color = bg_color.darkened(0.4)
+			panel.mouse_exited.connect(
+				func() -> void:
+					hide_tooltip()
+					get_tree().call_group(
+						"CombatUI",
+						"clear_timeline_preview"
+					)
+			)
+
+		var background_color := Color.CRIMSON
+
+		if action.actor.is_ally:
+			background_color = (
+				Color.DODGER_BLUE
+				if action.actor.is_player
+				else Color.LIME_GREEN
+			)
+
+		var style := StyleBoxFlat.new()
+		style.bg_color = background_color.darkened(0.4)
 		style.border_width_bottom = 4
-		style.border_color = bg_color
+		style.border_color = background_color
 		panel.add_theme_stylebox_override("panel", style)
-		
-		var mod_vbox = VBoxContainer.new()
-		mod_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-		var lbl = Label.new()
-		lbl.text = mod.module_name if mod else "VAZIO"
-		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		lbl.add_theme_font_size_override("font_size", 10)
-		lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
-		mod_vbox.add_child(lbl)
-		
-		if mod and mod.module_icon:
-			var ic = TextureRect.new()
-			ic.texture = mod.module_icon
-			ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			ic.custom_minimum_size = Vector2(40, 40)
-			mod_vbox.add_child(ic)
-			
-		panel.add_child(mod_vbox)
+
+		var module_box := VBoxContainer.new()
+		module_box.alignment = BoxContainer.ALIGNMENT_CENTER
+
+		var label := Label.new()
+		label.text = (
+			module.module_name
+			if module != null
+			else "VAZIO"
+		)
+		label.horizontal_alignment = (
+			HORIZONTAL_ALIGNMENT_CENTER
+		)
+		label.add_theme_font_size_override(
+			"font_size",
+			10
+		)
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD
+		module_box.add_child(label)
+
+		if module != null and module.module_icon != null:
+			var icon := TextureRect.new()
+			icon.texture = module.module_icon
+			icon.expand_mode = (
+				TextureRect.EXPAND_IGNORE_SIZE
+			)
+			icon.stretch_mode = (
+				TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			)
+			icon.custom_minimum_size = Vector2(40, 40)
+			module_box.add_child(icon)
+
+		panel.add_child(module_box)
 		timeline_bar.add_child(panel)
 
-func _on_action_executed(index: int, action_data: Dictionary) -> void:
-	floating_offsets.clear() # <--- ADICIONE ESTA LINHA AQUI! A cada nova ação na timeline, o elevador zera.
-	
-	if index < timeline_bar.get_child_count():
-		var panel = timeline_bar.get_child(index)
-		panel.modulate = Color(0.3, 0.3, 0.3, 1.0) # Escurece
-		
-		# A TREMEDEIRA! (Screen Shake Local)
-		var t = create_tween()
-		var orig = panel.position
-		t.tween_property(panel, "position", orig + Vector2(5, -5), 0.05)
-		t.tween_property(panel, "position", orig + Vector2(-5, 5), 0.05)
-		t.tween_property(panel, "position", orig, 0.05)
 
-# ==========================================
-# O SISTEMA DE INVENTÁRIO (SWAP NATIVO)
-# ==========================================
-# 3. TUDO DAQUI PRA BAIXO FOI REESCRITO PARA USAR O DRAG & DROP
+func _on_action_executed(
+	index: int,
+	_action_data: Dictionary
+) -> void:
+	floating_offsets.clear()
+
+	if index >= timeline_bar.get_child_count():
+		return
+
+	var panel := timeline_bar.get_child(index) as Control
+
+	if panel == null:
+		return
+
+	panel.modulate = Color(0.3, 0.3, 0.3, 1.0)
+
+	var tween := create_tween()
+	var original_position: Vector2 = panel.position
+	tween.tween_property(
+		panel,
+		"position",
+		original_position + Vector2(5, -5),
+		0.05
+	)
+	tween.tween_property(
+		panel,
+		"position",
+		original_position + Vector2(-5, 5),
+		0.05
+	)
+	tween.tween_property(
+		panel,
+		"position",
+		original_position,
+		0.05
+	)
+
 
 func refresh_module_ui() -> void:
 	_populate_equip_list()
 	_populate_inventory_list()
 
+
 func _populate_equip_list() -> void:
-	for c in equipped_list.get_children(): c.queue_free()
-	var player = CombatManager.ally_team[0]
-	
-	for i in range(4):
-		var slot = ModuleSlotUI.new()
+	for child in equipped_list.get_children():
+		child.queue_free()
+
+	var player: Variant = CombatManager.ally_team[0]
+
+	if player == null:
+		return
+
+	for index in range(4):
+		var slot := ModuleSlotUI.new()
 		equipped_list.add_child(slot)
-		slot.setup(player.modules[i], i, true)
+		slot.setup(player.modules[index], index, true)
+
 
 func _populate_inventory_list() -> void:
-	for c in inventory_list.get_children(): c.queue_free()
-	var pool = test_encounter.allies[0].module_pool 
-	
-	for i in range(pool.size()):
-		var slot = ModuleSlotUI.new()
-		inventory_list.add_child(slot)
-		slot.setup(pool[i], -1, false)
+	for child in inventory_list.get_children():
+		child.queue_free()
 
-func _process(delta: float) -> void:
-	# Se o tooltip estiver ligado, ele persegue o mouse o tempo todo!
+	var player_loadout := _get_player_loadout()
+
+	if player_loadout == null:
+		return
+
+	for module in player_loadout.module_pool:
+		var slot := ModuleSlotUI.new()
+		inventory_list.add_child(slot)
+		slot.setup(module, -1, false)
+
+
+func _get_player_loadout() -> CharacterLoadout:
+	if _current_encounter == null:
+		return null
+
+	for slot_data in _current_encounter.ally_slots:
+		if slot_data == null:
+			continue
+
+		if slot_data.slot_index != 0:
+			continue
+
+		if not slot_data.is_available():
+			continue
+
+		return slot_data.character
+
+	return null
+
+
+func _process(_delta: float) -> void:
 	if hover_tooltip.visible:
-		hover_tooltip.global_position = get_global_mouse_position() + Vector2(15, 15)
+		hover_tooltip.global_position = (
+			get_global_mouse_position()
+			+ Vector2(15, 15)
+		)
+
 
 func show_tooltip(text: String) -> void:
 	tooltip_label.text = text
 	hover_tooltip.show()
 
+
 func hide_tooltip() -> void:
 	hover_tooltip.hide()
 
-# ==========================================
-# GESTÃO DO LOOP E RESOLUÇÃO
-# ==========================================
+
+func _on_execute_pressed() -> void:
+	if not _encounter_active:
+		return
+
+	execute_btn.disabled = true
+	change_modules_btn.disabled = true
+	run_away_btn.disabled = true
+	module_swap_ui.hide()
+	CombatManager.execute_cycle()
+
+
+func _on_change_modules_pressed() -> void:
+	if not _encounter_active:
+		return
+
+	module_swap_ui.visible = not module_swap_ui.visible
+
+	if not module_swap_ui.visible:
+		return
+
+	refresh_module_ui()
+	module_swap_ui.global_position = (
+		menu_box.global_position
+		+ Vector2(menu_box.size.x + 10, 0)
+	)
+
+
+func _on_run_away_pressed() -> void:
+	if not _encounter_active:
+		return
+
+	_finish_encounter(CombatResult.Outcome.ESCAPED)
+
+
 func _on_cycle_ended() -> void:
-	# O turno acabou e ninguém morreu. Liga o botão de novo!
+	if not _encounter_active:
+		return
+
 	execute_btn.disabled = false
+	change_modules_btn.disabled = false
+	run_away_btn.disabled = false
+
 
 func _on_victory() -> void:
-	res_title.text = "VITÓRIA"
-	res_title.add_theme_color_override("font_color", Color.LIME_GREEN)
-	resolution_screen.show()
+	if not _encounter_active:
+		return
+
+	_pending_outcome = CombatResult.Outcome.VICTORY
+	_show_resolution(
+		"VITÓRIA",
+		Color.LIME_GREEN
+	)
+
 
 func _on_defeat() -> void:
-	res_title.text = "DERROTA CRÍTICA"
-	res_title.add_theme_color_override("font_color", Color.CRIMSON)
-	btn_purify.hide() # Na derrota não há loot!
-	btn_tame.hide()
-	btn_consume.text = "REINICIAR SISTEMA" # Reaproveitamos o botão para fechar
+	if not _encounter_active:
+		return
+
+	_pending_outcome = CombatResult.Outcome.DEFEAT
+	_show_resolution(
+		"DERROTA CRÍTICA",
+		Color.CRIMSON
+	)
+
+
+func _show_resolution(
+	title: String,
+	color: Color
+) -> void:
+	execute_btn.disabled = true
+	change_modules_btn.disabled = true
+	run_away_btn.disabled = true
+	module_swap_ui.hide()
+
+	resolution_title.text = title
+	resolution_title.add_theme_color_override(
+		"font_color",
+		color
+	)
 	resolution_screen.show()
+
+
+func _on_continue_pressed() -> void:
+	if not _encounter_active:
+		return
+
+	if _pending_outcome == CombatResult.Outcome.CANCELLED:
+		return
+
+	continue_button.disabled = true
+	_finish_encounter(_pending_outcome)
+
+
+func _finish_encounter(
+	outcome: CombatResult.Outcome
+) -> void:
+	if not _encounter_active:
+		return
+
+	_encounter_active = false
+	resolution_screen.hide()
+	module_swap_ui.hide()
+	hide_tooltip()
+
+	var encounter_id: String = ""
+
+	if _current_encounter != null:
+		encounter_id = _current_encounter.encounter_id
+
+	var result := CombatResult.create(
+		outcome,
+		encounter_id
+	)
+	combat_finished.emit(result)
