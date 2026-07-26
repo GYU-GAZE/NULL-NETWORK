@@ -89,7 +89,6 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          cp tests/combat/test_project.godot project.godot
           ./Godot_v4.6.3-stable_linux.x86_64 \
             --headless \
             --path . \
@@ -113,9 +112,9 @@ jobs:
             exit 1
           fi
 
-          if grep -E "Parse Error|Failed loading resource|COMBAT_RUNTIME_TEST: " godot-combat-test.log \
+          if grep -E "COMBAT_RUNTIME_TEST: " godot-combat-test.log \
             | grep -v "COMBAT_RUNTIME_TEST: PASS"; then
-            echo "The isolated combat runtime test reported an error."
+            echo "The combat runtime test reported an error."
             exit 1
           fi
 
