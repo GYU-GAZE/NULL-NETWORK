@@ -1,12 +1,32 @@
-[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://bdb5bnnhx1o76"]
+[gd_resource type="Resource" script_class="ModuleData" load_steps=6 format=3 uid="uid://bdb5bnnhx1o76"]
 
-[ext_resource type="Script" uid="uid://0ancnq2edet1" path="res://data/templates/status_effect.gd" id="1_3pwyn"]
-[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="1_gb4rw"]
+[ext_resource type="Script" path="res://data/templates/module_data.gd" id="1_module"]
+[ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
+[ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="3_target"]
+[ext_resource type="Script" path="res://data/templates/combat_value_formula.gd" id="4_formula"]
+[ext_resource type="Resource" path="res://data/content/combat/status_effects/dodge_up.tres" id="5_status"]
+
+[sub_resource type="Resource" id="Target_self"]
+script = ExtResource("3_target")
+target_kind = 0
+
+[sub_resource type="Resource" id="Formula_stack"]
+script = ExtResource("4_formula")
+base_value = 1.0
+
+[sub_resource type="Resource" id="Effect_status"]
+script = ExtResource("2_effect")
+effect_type = 3
+target_selector = SubResource("Target_self")
+value_formula = SubResource("Formula_stack")
+status_effect = ExtResource("5_status")
+can_crit = false
 
 [resource]
-script = ExtResource("1_gb4rw")
+script = ExtResource("1_module")
+module_id = &"basic_dodge"
 module_name = "Dodge"
-module_type = "Support"
+description = "Raises DODGE for the remainder of the cycle."
 stability_cost = 30
-target_type = "Self"
-metadata/_custom_type_script = "uid://c5i2yudu22p4m"
+module_tags = 20
+combat_effects = Array[ExtResource("2_effect")]([SubResource("Effect_status")])
