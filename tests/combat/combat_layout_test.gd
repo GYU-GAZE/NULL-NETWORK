@@ -6,7 +6,7 @@ const COMBAT_SCENE: PackedScene = preload(
 const TEST_ENCOUNTER: CombatEncounter = preload(
 	"res://data/content/combat/1v1.tres"
 )
-const ENCOUNTER_2X_BREAKPOINT := Vector2(530, 347)
+const ENCOUNTER_2X_BREAKPOINT := Vector2(530, 377)
 const LARGE_2X_COMBAT_SIZE := Vector2(640, 360)
 const DEFAULT_OUTER_COMBAT_SIZE := Vector2(640, 255)
 const LAYOUT_EPSILON: float = 1.0

@@ -21,7 +21,7 @@ const APP_ID: String = "navigator"
 
 @export_category("Adaptive Presentation")
 @export var encounter_pixel_density_breakpoint: Vector2 = (
-	Vector2(530, 347)
+	Vector2(530, 377)
 )
 
 
