@@ -10,7 +10,6 @@ signal app_focused(app_id: String)
 signal workspace_activated(workspace_id: String)
 
 signal dock_lock_changed(locked: bool, reason: String)
-signal dock_visibility_requested(visible: bool, reason: String)
 
 signal request_toggle_notification_center
 signal request_close_notification_center
