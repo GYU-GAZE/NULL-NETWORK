@@ -52,19 +52,25 @@ alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
-text = "Change Modules"
+tooltip_text = "Change Modules"
+text = "MODULES"
+clip_text = true
 
 [node name="ExecuteBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=1608989675]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
-text = "Execute Cycle"
+tooltip_text = "Execute Cycle"
+text = "EXECUTE"
+clip_text = true
 
 [node name="RunAwayBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=1774351517]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
-text = "Run Away"
+tooltip_text = "Run Away"
+text = "RUN"
+clip_text = true
 
 [node name="TimelineScroll" type="ScrollContainer" parent="ContentMargin/BattleBox/CenterHBox"]
 unique_name_in_owner = true
