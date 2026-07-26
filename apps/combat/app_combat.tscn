@@ -17,9 +17,9 @@ script = ExtResource("1_combat")
 [node name="ContentMargin" type="MarginContainer" parent="."]
 layout_mode = 2
 theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
+theme_override_constants/margin_top = 3
 theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
+theme_override_constants/margin_bottom = 3
 
 [node name="BattleBox" type="VBoxContainer" parent="ContentMargin" unique_id=39582378]
 unique_name_in_owner = true
