@@ -57,6 +57,11 @@ func _run_test() -> void:
 	if not await _status_icons_render(combat_app):
 		return
 
+	if not _dynamic_components_are_scene_backed(
+		combat_app
+	):
+		return
+
 	if not _combat_uses_kubu_font_density(combat_app):
 		return
 
@@ -208,17 +213,12 @@ func _combat_uses_kubu_font_density(
 		"ContentMargin/BattleBox/CenterHBox/TimelineScroll/TimelineBar"
 	) as HBoxContainer
 	var first_timeline_slot := (
-		timeline_bar.get_child(0) as CenterContainer
-	)
-	var first_timeline_card := (
-		first_timeline_slot.get_child(0) as PanelContainer
-	)
-	var timeline_box := (
-		first_timeline_card.get_child(0) as VBoxContainer
+		timeline_bar.get_child(0)
+		as TimelineActionCardUI
 	)
 	var timeline_label := (
-		timeline_box.get_child(
-			timeline_box.get_child_count() - 1
+		first_timeline_slot.get_node(
+			"%ModuleName"
 		) as Label
 	)
 	text_controls.append(timeline_label)
@@ -229,19 +229,12 @@ func _combat_uses_kubu_font_density(
 	var player_slot := (
 		allies.get_child(0) as CharacterSlotUI
 	)
-	var actor_frame := (
-		player_slot.get_child(0) as PanelContainer
-	)
-	var actor_content := (
-		actor_frame.get_child(0) as VBoxContainer
-	)
 	var actor_header := (
-		actor_content.get_child(0) as Label
+		player_slot.get_node("%ActorHeader") as Label
 	)
-	var hp_bar := (
-		player_slot.get_child(1) as ProgressBar
+	var hp_label := (
+		player_slot.get_node("%HPLabel") as Label
 	)
-	var hp_label := hp_bar.get_child(0) as Label
 	text_controls.append(actor_header)
 	text_controls.append(hp_label)
 
@@ -320,6 +313,10 @@ func _status_icons_render(
 	var tooltip := status_icon.tooltip_text
 
 	if (
+		not (status_icon is StatusEffectBadgeUI)
+		or status_icon.scene_file_path
+		!= "res://apps/combat/status_effect_badge_ui.tscn"
+		or
 		not tooltip.contains("BARRIER")
 		or not tooltip.contains("Stacks: 3/99")
 		or not tooltip.contains("Duration: permanent")
@@ -332,6 +329,93 @@ func _status_icons_render(
 	return true
 
 
+func _dynamic_components_are_scene_backed(
+	combat_app: CombatApp
+) -> bool:
+	var style := combat_app.ui_style
+
+	if style == null or not style.validate_data().is_empty():
+		_fail("Default CombatUIStyleData is invalid.")
+		return false
+
+	var allies := combat_app.get_node(
+		"ContentMargin/BattleBox/AlliesContainer"
+	) as HBoxContainer
+	var player_slot := (
+		allies.get_child(0) as CharacterSlotUI
+	)
+
+	if (
+		player_slot == null
+		or player_slot.scene_file_path
+		!= "res://apps/combat/character_slot_ui.tscn"
+	):
+		_fail("Character cards are not scene-backed.")
+		return false
+
+	var timeline_bar := combat_app.get_node(
+		"ContentMargin/BattleBox/CenterHBox/TimelineScroll/TimelineBar"
+	) as HBoxContainer
+	var timeline_card := (
+		timeline_bar.get_child(0)
+		as TimelineActionCardUI
+	)
+
+	if (
+		timeline_card == null
+		or timeline_card.scene_file_path
+		!= "res://apps/combat/timeline_action_card_ui.tscn"
+	):
+		_fail("Timeline cards are not scene-backed.")
+		return false
+
+	combat_app.refresh_module_ui()
+	var equipped_list := combat_app.get_node(
+		"OverlayLayer/ModuleSwapUI/ListsHBox/EquippedModulesList"
+	) as VBoxContainer
+	var module_slot := (
+		equipped_list.get_child(0) as ModuleSlotUI
+	)
+
+	if (
+		module_slot == null
+		or module_slot.scene_file_path
+		!= "res://apps/combat/module_slot_ui.tscn"
+	):
+		_fail("Module inventory slots are not scene-backed.")
+		return false
+
+	var custom_style := style.duplicate(true) as CombatUIStyleData
+	custom_style.timeline_font_size = 13
+	timeline_card.setup(
+		timeline_card.action_data,
+		custom_style
+	)
+	var timeline_label := timeline_card.get_node(
+		"%ModuleName"
+	) as Label
+
+	if (
+		timeline_label == null
+		or timeline_label.get_theme_font_size(
+			"font_size"
+		) != 13
+	):
+		_fail(
+			"Combat style did not override timeline font size."
+		)
+		return false
+
+	timeline_card.setup(
+		timeline_card.action_data,
+		style
+	)
+	timeline_label.remove_theme_font_size_override(
+		"font_size"
+	)
+	return true
+
+
 func _timeline_slots_are_square(
 	combat_app: CombatApp
 ) -> bool:
@@ -341,15 +425,12 @@ func _timeline_slots_are_square(
 	var found_module_icon: bool = false
 
 	for child in timeline_bar.get_children():
-		var slot_center := child as CenterContainer
+		var slot_card := child as TimelineActionCardUI
 
-		if (
-			slot_center == null
-			or slot_center.get_child_count() == 0
-		):
+		if slot_card == null:
 			continue
 
-		var panel := slot_center.get_child(0) as PanelContainer
+		var panel := slot_card.get_card_control()
 
 		if panel == null:
 			continue
@@ -373,13 +454,11 @@ func _timeline_slots_are_square(
 			)
 			return false
 
-		var box := panel.get_child(0) as VBoxContainer
+		var icon := slot_card.get_node(
+			"%ModuleIcon"
+		) as TextureRect
 
-		if (
-			box != null
-			and box.get_child_count() >= 2
-			and box.get_child(0) is TextureRect
-		):
+		if icon != null and icon.visible:
 			found_module_icon = true
 
 	if not found_module_icon:

@@ -2,39 +2,26 @@ extends PanelContainer
 class_name ModuleSlotUI
 
 
+signal tooltip_requested(text: String)
+signal tooltip_hidden
+signal modules_changed
+
+
+@export var ui_style: CombatUIStyleData = preload(
+	"res://data/content/combat/default_combat_ui_style.tres"
+)
+
+@onready var row: HBoxContainer = %Row
+@onready var icon_rect: TextureRect = %ModuleIcon
+@onready var label: Label = %ModuleName
+
+
 var slot_index: int = -1
 var current_module: ModuleData
 var is_equipped_slot: bool = false
-var label: Label
-var icon_rect: TextureRect
 
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(120, 40)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 4)
-	add_child(row)
-
-	icon_rect = TextureRect.new()
-	icon_rect.custom_minimum_size = Vector2(28, 28)
-	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon_rect.stretch_mode = (
-		TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	)
-	row.add_child(icon_rect)
-
-	label = Label.new()
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.horizontal_alignment = (
-		HORIZONTAL_ALIGNMENT_CENTER
-	)
-	label.vertical_alignment = (
-		VERTICAL_ALIGNMENT_CENTER
-	)
-	label.autowrap_mode = (
-		TextServer.AUTOWRAP_WORD
-	)
-	row.add_child(label)
 	mouse_entered.connect(_on_hover_in)
 	mouse_exited.connect(_on_hover_out)
 
@@ -42,11 +29,17 @@ func _ready() -> void:
 func setup(
 	module: ModuleData,
 	index: int,
-	is_equipped: bool
+	is_equipped: bool,
+	style: CombatUIStyleData = null
 ) -> void:
 	current_module = module
 	slot_index = index
 	is_equipped_slot = is_equipped
+
+	if style != null:
+		ui_style = style
+
+	_apply_style()
 	label.text = (
 		module.module_name
 		if module != null
@@ -59,6 +52,31 @@ func setup(
 	)
 
 
+func _apply_style() -> void:
+	if ui_style == null:
+		return
+
+	custom_minimum_size = ui_style.module_slot_size
+	icon_rect.custom_minimum_size = (
+		ui_style.module_icon_size
+	)
+	row.add_theme_constant_override(
+		"separation",
+		ui_style.module_separation
+	)
+	add_theme_stylebox_override(
+		"panel",
+		ui_style.copy_style(
+			ui_style.module_slot_style
+		)
+	)
+	ui_style.apply_font(
+		label,
+		ui_style.module_font,
+		ui_style.module_font_size
+	)
+
+
 func _get_drag_data(
 	_at_position: Vector2
 ) -> Variant:
@@ -67,6 +85,14 @@ func _get_drag_data(
 
 	var preview := Label.new()
 	preview.text = " %s " % current_module.module_name
+
+	if ui_style != null:
+		ui_style.apply_font(
+			preview,
+			ui_style.module_font,
+			ui_style.module_font_size
+		)
+
 	set_drag_preview(preview)
 	return {
 		"source_slot": self,
@@ -115,19 +141,14 @@ func _drop_data(
 			null
 		)
 
-	get_tree().call_group(
-		"CombatUI",
-		"refresh_module_ui"
-	)
+	modules_changed.emit()
 
 
 func _on_hover_in() -> void:
 	if current_module == null:
 		return
 
-	get_tree().call_group(
-		"CombatUI",
-		"show_tooltip",
+	tooltip_requested.emit(
 		CombatManager.get_module_tooltip(
 			current_module
 		)
@@ -135,7 +156,4 @@ func _on_hover_in() -> void:
 
 
 func _on_hover_out() -> void:
-	get_tree().call_group(
-		"CombatUI",
-		"hide_tooltip"
-	)
+	tooltip_hidden.emit()

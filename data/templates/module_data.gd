@@ -25,6 +25,9 @@ class_name ModuleData
 @export_category("Combat Effects")
 @export var combat_effects: Array[CombatEffectData] = []
 
+@export_category("Presentation")
+@export var presentation: CombatPresentationData
+
 
 func validate_data() -> PackedStringArray:
 	var errors := PackedStringArray()
@@ -63,6 +66,13 @@ func validate_data() -> PackedStringArray:
 			continue
 
 		errors.append_array(effect.validate_data())
+
+	if presentation != null:
+		errors.append_array(
+			presentation.validate_data(
+				"Module '%s'" % module_name
+			)
+		)
 
 	return errors
 

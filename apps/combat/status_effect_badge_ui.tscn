@@ -1,0 +1,51 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/combat/status_effect_badge_ui.gd" id="1_badge"]
+
+[node name="StatusEffectBadgeUI" type="PanelContainer"]
+custom_minimum_size = Vector2(20, 20)
+mouse_filter = 0
+script = ExtResource("1_badge")
+
+[node name="BadgeContent" type="Control" parent="."]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="StatusIcon" type="TextureRect" parent="BadgeContent"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="FallbackLabel" type="Label" parent="BadgeContent"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StackLabel" type="Label" parent="BadgeContent"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+text = "1"
+horizontal_alignment = 2
+vertical_alignment = 2

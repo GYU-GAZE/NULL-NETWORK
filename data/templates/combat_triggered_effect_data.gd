@@ -6,6 +6,7 @@ class_name CombatTriggeredEffectData
 @export var effects: Array[CombatEffectData] = []
 @export var stack_delta_after_trigger: int = 0
 @export var trigger_once_per_cycle: bool = false
+@export var presentation_override: CombatPresentationData
 
 
 func validate_data() -> PackedStringArray:
@@ -38,5 +39,12 @@ func validate_data() -> PackedStringArray:
 				"CONTINUOUS triggers only accept passive stat "
 				+ "or damage modifiers."
 			)
+
+	if presentation_override != null:
+		errors.append_array(
+			presentation_override.validate_data(
+				"Triggered Status effect"
+			)
+		)
 
 	return errors

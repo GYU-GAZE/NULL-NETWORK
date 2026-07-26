@@ -1,0 +1,116 @@
+[gd_resource type="Resource" script_class="CombatUIStyleData" load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://data/templates/combat_ui_style_data.gd" id="1_style"]
+
+[sub_resource type="StyleBoxFlat" id="PlayerActor"]
+bg_color = Color(0.1, 0.1, 0.1, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="AllyActor"]
+bg_color = Color(0.1, 0.1, 0.1, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.196078, 0.803922, 0.196078, 1)
+
+[sub_resource type="StyleBoxFlat" id="EnemyActor"]
+bg_color = Color(0.1, 0.1, 0.1, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.862745, 0.0784314, 0.235294, 1)
+
+[sub_resource type="StyleBoxFlat" id="DisabledActor"]
+bg_color = Color(0.1, 0.1, 0.1, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.862745, 0.0784314, 0.235294, 1)
+
+[sub_resource type="StyleBoxFlat" id="EmptySlot"]
+bg_color = Color(0.1, 0.1, 0.1, 0.3)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.3, 0.3, 0.5)
+
+[sub_resource type="StyleBoxFlat" id="LockedSlot"]
+bg_color = Color(0.2, 0.03, 0.03, 0.8)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.862745, 0.0784314, 0.235294, 1)
+
+[sub_resource type="StyleBoxFlat" id="BarBackground"]
+bg_color = Color(0.02, 0.02, 0.03, 0.9)
+
+[sub_resource type="StyleBoxFlat" id="HPFill"]
+bg_color = Color(0.862745, 0.0784314, 0.235294, 1)
+
+[sub_resource type="StyleBoxFlat" id="HPDamage"]
+bg_color = Color(1, 0.647059, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="HPHeal"]
+bg_color = Color(0.196078, 0.803922, 0.196078, 1)
+
+[sub_resource type="StyleBoxFlat" id="StabilityFill"]
+bg_color = Color(0.117647, 0.564706, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StatusBadge"]
+bg_color = Color(0.04, 0.08, 0.12, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="PlayerTimeline"]
+bg_color = Color(0.0705882, 0.337255, 0.6, 1)
+border_width_bottom = 4
+border_color = Color(0.117647, 0.564706, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="AllyTimeline"]
+bg_color = Color(0.117647, 0.482353, 0.117647, 1)
+border_width_bottom = 4
+border_color = Color(0.196078, 0.803922, 0.196078, 1)
+
+[sub_resource type="StyleBoxFlat" id="EnemyTimeline"]
+bg_color = Color(0.517647, 0.0470588, 0.141176, 1)
+border_width_bottom = 4
+border_color = Color(0.862745, 0.0784314, 0.235294, 1)
+
+[sub_resource type="StyleBoxFlat" id="ModuleSlot"]
+bg_color = Color(0.04, 0.04, 0.06, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.3, 0.35, 1)
+
+[resource]
+script = ExtResource("1_style")
+player_actor_style = SubResource("PlayerActor")
+ally_actor_style = SubResource("AllyActor")
+enemy_actor_style = SubResource("EnemyActor")
+disabled_actor_style = SubResource("DisabledActor")
+empty_slot_style = SubResource("EmptySlot")
+locked_slot_style = SubResource("LockedSlot")
+bar_background_style = SubResource("BarBackground")
+hp_fill_style = SubResource("HPFill")
+hp_preview_damage_style = SubResource("HPDamage")
+hp_preview_heal_style = SubResource("HPHeal")
+stability_fill_style = SubResource("StabilityFill")
+status_badge_style = SubResource("StatusBadge")
+player_timeline_style = SubResource("PlayerTimeline")
+ally_timeline_style = SubResource("AllyTimeline")
+enemy_timeline_style = SubResource("EnemyTimeline")
+module_slot_style = SubResource("ModuleSlot")

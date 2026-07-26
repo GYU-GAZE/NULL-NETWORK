@@ -3,6 +3,7 @@ extends Node
 
 var _failures := PackedStringArray()
 var _combat_manager: Node
+var _presentation_events: Array[CombatPresentationEvent] = []
 
 
 func _ready() -> void:
@@ -17,6 +18,13 @@ func _ready() -> void:
 		)
 		call_deferred("_finish")
 		return
+
+	if not _combat_manager.presentation_event_emitted.is_connected(
+		_on_presentation_event
+	):
+		_combat_manager.presentation_event_emitted.connect(
+			_on_presentation_event
+		)
 
 	call_deferred("_run")
 
@@ -261,13 +269,41 @@ func _test_status_and_cycle_trigger(
 	var rest_module := load(
 		"res://data/content/combat/modules/idle.tres"
 	) as ModuleData
-	var barrier_module := _make_barrier_module(4)
+	var module_presentation := _make_test_presentation(
+		&"test_module"
+	)
+	var status_presentation := _make_test_presentation(
+		&"test_barrier"
+	)
+	var barrier_status := load(
+		"res://data/content/combat/status_effects/defense_up.tres"
+	) as StatusEffectData
+
+	if barrier_status != null:
+		barrier_status = (
+			barrier_status.duplicate(true)
+			as StatusEffectData
+		)
+		barrier_status.activation_presentation = (
+			status_presentation
+		)
+
+	var barrier_module := _make_barrier_module(
+		4,
+		barrier_status
+	)
 	var repeated_attack := _make_repeated_attack(3)
+
+	if repeated_attack != null:
+		repeated_attack.presentation = module_presentation
 
 	_check(
 		player != null
 		and enemy != null
 		and rest_module != null
+		and module_presentation != null
+		and status_presentation != null
+		and barrier_status != null
 		and barrier_module != null
 		and repeated_attack != null,
 		"Barrier test fixtures did not initialize."
@@ -277,6 +313,9 @@ func _test_status_and_cycle_trigger(
 		player == null
 		or enemy == null
 		or rest_module == null
+		or module_presentation == null
+		or status_presentation == null
+		or barrier_status == null
 		or barrier_module == null
 		or repeated_attack == null
 	):
@@ -295,6 +334,7 @@ func _test_status_and_cycle_trigger(
 		rest_module
 	]
 	_combat_manager.rebuild_timeline()
+	_presentation_events.clear()
 
 	var player_hp_before := float(
 		player.get("hp", 0.0)
@@ -318,6 +358,47 @@ func _test_status_and_cycle_trigger(
 			0
 		),
 		"Module classification targeting history was not recorded."
+	)
+	_check(
+		repeated_attack.validate_data().is_empty()
+		and barrier_status.validate_data().is_empty(),
+		"Presentation Resources failed content validation."
+	)
+	_check(
+		_count_presentation_events(
+			CombatPresentationEvent.EventKind.MODULE_ACTION_STARTED
+		) == 1,
+		"Repeated Module did not emit one action presentation event."
+	)
+	_check(
+		_count_presentation_events(
+			CombatPresentationEvent.EventKind.MODULE_EXECUTION_STARTED
+		) == 3,
+		"Repeated Module did not emit three execution events."
+	)
+	_check(
+		_count_presentation_events(
+			CombatPresentationEvent.EventKind.MODULE_TARGET_RESOLVED
+		) == 3,
+		"Repeated Module did not resolve three visual targets."
+	)
+	_check(
+		_count_presentation_events(
+			CombatPresentationEvent.EventKind.MODULE_BLOCKED
+		) == 3,
+		"Barrier did not produce three blocked Module events."
+	)
+	_check(
+		_count_presentation_events(
+			CombatPresentationEvent.EventKind.STATUS_ACTIVATED
+		) == 3,
+		"Barrier did not activate its Status presentation per hit."
+	)
+	_check(
+		_count_presentation_events(
+			CombatPresentationEvent.EventKind.MODULE_HIT
+		) == 0,
+		"Blocked Module incorrectly emitted a hit presentation."
 	)
 
 	var trigger := CombatTriggerData.new()
@@ -472,11 +553,15 @@ func _test_combat_resolution(
 	)
 
 func _make_barrier_module(
-	stack_count: int
+	stack_count: int,
+	status_override: StatusEffectData = null
 ) -> ModuleData:
-	var barrier := load(
-		"res://data/content/combat/status_effects/defense_up.tres"
-	) as StatusEffectData
+	var barrier := status_override
+
+	if barrier == null:
+		barrier = load(
+			"res://data/content/combat/status_effects/defense_up.tres"
+		) as StatusEffectData
 
 	if barrier == null:
 		return null
@@ -504,6 +589,57 @@ func _make_barrier_module(
 	var effects: Array[CombatEffectData] = [effect]
 	module.combat_effects = effects
 	return module
+
+
+func _make_test_presentation(
+	animation_id: StringName
+) -> CombatPresentationData:
+	var effect_root := Node2D.new()
+	effect_root.name = "TestCombatEffect"
+	var effect_scene := PackedScene.new()
+	var pack_result := effect_scene.pack(effect_root)
+	effect_root.free()
+
+	if pack_result != OK:
+		_failures.append(
+			"Could not pack the presentation test Scene."
+		)
+		return null
+
+	var animation := CombatAnimationData.new()
+	animation.animation_id = animation_id
+	animation.display_name = String(animation_id)
+	animation.effect_scene = effect_scene
+	var presentation := CombatPresentationData.new()
+	presentation.animate_source = true
+	presentation.source_animation = animation
+	presentation.source_repeat_mode = (
+		CombatPresentationData.RepeatMode.ONCE_PER_ACTION
+	)
+	presentation.animate_targets = true
+	presentation.target_animation = animation
+	presentation.target_repeat_mode = (
+		CombatPresentationData.RepeatMode.ONCE_PER_EXECUTION
+	)
+	return presentation
+
+
+func _count_presentation_events(
+	event_kind: CombatPresentationEvent.EventKind
+) -> int:
+	var count: int = 0
+
+	for event in _presentation_events:
+		if event != null and event.event_kind == event_kind:
+			count += 1
+
+	return count
+
+
+func _on_presentation_event(
+	event: CombatPresentationEvent
+) -> void:
+	_presentation_events.append(event)
 
 
 func _make_repeated_attack(
