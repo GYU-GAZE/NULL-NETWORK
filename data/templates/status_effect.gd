@@ -40,6 +40,9 @@ enum DamageRule {
 @export_category("Behavior")
 @export var triggered_effects: Array[CombatTriggeredEffectData] = []
 
+@export_category("Presentation")
+@export var activation_presentation: CombatPresentationData
+
 
 func validate_data() -> PackedStringArray:
 	var errors := PackedStringArray()
@@ -79,6 +82,13 @@ func validate_data() -> PackedStringArray:
 
 		errors.append_array(
 			triggered_effect.validate_data()
+		)
+
+	if activation_presentation != null:
+		errors.append_array(
+			activation_presentation.validate_data(
+				"Status '%s'" % display_name
+			)
 		)
 
 	return errors

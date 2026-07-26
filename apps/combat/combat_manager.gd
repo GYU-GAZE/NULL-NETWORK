@@ -20,6 +20,9 @@ signal action_executed(
 	index: int,
 	action_data: Dictionary
 )
+signal presentation_event_emitted(
+	event: CombatPresentationEvent
+)
 
 
 const TEAM_SIZE: int = 4
@@ -1264,6 +1267,11 @@ func _execute_action(
 		module_context.execution_count = (
 			module.execution_count
 		)
+		_emit_module_presentation(
+			CombatPresentationEvent.EventKind.MODULE_ACTION_STARTED,
+			module_context,
+			action.get("target")
+		)
 		_dispatch_event(module_context)
 
 		for execution_index in range(
@@ -1284,6 +1292,11 @@ func _execute_action(
 			)
 			execution_context.execution_count = (
 				module.execution_count
+			)
+			_emit_module_presentation(
+				CombatPresentationEvent.EventKind.MODULE_EXECUTION_STARTED,
+				execution_context,
+				action.get("target")
 			)
 			_execute_effects(
 				actor,
@@ -1432,8 +1445,8 @@ func _execute_slot_effect(
 				)
 				return
 
-			var destination := slots[0]
-			var moved := move_actor_to_position(
+			var destination: CombatRuntimeSlot = slots[0]
+			var moved: bool = move_actor_to_position(
 				int(targets[0].get("uid", -1)),
 				destination.slot_id,
 				effect.swap_occupants_when_moving
@@ -1507,6 +1520,13 @@ func _execute_effect_on_target(
 		context
 	)
 
+	if status_instance == null:
+		_emit_module_presentation(
+			CombatPresentationEvent.EventKind.MODULE_TARGET_RESOLVED,
+			context,
+			target
+		)
+
 	match effect.effect_type:
 		CombatEffectData.EffectType.DAMAGE:
 			_apply_damage(
@@ -1515,7 +1535,8 @@ func _execute_effect_on_target(
 				module,
 				effect,
 				amount,
-				context
+				context,
+				status_instance
 			)
 
 		CombatEffectData.EffectType.HEAL:
@@ -1599,7 +1620,8 @@ func _apply_damage(
 	module: ModuleData,
 	effect: CombatEffectData,
 	raw_amount: float,
-	parent_context: CombatEventContext
+	parent_context: CombatEventContext,
+	status_instance: CombatStatusInstance = null
 ) -> void:
 	var target: Variant = _resolve_redirect_target(
 		original_target
@@ -1638,13 +1660,21 @@ func _apply_damage(
 			"MISS!",
 			Color.GRAY
 		)
+
+		if status_instance == null:
+			_emit_module_presentation(
+				CombatPresentationEvent.EventKind.MODULE_MISSED,
+				parent_context,
+				target
+			)
 		return
 
 	if _consume_barrier_stack(
 		caster,
 		target,
 		module,
-		parent_context
+		parent_context,
+		status_instance
 	):
 		return
 
@@ -1681,6 +1711,13 @@ func _apply_damage(
 		float(target.get("hp", 0.0))
 		- damage
 	)
+
+	if status_instance == null:
+		_emit_module_presentation(
+			CombatPresentationEvent.EventKind.MODULE_HIT,
+			parent_context,
+			target
+		)
 
 	var floating_text := "-%d" % damage
 	var floating_color := Color.CRIMSON
@@ -1742,7 +1779,8 @@ func _consume_barrier_stack(
 	caster: Dictionary,
 	target: Dictionary,
 	module: ModuleData,
-	parent_context: CombatEventContext
+	parent_context: CombatEventContext,
+	status_instance: CombatStatusInstance = null
 ) -> bool:
 	for instance in target.get(
 		"active_statuses",
@@ -1774,6 +1812,20 @@ func _consume_barrier_stack(
 				instance.data.display_name,
 				instance.stacks
 			]
+		)
+
+		if status_instance == null:
+			_emit_module_presentation(
+				CombatPresentationEvent.EventKind.MODULE_BLOCKED,
+				parent_context,
+				target
+			)
+
+		_emit_status_presentation(
+			parent_context,
+			target,
+			target,
+			instance.data
 		)
 
 		var blocked_context := _make_context(
@@ -2216,6 +2268,13 @@ func _process_status_triggers(
 			if source == null:
 				source = holder
 
+			_emit_status_presentation(
+				context,
+				source,
+				holder,
+				instance.data,
+				triggered_effect
+			)
 			_execute_effects(
 				source,
 				triggered_effect.effects,
@@ -3480,6 +3539,68 @@ func _fail_effect(
 		actor,
 		"FAIL!",
 		Color.GRAY
+	)
+
+
+func _emit_module_presentation(
+	event_kind: CombatPresentationEvent.EventKind,
+	context: CombatEventContext,
+	target: Variant = null
+) -> void:
+	if (
+		context == null
+		or context.module == null
+		or context.module.presentation == null
+		or not context.module.presentation.has_visuals()
+	):
+		return
+
+	presentation_event_emitted.emit(
+		CombatPresentationEvent.create(
+			event_kind,
+			context.module.presentation,
+			context,
+			context.source,
+			target,
+			context.module
+		)
+	)
+
+
+func _emit_status_presentation(
+	context: CombatEventContext,
+	source: Variant,
+	target: Variant,
+	status: StatusEffectData,
+	triggered_effect: CombatTriggeredEffectData = null
+) -> void:
+	if status == null:
+		return
+
+	var presentation := status.activation_presentation
+
+	if (
+		triggered_effect != null
+		and triggered_effect.presentation_override != null
+	):
+		presentation = (
+			triggered_effect.presentation_override
+		)
+
+	if presentation == null or not presentation.has_visuals():
+		return
+
+	presentation_event_emitted.emit(
+		CombatPresentationEvent.create(
+			CombatPresentationEvent.EventKind.STATUS_ACTIVATED,
+			presentation,
+			context,
+			source,
+			target,
+			context.module if context != null else null,
+			status,
+			triggered_effect
+		)
 	)
 
 

@@ -5,6 +5,22 @@ class_name CombatApp
 signal combat_finished(result: CombatResult)
 
 
+const CHARACTER_SLOT_SCENE: PackedScene = preload(
+	"res://apps/combat/character_slot_ui.tscn"
+)
+const TIMELINE_CARD_SCENE: PackedScene = preload(
+	"res://apps/combat/timeline_action_card_ui.tscn"
+)
+const MODULE_SLOT_SCENE: PackedScene = preload(
+	"res://apps/combat/module_slot_ui.tscn"
+)
+
+
+@export var ui_style: CombatUIStyleData = preload(
+	"res://data/content/combat/default_combat_ui_style.tres"
+)
+
+
 var floating_offsets: Dictionary = {}
 var actor_nodes: Dictionary = {}
 
@@ -40,6 +56,7 @@ var _encounter_active: bool = false
 
 func _ready() -> void:
 	add_to_group("CombatUI")
+	_apply_static_ui_style()
 	_connect_manager_signals()
 	_connect_ui_signals()
 
@@ -47,6 +64,34 @@ func _ready() -> void:
 	module_swap_ui.hide()
 	hide_tooltip()
 	refresh_combat_field()
+
+
+func _apply_static_ui_style() -> void:
+	if ui_style == null:
+		return
+
+	var interface_controls: Array[Control] = [
+		change_modules_btn,
+		execute_btn,
+		run_away_btn,
+		tooltip_label,
+		resolution_title,
+		continue_button,
+		module_swap_ui.get_node("Title") as Label
+	]
+
+	for control in interface_controls:
+		ui_style.apply_font(
+			control,
+			ui_style.interface_font,
+			ui_style.interface_font_size
+		)
+
+	ui_style.apply_rich_text_font(
+		combat_log,
+		ui_style.interface_font,
+		ui_style.interface_font_size
+	)
 
 
 func start_encounter(
@@ -208,15 +253,19 @@ func _spawn_floating_text(
 
 	var label := Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", 28)
+	ui_style.apply_font(
+		label,
+		ui_style.floating_text_font,
+		ui_style.floating_text_font_size
+	)
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override(
 		"font_shadow_color",
-		Color.BLACK
+		ui_style.floating_text_shadow_color
 	)
 	label.add_theme_constant_override(
 		"shadow_outline_size",
-		4
+		ui_style.floating_text_outline_size
 	)
 	floating_text_layer.add_child(label)
 
@@ -229,17 +278,22 @@ func _spawn_floating_text(
 			floating_text_layer,
 			target_node.get_global_rect().get_center()
 		)
-		- Vector2(20, 20 + current_offset)
+		- ui_style.floating_text_origin_offset
+		- Vector2(0, current_offset)
 	)
-	floating_offsets[key] = current_offset + 35
+	floating_offsets[key] = (
+		current_offset
+		+ ui_style.floating_text_stack_spacing
+	)
 
 	var tween := create_tween().set_parallel(true)
 	tween.tween_property(
 		label,
 		"position",
 		label.position
-		+ Vector2(randf_range(-15, 15), -60),
-		0.8
+		+ ui_style.floating_text_travel
+		+ Vector2(randf_range(-15, 15), 0),
+		ui_style.floating_text_duration
 	).set_trans(Tween.TRANS_BACK).set_ease(
 		Tween.EASE_OUT
 	)
@@ -247,8 +301,8 @@ func _spawn_floating_text(
 		label,
 		"modulate:a",
 		0.0,
-		0.8
-	).set_delay(0.2)
+		ui_style.floating_text_duration
+	).set_delay(ui_style.floating_text_fade_delay)
 	tween.chain().tween_callback(label.queue_free)
 
 
@@ -275,8 +329,24 @@ func _draw_team(
 		child.queue_free()
 
 	for index in range(4):
-		var slot := CharacterSlotUI.new()
+		var slot := (
+			CHARACTER_SLOT_SCENE.instantiate()
+			as CharacterSlotUI
+		)
+
+		if slot == null:
+			push_error(
+				"CombatApp: CharacterSlotUI scene "
+				+ "did not instantiate correctly."
+			)
+			continue
+
 		container.add_child(slot)
+		slot.tooltip_requested.connect(show_tooltip)
+		slot.tooltip_hidden.connect(hide_tooltip)
+		slot.field_refresh_requested.connect(
+			refresh_combat_field
+		)
 		slot.setup(
 			team_array[index],
 			index,
@@ -284,7 +354,8 @@ func _draw_team(
 			CombatManager.get_position_slot(
 				is_ally,
 				index
-			)
+			),
+			ui_style
 		)
 
 		if team_array[index] != null:
@@ -299,112 +370,37 @@ func _on_timeline_generated(actions: Array) -> void:
 		child.queue_free()
 
 	for action in actions:
-		var slot_center := CenterContainer.new()
-		slot_center.custom_minimum_size = Vector2(48, 48)
-		slot_center.size_flags_horizontal = (
-			Control.SIZE_SHRINK_CENTER
+		var card := (
+			TIMELINE_CARD_SCENE.instantiate()
+			as TimelineActionCardUI
 		)
 
-		var panel := PanelContainer.new()
-		panel.custom_minimum_size = Vector2(48, 48)
-		panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		if card == null:
+			push_error(
+				"CombatApp: TimelineActionCardUI scene "
+				+ "did not instantiate correctly."
+			)
+			continue
 
-		var module: ModuleData = action.module
-
-		if module != null:
-			var tooltip_text: String = (
-				CombatManager.get_module_tooltip(
-					module,
-					action
+		timeline_bar.add_child(card)
+		card.tooltip_requested.connect(show_tooltip)
+		card.tooltip_hidden.connect(hide_tooltip)
+		card.preview_requested.connect(
+			func(preview_action: Dictionary) -> void:
+				get_tree().call_group(
+					"CombatUI",
+					"preview_timeline_action",
+					preview_action
 				)
-			)
-			panel.mouse_entered.connect(
-				func() -> void:
-					show_tooltip(tooltip_text)
-					get_tree().call_group(
-						"CombatUI",
-						"preview_timeline_action",
-						action
-					)
-			)
-			panel.mouse_exited.connect(
-				func() -> void:
-					hide_tooltip()
-					get_tree().call_group(
-						"CombatUI",
-						"clear_timeline_preview"
-					)
-			)
-
-		var background_color := Color.CRIMSON
-
-		if action.actor.is_ally:
-			background_color = (
-				Color.DODGER_BLUE
-				if action.actor.is_player
-				else Color.LIME_GREEN
-			)
-
-		var style := StyleBoxFlat.new()
-		style.bg_color = background_color.darkened(0.4)
-		style.border_width_bottom = 4
-		style.border_color = background_color
-		panel.add_theme_stylebox_override("panel", style)
-
-		var module_box := VBoxContainer.new()
-		module_box.alignment = BoxContainer.ALIGNMENT_CENTER
-		module_box.add_theme_constant_override(
-			"separation",
-			1
 		)
-
-		if module != null and module.module_icon != null:
-			var icon := TextureRect.new()
-			icon.texture = module.module_icon
-			icon.expand_mode = (
-				TextureRect.EXPAND_IGNORE_SIZE
-			)
-			icon.stretch_mode = (
-				TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			)
-			icon.custom_minimum_size = Vector2(8, 8)
-			module_box.add_child(icon)
-		else:
-			var icon_fallback := ColorRect.new()
-			icon_fallback.color = background_color.lightened(0.35)
-			icon_fallback.custom_minimum_size = (
-				Vector2(8, 8)
-			)
-			icon_fallback.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			module_box.add_child(icon_fallback)
-
-		var label := Label.new()
-		label.text = (
-			(
-				"%s ×%d"
-				% [
-					module.module_name,
-					module.execution_count
-				]
-				if module.execution_count > 1
-				else module.module_name
-			)
-			if module != null
-			else "VAZIO"
+		card.preview_cleared.connect(
+			func() -> void:
+				get_tree().call_group(
+					"CombatUI",
+					"clear_timeline_preview"
+				)
 		)
-		label.horizontal_alignment = (
-			HORIZONTAL_ALIGNMENT_CENTER
-		)
-		label.clip_text = true
-		label.text_overrun_behavior = (
-			TextServer.OVERRUN_TRIM_ELLIPSIS
-		)
-		module_box.add_child(label)
-
-		panel.add_child(module_box)
-		slot_center.add_child(panel)
-		timeline_bar.add_child(slot_center)
+		card.setup(action, ui_style)
 
 
 func _on_action_executed(
@@ -416,38 +412,15 @@ func _on_action_executed(
 	if index >= timeline_bar.get_child_count():
 		return
 
-	var slot_center := timeline_bar.get_child(index) as Control
+	var card := (
+		timeline_bar.get_child(index)
+		as TimelineActionCardUI
+	)
 
-	if slot_center == null or slot_center.get_child_count() == 0:
+	if card == null:
 		return
 
-	var panel := slot_center.get_child(0) as Control
-
-	if panel == null:
-		return
-
-	panel.modulate = Color(0.3, 0.3, 0.3, 1.0)
-
-	var tween := create_tween()
-	var original_position: Vector2 = panel.position
-	tween.tween_property(
-		panel,
-		"position",
-		original_position + Vector2(5, -5),
-		0.05
-	)
-	tween.tween_property(
-		panel,
-		"position",
-		original_position + Vector2(-5, 5),
-		0.05
-	)
-	tween.tween_property(
-		panel,
-		"position",
-		original_position,
-		0.05
-	)
+	card.play_execution_feedback()
 
 
 func refresh_module_ui() -> void:
@@ -467,9 +440,22 @@ func _populate_equip_list() -> void:
 		return
 
 	for index in range(4):
-		var slot := ModuleSlotUI.new()
+		var slot := (
+			MODULE_SLOT_SCENE.instantiate()
+			as ModuleSlotUI
+		)
+
+		if slot == null:
+			continue
+
 		equipped_list.add_child(slot)
-		slot.setup(player.modules[index], index, true)
+		_connect_module_slot(slot)
+		slot.setup(
+			player.modules[index],
+			index,
+			true,
+			ui_style
+		)
 
 
 func _populate_inventory_list() -> void:
@@ -482,9 +468,23 @@ func _populate_inventory_list() -> void:
 		return
 
 	for module in player_loadout.module_pool:
-		var slot := ModuleSlotUI.new()
+		var slot := (
+			MODULE_SLOT_SCENE.instantiate()
+			as ModuleSlotUI
+		)
+
+		if slot == null:
+			continue
+
 		inventory_list.add_child(slot)
-		slot.setup(module, -1, false)
+		_connect_module_slot(slot)
+		slot.setup(module, -1, false, ui_style)
+
+
+func _connect_module_slot(slot: ModuleSlotUI) -> void:
+	slot.tooltip_requested.connect(show_tooltip)
+	slot.tooltip_hidden.connect(hide_tooltip)
+	slot.modules_changed.connect(refresh_module_ui)
 
 
 func _get_player_loadout() -> CharacterLoadout:
