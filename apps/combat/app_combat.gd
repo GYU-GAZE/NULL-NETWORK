@@ -225,7 +225,8 @@ func _spawn_floating_text(
 	)
 
 	label.position = (
-		floating_text_layer.to_local(
+		_global_point_to_control_local(
+			floating_text_layer,
 			target_node.get_global_rect().get_center()
 		)
 		- Vector2(20, 20 + current_offset)
@@ -471,6 +472,16 @@ func _process(_delta: float) -> void:
 		)
 
 
+func _global_point_to_control_local(
+	control: Control,
+	global_point: Vector2
+) -> Vector2:
+	return (
+		control.get_global_transform().affine_inverse()
+		* global_point
+	)
+
+
 func show_tooltip(text: String) -> void:
 	tooltip_label.text = text
 	hover_tooltip.show()
@@ -502,7 +513,8 @@ func _on_change_modules_pressed() -> void:
 
 	refresh_module_ui()
 	module_swap_ui.position = (
-		overlay_layer.to_local(
+		_global_point_to_control_local(
+			overlay_layer,
 			menu_box.global_position
 		)
 		+ Vector2(menu_box.size.x + 10, 0)
