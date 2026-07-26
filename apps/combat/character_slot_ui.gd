@@ -233,8 +233,8 @@ func _build_empty_slot() -> void:
 		Control.MOUSE_FILTER_IGNORE
 	)
 	empty_slot.custom_minimum_size = Vector2(
-		140,
-		130
+		96,
+		80
 	)
 
 	var style := StyleBoxFlat.new()
@@ -263,8 +263,8 @@ func _build_empty_slot() -> void:
 		TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	)
 	ghost_overlay.custom_minimum_size = Vector2(
-		100,
-		70
+		72,
+		40
 	)
 	ghost_overlay.mouse_filter = (
 		Control.MOUSE_FILTER_IGNORE
@@ -282,7 +282,7 @@ func _build_empty_slot() -> void:
 func _build_actor_slot() -> void:
 	var frame := PanelContainer.new()
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	frame.custom_minimum_size = Vector2(140, 130)
+	frame.custom_minimum_size = Vector2(96, 52)
 
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.1, 0.1, 0.1, 0.9)
@@ -318,7 +318,7 @@ func _build_actor_slot() -> void:
 	)
 	header.add_theme_font_size_override(
 		"font_size",
-		11
+		8
 	)
 	content.add_child(header)
 	content.add_child(HSeparator.new())
@@ -332,7 +332,7 @@ func _build_actor_slot() -> void:
 	icon_rect.stretch_mode = (
 		TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	)
-	icon_rect.custom_minimum_size = Vector2(100, 70)
+	icon_rect.custom_minimum_size = Vector2(72, 30)
 	icon_rect.mouse_filter = (
 		Control.MOUSE_FILTER_IGNORE
 	)
@@ -370,7 +370,7 @@ func _create_bar(
 ) -> ProgressBar:
 	var bar := ProgressBar.new()
 	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bar.custom_minimum_size = Vector2(140, 18)
+	bar.custom_minimum_size = Vector2(96, 10)
 	bar.max_value = maximum
 	bar.value = value
 	bar.show_percentage = false
@@ -393,7 +393,7 @@ func _create_bar(
 	)
 	label.add_theme_font_size_override(
 		"font_size",
-		11
+		8
 	)
 	label.add_theme_color_override(
 		"font_shadow_color",

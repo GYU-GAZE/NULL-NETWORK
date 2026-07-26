@@ -12,6 +12,7 @@ enum NavigatorMode {
 
 const SESSION_STATE_VERSION: int = 2
 const APP_ID: String = "navigator"
+const ENCOUNTER_DOCK_REASON: String = "navigator_encounter"
 
 
 @onready var world_map_view: NavigatorWorldMapView = (
@@ -38,6 +39,10 @@ var _pending_exe_actor: LocalAreaExeActor
 func _ready() -> void:
 	_connect_signals()
 	_set_mode(NavigatorMode.WORLD_MAP)
+
+
+func _exit_tree() -> void:
+	_request_dock_visibility(true)
 
 
 func _connect_signals() -> void:
@@ -114,6 +119,17 @@ func _set_mode(mode: NavigatorMode) -> void:
 			local_area_view.deactivate()
 			encounter_container.hide()
 			dialogue_container.show()
+
+	_request_dock_visibility(
+		_current_mode != NavigatorMode.ENCOUNTER
+	)
+
+
+func _request_dock_visibility(visible: bool) -> void:
+	GlobalSignals.dock_visibility_requested.emit(
+		visible,
+		ENCOUNTER_DOCK_REASON
+	)
 
 
 func show_world_map() -> void:
