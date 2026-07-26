@@ -1,13 +1,29 @@
-[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://dc21a0ovikmof"]
+[gd_resource type="Resource" script_class="ModuleData" load_steps=5 format=3 uid="uid://dc21a0ovikmof"]
 
-[ext_resource type="Script" uid="uid://0ancnq2edet1" path="res://data/templates/status_effect.gd" id="1_2qyps"]
-[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="1_e45vu"]
+[ext_resource type="Script" path="res://data/templates/module_data.gd" id="1_module"]
+[ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
+[ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="3_target"]
+[ext_resource type="Script" path="res://data/templates/combat_value_formula.gd" id="4_formula"]
+
+[sub_resource type="Resource" id="Target_self"]
+script = ExtResource("3_target")
+target_kind = 0
+
+[sub_resource type="Resource" id="Formula_heal"]
+script = ExtResource("4_formula")
+base_value = 15.0
+
+[sub_resource type="Resource" id="Effect_heal"]
+script = ExtResource("2_effect")
+effect_type = 1
+target_selector = SubResource("Target_self")
+value_formula = SubResource("Formula_heal")
+can_crit = false
 
 [resource]
-script = ExtResource("1_e45vu")
+script = ExtResource("1_module")
+module_id = &"basic_heal"
 module_name = "Heal"
-module_type = "Support"
-power = 15
-target_type = "Self"
-scaling_stat = "NONE"
-metadata/_custom_type_script = "uid://c5i2yudu22p4m"
+description = "Restores HP to the user."
+module_tags = 2
+combat_effects = Array[ExtResource("2_effect")]([SubResource("Effect_heal")])

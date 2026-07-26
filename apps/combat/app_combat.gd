@@ -71,7 +71,13 @@ func start_encounter(
 	run_away_btn.disabled = false
 	continue_button.disabled = false
 
-	CombatManager.load_encounter(_current_encounter)
+	if not CombatManager.load_encounter(
+		_current_encounter
+	):
+		_encounter_active = false
+		_current_encounter = null
+		return false
+
 	refresh_combat_field()
 	show()
 	return true
@@ -188,7 +194,7 @@ func _spawn_floating_text(
 	if not _encounter_active:
 		return
 
-	var key: String = str(actor.get("name", ""))
+	var key: int = int(actor.get("uid", -1))
 
 	if not actor_nodes.has(key):
 		return
@@ -271,10 +277,10 @@ func _draw_team(
 		slot.setup(team_array[index], index, is_ally)
 
 		if team_array[index] != null:
-			var actor_name: String = str(
-				team_array[index].get("name", "")
+			var actor_uid: int = int(
+				team_array[index].get("uid", -1)
 			)
-			actor_nodes[actor_name] = slot.icon_rect
+			actor_nodes[actor_uid] = slot.icon_rect
 
 
 func _on_timeline_generated(actions: Array) -> void:
@@ -289,13 +295,10 @@ func _on_timeline_generated(actions: Array) -> void:
 
 		if module != null:
 			var tooltip_text: String = (
-				"[%s]\n%s\nPower: %d | Custo: %d STB"
-				% [
-					module.module_name,
-					module.description,
-					module.power,
-					module.stability_cost
-				]
+				CombatManager.get_module_tooltip(
+					module,
+					action
+				)
 			)
 			panel.mouse_entered.connect(
 				func() -> void:
@@ -412,7 +415,9 @@ func _populate_equip_list() -> void:
 	for child in equipped_list.get_children():
 		child.queue_free()
 
-	var player: Variant = CombatManager.ally_team[0]
+	var player: Variant = (
+		CombatManager.get_player_actor()
+	)
 
 	if player == null:
 		return
@@ -505,7 +510,19 @@ func _on_run_away_pressed() -> void:
 	if not _encounter_active:
 		return
 
-	_finish_encounter(CombatResult.Outcome.ESCAPED)
+	execute_btn.disabled = true
+	change_modules_btn.disabled = true
+	run_away_btn.disabled = true
+
+	if CombatManager.try_escape():
+		_finish_encounter(
+			CombatResult.Outcome.ESCAPED
+		)
+		return
+
+	execute_btn.disabled = false
+	change_modules_btn.disabled = false
+	run_away_btn.disabled = false
 
 
 func _on_cycle_ended() -> void:
@@ -585,6 +602,7 @@ func _finish_encounter(
 
 	var result := CombatResult.create(
 		outcome,
-		encounter_id
+		encounter_id,
+		CombatManager.get_result_metadata()
 	)
 	combat_finished.emit(result)

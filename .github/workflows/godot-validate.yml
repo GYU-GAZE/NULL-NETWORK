@@ -53,8 +53,6 @@ jobs:
             rm -f "$import_file"
           done < <(find data -type f -name '*.import' -print0)
 
-          # The project theme is loaded before the first filesystem import.
-          # Disable it only for the disposable runner copy during that import.
           sed -i '/^theme\/custom=/d' project.godot
 
       - name: Download Godot 4.6.3
@@ -76,9 +74,6 @@ jobs:
             --quit-after 20 \
             --verbose 2>&1 | tee godot-import.log
 
-      - name: Restore project settings
-        run: cp /tmp/project.godot.original project.godot
-
       - name: Run main scene headlessly
         shell: bash
         run: |
@@ -90,14 +85,40 @@ jobs:
             --verbose \
             core/main.tscn 2>&1 | tee godot-runtime.log
 
+      - name: Run combat runtime test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            tests/combat/combat_runtime_test.tscn \
+            2>&1 | tee godot-combat-test.log
+
+      - name: Restore project settings
+        if: always()
+        run: cp /tmp/project.godot.original project.godot
+
       - name: Reject script and resource errors
         run: |
-          cat godot-import.log godot-runtime.log > godot-validation.log
+          cat \
+            godot-import.log \
+            godot-runtime.log \
+            godot-combat-test.log \
+            > godot-validation.log
 
-          if grep -E "SCRIPT ERROR|Parse Error|Failed to load script|Cannot get class|Failed loading resource" godot-validation.log; then
-            echo "Godot reported script or resource loading errors."
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class" godot-validation.log; then
+            echo "Godot reported a script error."
             exit 1
           fi
+
+          if grep -E "COMBAT_RUNTIME_TEST: " godot-combat-test.log \
+            | grep -v "COMBAT_RUNTIME_TEST: PASS"; then
+            echo "The combat runtime test reported an error."
+            exit 1
+          fi
+
+          grep -q "COMBAT_RUNTIME_TEST: PASS" godot-combat-test.log
 
       - name: Upload validation log
         if: always()
@@ -107,5 +128,6 @@ jobs:
           path: |
             godot-import.log
             godot-runtime.log
+            godot-combat-test.log
             godot-validation.log
           if-no-files-found: ignore

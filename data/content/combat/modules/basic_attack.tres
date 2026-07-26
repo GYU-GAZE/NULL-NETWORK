@@ -1,9 +1,29 @@
-[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://douy6r2teyyce"]
+[gd_resource type="Resource" script_class="ModuleData" load_steps=5 format=3 uid="uid://douy6r2teyyce"]
 
-[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="1_ju63g"]
+[ext_resource type="Script" path="res://data/templates/module_data.gd" id="1_module"]
+[ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
+[ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="3_target"]
+[ext_resource type="Script" path="res://data/templates/combat_value_formula.gd" id="4_formula"]
+
+[sub_resource type="Resource" id="Target_direct"]
+script = ExtResource("3_target")
+target_kind = 1
+
+[sub_resource type="Resource" id="Formula_damage"]
+script = ExtResource("4_formula")
+base_value = 15.0
+stat = 5
+stat_multiplier = 1.0
+
+[sub_resource type="Resource" id="Effect_damage"]
+script = ExtResource("2_effect")
+target_selector = SubResource("Target_direct")
+value_formula = SubResource("Formula_damage")
 
 [resource]
-script = ExtResource("1_ju63g")
+script = ExtResource("1_module")
+module_id = &"basic_attack"
 module_name = "Attack"
-power = 15
-metadata/_custom_type_script = "uid://c5i2yudu22p4m"
+description = "A direct physical strike."
+module_tags = 1
+combat_effects = Array[ExtResource("2_effect")]([SubResource("Effect_damage")])
