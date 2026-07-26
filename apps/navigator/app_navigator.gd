@@ -26,7 +26,7 @@ const APP_ID: String = "navigator"
 
 var _current_mode: NavigatorMode = NavigatorMode.WORLD_MAP
 var _current_location_id: String = ""
-var _is_window_focused: bool = false
+var _is_app_active: bool = false
 
 
 func _ready() -> void:
@@ -56,6 +56,13 @@ func _connect_signals() -> void:
 			_on_app_focused
 		)
 
+	if not GlobalSignals.workspace_activated.is_connected(
+		_on_workspace_activated
+	):
+		GlobalSignals.workspace_activated.connect(
+			_on_workspace_activated
+		)
+
 
 func _set_mode(mode: NavigatorMode) -> void:
 	_current_mode = mode
@@ -71,7 +78,7 @@ func _set_mode(mode: NavigatorMode) -> void:
 			world_map_view.deactivate()
 			local_area_view.activate()
 			local_area_view.set_interaction_enabled(
-				_is_window_focused
+				_is_app_active
 			)
 			encounter_container.hide()
 			dialogue_container.hide()
@@ -328,13 +335,25 @@ func _on_local_area_back_requested() -> void:
 
 
 func _on_app_focused(app_id: String) -> void:
-	_is_window_focused = (
+	_set_app_active(
 		app_id.strip_edges() == APP_ID
 	)
+
+
+func _on_workspace_activated(
+	workspace_id: String
+) -> void:
+	_set_app_active(
+		workspace_id.strip_edges() == APP_ID
+	)
+
+
+func _set_app_active(active: bool) -> void:
+	_is_app_active = active
 
 	if _current_mode != NavigatorMode.LOCAL_AREA:
 		return
 
 	local_area_view.set_interaction_enabled(
-		_is_window_focused
+		_is_app_active
 	)
