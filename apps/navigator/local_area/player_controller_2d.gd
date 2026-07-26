@@ -27,9 +27,20 @@ var move_speed: float = 120.0
 
 var _input_enabled: bool = false
 var _last_facing: Vector2 = Vector2.DOWN
+var _camera_bounds: Rect2 = Rect2()
+var _has_camera_bounds: bool = false
 
 
 func _ready() -> void:
+	var viewport: Viewport = get_viewport()
+
+	if not viewport.size_changed.is_connected(
+		_on_viewport_size_changed
+	):
+		viewport.size_changed.connect(
+			_on_viewport_size_changed
+		)
+
 	set_input_enabled(false)
 
 
@@ -51,9 +62,10 @@ func _physics_process(_delta: float) -> void:
 	velocity = input_direction * move_speed
 	move_and_slide()
 
-	# O viewport usa pixels inteiros. O snap impede que o sprite e a câmera
-	# parem entre pixels depois de colisões.
+	# O viewport usa pixels inteiros. O snap impede que o player pare
+	# entre pixels depois de colisões.
 	global_position = global_position.round()
+	_refresh_camera_position()
 
 
 func set_input_enabled(enabled: bool) -> void:
@@ -62,6 +74,8 @@ func set_input_enabled(enabled: bool) -> void:
 
 	if not enabled:
 		velocity = Vector2.ZERO
+	else:
+		call_deferred("_refresh_camera_position")
 
 
 func configure_camera_bounds(bounds: Rect2) -> void:
@@ -74,6 +88,9 @@ func configure_camera_bounds(bounds: Rect2) -> void:
 		)
 		return
 
+	_camera_bounds = bounds
+	_has_camera_bounds = true
+
 	var bounds_end: Vector2 = bounds.end
 
 	area_camera.limit_left = floori(bounds.position.x)
@@ -83,10 +100,73 @@ func configure_camera_bounds(bounds: Rect2) -> void:
 	area_camera.position_smoothing_enabled = false
 	area_camera.enabled = true
 	area_camera.reset_smoothing()
+	call_deferred("_refresh_camera_position")
 
 
 func get_facing_direction() -> Vector2:
 	return _last_facing
+
+
+func _refresh_camera_position() -> void:
+	if (
+		not _has_camera_bounds
+		or not is_instance_valid(area_camera)
+		or not is_inside_tree()
+	):
+		return
+
+	var viewport_size: Vector2 = get_viewport_rect().size
+
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return
+
+	var safe_zoom := Vector2(
+		maxf(0.001, absf(area_camera.zoom.x)),
+		maxf(0.001, absf(area_camera.zoom.y))
+	)
+	var half_view_size: Vector2 = (
+		(viewport_size / safe_zoom) * 0.5
+	)
+	var minimum_center: Vector2 = (
+		_camera_bounds.position + half_view_size
+	)
+	var maximum_center: Vector2 = (
+		_camera_bounds.end - half_view_size
+	)
+	var target_center: Vector2 = global_position
+
+	target_center.x = _clamp_camera_axis(
+		target_center.x,
+		minimum_center.x,
+		maximum_center.x,
+		_camera_bounds.get_center().x
+	)
+	target_center.y = _clamp_camera_axis(
+		target_center.y,
+		minimum_center.y,
+		maximum_center.y,
+		_camera_bounds.get_center().y
+	)
+
+	area_camera.position = to_local(
+		target_center.round()
+	)
+
+
+func _clamp_camera_axis(
+	value: float,
+	minimum: float,
+	maximum: float,
+	fallback_center: float
+) -> float:
+	if minimum > maximum:
+		return fallback_center
+
+	return clampf(value, minimum, maximum)
+
+
+func _on_viewport_size_changed() -> void:
+	call_deferred("_refresh_camera_position")
 
 
 func _update_facing(input_direction: Vector2) -> void:
