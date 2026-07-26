@@ -134,7 +134,7 @@ func _test_status_and_cycle_trigger(
 	CombatManager.set_player_module(2, rest_module)
 	CombatManager.set_player_module(3, rest_module)
 
-	var enemy_before := _first_living(
+	var enemy_before: Variant = _first_living(
 		CombatManager.enemy_team
 	)
 	var enemy_hp_before := float(
@@ -157,7 +157,7 @@ func _test_status_and_cycle_trigger(
 		"Dummy module did not create a runtime dummy."
 	)
 
-	var enemy_after := _first_living(
+	var enemy_after: Variant = _first_living(
 		CombatManager.enemy_team
 	)
 	_check(
@@ -176,8 +176,8 @@ func _test_combat_resolution(
 		"Could not reset encounter for resolution test."
 	)
 
-	var player := CombatManager.get_player_actor()
-	var enemy := _first_living(
+	var player: Variant = CombatManager.get_player_actor()
+	var enemy: Variant = _first_living(
 		CombatManager.enemy_team
 	)
 
