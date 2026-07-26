@@ -13,6 +13,7 @@ dummy_data = ExtResource("3_dummy")
 script = ExtResource("1_module")
 module_id = &"dummy_turret"
 module_name = "Dummy Turret"
+classification = &"summon"
 description = "Creates a three-cycle turret in the first empty ally slot."
 module_tags = 8
 combat_effects = Array[ExtResource("2_effect")]([SubResource("Effect_spawn")])

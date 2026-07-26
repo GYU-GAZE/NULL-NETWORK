@@ -2,7 +2,6 @@ extends Node
 
 
 var _failures := PackedStringArray()
-var _observed_defense_bonus: bool = false
 var _combat_manager: Node
 
 
@@ -37,6 +36,7 @@ func _run() -> void:
 
 	_validate_content(encounter)
 	_test_timeline_and_preview(encounter)
+	_test_runtime_slots(encounter)
 	_test_status_and_cycle_trigger(encounter)
 	_test_combat_resolution(encounter)
 	_finish()
@@ -68,6 +68,28 @@ func _validate_content(
 			% "; ".join(turret_errors)
 		)
 
+	var barrier := load(
+		"res://data/content/combat/status_effects/defense_up.tres"
+	) as StatusEffectData
+	var defense_module := load(
+		"res://data/content/combat/modules/basic_defense.tres"
+	) as ModuleData
+	_check(
+		barrier != null
+		and barrier.icon != null
+		and barrier.classification == &"barrier"
+		and barrier.damage_rule
+		== StatusEffectData.DamageRule.BARRIER
+		and barrier.duration_cycles < 0,
+		"BARRIER metadata is incomplete."
+	)
+	_check(
+		defense_module != null
+		and defense_module.module_icon != null
+		and defense_module.classification == &"defense",
+		"Defense Module icon/classification metadata is incomplete."
+	)
+
 
 func _test_timeline_and_preview(
 	encounter: CombatEncounter
@@ -79,6 +101,15 @@ func _test_timeline_and_preview(
 	_check(
 		_combat_manager.current_cycle_actions.size() == 8,
 		"1v1 timeline must contain eight interleaved actions."
+	)
+	_check(
+		not StringName(
+			_combat_manager.current_cycle_actions[0].get(
+				"action_slot_id",
+				&""
+			)
+		).is_empty(),
+		"Timeline action has no stable action slot ID."
 	)
 
 	if _combat_manager.current_cycle_actions.is_empty():
@@ -102,6 +133,119 @@ func _test_timeline_and_preview(
 		)
 
 
+func _test_runtime_slots(
+	encounter: CombatEncounter
+) -> void:
+	_check(
+		_combat_manager.load_encounter(encounter),
+		"Could not reset encounter for runtime slot test."
+	)
+	_check(
+		_combat_manager.ally_position_slots.size() == 4
+		and _combat_manager.enemy_position_slots.size() == 4
+		and _combat_manager.action_slots.size() == 8,
+		"Combat did not create all runtime slots."
+	)
+
+	var enemy_action_id: StringName = (
+		_combat_manager.action_slots[1].slot_id
+	)
+	_check(
+		_combat_manager.set_runtime_slot_enabled(
+			enemy_action_id,
+			false
+		),
+		"Enemy action slot could not be disabled."
+	)
+	_check(
+		_combat_manager.current_cycle_actions.size() == 7,
+		"Disabled action slot still generated an action."
+	)
+	_combat_manager.set_runtime_slot_enabled(
+		enemy_action_id,
+		true
+	)
+
+	var extra_action_id: StringName = (
+		_combat_manager.add_action_slot(true, 0, 1)
+	)
+	_check(
+		not extra_action_id.is_empty()
+		and _combat_manager.current_cycle_actions.size() == 9,
+		"Added ally action slot did not enter the timeline."
+	)
+	_check(
+		_combat_manager.move_action_slot(
+			extra_action_id,
+			0
+		)
+		and _combat_manager.action_slots[0].slot_id
+		== extra_action_id,
+		"Action slot could not move to a new order."
+	)
+
+	var locked_position: CombatRuntimeSlot = (
+		_combat_manager.ally_position_slots[3]
+	)
+	_combat_manager.set_runtime_slot_enabled(
+		locked_position.slot_id,
+		false
+	)
+	_check(
+		not _combat_manager.swap_ally_slots(0, 3),
+		"Actor moved into a disabled position slot."
+	)
+
+	_check(
+		_combat_manager.load_encounter(encounter),
+		"Could not reset encounter for slot effect test."
+	)
+	var rest_module := load(
+		"res://data/content/combat/modules/idle.tres"
+	) as ModuleData
+	var slot_module := _make_disable_action_slot_module(
+		&"enemy.action.0"
+	)
+	var enemy := _first_living(
+		_combat_manager.enemy_team
+	)
+
+	if (
+		rest_module == null
+		or slot_module == null
+		or enemy == null
+	):
+		_failures.append(
+			"Slot effect fixtures did not initialize."
+		)
+		return
+
+	_check(
+		slot_module.validate_data().is_empty(),
+		"Data-driven slot Module failed validation."
+	)
+
+	_combat_manager.set_player_module(0, slot_module)
+	_combat_manager.set_player_module(1, rest_module)
+	_combat_manager.set_player_module(2, rest_module)
+	_combat_manager.set_player_module(3, rest_module)
+	enemy["modules"] = [
+		rest_module,
+		rest_module,
+		rest_module,
+		rest_module
+	]
+	_combat_manager.rebuild_timeline()
+	_combat_manager.execute_cycle(false)
+	_check(
+		not _combat_manager.get_runtime_slot(
+			&"enemy.action.0"
+		).enabled
+		and _combat_manager.current_cycle_actions.size() == 7,
+		"SET_SLOT_ENABLED effect did not remove the enemy action."
+	)
+
+
 func _test_status_and_cycle_trigger(
 	encounter: CombatEncounter
 ) -> void:
@@ -110,18 +254,105 @@ func _test_status_and_cycle_trigger(
 		"Could not reset encounter for trigger test."
 	)
 
-	if not _combat_manager.action_executed.is_connected(
-		_on_action_executed
-	):
-		_combat_manager.action_executed.connect(
-			_on_action_executed
-		)
+	var player: Variant = _combat_manager.get_player_actor()
+	var enemy: Variant = _first_living(
+		_combat_manager.enemy_team
+	)
+	var rest_module := load(
+		"res://data/content/combat/modules/idle.tres"
+	) as ModuleData
+	var barrier_module := _make_barrier_module(4)
+	var repeated_attack := _make_repeated_attack(3)
 
+	_check(
+		player != null
+		and enemy != null
+		and rest_module != null
+		and barrier_module != null
+		and repeated_attack != null,
+		"Barrier test fixtures did not initialize."
+	)
+
+	if (
+		player == null
+		or enemy == null
+		or rest_module == null
+		or barrier_module == null
+		or repeated_attack == null
+	):
+		return
+
+	player["dodge"] = 0.0
+	enemy["crit"] = 0.0
+	_combat_manager.set_player_module(0, barrier_module)
+	_combat_manager.set_player_module(1, rest_module)
+	_combat_manager.set_player_module(2, rest_module)
+	_combat_manager.set_player_module(3, rest_module)
+	enemy["modules"] = [
+		repeated_attack,
+		rest_module,
+		rest_module,
+		rest_module
+	]
+	_combat_manager.rebuild_timeline()
+
+	var player_hp_before := float(
+		player.get("hp", 0.0)
+	)
 	_combat_manager.execute_cycle(false)
 	_check(
-		_observed_defense_bonus,
-		"Continuous status modifier was not observed during an action."
+		is_equal_approx(
+			float(player.get("hp", 0.0)),
+			player_hp_before
+		),
+		"Three-hit Module damaged HP through four BARRIER stacks."
 	)
+	_check(
+		_combat_manager.get_barrier_stacks(player) == 1,
+		"Three hits did not consume exactly three BARRIER stacks."
+	)
+	_check(
+		_combat_manager.was_targeted_by_classification(
+			player,
+			&"physical_attack",
+			0
+		),
+		"Module classification targeting history was not recorded."
+	)
+
+	var trigger := CombatTriggerData.new()
+	trigger.timing = (
+		CombatConstants.TriggerTiming.MODULE_USED
+	)
+	trigger.actor_relation = (
+		CombatConstants.TriggerActor.ANY
+	)
+	trigger.required_module_classification = (
+		&"physical_attack"
+	)
+	var context := CombatEventContext.create(
+		CombatConstants.TriggerTiming.MODULE_USED,
+		_combat_manager.current_cycle,
+		enemy,
+		player,
+		repeated_attack
+	)
+	_check(
+		trigger.matches(context, player),
+		"Trigger did not filter by Module classification."
+	)
+
+	var barrier := load(
+		"res://data/content/combat/status_effects/defense_up.tres"
+	) as StatusEffectData
+	trigger.required_module_classification = &""
+	trigger.required_status_classification = &"barrier"
+	context.status = barrier
+	_check(
+		trigger.matches(context, player),
+		"Trigger did not filter by Status classification."
+	)
+
 	_check(
 		_combat_manager.load_encounter(encounter),
 		"Could not reset encounter for dummy trigger test."
@@ -130,7 +361,7 @@ func _test_status_and_cycle_trigger(
 	var turret_module := load(
 		"res://data/content/combat/modules/dummy_turret.tres"
 	) as ModuleData
-	var rest_module := load(
+	rest_module = load(
 		"res://data/content/combat/modules/idle.tres"
 	) as ModuleData
 	_check(
@@ -228,31 +459,96 @@ func _test_combat_resolution(
 		int(metadata.get("cycles", 0)) > 0,
 		"Combat result metadata contains no cycle count."
 	)
-
-
-func _on_action_executed(
-	_index: int,
-	action: Dictionary
-) -> void:
-	var module: ModuleData = action.get("module")
-
-	if (
-		module == null
-		or module.module_id != &"basic_defense"
-	):
-		return
-
-	var actor: Dictionary = action.get("actor", {})
-	var base_def := float(actor.get("def", 0.0))
-	var effective_def: float = float(
-		_combat_manager.get_effective_stat(
-			actor,
-			CombatConstants.Stat.DEF
-		)
+	_check(
+		not metadata.get("runtime_slots", []).is_empty(),
+		"Combat result metadata contains no runtime slot snapshot."
 	)
-	_observed_defense_bonus = (
-		effective_def > base_def
+
+func _make_barrier_module(
+	stack_count: int
+) -> ModuleData:
+	var barrier := load(
+		"res://data/content/combat/status_effects/defense_up.tres"
+	) as StatusEffectData
+
+	if barrier == null:
+		return null
+
+	var selector := CombatTargetSelector.new()
+	selector.target_kind = (
+		CombatTargetSelector.TargetKind.USER
 	)
+	var formula := CombatValueFormula.new()
+	formula.base_value = stack_count
+	var effect := CombatEffectData.new()
+	effect.effect_type = (
+		CombatEffectData.EffectType.APPLY_STATUS
+	)
+	effect.target_selector = selector
+	effect.value_formula = formula
+	effect.status_effect = barrier
+	effect.can_crit = false
+
+	var module := ModuleData.new()
+	module.module_id = &"test_barrier"
+	module.module_name = "Test Barrier"
+	module.classification = &"defense"
+	module.stability_cost = 0
+	var effects: Array[CombatEffectData] = [effect]
+	module.combat_effects = effects
+	return module
+
+
+func _make_repeated_attack(
+	executions: int
+) -> ModuleData:
+	var source := load(
+		"res://data/content/combat/modules/basic_attack.tres"
+	) as ModuleData
+
+	if source == null:
+		return null
+
+	var module := source.duplicate(true) as ModuleData
+	module.execution_count = executions
+	module.accuracy = 1.0
+	module.classification = &"physical_attack"
+
+	for effect in module.combat_effects:
+		if effect != null:
+			effect.accuracy_override = 1.0
+			effect.can_crit = false
+
+	return module
+
+
+func _make_disable_action_slot_module(
+	slot_id: StringName
+) -> ModuleData:
+	var selector := CombatSlotSelector.new()
+	selector.slot_kind = (
+		CombatSlotSelector.SlotKind.ACTION
+	)
+	selector.team_relation = (
+		CombatSlotSelector.TeamRelation.ENEMY_TEAM
+	)
+	selector.slot_id = slot_id
+
+	var effect := CombatEffectData.new()
+	effect.effect_type = (
+		CombatEffectData.EffectType.SET_SLOT_ENABLED
+	)
+	effect.slot_selector = selector
+	effect.slot_enabled = false
+
+	var module := ModuleData.new()
+	module.module_id = &"test_disable_action"
+	module.module_name = "Test Disable Action"
+	module.classification = &"control"
+	module.stability_cost = 0
+	var effects: Array[CombatEffectData] = [effect]
+	module.combat_effects = effects
+	return module
 
 
 func _first_living(

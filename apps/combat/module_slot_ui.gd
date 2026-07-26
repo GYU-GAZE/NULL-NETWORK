@@ -6,11 +6,25 @@ var slot_index: int = -1
 var current_module: ModuleData
 var is_equipped_slot: bool = false
 var label: Label
+var icon_rect: TextureRect
 
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(100, 60)
+	custom_minimum_size = Vector2(120, 40)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+	add_child(row)
+
+	icon_rect = TextureRect.new()
+	icon_rect.custom_minimum_size = Vector2(28, 28)
+	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon_rect.stretch_mode = (
+		TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	)
+	row.add_child(icon_rect)
+
 	label = Label.new()
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.horizontal_alignment = (
 		HORIZONTAL_ALIGNMENT_CENTER
 	)
@@ -20,7 +34,7 @@ func _ready() -> void:
 	label.autowrap_mode = (
 		TextServer.AUTOWRAP_WORD
 	)
-	add_child(label)
+	row.add_child(label)
 	mouse_entered.connect(_on_hover_in)
 	mouse_exited.connect(_on_hover_out)
 
@@ -37,6 +51,11 @@ func setup(
 		module.module_name
 		if module != null
 		else "EMPTY"
+	)
+	icon_rect.texture = (
+		module.module_icon
+		if module != null
+		else null
 	)
 
 

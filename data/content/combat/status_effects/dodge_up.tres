@@ -34,6 +34,7 @@ effects = Array[ExtResource("4_effect")]([SubResource("Effect_dodge")])
 [resource]
 script = ExtResource("1_status")
 status_id = &"dodge_up"
+classification = &"evasion"
 display_name = "DODGE UP"
 description = "Raises DODGE until the current cycle ends."
 duration_cycles = 1

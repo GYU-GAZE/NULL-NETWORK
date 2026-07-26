@@ -9,6 +9,10 @@ class_name CombatTriggerData
 	CombatConstants.TriggerActor.HOLDER
 )
 @export_range(-1, 3) var action_slot: int = -1
+@export var action_slot_id: StringName = &""
+@export var position_slot_id: StringName = &""
+@export var required_module_classification: StringName = &""
+@export var required_status_classification: StringName = &""
 @export_flags(
 	"Damage",
 	"Heal",
@@ -29,6 +33,34 @@ func matches(
 
 	if action_slot >= 0 and context.action_slot != action_slot:
 		return false
+
+	if (
+		not action_slot_id.is_empty()
+		and context.action_slot_id != action_slot_id
+	):
+		return false
+
+	if (
+		not position_slot_id.is_empty()
+		and context.position_slot_id != position_slot_id
+	):
+		return false
+
+	if not required_module_classification.is_empty():
+		if (
+			context.module == null
+			or context.module.classification
+			!= required_module_classification
+		):
+			return false
+
+	if not required_status_classification.is_empty():
+		if (
+			context.status == null
+			or context.status.classification
+			!= required_status_classification
+		):
+			return false
 
 	if required_module_tags != 0:
 		if context.module == null:
@@ -54,6 +86,22 @@ func describe() -> String:
 	if action_slot >= 0:
 		label += " %d" % (action_slot + 1)
 
+	if not action_slot_id.is_empty():
+		label += " in %s" % action_slot_id
+
+	if not position_slot_id.is_empty():
+		label += " from %s" % position_slot_id
+
+	if not required_module_classification.is_empty():
+		label += " for %s modules" % (
+			required_module_classification
+		)
+
+	if not required_status_classification.is_empty():
+		label += " for %s statuses" % (
+			required_status_classification
+		)
+
 	return label
 
 
@@ -68,6 +116,7 @@ func _matches_actor_relation(
 
 	if context.timing in [
 		CombatConstants.TriggerTiming.DAMAGE_RECEIVED,
+		CombatConstants.TriggerTiming.DAMAGE_BLOCKED,
 		CombatConstants.TriggerTiming.STATUS_APPLIED,
 		CombatConstants.TriggerTiming.STATUS_EXPIRED,
 		CombatConstants.TriggerTiming.DUMMY_CREATED,
@@ -118,6 +167,8 @@ func _timing_label() -> String:
 			return "when dealing damage"
 		CombatConstants.TriggerTiming.DAMAGE_RECEIVED:
 			return "when receiving damage"
+		CombatConstants.TriggerTiming.DAMAGE_BLOCKED:
+			return "when blocking damage"
 		CombatConstants.TriggerTiming.STATUS_APPLIED:
 			return "when a status is applied"
 		CombatConstants.TriggerTiming.STATUS_EXPIRED:

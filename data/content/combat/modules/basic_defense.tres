@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="ModuleData" load_steps=6 format=3 uid="uid://c08m7l3e4oail"]
+[gd_resource type="Resource" script_class="ModuleData" load_steps=7 format=3 uid="uid://c08m7l3e4oail"]
 
 [ext_resource type="Script" path="res://data/templates/module_data.gd" id="1_module"]
 [ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
 [ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="3_target"]
 [ext_resource type="Script" path="res://data/templates/combat_value_formula.gd" id="4_formula"]
 [ext_resource type="Resource" path="res://data/content/combat/status_effects/defense_up.tres" id="5_status"]
+[ext_resource type="Texture2D" path="res://data/assets/icons/status_barrier.svg" id="6_icon"]
 
 [sub_resource type="Resource" id="Target_self"]
 script = ExtResource("3_target")
@@ -26,7 +27,9 @@ can_crit = false
 script = ExtResource("1_module")
 module_id = &"basic_defense"
 module_name = "Defend"
-description = "Raises DEF for the remainder of the cycle."
+module_icon = ExtResource("6_icon")
+classification = &"defense"
+description = "Adds one permanent BARRIER stack."
 stability_cost = 20
 module_tags = 20
 combat_effects = Array[ExtResource("2_effect")]([SubResource("Effect_status")])

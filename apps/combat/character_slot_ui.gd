@@ -4,6 +4,7 @@ class_name CharacterSlotUI
 
 var slot_index: int = -1
 var current_actor: Variant = null
+var runtime_slot: CombatRuntimeSlot
 var is_ally_slot: bool = false
 var is_preview: bool = false
 
@@ -28,11 +29,13 @@ func _ready() -> void:
 func setup(
 	actor: Variant,
 	index: int,
-	is_ally: bool
+	is_ally: bool,
+	slot_state: CombatRuntimeSlot = null
 ) -> void:
 	current_actor = actor
 	slot_index = index
 	is_ally_slot = is_ally
+	runtime_slot = slot_state
 
 	for child in get_children():
 		child.queue_free()
@@ -180,6 +183,8 @@ func _can_drop_data(
 		data is Dictionary
 		and data.get("type") == &"combat_character"
 		and is_ally_slot
+		and runtime_slot != null
+		and runtime_slot.enabled
 	)
 
 
@@ -249,6 +254,11 @@ func _build_empty_slot() -> void:
 		0.3,
 		0.5
 	)
+
+	if runtime_slot != null and not runtime_slot.enabled:
+		style.bg_color = Color(0.2, 0.03, 0.03, 0.8)
+		style.border_color = Color.CRIMSON
+
 	empty_slot.add_theme_stylebox_override(
 		"panel",
 		style
@@ -278,6 +288,23 @@ func _build_empty_slot() -> void:
 	ghost_overlay.hide()
 	empty_slot.add_child(ghost_overlay)
 
+	if runtime_slot != null and not runtime_slot.enabled:
+		var locked_label := Label.new()
+		locked_label.text = "LOCKED"
+		locked_label.horizontal_alignment = (
+			HORIZONTAL_ALIGNMENT_CENTER
+		)
+		locked_label.vertical_alignment = (
+			VERTICAL_ALIGNMENT_CENTER
+		)
+		locked_label.set_anchors_preset(
+			Control.PRESET_FULL_RECT
+		)
+		locked_label.mouse_filter = (
+			Control.MOUSE_FILTER_IGNORE
+		)
+		empty_slot.add_child(locked_label)
+
 
 func _build_actor_slot() -> void:
 	var frame := PanelContainer.new()
@@ -299,6 +326,13 @@ func _build_actor_slot() -> void:
 			else Color.CRIMSON
 		)
 	)
+
+	if runtime_slot != null and not runtime_slot.enabled:
+		style.border_color = Color.CRIMSON
+		frame.tooltip_text = (
+			"This position is disabled. Its current "
+			+ "occupant remains, but no new actor can enter."
+		)
 	frame.add_theme_stylebox_override(
 		"panel",
 		style
@@ -318,6 +352,7 @@ func _build_actor_slot() -> void:
 	)
 	content.add_child(header)
 	content.add_child(HSeparator.new())
+	content.add_child(_build_status_list())
 
 	icon_rect = TextureRect.new()
 	icon_rect.texture = current_actor.get("icon")
@@ -356,6 +391,127 @@ func _build_actor_slot() -> void:
 	)
 	add_child(hp_bar)
 	add_child(stability_bar)
+
+
+func _build_status_list() -> Control:
+	var scroll := ScrollContainer.new()
+	scroll.name = "StatusScroll"
+	scroll.custom_minimum_size = Vector2(96, 22)
+	scroll.horizontal_scroll_mode = (
+		ScrollContainer.SCROLL_MODE_AUTO
+	)
+	scroll.vertical_scroll_mode = (
+		ScrollContainer.SCROLL_MODE_DISABLED
+	)
+	scroll.mouse_filter = Control.MOUSE_FILTER_PASS
+
+	var row := HBoxContainer.new()
+	row.name = "StatusRow"
+	row.add_theme_constant_override("separation", 2)
+	scroll.add_child(row)
+
+	for instance in current_actor.get(
+		"active_statuses",
+		[]
+	):
+		if (
+			not (instance is CombatStatusInstance)
+			or instance.data == null
+		):
+			continue
+
+		row.add_child(
+			_create_status_icon(instance)
+		)
+
+	return scroll
+
+
+func _create_status_icon(
+	instance: CombatStatusInstance
+) -> Control:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(20, 20)
+	var tooltip := (
+		instance.data.get_runtime_tooltip(instance)
+	)
+	panel.tooltip_text = tooltip
+	panel.mouse_entered.connect(
+		func() -> void:
+			get_tree().call_group(
+				"CombatUI",
+				"show_tooltip",
+				tooltip
+			)
+	)
+	panel.mouse_exited.connect(
+		func() -> void:
+			get_tree().call_group(
+				"CombatUI",
+				"hide_tooltip"
+			)
+	)
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.04, 0.08, 0.12, 0.95)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.border_color = Color.CYAN
+	panel.add_theme_stylebox_override("panel", style)
+
+	var stack := Control.new()
+	stack.custom_minimum_size = Vector2(18, 18)
+	panel.add_child(stack)
+
+	if instance.data.icon != null:
+		var icon := TextureRect.new()
+		icon.texture = instance.data.icon
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = (
+			TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		)
+		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		stack.add_child(icon)
+	else:
+		var fallback := Label.new()
+		fallback.text = instance.data.display_name.left(1)
+		fallback.horizontal_alignment = (
+			HORIZONTAL_ALIGNMENT_CENTER
+		)
+		fallback.vertical_alignment = (
+			VERTICAL_ALIGNMENT_CENTER
+		)
+		fallback.set_anchors_preset(
+			Control.PRESET_FULL_RECT
+		)
+		fallback.mouse_filter = (
+			Control.MOUSE_FILTER_IGNORE
+		)
+		stack.add_child(fallback)
+
+	var count := Label.new()
+	count.text = str(instance.stacks)
+	count.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	count.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	count.set_anchors_preset(Control.PRESET_FULL_RECT)
+	count.add_theme_color_override(
+		"font_color",
+		Color.WHITE
+	)
+	count.add_theme_color_override(
+		"font_shadow_color",
+		Color.BLACK
+	)
+	count.add_theme_constant_override(
+		"shadow_outline_size",
+		2
+	)
+	count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(count)
+	return panel
 
 
 func _create_bar(

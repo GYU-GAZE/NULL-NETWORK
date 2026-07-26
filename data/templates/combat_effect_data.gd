@@ -12,7 +12,11 @@ enum EffectType {
 	SPAWN_DUMMY,
 	MODIFY_DAMAGE_TAKEN,
 	MODIFY_DAMAGE_DEALT,
-	REDIRECT_NEXT_DAMAGE
+	REDIRECT_NEXT_DAMAGE,
+	SET_SLOT_ENABLED,
+	MOVE_ACTOR,
+	ADD_ACTION_SLOT,
+	MOVE_ACTION_SLOT
 }
 
 
@@ -55,11 +59,28 @@ enum SpawnSlotRule {
 @export_category("Redirect")
 @export var redirect_duration_actions: int = 1
 
+@export_category("Runtime Slots")
+@export var slot_selector: CombatSlotSelector
+@export var slot_enabled: bool = false
+@export var swap_occupants_when_moving: bool = true
+@export_range(0, 3) var added_action_actor_index: int = 0
+@export var add_action_for_caster_team: bool = true
+@export var insert_action_after_selection: bool = true
+@export_range(0, 15) var destination_action_order: int = 0
+
 
 func validate_data() -> PackedStringArray:
 	var errors := PackedStringArray()
 
-	if target_selector == null and effect_type != EffectType.SPAWN_DUMMY:
+	if (
+		target_selector == null
+		and effect_type not in [
+			EffectType.SPAWN_DUMMY,
+			EffectType.SET_SLOT_ENABLED,
+			EffectType.ADD_ACTION_SLOT,
+			EffectType.MOVE_ACTION_SLOT
+		]
+	):
 		errors.append(
 			"CombatEffectData type %d has no target selector."
 			% effect_type
@@ -94,6 +115,51 @@ func validate_data() -> PackedStringArray:
 			)
 		else:
 			errors.append_array(dummy_data.validate_data())
+
+	if effect_type in [
+		EffectType.SET_SLOT_ENABLED,
+		EffectType.MOVE_ACTOR,
+		EffectType.MOVE_ACTION_SLOT
+	]:
+		if slot_selector == null:
+			errors.append(
+				"Slot mutation effect type %d has no "
+				% effect_type
+				+ "CombatSlotSelector."
+			)
+		else:
+			errors.append_array(
+				slot_selector.validate_data()
+			)
+
+	if (
+		effect_type == EffectType.ADD_ACTION_SLOT
+		and slot_selector != null
+	):
+		errors.append_array(slot_selector.validate_data())
+
+	if (
+		effect_type == EffectType.MOVE_ACTOR
+		and slot_selector != null
+		and slot_selector.slot_kind
+		!= CombatSlotSelector.SlotKind.POSITION
+	):
+		errors.append(
+			"MOVE_ACTOR requires a position slot selector."
+		)
+
+	if (
+		effect_type in [
+			EffectType.ADD_ACTION_SLOT,
+			EffectType.MOVE_ACTION_SLOT
+		]
+		and slot_selector != null
+		and slot_selector.slot_kind
+		!= CombatSlotSelector.SlotKind.ACTION
+	):
+		errors.append(
+			"Action slot mutation requires an action slot selector."
+		)
 
 	return errors
 
@@ -157,6 +223,34 @@ func describe() -> String:
 			]
 		EffectType.REDIRECT_NEXT_DAMAGE:
 			return "Redirect next damage from %s" % target_text
+		EffectType.SET_SLOT_ENABLED:
+			return "%s %s" % [
+				"Enable" if slot_enabled else "Disable",
+				slot_selector.describe()
+					if slot_selector != null
+					else "slot"
+			]
+		EffectType.MOVE_ACTOR:
+			return "Move %s to %s" % [
+				target_text,
+				slot_selector.describe()
+					if slot_selector != null
+					else "position slot"
+			]
+		EffectType.ADD_ACTION_SLOT:
+			return "Add action %d for the %s team" % [
+				added_action_actor_index + 1,
+				"caster"
+					if add_action_for_caster_team
+					else "opposing"
+			]
+		EffectType.MOVE_ACTION_SLOT:
+			return "Move %s to timeline order %d" % [
+				slot_selector.describe()
+					if slot_selector != null
+					else "action slot",
+				destination_action_order + 1
+			]
 
 	return "Combat effect"
 

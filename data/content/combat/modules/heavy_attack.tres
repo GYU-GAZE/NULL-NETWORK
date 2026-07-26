@@ -24,6 +24,7 @@ value_formula = SubResource("Formula_damage")
 script = ExtResource("1_module")
 module_id = &"heavy_attack"
 module_name = "Break"
+classification = &"physical_attack"
 description = "A costly strike with high ATK scaling."
 stability_cost = 35
 module_tags = 1

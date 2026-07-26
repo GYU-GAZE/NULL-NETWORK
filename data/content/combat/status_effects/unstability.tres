@@ -33,6 +33,7 @@ effects = Array[ExtResource("4_effect")]([SubResource("Effect_damage_taken")])
 [resource]
 script = ExtResource("1_status")
 status_id = &"unstability"
+classification = &"unstability"
 display_name = "UNSTABILITY"
 description = "Receives double damage during the next cycle."
 duration_cycles = 1
