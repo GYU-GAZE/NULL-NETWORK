@@ -1,9 +1,4 @@
-extends SceneTree
-
-
-const COMBAT_MANAGER_SCRIPT: Script = preload(
-	"res://apps/combat/combat_manager.gd"
-)
+extends Node
 
 
 var _failures := PackedStringArray()
@@ -11,18 +6,19 @@ var _observed_defense_bonus: bool = false
 var _combat_manager: Node
 
 
-func _initialize() -> void:
+func _ready() -> void:
 	seed(1337)
-	_combat_manager = COMBAT_MANAGER_SCRIPT.new() as Node
+	_combat_manager = get_node_or_null(
+		"/root/CombatManager"
+	)
 
 	if _combat_manager == null:
 		_failures.append(
-			"Could not instantiate the CombatManager script."
+			"CombatManager autoload is unavailable."
 		)
 		call_deferred("_finish")
 		return
 
-	get_root().add_child(_combat_manager)
 	call_deferred("_run")
 
 
@@ -297,7 +293,7 @@ func _check(
 func _finish() -> void:
 	if _failures.is_empty():
 		print("COMBAT_RUNTIME_TEST: PASS")
-		quit(0)
+		get_tree().quit(0)
 		return
 
 	for failure in _failures:
@@ -306,4 +302,4 @@ func _finish() -> void:
 			% failure
 		)
 
-	quit(1)
+	get_tree().quit(1)
