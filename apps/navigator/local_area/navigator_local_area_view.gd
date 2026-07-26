@@ -9,6 +9,9 @@ signal back_requested
 @export var render_size: Vector2i = Vector2i(640, 360)
 
 @onready var background: ColorRect = %Background
+@onready var viewport_container: SubViewportContainer = (
+	%ViewportContainer
+)
 @onready var area_viewport: SubViewport = %AreaViewport
 @onready var area_root: Node2D = %AreaRoot
 
@@ -22,6 +25,7 @@ signal back_requested
 
 var _current_area_data: LocalAreaData
 var _current_area_instance: NavigatorLocalAreaScene
+var _render_size_update_queued: bool = false
 
 
 func _ready() -> void:
@@ -33,7 +37,15 @@ func _ready() -> void:
 		)
 
 	error_label.hide()
-	_apply_render_size()
+
+	if not viewport_container.resized.is_connected(
+		_queue_render_size_update
+	):
+		viewport_container.resized.connect(
+			_queue_render_size_update
+		)
+
+	_queue_render_size_update()
 
 
 func open_area(
@@ -104,7 +116,7 @@ func open_area(
 		not data.area_subtitle.strip_edges().is_empty()
 	)
 
-	_apply_render_size()
+	_queue_render_size_update()
 
 	return true
 
@@ -191,13 +203,34 @@ func _clear_current_area(
 
 
 func _apply_render_size() -> void:
-	if not is_instance_valid(area_viewport):
+	_render_size_update_queued = false
+
+	if (
+		not is_instance_valid(area_viewport)
+		or not is_instance_valid(viewport_container)
+	):
 		return
 
-	area_viewport.size = Vector2i(
-		maxi(1, render_size.x),
-		maxi(1, render_size.y)
+	var available_size := Vector2i(
+		floori(viewport_container.size.x),
+		floori(viewport_container.size.y)
 	)
+
+	if available_size.x <= 0 or available_size.y <= 0:
+		available_size = Vector2i(
+			maxi(1, render_size.x),
+			maxi(1, render_size.y)
+		)
+
+	area_viewport.size = available_size
+
+
+func _queue_render_size_update() -> void:
+	if _render_size_update_queued:
+		return
+
+	_render_size_update_queued = true
+	call_deferred("_apply_render_size")
 
 
 func _show_error(message: String) -> void:
