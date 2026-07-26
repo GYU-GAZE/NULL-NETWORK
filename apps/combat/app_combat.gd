@@ -289,7 +289,7 @@ func _on_timeline_generated(actions: Array) -> void:
 
 	for action in actions:
 		var panel := PanelContainer.new()
-		panel.custom_minimum_size = Vector2(80, 100)
+		panel.custom_minimum_size = Vector2(48, 54)
 
 		var module: ModuleData = action.module
 
@@ -347,7 +347,7 @@ func _on_timeline_generated(actions: Array) -> void:
 		)
 		label.add_theme_font_size_override(
 			"font_size",
-			10
+			8
 		)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		module_box.add_child(label)
@@ -361,7 +361,7 @@ func _on_timeline_generated(actions: Array) -> void:
 			icon.stretch_mode = (
 				TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			)
-			icon.custom_minimum_size = Vector2(40, 40)
+			icon.custom_minimum_size = Vector2(24, 24)
 			module_box.add_child(icon)
 
 		panel.add_child(module_box)
