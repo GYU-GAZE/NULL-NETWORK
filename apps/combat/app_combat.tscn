@@ -100,7 +100,23 @@ layout_mode = 2
 size_flags_vertical = 3
 alignment = 1
 
-[node name="ModuleSwapUI" type="VBoxContainer" parent="." unique_id=973545549]
+[node name="OverlayLayer" type="Control" parent="."]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="FloatingTextLayer" type="Control" parent="OverlayLayer"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ModuleSwapUI" type="VBoxContainer" parent="OverlayLayer" unique_id=973545549]
 unique_name_in_owner = true
 visible = false
 z_index = 100
@@ -109,43 +125,43 @@ layout_mode = 0
 size_flags_horizontal = 0
 mouse_filter = 2
 
-[node name="Title" type="Label" parent="ModuleSwapUI" unique_id=1947466132]
+[node name="Title" type="Label" parent="OverlayLayer/ModuleSwapUI" unique_id=1947466132]
 layout_mode = 2
 text = "INVENTORY"
 
-[node name="ListsHBox" type="HBoxContainer" parent="ModuleSwapUI" unique_id=22812275]
+[node name="ListsHBox" type="HBoxContainer" parent="OverlayLayer/ModuleSwapUI" unique_id=22812275]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="EquippedModulesList" type="VBoxContainer" parent="ModuleSwapUI/ListsHBox" unique_id=31045314]
+[node name="EquippedModulesList" type="VBoxContainer" parent="OverlayLayer/ModuleSwapUI/ListsHBox" unique_id=31045314]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="VSeparator" type="VSeparator" parent="ModuleSwapUI/ListsHBox" unique_id=535756513]
+[node name="VSeparator" type="VSeparator" parent="OverlayLayer/ModuleSwapUI/ListsHBox" unique_id=535756513]
 layout_mode = 2
 
-[node name="InventoryScroll" type="ScrollContainer" parent="ModuleSwapUI/ListsHBox" unique_id=936823110]
+[node name="InventoryScroll" type="ScrollContainer" parent="OverlayLayer/ModuleSwapUI/ListsHBox" unique_id=936823110]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="InventoryModulesList" type="VBoxContainer" parent="ModuleSwapUI/ListsHBox/InventoryScroll" unique_id=1237291287]
+[node name="InventoryModulesList" type="VBoxContainer" parent="OverlayLayer/ModuleSwapUI/ListsHBox/InventoryScroll" unique_id=1237291287]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="HoverTooltip" type="PanelContainer" parent="." unique_id=1231451110]
+[node name="HoverTooltip" type="PanelContainer" parent="OverlayLayer" unique_id=1231451110]
 unique_name_in_owner = true
 visible = false
 z_index = 100
-layout_mode = 2
+layout_mode = 0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 
-[node name="TooltipLabel" type="Label" parent="HoverTooltip" unique_id=1280043019]
+[node name="TooltipLabel" type="Label" parent="OverlayLayer/HoverTooltip" unique_id=1280043019]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="ResolutionScreen" type="PanelContainer" parent="." unique_id=1866246050]
+[node name="ResolutionScreen" type="PanelContainer" parent="OverlayLayer" unique_id=1866246050]
 unique_name_in_owner = true
 visible = false
 z_index = 200
@@ -157,21 +173,21 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_resolution")
 
-[node name="ResolutionCenter" type="CenterContainer" parent="ResolutionScreen"]
+[node name="ResolutionCenter" type="CenterContainer" parent="OverlayLayer/ResolutionScreen"]
 layout_mode = 2
 
-[node name="ResolutionBox" type="VBoxContainer" parent="ResolutionScreen/ResolutionCenter"]
+[node name="ResolutionBox" type="VBoxContainer" parent="OverlayLayer/ResolutionScreen/ResolutionCenter"]
 layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="ResolutionTitle" type="Label" parent="ResolutionScreen/ResolutionCenter/ResolutionBox"]
+[node name="ResolutionTitle" type="Label" parent="OverlayLayer/ResolutionScreen/ResolutionCenter/ResolutionBox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "VITÓRIA"
 horizontal_alignment = 1
 
-[node name="ContinueButton" type="Button" parent="ResolutionScreen/ResolutionCenter/ResolutionBox"]
+[node name="ContinueButton" type="Button" parent="OverlayLayer/ResolutionScreen/ResolutionCenter/ResolutionBox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "RETURN TO AREA"
