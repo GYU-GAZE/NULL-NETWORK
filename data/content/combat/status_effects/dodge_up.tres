@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://data/templates/status_effect.gd" id="1_status"]
+[ext_resource type="Script" path="res://data/templates/combat_triggered_effect_data.gd" id="2_triggered"]
+[ext_resource type="Script" path="res://data/templates/combat_trigger_data.gd" id="3_trigger"]
+[ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="4_effect"]
+[ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="5_target"]
+[ext_resource type="Script" path="res://data/templates/combat_value_formula.gd" id="6_formula"]
+
+[sub_resource type="Resource" id="Target_holder"]
+script = ExtResource("5_target")
+target_kind = 9
+
+[sub_resource type="Resource" id="Formula_dodge"]
+script = ExtResource("6_formula")
+base_value = 0.25
+
+[sub_resource type="Resource" id="Effect_dodge"]
+script = ExtResource("4_effect")
+effect_type = 5
+target_selector = SubResource("Target_holder")
+value_formula = SubResource("Formula_dodge")
+target_stat = 9
+
+[sub_resource type="Resource" id="Trigger_continuous"]
+script = ExtResource("3_trigger")
+timing = 0
+
+[sub_resource type="Resource" id="Triggered_dodge"]
+script = ExtResource("2_triggered")
+trigger = SubResource("Trigger_continuous")
+effects = Array[ExtResource("4_effect")]([SubResource("Effect_dodge")])
+
+[resource]
+script = ExtResource("1_status")
+status_id = &"dodge_up"
+display_name = "DODGE UP"
+description = "Raises DODGE until the current cycle ends."
+duration_cycles = 1
+tick_on_application_cycle = true
+triggered_effects = Array[ExtResource("2_triggered")]([SubResource("Triggered_dodge")])
