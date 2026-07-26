@@ -52,55 +52,19 @@ alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
-theme_override_font_sizes/font_size = 8
 text = "Change Modules"
 
 [node name="ExecuteBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=1608989675]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
-theme_override_font_sizes/font_size = 8
 text = "Execute Cycle"
 
 [node name="RunAwayBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=1774351517]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
-theme_override_font_sizes/font_size = 8
 text = "Run Away"
-
-[node name="ModuleSwapUI" type="VBoxContainer" parent="ContentMargin/BattleBox/CenterHBox" unique_id=973545549]
-unique_name_in_owner = true
-visible = false
-top_level = true
-custom_minimum_size = Vector2(220, 0)
-layout_mode = 2
-size_flags_horizontal = 0
-mouse_filter = 2
-
-[node name="Title" type="Label" parent="ContentMargin/BattleBox/CenterHBox/ModuleSwapUI" unique_id=1947466132]
-layout_mode = 2
-text = "INVENTORY"
-
-[node name="ListsHBox" type="HBoxContainer" parent="ContentMargin/BattleBox/CenterHBox/ModuleSwapUI" unique_id=22812275]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="EquippedModulesList" type="VBoxContainer" parent="ContentMargin/BattleBox/CenterHBox/ModuleSwapUI/ListsHBox" unique_id=31045314]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="VSeparator" type="VSeparator" parent="ContentMargin/BattleBox/CenterHBox/ModuleSwapUI/ListsHBox" unique_id=535756513]
-layout_mode = 2
-
-[node name="InventoryScroll" type="ScrollContainer" parent="ContentMargin/BattleBox/CenterHBox/ModuleSwapUI/ListsHBox" unique_id=936823110]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="InventoryModulesList" type="VBoxContainer" parent="ContentMargin/BattleBox/CenterHBox/ModuleSwapUI/ListsHBox/InventoryScroll" unique_id=1237291287]
-unique_name_in_owner = true
-layout_mode = 2
 
 [node name="TimelineScroll" type="ScrollContainer" parent="ContentMargin/BattleBox/CenterHBox"]
 unique_name_in_owner = true
@@ -136,6 +100,39 @@ layout_mode = 2
 size_flags_vertical = 3
 alignment = 1
 
+[node name="ModuleSwapUI" type="VBoxContainer" parent="." unique_id=973545549]
+unique_name_in_owner = true
+visible = false
+z_index = 100
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 0
+size_flags_horizontal = 0
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="ModuleSwapUI" unique_id=1947466132]
+layout_mode = 2
+text = "INVENTORY"
+
+[node name="ListsHBox" type="HBoxContainer" parent="ModuleSwapUI" unique_id=22812275]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EquippedModulesList" type="VBoxContainer" parent="ModuleSwapUI/ListsHBox" unique_id=31045314]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="VSeparator" type="VSeparator" parent="ModuleSwapUI/ListsHBox" unique_id=535756513]
+layout_mode = 2
+
+[node name="InventoryScroll" type="ScrollContainer" parent="ModuleSwapUI/ListsHBox" unique_id=936823110]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="InventoryModulesList" type="VBoxContainer" parent="ModuleSwapUI/ListsHBox/InventoryScroll" unique_id=1237291287]
+unique_name_in_owner = true
+layout_mode = 2
+
 [node name="HoverTooltip" type="PanelContainer" parent="." unique_id=1231451110]
 unique_name_in_owner = true
 visible = false
@@ -151,7 +148,6 @@ layout_mode = 2
 [node name="ResolutionScreen" type="PanelContainer" parent="." unique_id=1866246050]
 unique_name_in_owner = true
 visible = false
-top_level = true
 z_index = 200
 layout_mode = 1
 anchors_preset = 15
