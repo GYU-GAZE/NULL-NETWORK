@@ -1,14 +1,30 @@
-[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://dl8fv6g3sl3u3"]
+[gd_resource type="Resource" script_class="ModuleData" load_steps=5 format=3 uid="uid://dl8fv6g3sl3u3"]
 
-[ext_resource type="Script" uid="uid://0ancnq2edet1" path="res://data/templates/status_effect.gd" id="1_3vpp7"]
-[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="1_irqra"]
+[ext_resource type="Script" path="res://data/templates/module_data.gd" id="1_module"]
+[ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
+[ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="3_target"]
+[ext_resource type="Script" path="res://data/templates/combat_value_formula.gd" id="4_formula"]
+
+[sub_resource type="Resource" id="Target_self"]
+script = ExtResource("3_target")
+target_kind = 0
+
+[sub_resource type="Resource" id="Formula_stability"]
+script = ExtResource("4_formula")
+base_value = 30.0
+
+[sub_resource type="Resource" id="Effect_stability"]
+script = ExtResource("2_effect")
+effect_type = 2
+target_selector = SubResource("Target_self")
+value_formula = SubResource("Formula_stability")
+can_crit = false
 
 [resource]
-script = ExtResource("1_irqra")
+script = ExtResource("1_module")
+module_id = &"rest"
 module_name = "Rest"
-module_type = "Support"
-power = 0
-stability_cost = -30
-target_type = "Self"
-scaling_stat = "NONE"
-metadata/_custom_type_script = "uid://c5i2yudu22p4m"
+description = "Recovers Stability instead of spending it."
+stability_cost = 0
+module_tags = 32
+combat_effects = Array[ExtResource("2_effect")]([SubResource("Effect_stability")])
