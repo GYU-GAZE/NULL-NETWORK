@@ -90,6 +90,10 @@ func _on_request_open_app(app: AppResource) -> void:
 				app_control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				app_control.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
+			_bind_app_pixel_density_breakpoint(
+				new_window,
+				app_instance
+			)
 			_restore_app_session_state(app_id, app_instance)
 	else:
 		push_warning(
@@ -213,6 +217,50 @@ func _get_window_app_instance(window: WindowBase) -> Node:
 		return null
 
 	return window.content_container.get_child(0)
+
+
+func _bind_app_pixel_density_breakpoint(
+	window: WindowBase,
+	app_instance: Node
+) -> void:
+	var adaptive_window := (
+		window as AdaptiveScaleWindowBase
+	)
+
+	if adaptive_window == null or app_instance == null:
+		return
+
+	var signal_name := (
+		&"window_pixel_density_breakpoint_requested"
+	)
+	var callback := Callable(
+		adaptive_window,
+		"set_content_pixel_density_breakpoint"
+	)
+
+	if (
+		app_instance.has_signal(signal_name)
+		and not app_instance.is_connected(
+			signal_name,
+			callback
+		)
+	):
+		app_instance.connect(signal_name, callback)
+
+	if not app_instance.has_method(
+		"get_requested_window_pixel_density_breakpoint"
+	):
+		return
+
+	var requested_breakpoint: Variant = app_instance.call(
+		"get_requested_window_pixel_density_breakpoint"
+	)
+
+	if requested_breakpoint is Vector2:
+		adaptive_window.set_content_pixel_density_breakpoint(
+			requested_breakpoint as Vector2
+		)
+
 
 func _on_window_changed(app_id: String) -> void:
 	if not open_windows.has(app_id):
