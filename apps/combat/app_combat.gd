@@ -299,6 +299,12 @@ func _on_timeline_generated(actions: Array) -> void:
 		child.queue_free()
 
 	for action in actions:
+		var slot_center := CenterContainer.new()
+		slot_center.custom_minimum_size = Vector2(48, 48)
+		slot_center.size_flags_horizontal = (
+			Control.SIZE_SHRINK_CENTER
+		)
+
 		var panel := PanelContainer.new()
 		panel.custom_minimum_size = Vector2(48, 48)
 		panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -406,7 +412,8 @@ func _on_timeline_generated(actions: Array) -> void:
 		module_box.add_child(label)
 
 		panel.add_child(module_box)
-		timeline_bar.add_child(panel)
+		slot_center.add_child(panel)
+		timeline_bar.add_child(slot_center)
 
 
 func _on_action_executed(
@@ -418,7 +425,12 @@ func _on_action_executed(
 	if index >= timeline_bar.get_child_count():
 		return
 
-	var panel := timeline_bar.get_child(index) as Control
+	var slot_center := timeline_bar.get_child(index) as Control
+
+	if slot_center == null or slot_center.get_child_count() == 0:
+		return
+
+	var panel := slot_center.get_child(0) as Control
 
 	if panel == null:
 		return
