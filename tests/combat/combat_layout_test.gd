@@ -7,7 +7,7 @@ const TEST_ENCOUNTER: CombatEncounter = preload(
 	"res://data/content/combat/1v1.tres"
 )
 const ENCOUNTER_2X_BREAKPOINT := Vector2(530, 377)
-const LARGE_2X_COMBAT_SIZE := Vector2(640, 360)
+const LARGE_2X_COMBAT_SIZE := Vector2(640, 377)
 const DEFAULT_OUTER_COMBAT_SIZE := Vector2(640, 255)
 const LAYOUT_EPSILON: float = 1.0
 const DENSITY_1X_VISUAL_SCALE := Vector2(0.5, 0.5)
