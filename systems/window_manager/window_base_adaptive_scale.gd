@@ -16,6 +16,7 @@ const PIXEL_DENSITY_2X: int = 2
 @onready var visual_root: Control = %VisualRoot
 
 var scale_switch_size: Vector2 = Vector2(400, 300)
+var _default_scale_switch_size: Vector2 = Vector2(400, 300)
 var current_window_pixel_density: int = PIXEL_DENSITY_2X
 var _visual_scale: float = 1.0
 var _density_emit_queued: bool = false
@@ -48,6 +49,7 @@ func setup(
 		max(1.0, minimum_size.x),
 		max(1.0, minimum_size.y)
 	))
+	_default_scale_switch_size = scale_switch_size
 
 	# Este é o único limite rígido da geometria externa da janela.
 	min_window_size = KubuOSMetrics.snap_vector(Vector2(
@@ -73,6 +75,20 @@ func get_visual_content_size() -> Vector2:
 		return KubuOSMetrics.snap_vector(content_container.size)
 
 	return _get_internal_visual_size()
+
+
+func set_content_pixel_density_breakpoint(
+	requested_breakpoint: Vector2
+) -> void:
+	if requested_breakpoint.x <= 0.0 or requested_breakpoint.y <= 0.0:
+		scale_switch_size = _default_scale_switch_size
+	else:
+		scale_switch_size = KubuOSMetrics.snap_vector(Vector2(
+			max(1.0, requested_breakpoint.x),
+			max(1.0, requested_breakpoint.y)
+		))
+
+	_refresh_adaptive_pixel_density()
 
 
 func _refresh_pivot_offset() -> void:
@@ -104,9 +120,6 @@ func _refresh_adaptive_pixel_density(force: bool = false) -> void:
 
 
 func _resolve_target_pixel_density() -> int:
-	if is_maximized:
-		return PIXEL_DENSITY_2X
-
 	if current_window_pixel_density == PIXEL_DENSITY_1X:
 		var recovery_size: Vector2 = scale_switch_size + Vector2(
 			max(0.0, density_hysteresis.x),
