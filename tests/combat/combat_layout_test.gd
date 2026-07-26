@@ -207,8 +207,11 @@ func _combat_uses_kubu_font_density(
 	var timeline_bar := combat_app.get_node(
 		"ContentMargin/BattleBox/CenterHBox/TimelineScroll/TimelineBar"
 	) as HBoxContainer
+	var first_timeline_slot := (
+		timeline_bar.get_child(0) as CenterContainer
+	)
 	var first_timeline_card := (
-		timeline_bar.get_child(0) as PanelContainer
+		first_timeline_slot.get_child(0) as PanelContainer
 	)
 	var timeline_box := (
 		first_timeline_card.get_child(0) as VBoxContainer
@@ -338,7 +341,15 @@ func _timeline_slots_are_square(
 	var found_module_icon: bool = false
 
 	for child in timeline_bar.get_children():
-		var panel := child as PanelContainer
+		var slot_center := child as CenterContainer
+
+		if (
+			slot_center == null
+			or slot_center.get_child_count() == 0
+		):
+			continue
+
+		var panel := slot_center.get_child(0) as PanelContainer
 
 		if panel == null:
 			continue
