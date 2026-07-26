@@ -380,6 +380,13 @@ func _test_status_and_cycle_trigger(
 	var enemy_before: Variant = _first_living(
 		_combat_manager.enemy_team
 	)
+	enemy_before["modules"] = [
+		rest_module,
+		rest_module,
+		rest_module,
+		rest_module
+	]
+	_combat_manager.rebuild_timeline()
 	var enemy_hp_before := float(
 		enemy_before.get("hp", 0.0)
 	)
