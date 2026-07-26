@@ -21,6 +21,8 @@ var actor_nodes: Dictionary = {}
 @onready var allies_container: HBoxContainer = %AlliesContainer
 @onready var combat_log: RichTextLabel = %CombatLog
 
+@onready var overlay_layer: Control = %OverlayLayer
+@onready var floating_text_layer: Control = %FloatingTextLayer
 @onready var hover_tooltip: PanelContainer = %HoverTooltip
 @onready var tooltip_label: Label = %TooltipLabel
 
@@ -206,7 +208,6 @@ func _spawn_floating_text(
 
 	var label := Label.new()
 	label.text = text
-	label.top_level = true
 	label.add_theme_font_size_override("font_size", 28)
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override(
@@ -217,15 +218,16 @@ func _spawn_floating_text(
 		"shadow_outline_size",
 		4
 	)
-	add_child(label)
+	floating_text_layer.add_child(label)
 
 	var current_offset: int = int(
 		floating_offsets.get(key, 0)
 	)
 
-	label.global_position = (
-		target_node.global_position
-		+ (target_node.size / 2.0)
+	label.position = (
+		floating_text_layer.to_local(
+			target_node.get_global_rect().get_center()
+		)
 		- Vector2(20, 20 + current_offset)
 	)
 	floating_offsets[key] = current_offset + 35
@@ -233,8 +235,8 @@ func _spawn_floating_text(
 	var tween := create_tween().set_parallel(true)
 	tween.tween_property(
 		label,
-		"global_position",
-		label.global_position
+		"position",
+		label.position
 		+ Vector2(randf_range(-15, 15), -60),
 		0.8
 	).set_trans(Tween.TRANS_BACK).set_ease(
@@ -345,11 +347,10 @@ func _on_timeline_generated(actions: Array) -> void:
 		label.horizontal_alignment = (
 			HORIZONTAL_ALIGNMENT_CENTER
 		)
-		label.add_theme_font_size_override(
-			"font_size",
-			8
+		label.clip_text = true
+		label.text_overrun_behavior = (
+			TextServer.OVERRUN_TRIM_ELLIPSIS
 		)
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		module_box.add_child(label)
 
 		if module != null and module.module_icon != null:
@@ -500,8 +501,10 @@ func _on_change_modules_pressed() -> void:
 		return
 
 	refresh_module_ui()
-	module_swap_ui.global_position = (
-		menu_box.global_position
+	module_swap_ui.position = (
+		overlay_layer.to_local(
+			menu_box.global_position
+		)
 		+ Vector2(menu_box.size.x + 10, 0)
 	)
 

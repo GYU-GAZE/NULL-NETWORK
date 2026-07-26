@@ -102,6 +102,7 @@ jobs:
           ./Godot_v4.6.3-stable_linux.x86_64 \
             --headless \
             --path . \
+            --quit-after 30 \
             tests/combat/combat_layout_test.tscn \
             2>&1 | tee godot-combat-layout-test.log
 

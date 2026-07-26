@@ -6,9 +6,12 @@ const COMBAT_SCENE: PackedScene = preload(
 const TEST_ENCOUNTER: CombatEncounter = preload(
 	"res://data/content/combat/1v1.tres"
 )
-const MINIMUM_LOGICAL_COMBAT_SIZE := Vector2(480, 251)
-const DEFAULT_LOGICAL_COMBAT_SIZE := Vector2(640, 255)
+const ENCOUNTER_2X_BREAKPOINT := Vector2(530, 325)
+const LARGE_2X_COMBAT_SIZE := Vector2(640, 360)
+const DEFAULT_OUTER_COMBAT_SIZE := Vector2(640, 255)
 const LAYOUT_EPSILON: float = 1.0
+const DENSITY_1X_VISUAL_SCALE := Vector2(0.5, 0.5)
+const KUBU_DEFAULT_FONT_SIZE: int = 19
 
 
 func _ready() -> void:
@@ -16,18 +19,33 @@ func _ready() -> void:
 
 
 func _run_test() -> void:
+	var kubu_density_theme := Theme.new()
+	kubu_density_theme.default_font_size = (
+		KUBU_DEFAULT_FONT_SIZE
+	)
+	theme = kubu_density_theme
+
+	var adaptive_visual_root := Control.new()
+	adaptive_visual_root.name = "AdaptiveVisualRoot"
+	adaptive_visual_root.set_anchors_preset(
+		Control.PRESET_TOP_LEFT
+	)
+	adaptive_visual_root.position = Vector2.ZERO
+	adaptive_visual_root.size = LARGE_2X_COMBAT_SIZE
+	add_child(adaptive_visual_root)
+
 	var combat_app := COMBAT_SCENE.instantiate() as CombatApp
 
 	if combat_app == null:
 		_fail("Combat scene did not instantiate CombatApp.")
 		return
 
-	add_child(combat_app)
+	adaptive_visual_root.add_child(combat_app)
 	combat_app.set_anchors_preset(
 		Control.PRESET_TOP_LEFT
 	)
 	combat_app.position = Vector2.ZERO
-	combat_app.size = MINIMUM_LOGICAL_COMBAT_SIZE
+	combat_app.size = LARGE_2X_COMBAT_SIZE
 
 	if not combat_app.start_encounter(TEST_ENCOUNTER):
 		_fail("CombatApp rejected the layout test encounter.")
@@ -36,35 +54,38 @@ func _run_test() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
+	if not _combat_uses_kubu_font_density(combat_app):
+		return
+
 	var combined_minimum: Vector2 = (
 		combat_app.get_combined_minimum_size()
 	)
 
 	if (
 		combined_minimum.x
-		> MINIMUM_LOGICAL_COMBAT_SIZE.x
+		> ENCOUNTER_2X_BREAKPOINT.x
 		+ LAYOUT_EPSILON
 		or combined_minimum.y
-		> MINIMUM_LOGICAL_COMBAT_SIZE.y
+		> ENCOUNTER_2X_BREAKPOINT.y
 		+ LAYOUT_EPSILON
 	):
 		_fail(
-			"Combat minimum %s exceeds supported area %s."
+			"Combat minimum %s exceeds its 2x breakpoint %s."
 			% [
 				combined_minimum,
-				MINIMUM_LOGICAL_COMBAT_SIZE
+				ENCOUNTER_2X_BREAKPOINT
 			]
 		)
 		return
 
 	if not combat_app.size.is_equal_approx(
-		MINIMUM_LOGICAL_COMBAT_SIZE
+		LARGE_2X_COMBAT_SIZE
 	):
 		_fail(
 			"CombatApp expanded to %s instead of staying at %s."
 			% [
 				combat_app.size,
-				MINIMUM_LOGICAL_COMBAT_SIZE
+				LARGE_2X_COMBAT_SIZE
 			]
 		)
 		return
@@ -122,12 +143,13 @@ func _run_test() -> void:
 				)
 				return
 
-	combat_app.size = DEFAULT_LOGICAL_COMBAT_SIZE
-
-	await get_tree().process_frame
-	await get_tree().process_frame
-
 	if not _timeline_is_centered(combat_app):
+		return
+
+	if not await _combat_inherits_adaptive_scale(
+		combat_app,
+		adaptive_visual_root
+	):
 		return
 
 	var desktop_size := Vector2(640, 360)
@@ -153,6 +175,162 @@ func _run_test() -> void:
 
 	print("COMBAT_LAYOUT_TEST: PASS")
 	get_tree().quit(0)
+
+
+func _combat_uses_kubu_font_density(
+	combat_app: CombatApp
+) -> bool:
+	var text_controls: Array[Control] = [
+		combat_app.get_node(
+			"ContentMargin/BattleBox/CenterHBox/MenuBox/ChangeModulesBtn"
+		) as Control,
+		combat_app.get_node(
+			"ContentMargin/BattleBox/CenterHBox/MenuBox/ExecuteBtn"
+		) as Control,
+		combat_app.get_node(
+			"ContentMargin/BattleBox/CenterHBox/MenuBox/RunAwayBtn"
+		) as Control,
+		combat_app.get_node(
+			"OverlayLayer/ModuleSwapUI/Title"
+		) as Control,
+		combat_app.get_node(
+			"OverlayLayer/ResolutionScreen/ResolutionCenter/ResolutionBox/ResolutionTitle"
+		) as Control
+	]
+
+	var timeline_bar := combat_app.get_node(
+		"ContentMargin/BattleBox/CenterHBox/TimelineScroll/TimelineBar"
+	) as HBoxContainer
+	var first_timeline_card := (
+		timeline_bar.get_child(0) as PanelContainer
+	)
+	var timeline_label := (
+		first_timeline_card.get_child(0).get_child(0) as Label
+	)
+	text_controls.append(timeline_label)
+
+	var allies := combat_app.get_node(
+		"ContentMargin/BattleBox/AlliesContainer"
+	) as HBoxContainer
+	var player_slot := (
+		allies.get_child(0) as CharacterSlotUI
+	)
+	var actor_frame := (
+		player_slot.get_child(0) as PanelContainer
+	)
+	var actor_content := (
+		actor_frame.get_child(0) as VBoxContainer
+	)
+	var actor_header := (
+		actor_content.get_child(0) as Label
+	)
+	var hp_bar := (
+		player_slot.get_child(1) as ProgressBar
+	)
+	var hp_label := hp_bar.get_child(0) as Label
+	text_controls.append(actor_header)
+	text_controls.append(hp_label)
+
+	for control in text_controls:
+		if control == null:
+			_fail("A required combat text control is missing.")
+			return false
+
+		if control.has_theme_font_size_override(
+			"font_size"
+		):
+			_fail(
+				"Combat text '%s' still overrides the global font size."
+				% control.name
+			)
+			return false
+
+		if control.get_theme_font_size(
+			"font_size"
+		) != KUBU_DEFAULT_FONT_SIZE:
+			_fail(
+				"Combat text '%s' resolved font size %d instead of KubuOS %d."
+				% [
+					control.name,
+					control.get_theme_font_size(
+						"font_size"
+					),
+					KUBU_DEFAULT_FONT_SIZE
+				]
+			)
+			return false
+
+	return true
+
+
+func _combat_inherits_adaptive_scale(
+	combat_app: CombatApp,
+	adaptive_visual_root: Control
+) -> bool:
+	var overlay_controls: Array[Control] = [
+		combat_app,
+		combat_app.get_node("OverlayLayer") as Control,
+		combat_app.get_node(
+			"OverlayLayer/ModuleSwapUI"
+		) as Control,
+		combat_app.get_node(
+			"OverlayLayer/HoverTooltip"
+		) as Control,
+		combat_app.get_node(
+			"OverlayLayer/ResolutionScreen"
+		) as Control
+	]
+
+	adaptive_visual_root.size = DEFAULT_OUTER_COMBAT_SIZE
+	adaptive_visual_root.scale = (
+		DENSITY_1X_VISUAL_SCALE
+	)
+	combat_app.size = (
+		DEFAULT_OUTER_COMBAT_SIZE
+		/ DENSITY_1X_VISUAL_SCALE
+	)
+
+	await get_tree().process_frame
+
+	for control in overlay_controls:
+		if control == null:
+			_fail("A required combat overlay is missing.")
+			return false
+
+		var inherited_scale: Vector2 = (
+			control.get_global_transform().get_scale()
+		)
+
+		if not inherited_scale.is_equal_approx(
+			DENSITY_1X_VISUAL_SCALE
+		):
+			_fail(
+				"Combat control '%s' escaped adaptive 1x scale: %s."
+				% [control.name, inherited_scale]
+			)
+			return false
+
+	var visual_combat_size: Vector2 = (
+		combat_app.get_global_rect().size
+	)
+
+	if not visual_combat_size.is_equal_approx(
+		DEFAULT_OUTER_COMBAT_SIZE
+	):
+		_fail(
+			"Combat 1x visual size %s does not match outer area %s."
+			% [
+				visual_combat_size,
+				DEFAULT_OUTER_COMBAT_SIZE
+			]
+		)
+		return false
+
+	adaptive_visual_root.scale = Vector2.ONE
+	adaptive_visual_root.size = LARGE_2X_COMBAT_SIZE
+	combat_app.size = LARGE_2X_COMBAT_SIZE
+	await get_tree().process_frame
+	return true
 
 
 func _timeline_is_centered(
