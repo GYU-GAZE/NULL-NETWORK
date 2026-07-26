@@ -1,0 +1,14 @@
+; Minimal project settings used only by the headless combat runtime test.
+; The test instantiates the production CombatManager script directly.
+
+config_version=5
+
+[application]
+
+config/name="NULL NETWORK Combat Runtime Test"
+config/features=PackedStringArray("4.6", "GL Compatibility")
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
