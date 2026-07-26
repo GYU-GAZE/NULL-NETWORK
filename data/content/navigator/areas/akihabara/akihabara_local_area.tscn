@@ -5,37 +5,37 @@
 [ext_resource type="PackedScene" path="res://apps/navigator/local_area/player_controller_2d.tscn" id="3_player"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_horizontal"]
-size = Vector2(976, 16)
+size = Vector2(1936, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vertical"]
-size = Vector2(16, 556)
+size = Vector2(16, 1096)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_obstacle"]
 size = Vector2(96, 64)
 
 [node name="AkihabaraLocalArea" type="Node2D" unique_id=1325732743]
 script = ExtResource("1_area")
-area_bounds = Rect2(0, 0, 960, 540)
+area_bounds = Rect2(0, 0, 1920, 1080)
 
 [node name="Ground" type="ColorRect" parent="." unique_id=693357165]
-offset_right = 960.0
-offset_bottom = 540.0
+offset_right = 1920.0
+offset_bottom = 1080.0
 mouse_filter = 2
 color = Color(0.08892975, 0.1368658, 0.39789444, 1)
 
 [node name="StreetHorizontal" type="ColorRect" parent="."]
 offset_left = 0.0
-offset_top = 224.0
-offset_right = 960.0
-offset_bottom = 316.0
+offset_top = 494.0
+offset_right = 1920.0
+offset_bottom = 586.0
 mouse_filter = 2
 color = Color(0.105, 0.105, 0.16, 1)
 
 [node name="StreetVertical" type="ColorRect" parent="."]
-offset_left = 432.0
+offset_left = 912.0
 offset_top = 0.0
-offset_right = 528.0
-offset_bottom = 540.0
+offset_right = 1008.0
+offset_bottom = 1080.0
 mouse_filter = 2
 color = Color(0.105, 0.105, 0.16, 1)
 
@@ -49,10 +49,10 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Kiosk" type="ColorRect" parent="."]
-offset_left = 432.0
-offset_top = 238.0
-offset_right = 528.0
-offset_bottom = 302.0
+offset_left = 912.0
+offset_top = 508.0
+offset_right = 1008.0
+offset_bottom = 572.0
 mouse_filter = 2
 color = Color(0.94, 0.27, 0.58, 1)
 
@@ -63,23 +63,23 @@ collision_layer = 1
 collision_mask = 0
 
 [node name="Top" type="CollisionShape2D" parent="WorldCollision/Boundaries"]
-position = Vector2(480, -8)
+position = Vector2(960, -8)
 shape = SubResource("RectangleShape2D_horizontal")
 
 [node name="Bottom" type="CollisionShape2D" parent="WorldCollision/Boundaries"]
-position = Vector2(480, 548)
+position = Vector2(960, 1088)
 shape = SubResource("RectangleShape2D_horizontal")
 
 [node name="Left" type="CollisionShape2D" parent="WorldCollision/Boundaries"]
-position = Vector2(-8, 270)
+position = Vector2(-8, 540)
 shape = SubResource("RectangleShape2D_vertical")
 
 [node name="Right" type="CollisionShape2D" parent="WorldCollision/Boundaries"]
-position = Vector2(968, 270)
+position = Vector2(1928, 540)
 shape = SubResource("RectangleShape2D_vertical")
 
 [node name="KioskCollision" type="StaticBody2D" parent="WorldCollision"]
-position = Vector2(480, 270)
+position = Vector2(960, 540)
 collision_layer = 1
 collision_mask = 0
 
@@ -90,7 +90,7 @@ shape = SubResource("RectangleShape2D_obstacle")
 unique_name_in_owner = true
 
 [node name="DefaultEntry" type="Marker2D" parent="EntryPoints" unique_id=1375567485]
-position = Vector2(320, 180)
+position = Vector2(640, 360)
 script = ExtResource("2_entry")
 entry_id = "default"
 
