@@ -6,13 +6,11 @@ const COMBAT_SCENE: PackedScene = preload(
 const TEST_ENCOUNTER: CombatEncounter = preload(
 	"res://data/content/combat/1v1.tres"
 )
-const KUBU_THEME: Theme = preload(
-	"res://data/assets/themes/kubuOS.tres"
-)
 const MINIMUM_LOGICAL_COMBAT_SIZE := Vector2(480, 251)
 const DEFAULT_LOGICAL_COMBAT_SIZE := Vector2(640, 255)
 const LAYOUT_EPSILON: float = 1.0
 const DENSITY_1X_VISUAL_SCALE := Vector2(0.5, 0.5)
+const KUBU_DEFAULT_FONT_SIZE: int = 19
 
 
 func _ready() -> void:
@@ -20,7 +18,11 @@ func _ready() -> void:
 
 
 func _run_test() -> void:
-	theme = KUBU_THEME
+	var kubu_density_theme := Theme.new()
+	kubu_density_theme.default_font_size = (
+		KUBU_DEFAULT_FONT_SIZE
+	)
+	theme = kubu_density_theme
 
 	var adaptive_visual_root := Control.new()
 	adaptive_visual_root.name = "AdaptiveVisualRoot"
@@ -182,7 +184,6 @@ func _run_test() -> void:
 func _combat_uses_kubu_font_density(
 	combat_app: CombatApp
 ) -> bool:
-	var expected_font_size: int = KUBU_THEME.default_font_size
 	var text_controls: Array[Control] = [
 		combat_app.get_node(
 			"ContentMargin/BattleBox/CenterHBox/MenuBox/ChangeModulesBtn"
@@ -250,7 +251,7 @@ func _combat_uses_kubu_font_density(
 
 		if control.get_theme_font_size(
 			"font_size"
-		) != expected_font_size:
+		) != KUBU_DEFAULT_FONT_SIZE:
 			_fail(
 				"Combat text '%s' resolved font size %d instead of KubuOS %d."
 				% [
@@ -258,7 +259,7 @@ func _combat_uses_kubu_font_density(
 					control.get_theme_font_size(
 						"font_size"
 					),
-					expected_font_size
+					KUBU_DEFAULT_FONT_SIZE
 				]
 			)
 			return false
