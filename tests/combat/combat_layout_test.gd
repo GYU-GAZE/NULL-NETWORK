@@ -6,8 +6,9 @@ const COMBAT_SCENE: PackedScene = preload(
 const TEST_ENCOUNTER: CombatEncounter = preload(
 	"res://data/content/combat/1v1.tres"
 )
-const MINIMUM_LOGICAL_COMBAT_SIZE := Vector2(480, 251)
-const DEFAULT_LOGICAL_COMBAT_SIZE := Vector2(640, 255)
+const ENCOUNTER_2X_BREAKPOINT := Vector2(530, 325)
+const LARGE_2X_COMBAT_SIZE := Vector2(640, 360)
+const DEFAULT_OUTER_COMBAT_SIZE := Vector2(640, 255)
 const LAYOUT_EPSILON: float = 1.0
 const DENSITY_1X_VISUAL_SCALE := Vector2(0.5, 0.5)
 const KUBU_DEFAULT_FONT_SIZE: int = 19
@@ -30,7 +31,7 @@ func _run_test() -> void:
 		Control.PRESET_TOP_LEFT
 	)
 	adaptive_visual_root.position = Vector2.ZERO
-	adaptive_visual_root.size = MINIMUM_LOGICAL_COMBAT_SIZE
+	adaptive_visual_root.size = LARGE_2X_COMBAT_SIZE
 	add_child(adaptive_visual_root)
 
 	var combat_app := COMBAT_SCENE.instantiate() as CombatApp
@@ -44,7 +45,7 @@ func _run_test() -> void:
 		Control.PRESET_TOP_LEFT
 	)
 	combat_app.position = Vector2.ZERO
-	combat_app.size = MINIMUM_LOGICAL_COMBAT_SIZE
+	combat_app.size = LARGE_2X_COMBAT_SIZE
 
 	if not combat_app.start_encounter(TEST_ENCOUNTER):
 		_fail("CombatApp rejected the layout test encounter.")
@@ -62,29 +63,29 @@ func _run_test() -> void:
 
 	if (
 		combined_minimum.x
-		> MINIMUM_LOGICAL_COMBAT_SIZE.x
+		> ENCOUNTER_2X_BREAKPOINT.x
 		+ LAYOUT_EPSILON
 		or combined_minimum.y
-		> MINIMUM_LOGICAL_COMBAT_SIZE.y
+		> ENCOUNTER_2X_BREAKPOINT.y
 		+ LAYOUT_EPSILON
 	):
 		_fail(
-			"Combat minimum %s exceeds supported area %s."
+			"Combat minimum %s exceeds its 2x breakpoint %s."
 			% [
 				combined_minimum,
-				MINIMUM_LOGICAL_COMBAT_SIZE
+				ENCOUNTER_2X_BREAKPOINT
 			]
 		)
 		return
 
 	if not combat_app.size.is_equal_approx(
-		MINIMUM_LOGICAL_COMBAT_SIZE
+		LARGE_2X_COMBAT_SIZE
 	):
 		_fail(
 			"CombatApp expanded to %s instead of staying at %s."
 			% [
 				combat_app.size,
-				MINIMUM_LOGICAL_COMBAT_SIZE
+				LARGE_2X_COMBAT_SIZE
 			]
 		)
 		return
@@ -141,11 +142,6 @@ func _run_test() -> void:
 					% team_path
 				)
 				return
-
-	combat_app.size = DEFAULT_LOGICAL_COMBAT_SIZE
-
-	await get_tree().process_frame
-	await get_tree().process_frame
 
 	if not _timeline_is_centered(combat_app):
 		return
@@ -285,8 +281,13 @@ func _combat_inherits_adaptive_scale(
 		) as Control
 	]
 
+	adaptive_visual_root.size = DEFAULT_OUTER_COMBAT_SIZE
 	adaptive_visual_root.scale = (
 		DENSITY_1X_VISUAL_SCALE
+	)
+	combat_app.size = (
+		DEFAULT_OUTER_COMBAT_SIZE
+		/ DENSITY_1X_VISUAL_SCALE
 	)
 
 	await get_tree().process_frame
@@ -309,7 +310,25 @@ func _combat_inherits_adaptive_scale(
 			)
 			return false
 
+	var visual_combat_size: Vector2 = (
+		combat_app.get_global_rect().size
+	)
+
+	if not visual_combat_size.is_equal_approx(
+		DEFAULT_OUTER_COMBAT_SIZE
+	):
+		_fail(
+			"Combat 1x visual size %s does not match outer area %s."
+			% [
+				visual_combat_size,
+				DEFAULT_OUTER_COMBAT_SIZE
+			]
+		)
+		return false
+
 	adaptive_visual_root.scale = Vector2.ONE
+	adaptive_visual_root.size = LARGE_2X_COMBAT_SIZE
+	combat_app.size = LARGE_2X_COMBAT_SIZE
 	await get_tree().process_frame
 	return true
 
