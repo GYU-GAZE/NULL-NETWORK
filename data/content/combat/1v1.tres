@@ -1,15 +1,15 @@
 [gd_resource type="Resource" script_class="CombatEncounter" load_steps=7 format=3 uid="uid://cdxjje47qsri2"]
 
-[ext_resource type="Script" uid="uid://cpylubw8n7yf8" path="res://data/templates/combat_encounter.gd" id="1_encounter"]
+[ext_resource type="Script" path="res://data/templates/combat_encounter.gd" id="1_encounter"]
 [ext_resource type="Script" path="res://data/templates/combat_slot_data.gd" id="2_slot"]
-[ext_resource type="Resource" uid="uid://bqndw73t6o3d3" path="res://data/content/combat/loadouts/main_character.tres" id="3_player"]
-[ext_resource type="Resource" uid="uid://c6qnhguv6agkv" path="res://data/content/combat/loadouts/enemy_rattus.tres" id="4_enemy"]
+[ext_resource type="Resource" path="res://data/content/combat/loadouts/main_character.tres" id="3_player"]
+[ext_resource type="Resource" path="res://data/content/combat/loadouts/enemy_rattus.tres" id="4_enemy"]
 
-[sub_resource type="Resource" id="CombatSlotData_player"]
+[sub_resource type="Resource" id="Slot_player"]
 script = ExtResource("2_slot")
 character = ExtResource("3_player")
 
-[sub_resource type="Resource" id="CombatSlotData_enemy"]
+[sub_resource type="Resource" id="Slot_enemy"]
 script = ExtResource("2_slot")
 slot_index = 1
 character = ExtResource("4_enemy")
@@ -18,6 +18,6 @@ character = ExtResource("4_enemy")
 script = ExtResource("1_encounter")
 encounter_id = "akihabara_rattildus_1v1"
 encounter_name = "Akihabara Rattildus"
-ally_slots = Array[ExtResource("2_slot")]([SubResource("CombatSlotData_player")])
-enemy_slots = Array[ExtResource("2_slot")]([SubResource("CombatSlotData_enemy")])
-metadata/_custom_type_script = "uid://cpylubw8n7yf8"
+ally_slots = Array[ExtResource("2_slot")]([SubResource("Slot_player")])
+enemy_slots = Array[ExtResource("2_slot")]([SubResource("Slot_enemy")])
+base_escape_chance = 0.25
