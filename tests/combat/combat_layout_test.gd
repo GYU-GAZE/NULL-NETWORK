@@ -7,6 +7,7 @@ const TEST_ENCOUNTER: CombatEncounter = preload(
 	"res://data/content/combat/1v1.tres"
 )
 const MINIMUM_LOGICAL_COMBAT_SIZE := Vector2(480, 251)
+const DEFAULT_LOGICAL_COMBAT_SIZE := Vector2(640, 255)
 const LAYOUT_EPSILON: float = 1.0
 
 
@@ -121,8 +122,85 @@ func _run_test() -> void:
 				)
 				return
 
+	combat_app.size = DEFAULT_LOGICAL_COMBAT_SIZE
+
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	if not _timeline_is_centered(combat_app):
+		return
+
+	var desktop_size := Vector2(640, 360)
+	var work_area: Rect2 = (
+		KubuOSMetrics.get_work_area_rect(desktop_size)
+	)
+	var expected_work_area := Rect2(
+		Vector2(0, KubuOSMetrics.taskbar_height),
+		Vector2(
+			desktop_size.x,
+			desktop_size.y
+			- KubuOSMetrics.taskbar_height
+			- KubuOSMetrics.dock_height
+		)
+	)
+
+	if work_area != expected_work_area:
+		_fail(
+			"Workspace %s does not preserve the dock area %s."
+			% [work_area, expected_work_area]
+		)
+		return
+
 	print("COMBAT_LAYOUT_TEST: PASS")
 	get_tree().quit(0)
+
+
+func _timeline_is_centered(
+	combat_app: CombatApp
+) -> bool:
+	var timeline_scroll := combat_app.get_node_or_null(
+		"ContentMargin/BattleBox/CenterHBox/TimelineScroll"
+	) as ScrollContainer
+	var timeline_bar := combat_app.get_node_or_null(
+		"ContentMargin/BattleBox/CenterHBox/TimelineScroll/TimelineBar"
+	) as HBoxContainer
+
+	if timeline_scroll == null or timeline_bar == null:
+		_fail("Timeline nodes are missing.")
+		return false
+
+	if timeline_bar.get_child_count() != 8:
+		_fail(
+			"Expected 8 timeline modules, got %d."
+			% timeline_bar.get_child_count()
+		)
+		return false
+
+	var scroll_center_x: float = (
+		timeline_scroll.get_global_rect().get_center().x
+	)
+	var timeline_center_x: float = (
+		timeline_bar.get_global_rect().get_center().x
+	)
+	var combat_center_x: float = (
+		combat_app.get_global_rect().get_center().x
+	)
+
+	if absf(timeline_center_x - scroll_center_x) > LAYOUT_EPSILON:
+		_fail(
+			"Timeline center %.2f does not match its available area %.2f."
+			% [timeline_center_x, scroll_center_x]
+		)
+		return false
+
+	if absf(scroll_center_x - combat_center_x) > LAYOUT_EPSILON:
+		_fail(
+			"Timeline area center %.2f does not match app center %.2f."
+			% [scroll_center_x, combat_center_x]
+		)
+		return false
+
+	return true
 
 
 func _control_fits_inside(

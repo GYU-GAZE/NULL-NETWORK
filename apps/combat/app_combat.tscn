@@ -103,6 +103,7 @@ unique_name_in_owner = true
 layout_mode = 2
 
 [node name="TimelineScroll" type="ScrollContainer" parent="ContentMargin/BattleBox/CenterHBox"]
+unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -113,12 +114,13 @@ vertical_scroll_mode = 0
 [node name="TimelineBar" type="HBoxContainer" parent="ContentMargin/BattleBox/CenterHBox/TimelineScroll" unique_id=1911210518]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 3
 alignment = 1
 
 [node name="LogPanel" type="PanelContainer" parent="ContentMargin/BattleBox/CenterHBox" unique_id=446805461]
-custom_minimum_size = Vector2(120, 0)
+custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
 size_flags_vertical = 3
 

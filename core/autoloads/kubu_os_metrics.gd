@@ -32,7 +32,6 @@ signal display_state_changed(
 var pixel_scale: int = 2
 var physical_size: Vector2i = Vector2i.ZERO
 var logical_workspace_size: Vector2i = Vector2i.ZERO
-var _dock_reservation_enabled: bool = true
 
 
 func set_display_state(
@@ -56,25 +55,6 @@ func set_display_state(
 
 	display_state_changed.emit(pixel_scale, physical_size, logical_workspace_size)
 	metrics_changed.emit()
-
-
-func set_dock_reservation_enabled(enabled: bool) -> void:
-	if _dock_reservation_enabled == enabled:
-		return
-
-	_dock_reservation_enabled = enabled
-	metrics_changed.emit()
-
-
-func is_dock_reservation_enabled() -> bool:
-	return _dock_reservation_enabled
-
-
-func get_reserved_dock_height() -> float:
-	if not _dock_reservation_enabled:
-		return 0.0
-
-	return dock_height
 
 
 func get_pixel_scale() -> int:
@@ -103,7 +83,7 @@ func get_work_area_size(parent_size: Vector2) -> Vector2:
 			0.0,
 			parent_size.y
 			- taskbar_height
-			- get_reserved_dock_height()
+			- dock_height
 		)
 	))
 

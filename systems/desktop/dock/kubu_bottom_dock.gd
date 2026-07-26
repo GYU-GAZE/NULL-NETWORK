@@ -19,13 +19,11 @@ var _active_workspace_id: String = ""
 
 var _dock_locked: bool = false
 var _dock_lock_reason: String = ""
-var _dock_visibility_reason: String = ""
 
 
 func _ready() -> void:
 	_connect_global_signals()
 	_build_dock()
-	KubuOSMetrics.set_dock_reservation_enabled(visible)
 
 
 func _connect_global_signals() -> void:
@@ -43,13 +41,6 @@ func _connect_global_signals() -> void:
 
 	if not GlobalSignals.dock_lock_changed.is_connected(_on_dock_lock_changed):
 		GlobalSignals.dock_lock_changed.connect(_on_dock_lock_changed)
-
-	if not GlobalSignals.dock_visibility_requested.is_connected(
-		_on_dock_visibility_requested
-	):
-		GlobalSignals.dock_visibility_requested.connect(
-			_on_dock_visibility_requested
-		)
 
 
 func _build_dock() -> void:
@@ -179,13 +170,6 @@ func _on_dock_lock_changed(
 	set_locked(locked, reason)
 
 
-func _on_dock_visibility_requested(
-	dock_visible: bool,
-	reason: String
-) -> void:
-	set_dock_visible(dock_visible, reason)
-
-
 func set_locked(
 	locked: bool,
 	reason: String = ""
@@ -198,22 +182,6 @@ func set_locked(
 
 		if item != null:
 			item.set_locked(_dock_locked)
-
-
-func set_dock_visible(
-	dock_visible: bool,
-	reason: String = ""
-) -> void:
-	_dock_visibility_reason = (
-		""
-		if dock_visible
-		else reason
-	)
-
-	visible = dock_visible
-	KubuOSMetrics.set_dock_reservation_enabled(
-		dock_visible
-	)
 
 
 func set_app_badge(
@@ -230,10 +198,6 @@ func set_app_badge(
 
 func get_lock_reason() -> String:
 	return _dock_lock_reason
-
-
-func get_visibility_reason() -> String:
-	return _dock_visibility_reason
 
 
 func _clear_item_focus() -> void:
