@@ -29,26 +29,24 @@ jobs:
           while IFS= read -r -d '' import_file; do
             source_file="${import_file%.import}"
 
-            if [ -f "$source_file" ]; then
-              continue
+            if [ ! -f "$source_file" ]; then
+              extension="${source_file##*.}"
+              echo "Missing raw asset: $source_file"
+
+              case "$extension" in
+                png)
+                  printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4////fwAJ+wP9KobjigAAAABJRU5ErkJggg==' \
+                    | base64 --decode > "$source_file"
+                  ;;
+                ttf)
+                  cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf "$source_file"
+                  ;;
+                *)
+                  echo "Unsupported missing asset type: $source_file"
+                  exit 1
+                  ;;
+              esac
             fi
-
-            extension="${source_file##*.}"
-            echo "Missing raw asset: $source_file"
-
-            case "$extension" in
-              png)
-                printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4////fwAJ+wP9KobjigAAAABJRU5ErkJggg==' \
-                  | base64 --decode > "$source_file"
-                ;;
-              ttf)
-                cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf "$source_file"
-                ;;
-              *)
-                echo "Unsupported missing asset type: $source_file"
-                exit 1
-                ;;
-            esac
 
             rm -f "$import_file"
           done < <(find data -type f -name '*.import' -print0)
