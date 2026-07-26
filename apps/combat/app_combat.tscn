@@ -6,6 +6,7 @@
 bg_color = Color(0, 0, 0, 0.9)
 
 [node name="CombatApp" type="PanelContainer" unique_id=1771139256]
+clip_contents = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -13,106 +14,125 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_combat")
 
-[node name="MainHBox" type="HBoxContainer" parent="." unique_id=451122393]
+[node name="ContentMargin" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
 
-[node name="VS1" type="VSeparator" parent="MainHBox" unique_id=27663818]
-layout_mode = 2
-
-[node name="BattleBox" type="VBoxContainer" parent="MainHBox" unique_id=39582378]
+[node name="BattleBox" type="VBoxContainer" parent="ContentMargin" unique_id=39582378]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 180
+size_flags_vertical = 3
+theme_override_constants/separation = 4
 alignment = 1
 
-[node name="EnemiesContainer" type="HBoxContainer" parent="MainHBox/BattleBox" unique_id=842325344]
+[node name="EnemiesContainer" type="HBoxContainer" parent="ContentMargin/BattleBox" unique_id=842325344]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 3
 alignment = 1
 
-[node name="CenterHBox" type="HBoxContainer" parent="MainHBox/BattleBox" unique_id=1688150472]
+[node name="CenterHBox" type="HBoxContainer" parent="ContentMargin/BattleBox" unique_id=1688150472]
 layout_mode = 2
-theme_override_constants/separation = 40
+size_flags_vertical = 3
+theme_override_constants/separation = 6
 alignment = 1
 
-[node name="MenuBox" type="VBoxContainer" parent="MainHBox/BattleBox/CenterHBox" unique_id=1979134545]
+[node name="MenuBox" type="VBoxContainer" parent="ContentMargin/BattleBox/CenterHBox" unique_id=1979134545]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
+theme_override_constants/separation = 2
+alignment = 1
 
-[node name="ChangeModulesBtn" type="Button" parent="MainHBox/BattleBox/CenterHBox/MenuBox" unique_id=124703014]
+[node name="ChangeModulesBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=124703014]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
+theme_override_font_sizes/font_size = 8
 text = "Change Modules"
 
-[node name="ExecuteBtn" type="Button" parent="MainHBox/BattleBox/CenterHBox/MenuBox" unique_id=1608989675]
+[node name="ExecuteBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=1608989675]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
+theme_override_font_sizes/font_size = 8
 text = "Execute Cycle"
 
-[node name="RunAwayBtn" type="Button" parent="MainHBox/BattleBox/CenterHBox/MenuBox" unique_id=1774351517]
+[node name="RunAwayBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=1774351517]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
+theme_override_font_sizes/font_size = 8
 text = "Run Away"
 
-[node name="ModuleSwapUI" type="VBoxContainer" parent="MainHBox/BattleBox/CenterHBox" unique_id=973545549]
+[node name="ModuleSwapUI" type="VBoxContainer" parent="ContentMargin/BattleBox/CenterHBox" unique_id=973545549]
 unique_name_in_owner = true
 visible = false
 top_level = true
-custom_minimum_size = Vector2(300, 0)
+custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 mouse_filter = 2
 
-[node name="Title" type="Label" parent="MainHBox/BattleBox/CenterHBox/ModuleSwapUI" unique_id=1947466132]
+[node name="Title" type="Label" parent="ContentMargin/BattleBox/CenterHBox/ModuleSwapUI" unique_id=1947466132]
 layout_mode = 2
 text = "INVENTORY"
 
-[node name="ListsHBox" type="HBoxContainer" parent="MainHBox/BattleBox/CenterHBox/ModuleSwapUI" unique_id=22812275]
+[node name="ListsHBox" type="HBoxContainer" parent="ContentMargin/BattleBox/CenterHBox/ModuleSwapUI" unique_id=22812275]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="EquippedModulesList" type="VBoxContainer" parent="MainHBox/BattleBox/CenterHBox/ModuleSwapUI/ListsHBox" unique_id=31045314]
+[node name="EquippedModulesList" type="VBoxContainer" parent="ContentMargin/BattleBox/CenterHBox/ModuleSwapUI/ListsHBox" unique_id=31045314]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="VSeparator" type="VSeparator" parent="MainHBox/BattleBox/CenterHBox/ModuleSwapUI/ListsHBox" unique_id=535756513]
+[node name="VSeparator" type="VSeparator" parent="ContentMargin/BattleBox/CenterHBox/ModuleSwapUI/ListsHBox" unique_id=535756513]
 layout_mode = 2
 
-[node name="InventoryScroll" type="ScrollContainer" parent="MainHBox/BattleBox/CenterHBox/ModuleSwapUI/ListsHBox" unique_id=936823110]
+[node name="InventoryScroll" type="ScrollContainer" parent="ContentMargin/BattleBox/CenterHBox/ModuleSwapUI/ListsHBox" unique_id=936823110]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="InventoryModulesList" type="VBoxContainer" parent="MainHBox/BattleBox/CenterHBox/ModuleSwapUI/ListsHBox/InventoryScroll" unique_id=1237291287]
+[node name="InventoryModulesList" type="VBoxContainer" parent="ContentMargin/BattleBox/CenterHBox/ModuleSwapUI/ListsHBox/InventoryScroll" unique_id=1237291287]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="TimelineBar" type="HBoxContainer" parent="MainHBox/BattleBox/CenterHBox" unique_id=1911210518]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 100)
+[node name="TimelineScroll" type="ScrollContainer" parent="ContentMargin/BattleBox/CenterHBox"]
+clip_contents = true
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 1
+vertical_scroll_mode = 0
+
+[node name="TimelineBar" type="HBoxContainer" parent="ContentMargin/BattleBox/CenterHBox/TimelineScroll" unique_id=1911210518]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 3
 alignment = 1
 
-[node name="AlliesContainer" type="HBoxContainer" parent="MainHBox/BattleBox" unique_id=1775541395]
-unique_name_in_owner = true
+[node name="LogPanel" type="PanelContainer" parent="ContentMargin/BattleBox/CenterHBox" unique_id=446805461]
+custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
-alignment = 1
+size_flags_vertical = 3
 
-[node name="VS2" type="VSeparator" parent="MainHBox" unique_id=1404429227]
-layout_mode = 2
-
-[node name="LogPanel" type="PanelContainer" parent="." unique_id=446805461]
-layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 8
-
-[node name="CombatLog" type="RichTextLabel" parent="LogPanel" unique_id=897556536]
+[node name="CombatLog" type="RichTextLabel" parent="ContentMargin/BattleBox/CenterHBox/LogPanel" unique_id=897556536]
 unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
+scroll_active = true
+
+[node name="AlliesContainer" type="HBoxContainer" parent="ContentMargin/BattleBox" unique_id=1775541395]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
 
 [node name="HoverTooltip" type="PanelContainer" parent="." unique_id=1231451110]
 unique_name_in_owner = true
