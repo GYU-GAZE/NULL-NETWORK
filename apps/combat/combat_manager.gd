@@ -164,7 +164,7 @@ func try_escape() -> bool:
 		escape_attempted.emit(false)
 		return false
 
-	var player := _get_player_actor()
+	var player: Variant = _get_player_actor()
 
 	if player == null:
 		escape_attempted.emit(false)
@@ -220,7 +220,7 @@ func set_player_module(
 	slot_index: int,
 	module: ModuleData
 ) -> bool:
-	var player := _get_player_actor()
+	var player: Variant = _get_player_actor()
 
 	if (
 		player == null
@@ -377,7 +377,7 @@ func resolve_targets(
 			result = [caster]
 
 		CombatTargetSelector.TargetKind.DIRECT_ENEMY:
-			var direct_target := (
+			var direct_target: Variant = (
 				_get_direct_enemy_target(
 					caster_index,
 					enemies
@@ -400,7 +400,7 @@ func resolve_targets(
 			)
 
 		CombatTargetSelector.TargetKind.ADJACENT_ALLY:
-			var adjacent := _get_adjacent_ally(
+			var adjacent: Variant = _get_adjacent_ally(
 				caster_index,
 				allies
 			)
@@ -445,7 +445,7 @@ func resolve_targets(
 					caster.get("creator_uid", -1)
 				)
 			)
-			var creator := _find_combatant_by_uid(
+			var creator: Variant = _find_combatant_by_uid(
 				creator_uid
 			)
 			result = _variant_as_target_array(
@@ -996,7 +996,7 @@ func _apply_damage(
 	raw_amount: float,
 	parent_context: CombatEventContext
 ) -> void:
-	var target := _resolve_redirect_target(
+	var target: Variant = _resolve_redirect_target(
 		original_target
 	)
 
@@ -1467,7 +1467,9 @@ func _process_status_triggers(
 			):
 				continue
 
-			var trigger_key := triggered_effect.get_instance_id()
+			var trigger_key: int = (
+				triggered_effect.get_instance_id()
+			)
 
 			if (
 				triggered_effect.trigger_once_per_cycle
@@ -1481,7 +1483,7 @@ func _process_status_triggers(
 			instance.last_triggered_cycle[
 				trigger_key
 			] = current_cycle
-			var source := _find_combatant_by_uid(
+			var source: Variant = _find_combatant_by_uid(
 				instance.source_uid
 			)
 
@@ -1885,7 +1887,7 @@ func _evaluate_formula(
 		return 0.0
 
 	var value := formula.base_value
-	var reference_actor := _resolve_formula_actor(
+	var reference_actor: Variant = _resolve_formula_actor(
 		formula.stat_reference,
 		caster,
 		target,
@@ -2109,7 +2111,7 @@ func _continuous_bindings() -> Array[Dictionary]:
 			):
 				continue
 
-			var source := _find_combatant_by_uid(
+			var source: Variant = _find_combatant_by_uid(
 				instance.source_uid
 			)
 
@@ -2267,7 +2269,7 @@ func _target_from_slot(
 		return [target]
 
 	if selector.fallback_to_closest:
-		var fallback := _get_closest_target_by_slot(
+		var fallback: Variant = _get_closest_target_by_slot(
 			slot_index,
 			team
 		)
@@ -2453,7 +2455,7 @@ func _resolve_redirect_target(
 		):
 			continue
 
-		var redirect_target := _find_combatant_by_uid(
+		var redirect_target: Variant = _find_combatant_by_uid(
 			int(effect.get("redirect_to_uid", -1))
 		)
 		effect["remaining_actions"] = int(
