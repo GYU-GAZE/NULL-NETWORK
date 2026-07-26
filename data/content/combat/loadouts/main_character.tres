@@ -1,20 +1,21 @@
-[gd_resource type="Resource" script_class="CharacterLoadout" format=3 uid="uid://bqndw73t6o3d3"]
+[gd_resource type="Resource" script_class="CharacterLoadout" load_steps=11 format=3 uid="uid://bqndw73t6o3d3"]
 
-[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="1_bqh7e"]
-[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_l2to7"]
-[ext_resource type="Script" uid="uid://d1ggms7hchm4m" path="res://data/templates/character_loadout.gd" id="2_5vvwj"]
-[ext_resource type="Resource" uid="uid://douy6r2teyyce" path="res://data/content/combat/modules/basic_attack.tres" id="2_kvqxh"]
-[ext_resource type="Resource" uid="uid://c08m7l3e4oail" path="res://data/content/combat/modules/basic_defense.tres" id="3_l2to7"]
-[ext_resource type="Resource" uid="uid://d0de40r3qxfd8" path="res://data/content/combat/modules/heavy_attack.tres" id="4_7emh7"]
-[ext_resource type="Resource" uid="uid://dl8fv6g3sl3u3" path="res://data/content/combat/modules/idle.tres" id="5_08afi"]
-[ext_resource type="Resource" uid="uid://bdb5bnnhx1o76" path="res://data/content/combat/modules/basic_dodge.tres" id="6_nbt0u"]
-[ext_resource type="Resource" uid="uid://dc21a0ovikmof" path="res://data/content/combat/modules/basic_heal.tres" id="7_p7h4i"]
-[ext_resource type="Resource" uid="uid://b5xe5jmx3xf86" path="res://data/content/combat/modules/dummy_turret.tres" id="9_o0o3l"]
-[ext_resource type="Resource" uid="uid://k83w864ymr75" path="res://data/content/combat/modules/new_attack.tres" id="10_tt75o"]
+[ext_resource type="Script" path="res://data/templates/character_loadout.gd" id="1_loadout"]
+[ext_resource type="Script" path="res://data/templates/module_data.gd" id="2_module"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="3_icon"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_attack.tres" id="4_attack"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/heavy_attack.tres" id="5_heavy"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_defense.tres" id="6_defense"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_dodge.tres" id="7_dodge"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_heal.tres" id="8_heal"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/idle.tres" id="9_rest"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/dummy_turret.tres" id="10_turret"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/new_attack.tres" id="11_alternate"]
 
 [resource]
-script = ExtResource("2_5vvwj")
-combat_icon = ExtResource("1_l2to7")
-equipped_modules = Array[ExtResource("1_bqh7e")]([ExtResource("2_kvqxh"), ExtResource("4_7emh7"), ExtResource("2_kvqxh"), ExtResource("4_7emh7")])
-module_pool = Array[ExtResource("1_bqh7e")]([ExtResource("2_kvqxh"), ExtResource("3_l2to7"), ExtResource("6_nbt0u"), ExtResource("7_p7h4i"), ExtResource("4_7emh7"), ExtResource("5_08afi"), ExtResource("9_o0o3l"), ExtResource("10_tt75o")])
-metadata/_custom_type_script = "uid://d1ggms7hchm4m"
+script = ExtResource("1_loadout")
+character_id = &"test_player"
+char_name = "Partner"
+combat_icon = ExtResource("3_icon")
+equipped_modules = Array[ExtResource("2_module")]([ExtResource("4_attack"), ExtResource("6_defense"), ExtResource("4_attack"), ExtResource("5_heavy")])
+module_pool = Array[ExtResource("2_module")]([ExtResource("4_attack"), ExtResource("5_heavy"), ExtResource("6_defense"), ExtResource("7_dodge"), ExtResource("8_heal"), ExtResource("9_rest"), ExtResource("10_turret"), ExtResource("11_alternate")])
