@@ -53,8 +53,6 @@ jobs:
             rm -f "$import_file"
           done < <(find data -type f -name '*.import' -print0)
 
-          # The project theme is loaded before the first filesystem import.
-          # Disable it only for the disposable runner copy during that import.
           sed -i '/^theme\/custom=/d' project.godot
 
       - name: Download Godot 4.6.3
@@ -90,14 +88,31 @@ jobs:
             --verbose \
             core/main.tscn 2>&1 | tee godot-runtime.log
 
+      - name: Run combat runtime test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            --script res://tests/combat/combat_runtime_test.gd \
+            2>&1 | tee godot-combat-test.log
+
       - name: Reject script and resource errors
         run: |
-          cat godot-import.log godot-runtime.log > godot-validation.log
+          cat \
+            godot-import.log \
+            godot-runtime.log \
+            godot-combat-test.log \
+            > godot-validation.log
 
-          if grep -E "SCRIPT ERROR|Parse Error|Failed to load script|Cannot get class|Failed loading resource" godot-validation.log; then
-            echo "Godot reported script or resource loading errors."
+          if grep -E "SCRIPT ERROR|Parse Error|Failed to load script|Cannot get class|Failed loading resource|COMBAT_RUNTIME_TEST: " godot-validation.log \
+            | grep -v "COMBAT_RUNTIME_TEST: PASS"; then
+            echo "Godot reported script, resource, or combat test errors."
             exit 1
           fi
+
+          grep -q "COMBAT_RUNTIME_TEST: PASS" godot-combat-test.log
 
       - name: Upload validation log
         if: always()
@@ -107,5 +122,6 @@ jobs:
           path: |
             godot-import.log
             godot-runtime.log
+            godot-combat-test.log
             godot-validation.log
           if-no-files-found: ignore
