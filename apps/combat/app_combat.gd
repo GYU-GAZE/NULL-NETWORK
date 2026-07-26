@@ -347,7 +347,10 @@ func _on_timeline_generated(actions: Array) -> void:
 		label.horizontal_alignment = (
 			HORIZONTAL_ALIGNMENT_CENTER
 		)
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD
+		label.clip_text = true
+		label.text_overrun_behavior = (
+			TextServer.OVERRUN_TRIM_ELLIPSIS
+		)
 		module_box.add_child(label)
 
 		if module != null and module.module_icon != null:
