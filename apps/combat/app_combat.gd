@@ -368,24 +368,15 @@ func _on_timeline_generated(actions: Array) -> void:
 			icon.stretch_mode = (
 				TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			)
-			icon.custom_minimum_size = Vector2(18, 18)
+			icon.custom_minimum_size = Vector2(8, 8)
 			module_box.add_child(icon)
 		else:
-			var icon_fallback := Label.new()
-			icon_fallback.text = (
-				module.module_name.left(1)
-				if module != null
-				else "?"
-			)
+			var icon_fallback := ColorRect.new()
+			icon_fallback.color = background_color.lightened(0.35)
 			icon_fallback.custom_minimum_size = (
-				Vector2(18, 18)
+				Vector2(8, 8)
 			)
-			icon_fallback.horizontal_alignment = (
-				HORIZONTAL_ALIGNMENT_CENTER
-			)
-			icon_fallback.vertical_alignment = (
-				VERTICAL_ALIGNMENT_CENTER
-			)
+			icon_fallback.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			module_box.add_child(icon_fallback)
 
 		var label := Label.new()
