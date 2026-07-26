@@ -206,7 +206,6 @@ func _spawn_floating_text(
 
 	var label := Label.new()
 	label.text = text
-	label.top_level = true
 	label.add_theme_font_size_override("font_size", 28)
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override(
@@ -223,9 +222,10 @@ func _spawn_floating_text(
 		floating_offsets.get(key, 0)
 	)
 
-	label.global_position = (
-		target_node.global_position
-		+ (target_node.size / 2.0)
+	label.position = (
+		to_local(
+			target_node.get_global_rect().get_center()
+		)
 		- Vector2(20, 20 + current_offset)
 	)
 	floating_offsets[key] = current_offset + 35
@@ -233,8 +233,8 @@ func _spawn_floating_text(
 	var tween := create_tween().set_parallel(true)
 	tween.tween_property(
 		label,
-		"global_position",
-		label.global_position
+		"position",
+		label.position
 		+ Vector2(randf_range(-15, 15), -60),
 		0.8
 	).set_trans(Tween.TRANS_BACK).set_ease(
@@ -344,10 +344,6 @@ func _on_timeline_generated(actions: Array) -> void:
 		)
 		label.horizontal_alignment = (
 			HORIZONTAL_ALIGNMENT_CENTER
-		)
-		label.add_theme_font_size_override(
-			"font_size",
-			8
 		)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		module_box.add_child(label)
@@ -500,8 +496,8 @@ func _on_change_modules_pressed() -> void:
 		return
 
 	refresh_module_ui()
-	module_swap_ui.global_position = (
-		menu_box.global_position
+	module_swap_ui.position = (
+		to_local(menu_box.global_position)
 		+ Vector2(menu_box.size.x + 10, 0)
 	)
 
