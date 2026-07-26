@@ -3,7 +3,7 @@ class_name NavigatorApp
 
 
 signal window_pixel_density_breakpoint_requested(
-	breakpoint: Vector2
+	requested_size: Vector2
 )
 
 
