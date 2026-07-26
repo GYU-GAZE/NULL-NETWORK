@@ -1,12 +1,28 @@
 extends SceneTree
 
 
+const COMBAT_MANAGER_SCRIPT: Script = preload(
+	"res://apps/combat/combat_manager.gd"
+)
+
+
 var _failures := PackedStringArray()
 var _observed_defense_bonus: bool = false
+var _combat_manager: Node
 
 
 func _initialize() -> void:
 	seed(1337)
+	_combat_manager = COMBAT_MANAGER_SCRIPT.new() as Node
+
+	if _combat_manager == null:
+		_failures.append(
+			"Could not instantiate the CombatManager script."
+		)
+		call_deferred("_finish")
+		return
+
+	get_root().add_child(_combat_manager)
 	call_deferred("_run")
 
 
@@ -61,19 +77,19 @@ func _test_timeline_and_preview(
 	encounter: CombatEncounter
 ) -> void:
 	_check(
-		CombatManager.load_encounter(encounter),
+		_combat_manager.load_encounter(encounter),
 		"CombatManager rejected the 1v1 encounter."
 	)
 	_check(
-		CombatManager.current_cycle_actions.size() == 8,
+		_combat_manager.current_cycle_actions.size() == 8,
 		"1v1 timeline must contain eight interleaved actions."
 	)
 
-	if CombatManager.current_cycle_actions.is_empty():
+	if _combat_manager.current_cycle_actions.is_empty():
 		return
 
-	var preview := CombatManager.preview_action(
-		CombatManager.current_cycle_actions[0]
+	var preview := _combat_manager.preview_action(
+		_combat_manager.current_cycle_actions[0]
 	)
 	_check(
 		not preview.get("entries", []).is_empty(),
@@ -94,24 +110,24 @@ func _test_status_and_cycle_trigger(
 	encounter: CombatEncounter
 ) -> void:
 	_check(
-		CombatManager.load_encounter(encounter),
+		_combat_manager.load_encounter(encounter),
 		"Could not reset encounter for trigger test."
 	)
 
-	if not CombatManager.action_executed.is_connected(
+	if not _combat_manager.action_executed.is_connected(
 		_on_action_executed
 	):
-		CombatManager.action_executed.connect(
+		_combat_manager.action_executed.connect(
 			_on_action_executed
 		)
 
-	CombatManager.execute_cycle(false)
+	_combat_manager.execute_cycle(false)
 	_check(
 		_observed_defense_bonus,
 		"Continuous status modifier was not observed during an action."
 	)
 	_check(
-		CombatManager.load_encounter(encounter),
+		_combat_manager.load_encounter(encounter),
 		"Could not reset encounter for dummy trigger test."
 	)
 
@@ -129,22 +145,22 @@ func _test_status_and_cycle_trigger(
 	if turret_module == null or rest_module == null:
 		return
 
-	CombatManager.set_player_module(0, turret_module)
-	CombatManager.set_player_module(1, rest_module)
-	CombatManager.set_player_module(2, rest_module)
-	CombatManager.set_player_module(3, rest_module)
+	_combat_manager.set_player_module(0, turret_module)
+	_combat_manager.set_player_module(1, rest_module)
+	_combat_manager.set_player_module(2, rest_module)
+	_combat_manager.set_player_module(3, rest_module)
 
 	var enemy_before: Variant = _first_living(
-		CombatManager.enemy_team
+		_combat_manager.enemy_team
 	)
 	var enemy_hp_before := float(
 		enemy_before.get("hp", 0.0)
 	)
-	CombatManager.execute_cycle(false)
+	_combat_manager.execute_cycle(false)
 
 	var dummy_found: bool = false
 
-	for actor in CombatManager.ally_team:
+	for actor in _combat_manager.ally_team:
 		if (
 			actor != null
 			and bool(actor.get("is_dummy", false))
@@ -158,7 +174,7 @@ func _test_status_and_cycle_trigger(
 	)
 
 	var enemy_after: Variant = _first_living(
-		CombatManager.enemy_team
+		_combat_manager.enemy_team
 	)
 	_check(
 		enemy_after != null
@@ -172,13 +188,13 @@ func _test_combat_resolution(
 	encounter: CombatEncounter
 ) -> void:
 	_check(
-		CombatManager.load_encounter(encounter),
+		_combat_manager.load_encounter(encounter),
 		"Could not reset encounter for resolution test."
 	)
 
-	var player: Variant = CombatManager.get_player_actor()
+	var player: Variant = _combat_manager.get_player_actor()
 	var enemy: Variant = _first_living(
-		CombatManager.enemy_team
+		_combat_manager.enemy_team
 	)
 
 	if player != null:
@@ -192,24 +208,24 @@ func _test_combat_resolution(
 	var cycle_guard: int = 0
 
 	while (
-		CombatManager.is_encounter_active()
+		_combat_manager.is_encounter_active()
 		and cycle_guard < 20
 	):
-		CombatManager.execute_cycle(false)
+		_combat_manager.execute_cycle(false)
 		cycle_guard += 1
 
 	_check(
-		not CombatManager.is_encounter_active(),
+		not _combat_manager.is_encounter_active(),
 		"1v1 did not resolve within 20 cycles."
 	)
 	_check(
 		_all_non_dummy_defeated(
-			CombatManager.enemy_team
+			_combat_manager.enemy_team
 		),
 		"1v1 did not end in the expected victory."
 	)
 
-	var metadata := CombatManager.get_result_metadata()
+	var metadata := _combat_manager.get_result_metadata()
 	_check(
 		int(metadata.get("cycles", 0)) > 0,
 		"Combat result metadata contains no cycle count."
@@ -230,7 +246,7 @@ func _on_action_executed(
 
 	var actor: Dictionary = action.get("actor", {})
 	var base_def := float(actor.get("def", 0.0))
-	var effective_def := CombatManager.get_effective_stat(
+	var effective_def := _combat_manager.get_effective_stat(
 		actor,
 		CombatConstants.Stat.DEF
 	)
