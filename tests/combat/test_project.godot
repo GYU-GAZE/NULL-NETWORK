@@ -8,6 +8,11 @@ config_version=5
 config/name="NULL NETWORK Combat Runtime Test"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 
+[autoload]
+
+TimeManager="*res://core/autoloads/time_manager.gd"
+GameState="*res://core/autoloads/game_state.gd"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
