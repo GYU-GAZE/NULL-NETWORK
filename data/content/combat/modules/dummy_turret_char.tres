@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="CharacterLoadout" format=3 uid="uid://b5l8vlkoe3kqk"]
-
-[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="1_p5xom"]
-[ext_resource type="Script" uid="uid://d1ggms7hchm4m" path="res://data/templates/character_loadout.gd" id="2_41bs0"]
-
-[resource]
-script = ExtResource("2_41bs0")
-combat_behavior = 1
-metadata/_custom_type_script = "uid://d1ggms7hchm4m"
