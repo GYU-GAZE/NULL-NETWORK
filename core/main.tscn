@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://b80q2304dxkkp" path="res://systems/ui/kubu_notification_panel.tscn" id="7_notification_panel"]
 [ext_resource type="PackedScene" uid="uid://bhd3dga5ag1j1" path="res://systems/ui/notification_layer.tscn" id="8_notification_layer"]
 [ext_resource type="PackedScene" uid="uid://w14nl6xxwxew" path="res://systems/desktop/dock/kubu_dock_item.tscn" id="10_xhu5d"]
+[ext_resource type="PackedScene" path="res://systems/ui/activity_confirmation_dialog.tscn" id="11_activity_confirmation"]
 
 [node name="Main" type="Node" unique_id=977689112]
 
@@ -41,3 +42,8 @@ custom_minimum_size = Vector2(0, 22)
 [node name="KubuBottomDock" parent="OSChromeLayer" unique_id=1185085997 instance=ExtResource("6_kagtj")]
 dock_apps = Array[ExtResource("2_app_type")]([ExtResource("3_browser"), ExtResource("4_navigator")])
 dock_item_scene = ExtResource("10_xhu5d")
+
+[node name="ModalLayer" type="CanvasLayer" parent="."]
+layer = 30
+
+[node name="ActivityConfirmationDialog" parent="ModalLayer" instance=ExtResource("11_activity_confirmation")]

@@ -14,6 +14,12 @@ enum NavigatorMode {
 	DIALOGUE
 }
 
+enum PendingActivityKind {
+	TRAVEL,
+	EXAMINE,
+	ENCOUNTER
+}
+
 
 const SESSION_STATE_VERSION: int = 2
 const APP_ID: String = "navigator"
@@ -44,6 +50,9 @@ var _current_mode: NavigatorMode = NavigatorMode.WORLD_MAP
 var _current_location_id: String = ""
 var _is_app_active: bool = false
 var _pending_exe_actor: LocalAreaExeActor
+var _pending_activity_requests: Dictionary = {}
+var _active_combat_transaction_id: String = ""
+var _active_combat_activity_id: String = ""
 
 
 func _ready() -> void:
@@ -92,6 +101,32 @@ func _connect_signals() -> void:
 	):
 		GlobalSignals.workspace_activated.connect(
 			_on_workspace_activated
+		)
+
+	if not GlobalSignals.app_closed.is_connected(
+		_on_app_closed
+	):
+		GlobalSignals.app_closed.connect(_on_app_closed)
+
+	if not ActivityManager.activity_started.is_connected(
+		_on_activity_started
+	):
+		ActivityManager.activity_started.connect(
+			_on_activity_started
+		)
+
+	if not ActivityManager.activity_rejected.is_connected(
+		_on_activity_rejected
+	):
+		ActivityManager.activity_rejected.connect(
+			_on_activity_rejected
+		)
+
+	if not ActivityManager.activity_cancelled.is_connected(
+		_on_activity_cancelled
+	):
+		ActivityManager.activity_cancelled.connect(
+			_on_activity_cancelled
 		)
 
 
@@ -384,24 +419,18 @@ func _on_world_map_enter_area_requested(
 		_set_mode(NavigatorMode.LOCAL_AREA)
 		return
 
-	var opened_successfully: bool = (
-		local_area_view.open_area(
-			local_area,
-			local_area.default_entry_id
+	if location.travel_activity == null:
+		push_error(
+			"NavigatorApp: location '%s' has no travel activity."
+			% location.location_name
 		)
-	)
-
-	if not opened_successfully:
-		_set_mode(NavigatorMode.WORLD_MAP)
 		return
 
-	_current_location_id = requested_location_id
-	_set_mode(NavigatorMode.LOCAL_AREA)
-
-	if location.travel_action_cost > 0:
-		TimeManager.advance_action(
-			location.travel_action_cost
-		)
+	_request_activity(
+		location.travel_activity,
+		PendingActivityKind.TRAVEL,
+		{"location": location}
+	)
 
 
 func _on_local_area_interaction_requested(
@@ -419,14 +448,17 @@ func _on_local_area_interaction_requested(
 
 	match data.kind:
 		LocalAreaInteractionData.InteractionKind.EXAMINE:
-			local_area_view.show_interaction_message(
-				data.response_text
-			)
-
-			if data.action_cost > 0:
-				TimeManager.advance_action(
-					data.action_cost
+			if data.activity == null:
+				local_area_view.show_interaction_message(
+					data.response_text
 				)
+				return
+
+			_request_activity(
+				data.activity,
+				PendingActivityKind.EXAMINE,
+				{"interaction_data": data}
+			)
 
 		LocalAreaInteractionData.InteractionKind.ENCOUNTER:
 			var exe_actor := target as LocalAreaExeActor
@@ -439,7 +471,18 @@ func _on_local_area_interaction_requested(
 				)
 				return
 
-			_start_exe_encounter(exe_actor)
+			if data.activity == null:
+				push_error(
+					"NavigatorApp: voluntary encounter '%s' "
+					% data.get_display_id()
+					+ "has no ActivityDefinitionData."
+				)
+				return
+
+			_request_exe_encounter(
+				exe_actor,
+				data.activity
+			)
 
 		_:
 			push_warning(
@@ -449,8 +492,82 @@ func _on_local_area_interaction_requested(
 			)
 
 
+func _request_activity(
+	definition: ActivityDefinitionData,
+	kind: PendingActivityKind,
+	payload: Dictionary,
+	parent_transaction_id: String = ""
+) -> String:
+	var request_id: String = ActivityManager.request_activity(
+		definition,
+		APP_ID,
+		parent_transaction_id
+	)
+	_pending_activity_requests[request_id] = {
+		"kind": int(kind),
+		"payload": payload
+	}
+	return request_id
+
+
+func _request_exe_encounter(
+	exe_actor: LocalAreaExeActor,
+	activity: ActivityDefinitionData,
+	parent_transaction_id: String = ""
+) -> String:
+	if exe_actor == null or exe_actor.encounter == null:
+		push_error(
+			"NavigatorApp: cannot request an encounter "
+			+ "without a valid EXE and CombatEncounter."
+		)
+		return ""
+
+	return _request_activity(
+		activity,
+		PendingActivityKind.ENCOUNTER,
+		{"exe_actor": exe_actor},
+		parent_transaction_id
+	)
+
+
+func start_included_exe_encounter(
+	exe_actor: LocalAreaExeActor,
+	activity: ActivityDefinitionData,
+	parent_transaction_id: String
+) -> String:
+	return _request_exe_encounter(
+		exe_actor,
+		activity,
+		parent_transaction_id
+	)
+
+
+func _enter_location(
+	location: MapLocation
+) -> bool:
+	if location == null or location.local_area == null:
+		return false
+
+	var opened_successfully: bool = (
+		local_area_view.open_area(
+			location.local_area,
+			location.local_area.default_entry_id
+		)
+	)
+
+	if not opened_successfully:
+		_set_mode(NavigatorMode.WORLD_MAP)
+		return false
+
+	_current_location_id = location.get_display_id()
+	_set_mode(NavigatorMode.LOCAL_AREA)
+	return true
+
+
 func _start_exe_encounter(
-	exe_actor: LocalAreaExeActor
+	exe_actor: LocalAreaExeActor,
+	transaction_id: String,
+	activity_id: String
 ) -> void:
 	if exe_actor.encounter == null:
 		push_error(
@@ -460,13 +577,130 @@ func _start_exe_encounter(
 		return
 
 	_pending_exe_actor = exe_actor
+	_active_combat_transaction_id = transaction_id
+	_active_combat_activity_id = activity_id
 	_set_mode(NavigatorMode.ENCOUNTER)
 
 	if combat_app.start_encounter(exe_actor.encounter):
 		return
 
 	_pending_exe_actor = null
+	_active_combat_transaction_id = ""
+	_active_combat_activity_id = ""
+	ActivityManager.fail_activity(
+		transaction_id,
+		"Combat encounter failed to start.",
+		activity_id
+	)
 	_set_mode(NavigatorMode.LOCAL_AREA)
+
+
+func _on_activity_started(
+	transaction_id: String,
+	activity_id: String,
+	source_id: String,
+	request_id: String
+) -> void:
+	if source_id != APP_ID:
+		return
+
+	if not _pending_activity_requests.has(request_id):
+		return
+
+	var request: Dictionary = _pending_activity_requests[
+		request_id
+	]
+	_pending_activity_requests.erase(request_id)
+
+	var kind: int = int(
+		request.get(
+			"kind",
+			PendingActivityKind.EXAMINE
+		)
+	)
+	var payload: Dictionary = request.get("payload", {})
+
+	match kind:
+		PendingActivityKind.TRAVEL:
+			var location := (
+				payload.get("location") as MapLocation
+			)
+
+			if _enter_location(location):
+				ActivityManager.complete_activity(
+					transaction_id,
+					activity_id
+				)
+			else:
+				ActivityManager.fail_activity(
+					transaction_id,
+					"Destination failed to load.",
+					activity_id
+				)
+
+		PendingActivityKind.EXAMINE:
+			var data := (
+				payload.get("interaction_data")
+				as LocalAreaInteractionData
+			)
+
+			if data != null:
+				local_area_view.show_interaction_message(
+					data.response_text
+				)
+
+			ActivityManager.complete_activity(
+				transaction_id,
+				activity_id
+			)
+
+		PendingActivityKind.ENCOUNTER:
+			var exe_actor := (
+				payload.get("exe_actor")
+				as LocalAreaExeActor
+			)
+
+			if not is_instance_valid(exe_actor):
+				ActivityManager.fail_activity(
+					transaction_id,
+					"EXE became unavailable.",
+					activity_id
+				)
+				return
+
+			_start_exe_encounter(
+				exe_actor,
+				transaction_id,
+				activity_id
+			)
+
+
+func _on_activity_rejected(
+	request_id: String,
+	_activity_id: String,
+	source_id: String,
+	reason: String
+) -> void:
+	if source_id != APP_ID:
+		return
+
+	_pending_activity_requests.erase(request_id)
+	UniversalAlerts.show_alert(
+		"ACTIVITY UNAVAILABLE",
+		reason
+	)
+
+
+func _on_activity_cancelled(
+	request_id: String,
+	_activity_id: String,
+	source_id: String,
+	_reason: String
+) -> void:
+	if source_id != APP_ID:
+		return
+
+	_pending_activity_requests.erase(request_id)
 
 
 func _on_combat_finished(
@@ -477,20 +711,19 @@ func _on_combat_finished(
 	)
 	_pending_exe_actor = null
 
-	var action_cost: int = 0
-
 	if is_instance_valid(resolved_actor):
 		resolved_actor.apply_combat_result(result)
-		action_cost = (
-			resolved_actor.get_action_cost_for_result(
-				result
-			)
-		)
 
 	_set_mode(NavigatorMode.LOCAL_AREA)
 
-	if action_cost > 0:
-		TimeManager.advance_action(action_cost)
+	if not _active_combat_transaction_id.is_empty():
+		ActivityManager.complete_activity(
+			_active_combat_transaction_id,
+			_active_combat_activity_id
+		)
+
+	_active_combat_transaction_id = ""
+	_active_combat_activity_id = ""
 
 
 func _on_local_area_back_requested() -> void:
@@ -509,6 +742,17 @@ func _on_workspace_activated(
 	_set_app_active(
 		workspace_id.strip_edges() == APP_ID
 	)
+
+
+func _on_app_closed(app_id: String) -> void:
+	if app_id.strip_edges() != APP_ID:
+		return
+
+	ActivityManager.cancel_requests_for_source(
+		APP_ID,
+		"Navigator was closed before confirmation."
+	)
+	_pending_activity_requests.clear()
 
 
 func _set_app_active(active: bool) -> void:

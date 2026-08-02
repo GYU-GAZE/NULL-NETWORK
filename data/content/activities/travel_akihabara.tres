@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ActivityDefinitionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/activity/activity_definition_data.gd" id="1_activity"]
+
+[resource]
+script = ExtResource("1_activity")
+activity_id = "travel.akihabara"
+display_name = "Travel to Akiba District"
+description = "Travel from the current district to Akiba District."
+action_cost = 1
+allow_cross_period = true
+allow_cross_day = false
+requires_confirmation = true
+confirmation_message = "Travel to Akiba District?"

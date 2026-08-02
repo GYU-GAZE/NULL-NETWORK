@@ -57,9 +57,8 @@ enum LocationCategory {
 @export_category("Local Area")
 @export var local_area: LocalAreaData
 
-## Quantidade de ações consumidas ao viajar de outra região para esta.
-@export_range(0, 12, 1)
-var travel_action_cost: int = 1
+## Atividade executada ao viajar de outra região para esta.
+@export var travel_activity: ActivityDefinitionData
 
 @export_category("Encounters")
 @export var spawn_table: SpawnTable

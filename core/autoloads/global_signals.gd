@@ -21,4 +21,16 @@ signal time_advanced(
 	calendar_month: String
 )
 
+signal activity_confirmation_requested(
+	request_id: String,
+	definition: ActivityDefinitionData,
+	preview: ActivityPreviewData,
+	source_id: String
+)
+signal activity_confirmation_resolved(
+	request_id: String,
+	confirmed: bool
+)
+signal activity_request_cancelled(request_id: String)
+
 signal request_combat(encounter: CombatEncounter)

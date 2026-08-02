@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ActivityDefinitionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/activity/activity_definition_data.gd" id="1_activity"]
+
+[resource]
+script = ExtResource("1_activity")
+activity_id = "combat.voluntary.rattildus"
+display_name = "Fight Rattildus.exe"
+description = "Voluntarily engage Rattildus.exe in combat."
+action_cost = 2
+allow_cross_period = true
+allow_cross_day = false
+requires_confirmation = true
+confirmation_message = "Engage Rattildus.exe?"

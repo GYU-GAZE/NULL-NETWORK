@@ -4,16 +4,11 @@ class_name LocalAreaExeActor
 
 @export_category("Encounter")
 @export var encounter: CombatEncounter
-@export_range(0, 12, 1)
-var encounter_action_cost: int = 1
 
 @export_category("Resolution Policy")
 @export var remove_on_victory: bool = true
 @export var remove_on_defeat: bool = false
 @export var remove_on_escape: bool = false
-@export var consume_action_on_victory: bool = true
-@export var consume_action_on_defeat: bool = true
-@export var consume_action_on_escape: bool = true
 
 @onready var body_collision: CollisionShape2D = (
 	%BodyCollision
@@ -47,28 +42,6 @@ func apply_combat_result(result: CombatResult) -> void:
 
 	if should_remove:
 		_set_resolved(true)
-
-
-func get_action_cost_for_result(
-	result: CombatResult
-) -> int:
-	if result == null:
-		return 0
-
-	var consumes_action: bool = false
-
-	match result.outcome:
-		CombatResult.Outcome.VICTORY:
-			consumes_action = consume_action_on_victory
-		CombatResult.Outcome.DEFEAT:
-			consumes_action = consume_action_on_defeat
-		CombatResult.Outcome.ESCAPED:
-			consumes_action = consume_action_on_escape
-
-	if not consumes_action:
-		return 0
-
-	return encounter_action_cost
 
 
 func get_persistent_state() -> Dictionary:
