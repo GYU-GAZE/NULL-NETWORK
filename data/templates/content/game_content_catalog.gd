@@ -7,6 +7,12 @@ class_name GameContentCatalog
 @export var modules: Array[ModuleData] = []
 @export var items: Array[Resource] = []
 
+@export_category("Combat Runtime Content")
+@export var combat_encounters: Array[CombatEncounter] = []
+@export var character_loadouts: Array[CharacterLoadout] = []
+@export var status_effects: Array[StatusEffectData] = []
+@export var dummies: Array[DummyData] = []
+
 @export_category("Operator and KubuOS")
 @export var occupations: Array[Resource] = []
 @export var apps: Array[AppResource] = []
@@ -24,6 +30,22 @@ func get_content_groups() -> Array[Dictionary]:
 		_create_group(&"apks", &"apk_id", apks),
 		_create_group(&"modules", &"module_id", modules),
 		_create_group(&"items", &"item_id", items),
+		_create_group(
+			&"combat_encounters",
+			&"encounter_id",
+			combat_encounters
+		),
+		_create_group(
+			&"character_loadouts",
+			&"character_id",
+			character_loadouts
+		),
+		_create_group(
+			&"status_effects",
+			&"status_id",
+			status_effects
+		),
+		_create_group(&"dummies", &"dummy_id", dummies),
 		_create_group(&"occupations", &"occupation_id", occupations),
 		_create_group(&"apps", &"app_id", apps),
 		_create_group(&"locations", &"location_id", locations),
