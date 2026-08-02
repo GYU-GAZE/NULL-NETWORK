@@ -13,14 +13,14 @@ enum Tendency {
 var valour: int = 0
 var logic: int = 0
 var sync: int = 0
-var self: int = 0
+var self_value: int = 0
 
 
 func reset() -> void:
 	valour = 0
 	logic = 0
 	sync = 0
-	self = 0
+	self_value = 0
 
 
 func get_value(tendency: Tendency) -> int:
@@ -32,7 +32,7 @@ func get_value(tendency: Tendency) -> int:
 		Tendency.SYNC:
 			return sync
 		Tendency.SELF:
-			return self
+			return self_value
 
 	return 0
 
@@ -48,7 +48,7 @@ func set_value(tendency: Tendency, value: int) -> void:
 		Tendency.SYNC:
 			sync = safe_value
 		Tendency.SELF:
-			self = safe_value
+			self_value = safe_value
 
 
 func add_value(tendency: Tendency, amount: int) -> int:
@@ -57,7 +57,7 @@ func add_value(tendency: Tendency, amount: int) -> int:
 
 
 func get_total() -> int:
-	return valour + logic + sync + self
+	return valour + logic + sync + self_value
 
 
 func to_save_data() -> Dictionary:
@@ -65,7 +65,7 @@ func to_save_data() -> Dictionary:
 		"valour": valour,
 		"logic": logic,
 		"sync": sync,
-		"self": self
+		"self": self_value
 	}
 
 
@@ -74,4 +74,4 @@ func load_save_data(data: Dictionary) -> void:
 	valour = maxi(0, int(data.get("valour", 0)))
 	logic = maxi(0, int(data.get("logic", 0)))
 	sync = maxi(0, int(data.get("sync", 0)))
-	self = maxi(0, int(data.get("self", 0)))
+	self_value = maxi(0, int(data.get("self", 0)))
