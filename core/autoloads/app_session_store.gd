@@ -9,6 +9,10 @@ const SAVE_DATA_VERSION: int = 1
 var _app_states: Dictionary = {}
 
 
+func get_save_section_id() -> String:
+	return str(SaveConstants.SECTION_APP_SESSIONS)
+
+
 func has_app_state(app_id: String) -> bool:
 	var clean_id: String = _normalize_app_id(app_id)
 
@@ -32,10 +36,7 @@ func save_app_state(app_id: String, state: Dictionary) -> void:
 func get_app_state(app_id: String) -> Dictionary:
 	var clean_id: String = _normalize_app_id(app_id)
 
-	if clean_id.is_empty():
-		return {}
-
-	if not _app_states.has(clean_id):
+	if clean_id.is_empty() or not _app_states.has(clean_id):
 		return {}
 
 	var stored_state: Variant = _app_states[clean_id]
@@ -49,10 +50,7 @@ func get_app_state(app_id: String) -> Dictionary:
 func clear_app_state(app_id: String) -> void:
 	var clean_id: String = _normalize_app_id(app_id)
 
-	if clean_id.is_empty():
-		return
-
-	if not _app_states.has(clean_id):
+	if clean_id.is_empty() or not _app_states.has(clean_id):
 		return
 
 	_app_states.erase(clean_id)
@@ -85,17 +83,18 @@ func import_save_data(save_data: Dictionary) -> void:
 
 	var state_dictionary := stored_states as Dictionary
 
-	for raw_app_id in state_dictionary.keys():
+	for raw_app_id: Variant in state_dictionary.keys():
 		var clean_id: String = _normalize_app_id(str(raw_app_id))
 		var raw_state: Variant = state_dictionary[raw_app_id]
 
-		if clean_id.is_empty():
-			continue
-
-		if not raw_state is Dictionary:
+		if clean_id.is_empty() or raw_state is not Dictionary:
 			continue
 
 		_app_states[clean_id] = (raw_state as Dictionary).duplicate(true)
+
+
+func reset_save_data() -> void:
+	clear_all_app_states()
 
 
 func _normalize_app_id(app_id: String) -> String:
