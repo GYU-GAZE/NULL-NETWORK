@@ -116,6 +116,17 @@ jobs:
             tests/campaign/campaign_state_test.tscn \
             2>&1 | tee godot-campaign-test.log
 
+      - name: Run save manager test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            --quit-after 30 \
+            tests/save/save_manager_test.tscn \
+            2>&1 | tee godot-save-test.log
+
       - name: Run combat layout test
         shell: bash
         run: |
@@ -139,6 +150,7 @@ jobs:
             godot-combat-test.log \
             godot-activity-test.log \
             godot-campaign-test.log \
+            godot-save-test.log \
             godot-combat-layout-test.log \
             > godot-validation.log
 
@@ -171,6 +183,14 @@ jobs:
 
           grep -q "CAMPAIGN_STATE_TEST: PASS" godot-campaign-test.log
 
+          if grep -E "SAVE_MANAGER_TEST: " godot-save-test.log \
+            | grep -v "SAVE_MANAGER_TEST: PASS"; then
+            echo "The save manager test reported an error."
+            exit 1
+          fi
+
+          grep -q "SAVE_MANAGER_TEST: PASS" godot-save-test.log
+
           if grep -E "COMBAT_LAYOUT_TEST: " godot-combat-layout-test.log \
             | grep -v "COMBAT_LAYOUT_TEST: PASS"; then
             echo "The combat layout test reported an error."
@@ -190,6 +210,7 @@ jobs:
             godot-combat-test.log
             godot-activity-test.log
             godot-campaign-test.log
+            godot-save-test.log
             godot-combat-layout-test.log
             godot-validation.log
           if-no-files-found: ignore
