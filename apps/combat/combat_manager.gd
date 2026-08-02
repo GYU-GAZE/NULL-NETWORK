@@ -27,6 +27,7 @@ signal presentation_event_emitted(
 
 const TEAM_SIZE: int = 4
 const MAX_EVENT_DEPTH: int = 16
+const SAVE_DATA_VERSION: int = 1
 const UNSTABILITY_STATUS: StatusEffectData = preload(
 	"res://data/content/combat/status_effects/unstability.tres"
 )
@@ -47,6 +48,8 @@ var _next_uid: int = 1
 var _next_event_id: int = 1
 var _next_dynamic_action_id: int = 1
 var _is_executing_cycle: bool = false
+var _session_activity_transaction_id: String = ""
+var _session_activity_id: String = ""
 
 
 func load_encounter(
@@ -110,6 +113,8 @@ func reset_encounter() -> void:
 	_next_event_id = 1
 	_next_dynamic_action_id = 1
 	_is_executing_cycle = false
+	_session_activity_transaction_id = ""
+	_session_activity_id = ""
 
 
 func is_encounter_active() -> bool:
@@ -118,6 +123,128 @@ func is_encounter_active() -> bool:
 
 func get_current_encounter() -> CombatEncounter:
 	return _current_encounter
+
+
+func set_session_activity_context(
+	transaction_id: String,
+	activity_id: String
+) -> void:
+	_session_activity_transaction_id = transaction_id.strip_edges()
+	_session_activity_id = activity_id.strip_edges()
+
+
+func get_session_activity_context() -> Dictionary:
+	return {
+		"activity_transaction_id": _session_activity_transaction_id,
+		"activity_id": _session_activity_id
+	}
+
+
+func get_save_section_id() -> String:
+	return str(SaveConstants.SECTION_COMBAT_SESSION)
+
+
+func can_save_now() -> bool:
+	return not _is_executing_cycle
+
+
+func export_save_data() -> Dictionary:
+	if not _encounter_active or _current_encounter == null:
+		return {
+			"version": SAVE_DATA_VERSION,
+			"active": false
+		}
+
+	return {
+		"version": SAVE_DATA_VERSION,
+		"active": true,
+		"encounter_id": _current_encounter.encounter_id,
+		"activity_transaction_id": _session_activity_transaction_id,
+		"activity_id": _session_activity_id,
+		"cycle_index": current_cycle,
+		"next_uid": _next_uid,
+		"next_event_id": _next_event_id,
+		"next_dynamic_action_id": _next_dynamic_action_id,
+		"ally_team": _serialize_team(ally_team),
+		"enemy_team": _serialize_team(enemy_team),
+		"ally_position_slots": _serialize_slots(ally_position_slots),
+		"enemy_position_slots": _serialize_slots(enemy_position_slots),
+		"action_slots": _serialize_slots(action_slots)
+	}
+
+
+func import_save_data(data: Dictionary) -> void:
+	reset_encounter()
+
+	if int(data.get("version", -1)) != SAVE_DATA_VERSION \
+		or not bool(data.get("active", false)):
+		return
+
+	var encounter_id: String = str(data.get("encounter_id", "")).strip_edges()
+	var encounter: CombatEncounter = ContentRegistry.get_combat_encounter(
+		encounter_id
+	)
+
+	if encounter == null or not load_encounter(encounter):
+		push_error(
+			"CombatManager: could not restore encounter '%s'." % encounter_id
+		)
+		reset_encounter()
+		return
+
+	ally_team = _deserialize_team(data.get("ally_team", []))
+	enemy_team = _deserialize_team(data.get("enemy_team", []))
+	ally_position_slots = _deserialize_slots(
+		data.get("ally_position_slots", [])
+	)
+	enemy_position_slots = _deserialize_slots(
+		data.get("enemy_position_slots", [])
+	)
+	action_slots = _deserialize_slots(data.get("action_slots", []))
+	current_cycle = maxi(0, int(data.get("cycle_index", 0)))
+	_next_uid = maxi(1, int(data.get("next_uid", 1)))
+	_next_event_id = maxi(1, int(data.get("next_event_id", 1)))
+	_next_dynamic_action_id = maxi(
+		1,
+		int(data.get("next_dynamic_action_id", 1))
+	)
+	_session_activity_transaction_id = str(
+		data.get("activity_transaction_id", "")
+	).strip_edges()
+	_session_activity_id = str(data.get("activity_id", "")).strip_edges()
+	_encounter_active = true
+	_is_executing_cycle = false
+	runtime_slots_changed.emit()
+	stats_updated.emit()
+	rebuild_timeline()
+
+
+func reset_save_data() -> void:
+	reset_encounter()
+
+
+func validate_save_data(data: Dictionary) -> PackedStringArray:
+	var errors := PackedStringArray()
+
+	if int(data.get("version", -1)) != SAVE_DATA_VERSION:
+		errors.append("Unsupported CombatSession save version.")
+		return errors
+
+	if not bool(data.get("active", false)):
+		return errors
+
+	var encounter_id: String = str(data.get("encounter_id", "")).strip_edges()
+
+	if ContentRegistry.get_combat_encounter(encounter_id) == null:
+		errors.append("CombatSession encounter_id is not registered.")
+
+	for team_key: String in ["ally_team", "enemy_team"]:
+		var raw_team: Variant = data.get(team_key, [])
+
+		if raw_team is not Array or raw_team.size() != TEAM_SIZE:
+			errors.append("CombatSession %s must contain four slots." % team_key)
+
+	return errors
 
 
 func get_player_actor() -> Variant:
@@ -3433,6 +3560,277 @@ func _all_combatants() -> Array:
 			actors.append(actor)
 
 	return actors
+
+
+func _serialize_team(team: Array) -> Array:
+	var serialized: Array = []
+
+	for index in range(TEAM_SIZE):
+		var actor: Variant = team[index] if index < team.size() else null
+		serialized.append(
+			_serialize_actor(actor)
+			if actor is Dictionary
+			else null
+		)
+
+	return serialized
+
+
+func _deserialize_team(raw_team: Variant) -> Array:
+	var team: Array = [null, null, null, null]
+
+	if raw_team is not Array:
+		return team
+
+	for index in range(mini(TEAM_SIZE, raw_team.size())):
+		if raw_team[index] is Dictionary:
+			team[index] = _deserialize_actor(raw_team[index])
+
+	return team
+
+
+func _serialize_actor(actor: Dictionary) -> Dictionary:
+	var module_ids: Array[String] = []
+
+	for raw_module: Variant in actor.get("modules", []):
+		var module := raw_module as ModuleData
+		module_ids.append(str(module.module_id) if module != null else "")
+
+	while module_ids.size() < TEAM_SIZE:
+		module_ids.append("")
+
+	var statuses: Array[Dictionary] = []
+
+	for raw_instance: Variant in actor.get("active_statuses", []):
+		if raw_instance is CombatStatusInstance:
+			statuses.append(_serialize_status_instance(
+				raw_instance as CombatStatusInstance
+			))
+
+	var dummy := actor.get("dummy_data") as DummyData
+	return {
+		"uid": int(actor.get("uid", -1)),
+		"character_id": str(actor.get("character_id", "")),
+		"name": str(actor.get("name", "Entity")),
+		"level": int(actor.get("level", 1)),
+		"type": int(actor.get("type", 0)),
+		"hp": float(actor.get("hp", 0.0)),
+		"max_hp": float(actor.get("max_hp", 1.0)),
+		"stability": float(actor.get("stability", 0.0)),
+		"max_stability": float(actor.get("max_stability", 0.0)),
+		"stability_recovery": float(actor.get("stability_recovery", 0.0)),
+		"atk": float(actor.get("atk", 0.0)),
+		"def": float(actor.get("def", 0.0)),
+		"matk": float(actor.get("matk", 0.0)),
+		"mdef": float(actor.get("mdef", 0.0)),
+		"dodge": float(actor.get("dodge", 0.0)),
+		"crit": float(actor.get("crit", 0.0)),
+		"modules": module_ids,
+		"is_ally": bool(actor.get("is_ally", false)),
+		"is_player": bool(actor.get("is_player", false)),
+		"is_dummy": bool(actor.get("is_dummy", false)),
+		"dummy_id": str(dummy.dummy_id) if dummy != null else "",
+		"creator_uid": int(actor.get("creator_uid", -1)),
+		"remaining_cycles": int(actor.get("remaining_cycles", -1)),
+		"spawned_cycle": int(actor.get("spawned_cycle", -1)),
+		"active_statuses": statuses,
+		"runtime_effects": _plain_copy(actor.get("runtime_effects", [])),
+		"module_targeting_history": _plain_copy(
+			actor.get("module_targeting_history", [])
+		)
+	}
+
+
+func _deserialize_actor(data: Dictionary) -> Dictionary:
+	var is_dummy: bool = bool(data.get("is_dummy", false))
+	var character_id: String = str(data.get("character_id", ""))
+	var dummy: DummyData = null
+	var loadout: CharacterLoadout = null
+
+	if is_dummy:
+		dummy = ContentRegistry.get_dummy(str(data.get("dummy_id", character_id)))
+	else:
+		loadout = ContentRegistry.get_character_loadout(character_id)
+
+	var modules: Array = []
+	var raw_modules: Variant = data.get("modules", [])
+
+	if raw_modules is Array:
+		for raw_module_id: Variant in raw_modules:
+			modules.append(ContentRegistry.get_module(str(raw_module_id)))
+
+	modules.resize(TEAM_SIZE)
+	var statuses: Array = []
+	var raw_statuses: Variant = data.get("active_statuses", [])
+
+	if raw_statuses is Array:
+		for raw_status: Variant in raw_statuses:
+			if raw_status is Dictionary:
+				var instance := _deserialize_status_instance(raw_status)
+
+				if instance != null:
+					statuses.append(instance)
+
+	var actor_icon: Texture2D = null
+
+	if dummy != null:
+		actor_icon = dummy.combat_icon
+	elif loadout != null:
+		actor_icon = loadout.combat_icon
+
+	return {
+		"uid": int(data.get("uid", -1)),
+		"character_id": character_id,
+		"name": str(data.get("name", "Entity")),
+		"icon": actor_icon,
+		"level": int(data.get("level", 1)),
+		"type": int(data.get("type", 0)),
+		"hp": float(data.get("hp", 0.0)),
+		"max_hp": float(data.get("max_hp", 1.0)),
+		"stability": float(data.get("stability", 0.0)),
+		"max_stability": float(data.get("max_stability", 0.0)),
+		"stability_recovery": float(data.get("stability_recovery", 0.0)),
+		"atk": float(data.get("atk", 0.0)),
+		"def": float(data.get("def", 0.0)),
+		"matk": float(data.get("matk", 0.0)),
+		"mdef": float(data.get("mdef", 0.0)),
+		"dodge": float(data.get("dodge", 0.0)),
+		"crit": float(data.get("crit", 0.0)),
+		"modules": modules,
+		"is_ally": bool(data.get("is_ally", false)),
+		"is_player": bool(data.get("is_player", false)),
+		"is_dummy": is_dummy,
+		"dummy_data": dummy,
+		"creator_uid": int(data.get("creator_uid", -1)),
+		"remaining_cycles": int(data.get("remaining_cycles", -1)),
+		"spawned_cycle": int(data.get("spawned_cycle", -1)),
+		"active_statuses": statuses,
+		"runtime_effects": _plain_copy(data.get("runtime_effects", [])),
+		"module_targeting_history": _plain_copy(
+			data.get("module_targeting_history", [])
+		)
+	}
+
+
+func _serialize_status_instance(instance: CombatStatusInstance) -> Dictionary:
+	var trigger_cycles: Array[int] = []
+
+	for triggered_effect: CombatTriggeredEffectData in instance.data.triggered_effects:
+		if triggered_effect == null:
+			trigger_cycles.append(-1)
+			continue
+
+		trigger_cycles.append(
+			int(instance.last_triggered_cycle.get(
+				triggered_effect.get_instance_id(),
+				-1
+			))
+		)
+
+	return {
+		"status_id": str(instance.data.status_id),
+		"stacks": instance.stacks,
+		"remaining_cycles": instance.remaining_cycles,
+		"source_uid": instance.source_uid,
+		"applied_cycle": instance.applied_cycle,
+		"trigger_cycles": trigger_cycles,
+		"expiring": instance.expiring
+	}
+
+
+func _deserialize_status_instance(data: Dictionary) -> CombatStatusInstance:
+	var status := ContentRegistry.get_status_effect(str(data.get("status_id", "")))
+
+	if status == null:
+		return null
+
+	var instance := CombatStatusInstance.create(
+		status,
+		maxi(1, int(data.get("stacks", 1))),
+		int(data.get("source_uid", -1)),
+		int(data.get("applied_cycle", 0))
+	)
+	instance.remaining_cycles = int(data.get("remaining_cycles", -1))
+	instance.expiring = bool(data.get("expiring", false))
+	var trigger_cycles: Variant = data.get("trigger_cycles", [])
+
+	if trigger_cycles is Array:
+		for index in range(mini(
+			trigger_cycles.size(),
+			status.triggered_effects.size()
+		)):
+			var triggered_effect := status.triggered_effects[index]
+
+			if triggered_effect != null:
+				instance.last_triggered_cycle[
+					triggered_effect.get_instance_id()
+				] = int(trigger_cycles[index])
+
+	return instance
+
+
+func _serialize_slots(slots: Array[CombatRuntimeSlot]) -> Array[Dictionary]:
+	var serialized: Array[Dictionary] = []
+
+	for slot: CombatRuntimeSlot in slots:
+		serialized.append({
+			"slot_id": str(slot.slot_id),
+			"slot_kind": int(slot.slot_kind),
+			"is_ally": slot.is_ally,
+			"logical_index": slot.logical_index,
+			"order_index": slot.order_index,
+			"enabled": slot.enabled,
+			"is_dynamic": slot.is_dynamic
+		})
+
+	return serialized
+
+
+func _deserialize_slots(raw_slots: Variant) -> Array[CombatRuntimeSlot]:
+	var slots: Array[CombatRuntimeSlot] = []
+
+	if raw_slots is not Array:
+		return slots
+
+	for raw_slot: Variant in raw_slots:
+		if raw_slot is not Dictionary:
+			continue
+
+		var slot := CombatRuntimeSlot.create(
+			StringName(str(raw_slot.get("slot_id", ""))),
+			int(raw_slot.get("slot_kind", CombatRuntimeSlot.SlotKind.POSITION)),
+			bool(raw_slot.get("is_ally", true)),
+			int(raw_slot.get("logical_index", 0)),
+			int(raw_slot.get("order_index", 0)),
+			bool(raw_slot.get("is_dynamic", false))
+		)
+		slot.enabled = bool(raw_slot.get("enabled", true))
+		slots.append(slot)
+
+	return slots
+
+
+func _plain_copy(value: Variant) -> Variant:
+	if value is Dictionary:
+		var result: Dictionary = {}
+
+		for key: Variant in value.keys():
+			result[str(key)] = _plain_copy(value[key])
+
+		return result
+
+	if value is Array:
+		var result: Array = []
+
+		for entry: Variant in value:
+			result.append(_plain_copy(entry))
+
+		return result
+
+	if value is StringName:
+		return str(value)
+
+	return value
 
 
 func _all_defeated(
