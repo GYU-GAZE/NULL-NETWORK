@@ -16,8 +16,8 @@ enum PeriodRequirement {
 @export var max_day: int = -1
 
 @export var required_period: PeriodRequirement = PeriodRequirement.ANY
-@export_range(0, 5) var min_action_block: int = 0
-@export_range(0, 5) var max_action_block: int = 5
+@export_range(0, 11) var min_action_block: int = 0
+@export_range(0, 11) var max_action_block: int = 11
 
 
 func is_met() -> bool:
