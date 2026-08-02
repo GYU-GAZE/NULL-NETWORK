@@ -20,9 +20,8 @@ enum InteractionKind {
 @export var prompt_verb: String = "EXAMINE"
 @export_multiline var response_text: String = ""
 
-@export_category("Time")
-@export_range(0, 12, 1)
-var action_cost: int = 0
+@export_category("Activity")
+@export var activity: ActivityDefinitionData
 
 
 func get_display_id() -> String:

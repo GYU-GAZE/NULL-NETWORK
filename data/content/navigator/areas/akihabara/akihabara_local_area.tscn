@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://duuxv2yxedopa"]
+[gd_scene load_steps=14 format=3 uid="uid://duuxv2yxedopa"]
 
 [ext_resource type="Script" uid="uid://cv3s5lv65wrbp" path="res://apps/navigator/local_area/navigator_local_area_scene.gd" id="1_area"]
 [ext_resource type="Script" path="res://apps/navigator/local_area/local_area_entry_point.gd" id="2_entry"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://apps/navigator/local_area/interactions/local_area_interaction_data.gd" id="5_interaction_data"]
 [ext_resource type="PackedScene" path="res://apps/navigator/local_area/actors/local_area_exe_actor.tscn" id="6_exe"]
 [ext_resource type="Resource" uid="uid://cdxjje47qsri2" path="res://data/content/combat/1v1.tres" id="7_encounter"]
+[ext_resource type="Resource" path="res://data/content/activities/fight_rattildus.tres" id="8_fight_activity"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_horizontal"]
 size = Vector2(1936, 16)
@@ -30,6 +31,7 @@ interaction_id = "akihabara_test_exe"
 display_name = "Rattildus.exe"
 kind = 1
 prompt_verb = "FIGHT"
+activity = ExtResource("8_fight_activity")
 
 [node name="AkihabaraLocalArea" type="Node2D" unique_id=1325732743]
 script = ExtResource("1_area")

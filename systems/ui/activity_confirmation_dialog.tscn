@@ -1,0 +1,102 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/ui/activity_confirmation_dialog.gd" id="1_dialog"]
+
+[node name="ActivityConfirmationDialog" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_dialog")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.65)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Content" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ACTIVITY"
+horizontal_alignment = 1
+
+[node name="MessageLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Begin this activity?"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Separator" type="HSeparator" parent="CenterContainer/PanelContainer/MarginContainer/Content"]
+layout_mode = 2
+
+[node name="CostLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Time Cost: 1 block"
+
+[node name="FinalTimeLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Ends: DAY 1/12"
+
+[node name="TransitionLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "This activity crosses into NIGHT."
+autowrap_mode = 2
+
+[node name="WarningLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.72, 0.3, 1)
+autowrap_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="CancelButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/Content/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "CANCEL"
+
+[node name="ConfirmButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/Content/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "CONFIRM"
