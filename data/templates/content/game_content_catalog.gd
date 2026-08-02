@@ -1,0 +1,46 @@
+extends Resource
+class_name GameContentCatalog
+
+
+@export_category("Creatures and Equipment")
+@export var apks: Array[Resource] = []
+@export var modules: Array[ModuleData] = []
+@export var items: Array[Resource] = []
+
+@export_category("Operator and KubuOS")
+@export var occupations: Array[Resource] = []
+@export var apps: Array[AppResource] = []
+
+@export_category("World and Narrative")
+@export var locations: Array[MapLocation] = []
+@export var dialogues: Array[Resource] = []
+@export var story_events: Array[Resource] = []
+@export var leads: Array[Resource] = []
+@export var incidents: Array[Resource] = []
+
+
+func get_content_groups() -> Array[Dictionary]:
+	return [
+		_create_group(&"apks", &"apk_id", apks),
+		_create_group(&"modules", &"module_id", modules),
+		_create_group(&"items", &"item_id", items),
+		_create_group(&"occupations", &"occupation_id", occupations),
+		_create_group(&"apps", &"app_id", apps),
+		_create_group(&"locations", &"location_id", locations),
+		_create_group(&"dialogues", &"dialogue_id", dialogues),
+		_create_group(&"story_events", &"story_event_id", story_events),
+		_create_group(&"leads", &"lead_id", leads),
+		_create_group(&"incidents", &"incident_id", incidents)
+	]
+
+
+func _create_group(
+	category: StringName,
+	id_property: StringName,
+	resources: Array
+) -> Dictionary:
+	return {
+		"category": category,
+		"id_property": id_property,
+		"resources": resources
+	}
