@@ -365,11 +365,20 @@ func _test_source_cancellation_closes_dialog() -> void:
 	var rendered_cost_label := (
 		dialog.get_node("%CostLabel") as Label
 	)
+	var rendered_available_label := (
+		dialog.get_node("%AvailableTimeLabel") as Label
+	)
 	_check(dialog.visible, "Confirmation dialog did not open.")
 	_check(
 		rendered_cost_label != null
 		and rendered_cost_label.text == "Time Cost: 1 block",
 		"Confirmation dialog did not render activity cost."
+	)
+	_check(
+		rendered_available_label != null
+		and rendered_available_label.text
+		== "Available Today: 21 blocks",
+		"Confirmation dialog did not render available time."
 	)
 
 	ActivityManager.cancel_requests_for_source(
