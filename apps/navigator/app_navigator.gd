@@ -21,7 +21,7 @@ enum PendingActivityKind {
 }
 
 
-const SESSION_STATE_VERSION: int = 2
+const SESSION_STATE_VERSION: int = 3
 const APP_ID: String = "navigator"
 
 
@@ -58,6 +58,54 @@ var _active_combat_activity_id: String = ""
 func _ready() -> void:
 	_connect_signals()
 	_set_mode(NavigatorMode.WORLD_MAP)
+
+	var registration_errors := SaveManager.register_save_section(self)
+
+	for error: String in registration_errors:
+		push_error("Navigator save registration: %s" % error)
+
+
+func _exit_tree() -> void:
+	SaveManager.unregister_save_section(self)
+
+
+func get_save_section_id() -> String:
+	return str(SaveConstants.SECTION_NAVIGATOR_STATE)
+
+
+func export_save_data() -> Dictionary:
+	return get_app_session_state()
+
+
+func import_save_data(data: Dictionary) -> void:
+	restore_app_session_state(data)
+
+
+func reset_save_data() -> void:
+	_pending_activity_requests.clear()
+	_pending_exe_actor = null
+	_active_combat_transaction_id = ""
+	_active_combat_activity_id = ""
+	_current_location_id = ""
+
+	if is_node_ready():
+		local_area_view.close_area()
+		_set_mode(NavigatorMode.WORLD_MAP)
+
+
+func validate_save_data(data: Dictionary) -> PackedStringArray:
+	var errors := PackedStringArray()
+	var version: int = int(data.get("version", -1))
+
+	if version < 1 or version > SESSION_STATE_VERSION:
+		errors.append("Unsupported Navigator save version.")
+
+	var mode: int = int(data.get("mode", NavigatorMode.WORLD_MAP))
+
+	if mode < NavigatorMode.WORLD_MAP or mode > NavigatorMode.DIALOGUE:
+		errors.append("Navigator mode is outside the supported range.")
+
+	return errors
 
 
 func _connect_signals() -> void:
@@ -231,9 +279,11 @@ func get_app_session_state() -> Dictionary:
 	)
 
 	var saved_mode: NavigatorMode = _current_mode
+	var player_position := local_area_view.get_current_player_position()
+	var pending_exe_id: String = ""
 
-	if saved_mode == NavigatorMode.ENCOUNTER:
-		saved_mode = NavigatorMode.LOCAL_AREA
+	if is_instance_valid(_pending_exe_actor):
+		pending_exe_id = _pending_exe_actor.get_interaction_id()
 
 	return {
 		"version": SESSION_STATE_VERSION,
@@ -245,12 +295,16 @@ func get_app_session_state() -> Dictionary:
 			local_area_view.get_current_entry_id()
 		),
 		"has_player_position": has_player_position,
-		"player_position": (
-			local_area_view.get_current_player_position()
-		),
+		"player_position": {
+			"x": player_position.x,
+			"y": player_position.y
+		},
 		"local_area_runtime_state": (
 			local_area_view.get_current_runtime_state()
-		)
+		),
+		"pending_exe_interaction_id": pending_exe_id,
+		"activity_transaction_id": _active_combat_transaction_id,
+		"activity_id": _active_combat_activity_id
 	}
 
 
@@ -332,12 +386,21 @@ func restore_app_session_state(
 	)
 	var has_saved_position: bool = bool(
 		state.get("has_player_position", false)
-	) and saved_position_value is Vector2
+	) and (
+		saved_position_value is Vector2
+		or saved_position_value is Dictionary
+	)
 
 	var saved_position := Vector2.ZERO
 
 	if has_saved_position:
-		saved_position = saved_position_value
+		if saved_position_value is Vector2:
+			saved_position = saved_position_value
+		else:
+			saved_position = Vector2(
+				float(saved_position_value.get("x", 0.0)),
+				float(saved_position_value.get("y", 0.0))
+			)
 
 	var raw_runtime_state: Variant = state.get(
 		"local_area_runtime_state",
@@ -375,7 +438,32 @@ func restore_app_session_state(
 		)
 	)
 
-	if saved_mode == NavigatorMode.LOCAL_AREA:
+	if (
+		saved_mode == NavigatorMode.ENCOUNTER
+		and CombatManager.is_encounter_active()
+	):
+		var pending_exe_id: String = str(
+			state.get("pending_exe_interaction_id", "")
+		).strip_edges()
+		_pending_exe_actor = (
+			local_area_view.find_interactable_by_id(pending_exe_id)
+			as LocalAreaExeActor
+		)
+		var activity_context := CombatManager.get_session_activity_context()
+		_active_combat_transaction_id = str(activity_context.get(
+			"activity_transaction_id",
+			state.get("activity_transaction_id", "")
+		)).strip_edges()
+		_active_combat_activity_id = str(activity_context.get(
+			"activity_id",
+			state.get("activity_id", "")
+		)).strip_edges()
+
+		if combat_app.resume_saved_encounter():
+			_set_mode(NavigatorMode.ENCOUNTER)
+		else:
+			_set_mode(NavigatorMode.LOCAL_AREA)
+	elif saved_mode == NavigatorMode.LOCAL_AREA:
 		_set_mode(NavigatorMode.LOCAL_AREA)
 	else:
 		_set_mode(NavigatorMode.WORLD_MAP)
@@ -582,6 +670,10 @@ func _start_exe_encounter(
 	_set_mode(NavigatorMode.ENCOUNTER)
 
 	if combat_app.start_encounter(exe_actor.encounter):
+		CombatManager.set_session_activity_context(
+			transaction_id,
+			activity_id
+		)
 		return
 
 	_pending_exe_actor = null
