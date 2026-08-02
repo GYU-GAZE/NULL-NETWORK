@@ -5,28 +5,39 @@ signal number_changed(var_name: String, value: int)
 signal game_state_changed
 signal browser_history_changed
 
-var story_flags: Dictionary = {}
+## Compatibility views. CampaignState.world_state is the authoritative owner.
+var story_flags: Dictionary:
+	get:
+		return CampaignState.world_state.story_flags
+
+var numeric_vars: Dictionary:
+	get:
+		return CampaignState.world_state.numeric_vars
+
 var read_threads: Dictionary = {}
 var watched_threads: Dictionary = {}
 var thread_visibility_signatures: Dictionary = {}
-var numeric_vars: Dictionary = {}
 
 var browser_site_history: Array[Dictionary] = []
 var browser_history_visit_counter: int = 0
 var pinned_browser_sites: Array[Dictionary] = []
 
 
+func _ready() -> void:
+	CampaignState.campaign_reset.connect(_on_campaign_reset)
+
+
 func set_flag(flag_name: String, value: bool) -> void:
 	if flag_name.is_empty():
 		return
 
-	story_flags[flag_name] = value
+	CampaignState.world_state.set_flag(flag_name, value)
 	flag_changed.emit(flag_name, value)
 	game_state_changed.emit()
 
 
 func get_flag(flag_name: String, default_value: bool = false) -> bool:
-	return story_flags.get(flag_name, default_value)
+	return CampaignState.world_state.get_flag(flag_name, default_value)
 
 
 func toggle_flag(flag_name: String) -> bool:
@@ -34,9 +45,7 @@ func toggle_flag(flag_name: String) -> bool:
 		return false
 
 	var new_value: bool = not get_flag(flag_name, false)
-	story_flags[flag_name] = new_value
-	flag_changed.emit(flag_name, new_value)
-	game_state_changed.emit()
+	set_flag(flag_name, new_value)
 	return new_value
 
 
@@ -79,10 +88,7 @@ func get_thread_visibility_signature(thread_id: String) -> String:
 
 
 func sync_thread_read_state(thread_id: String, visibility_signature: String) -> void:
-	if thread_id.is_empty():
-		return
-
-	if visibility_signature.is_empty():
+	if thread_id.is_empty() or visibility_signature.is_empty():
 		return
 
 	if not has_read_thread(thread_id):
@@ -99,17 +105,13 @@ func sync_thread_read_state(thread_id: String, visibility_signature: String) -> 
 
 
 func watch_thread(thread_id: String) -> void:
-	if thread_id.is_empty():
-		return
-
-	watched_threads[thread_id] = true
+	if not thread_id.is_empty():
+		watched_threads[thread_id] = true
 
 
 func unwatch_thread(thread_id: String) -> void:
-	if thread_id.is_empty():
-		return
-
-	watched_threads.erase(thread_id)
+	if not thread_id.is_empty():
+		watched_threads.erase(thread_id)
 
 
 func toggle_thread_watch(thread_id: String) -> bool:
@@ -135,7 +137,7 @@ func set_number(var_name: String, value: int) -> void:
 	if var_name.is_empty():
 		return
 
-	numeric_vars[var_name] = value
+	CampaignState.world_state.set_number(var_name, value)
 	number_changed.emit(var_name, value)
 	game_state_changed.emit()
 
@@ -145,17 +147,12 @@ func add_number(var_name: String, amount: int) -> int:
 		return 0
 
 	var new_value: int = get_number(var_name) + amount
-	numeric_vars[var_name] = new_value
-	number_changed.emit(var_name, new_value)
-	game_state_changed.emit()
+	set_number(var_name, new_value)
 	return new_value
 
 
 func get_number(var_name: String, default_value: int = 0) -> int:
-	if var_name.is_empty():
-		return default_value
-
-	return int(numeric_vars.get(var_name, default_value))
+	return CampaignState.world_state.get_number(var_name, default_value)
 
 
 func register_browser_visit(url: String, title: String, favicon: Texture2D = null) -> void:
@@ -165,9 +162,7 @@ func register_browser_visit(url: String, title: String, favicon: Texture2D = nul
 		return
 
 	browser_history_visit_counter += 1
-
 	var existing_index: int = _find_browser_history_index(clean_url)
-
 	var entry: Dictionary = {
 		"url": clean_url,
 		"title": title if not title.strip_edges().is_empty() else clean_url,
@@ -212,6 +207,7 @@ func _find_browser_history_index(url: String) -> int:
 func _sort_browser_history_entries(a: Dictionary, b: Dictionary) -> bool:
 	return int(a.get("last_visited_order", 0)) > int(b.get("last_visited_order", 0))
 
+
 func pin_browser_site(url: String, title: String, favicon: Texture2D = null) -> void:
 	var clean_url: String = url.strip_edges()
 
@@ -219,7 +215,6 @@ func pin_browser_site(url: String, title: String, favicon: Texture2D = null) -> 
 		return
 
 	var existing_index: int = _find_pinned_browser_site_index(clean_url)
-
 	var entry: Dictionary = {
 		"url": clean_url,
 		"title": title if not title.strip_edges().is_empty() else clean_url,
@@ -265,7 +260,7 @@ func is_browser_site_pinned(url: String) -> bool:
 func get_pinned_browser_sites() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 
-	for entry in pinned_browser_sites:
+	for entry: Dictionary in pinned_browser_sites:
 		result.append(entry)
 
 	return result
@@ -279,3 +274,7 @@ func _find_pinned_browser_site_index(url: String) -> int:
 			return i
 
 	return -1
+
+
+func _on_campaign_reset() -> void:
+	game_state_changed.emit()
