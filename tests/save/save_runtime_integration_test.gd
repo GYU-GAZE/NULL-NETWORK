@@ -73,6 +73,7 @@ func _run_test() -> void:
 	browser_window.size = Vector2(620, 410)
 	navigator_window.position = Vector2(540, 120)
 	navigator_window.size = Vector2(660, 470)
+	await _wait_frames(2)
 	var browser_position_before: Vector2 = browser_window.position
 	var browser_size_before: Vector2 = browser_window.size
 
@@ -173,6 +174,18 @@ func _run_test() -> void:
 			_check(false, "Reloaded Browser instance is missing.")
 
 		if restored_browser_window != null:
+			if (
+				restored_browser_window.position != browser_position_before
+				or restored_browser_window.size != browser_size_before
+			):
+				print("GEOMETRY_BEFORE: %s %s" % [
+					browser_position_before,
+					browser_size_before
+				])
+				print("GEOMETRY_AFTER: %s %s" % [
+					restored_browser_window.position,
+					restored_browser_window.size
+				])
 			_check(
 				restored_browser_window.position == browser_position_before
 				and restored_browser_window.size == browser_size_before,
@@ -197,6 +210,20 @@ func _run_test() -> void:
 			_check(false, "Reloaded Navigator instance is missing.")
 
 	var combat_after := CombatManager.export_save_data()
+
+	if (
+		combat_after.get("ally_team", []) != combat_before.get("ally_team", [])
+		or combat_after.get("enemy_team", []) != combat_before.get("enemy_team", [])
+	):
+		print("COMBAT_BEFORE: %s" % JSON.stringify({
+			"ally_team": combat_before.get("ally_team", []),
+			"enemy_team": combat_before.get("enemy_team", [])
+		}))
+		print("COMBAT_AFTER: %s" % JSON.stringify({
+			"ally_team": combat_after.get("ally_team", []),
+			"enemy_team": combat_after.get("enemy_team", [])
+		}))
+
 	_check(
 		CombatManager.is_encounter_active()
 		and int(combat_after.get("cycle_index", -1)) == 1,
