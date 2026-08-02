@@ -162,6 +162,21 @@ func get_runtime_state() -> Dictionary:
 	}
 
 
+func find_interactable_by_id(
+	interaction_id: String
+) -> LocalAreaInteractable:
+	var clean_id: String = interaction_id.strip_edges()
+
+	if clean_id.is_empty():
+		return null
+
+	for interactable: LocalAreaInteractable in _get_interactables():
+		if interactable.get_interaction_id() == clean_id:
+			return interactable
+
+	return null
+
+
 func apply_runtime_state(state: Dictionary) -> void:
 	var raw_interactable_states: Variant = state.get(
 		"interactables",
