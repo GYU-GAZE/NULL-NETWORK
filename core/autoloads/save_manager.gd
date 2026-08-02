@@ -501,9 +501,11 @@ func _read_document(path: String) -> Dictionary:
 			"errors": PackedStringArray(["Could not open save file: %s" % path])
 		}
 
-	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	var json := JSON.new()
+	var parse_error: Error = json.parse(file.get_as_text())
+	var parsed: Variant = json.data
 
-	if parsed is not Dictionary:
+	if parse_error != OK or parsed is not Dictionary:
 		return {
 			"ok": false,
 			"errors": PackedStringArray(["Save file is not valid JSON: %s" % path])
