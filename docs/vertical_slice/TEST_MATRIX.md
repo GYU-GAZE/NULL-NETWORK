@@ -16,8 +16,8 @@ States: `PLANNED`, `READY`, `PASS`, `FAIL`, `BLOCKED`.
 | VS-025 | 1 | Travel to a different district | Confirm travel | Exactly one block is spent before area transition completes | PASS | Validation #209 · Navigator integration |
 | VS-026 | 1 | Voluntary EXE interaction | Confirm FIGHT | Exactly two blocks are spent before encounter; result adds no cost | PASS | Validation #209 · Navigator integration |
 | VS-027 | 1 | Confirmation dialog is open | Close owning app/window | No time is spent and request is cancelled | PASS | Validation #209 · dialog/source cancellation |
-| VS-030 | 2 | Empty runtime | Create and reset campaign | All mutable campaign sections return to defaults without restarting | PLANNED | — |
-| VS-031 | 2 | Catalog contains known APK and Module IDs | Resolve both IDs | Correct Resources returned; duplicate IDs rejected | PLANNED | — |
+| VS-030 | 2 | Empty runtime | Create, mutate, export, reset and restore campaign | All tested sections round-trip as plain ID-based data and reset without restarting | PASS | Validation #215 · `CAMPAIGN_STATE_TEST: PASS` |
+| VS-031 | 2 | Catalog contains existing Module, App and Location IDs | Resolve IDs; submit duplicate and empty IDs | Correct Resources resolve; invalid catalogs are rejected without replacing the valid registry | PASS | Validation #215 · `CAMPAIGN_STATE_TEST: PASS` |
 | VS-040 | 3 | Browser, Navigator and Combat have runtime state | Save after one combat cycle; restart | Tabs, windows, area, position and combat reconstruct from IDs | PLANNED | — |
 | VS-041 | 3 | Previous save exists | Interrupt atomic replacement | Official save remains valid or technical backup restores it | PLANNED | — |
 | VS-050 | 4 | Composite content condition | Evaluate time, flag and tendency rules | ALL/ANY/NONE composition is deterministic | PLANNED | — |

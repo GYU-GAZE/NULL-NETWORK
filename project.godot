@@ -23,6 +23,8 @@ config/icon="res://icon.svg"
 
 GlobalSignals="*res://core/autoloads/global_signals.gd"
 TimeManager="*res://core/autoloads/time_manager.gd"
+CampaignState="*res://core/autoloads/campaign_state.gd"
+ContentRegistry="*res://core/autoloads/content_registry.gd"
 ActivityManager="*res://core/autoloads/activity_manager.gd"
 SimulatedDNS="*res://core/autoloads/simulated_dns.tscn"
 CombatManager="*res://apps/combat/combat_manager.gd"
