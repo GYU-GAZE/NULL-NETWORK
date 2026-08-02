@@ -27,6 +27,63 @@ func _ready() -> void:
 	CampaignState.campaign_reset.connect(_on_campaign_reset)
 
 
+func get_save_section_id() -> String:
+	return str(SaveConstants.SECTION_GAME_STATE)
+
+
+func export_save_data() -> Dictionary:
+	return {
+		"read_threads": read_threads.duplicate(true),
+		"watched_threads": watched_threads.duplicate(true),
+		"thread_visibility_signatures": (
+			thread_visibility_signatures.duplicate(true)
+		),
+		"browser_site_history": _serialize_browser_entries(
+			browser_site_history,
+			true
+		),
+		"browser_history_visit_counter": browser_history_visit_counter,
+		"pinned_browser_sites": _serialize_browser_entries(
+			pinned_browser_sites,
+			false
+		)
+	}
+
+
+func import_save_data(data: Dictionary) -> void:
+	reset_save_data()
+	read_threads = _read_dictionary(data.get("read_threads", {}))
+	watched_threads = _read_dictionary(data.get("watched_threads", {}))
+	thread_visibility_signatures = _read_dictionary(
+		data.get("thread_visibility_signatures", {})
+	)
+	browser_site_history = _deserialize_browser_entries(
+		data.get("browser_site_history", []),
+		true
+	)
+	browser_history_visit_counter = maxi(
+		0,
+		int(data.get("browser_history_visit_counter", 0))
+	)
+	pinned_browser_sites = _deserialize_browser_entries(
+		data.get("pinned_browser_sites", []),
+		false
+	)
+	browser_history_changed.emit()
+	game_state_changed.emit()
+
+
+func reset_save_data() -> void:
+	read_threads.clear()
+	watched_threads.clear()
+	thread_visibility_signatures.clear()
+	browser_site_history.clear()
+	browser_history_visit_counter = 0
+	pinned_browser_sites.clear()
+	browser_history_changed.emit()
+	game_state_changed.emit()
+
+
 func set_flag(flag_name: String, value: bool) -> void:
 	if flag_name.is_empty():
 		return
@@ -277,4 +334,87 @@ func _find_pinned_browser_site_index(url: String) -> int:
 
 
 func _on_campaign_reset() -> void:
-	game_state_changed.emit()
+	reset_save_data()
+
+
+func _serialize_browser_entries(
+	entries: Array[Dictionary],
+	include_visit_order: bool
+) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+
+	for entry: Dictionary in entries:
+		var clean_url: String = str(entry.get("url", "")).strip_edges()
+
+		if clean_url.is_empty():
+			continue
+
+		var serialized_entry: Dictionary = {
+			"url": clean_url,
+			"title": str(entry.get("title", clean_url))
+		}
+
+		if include_visit_order:
+			serialized_entry["last_visited_order"] = maxi(
+				0,
+				int(entry.get("last_visited_order", 0))
+			)
+
+		result.append(serialized_entry)
+
+	return result
+
+
+func _deserialize_browser_entries(
+	raw_entries: Variant,
+	include_visit_order: bool
+) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+
+	if raw_entries is not Array:
+		return result
+
+	for raw_entry: Variant in raw_entries:
+		if raw_entry is not Dictionary:
+			continue
+
+		var entry := raw_entry as Dictionary
+		var clean_url: String = str(entry.get("url", "")).strip_edges()
+
+		if clean_url.is_empty():
+			continue
+
+		var restored_entry: Dictionary = {
+			"url": clean_url,
+			"title": str(entry.get("title", clean_url)),
+			"favicon": _resolve_favicon(clean_url)
+		}
+
+		if include_visit_order:
+			restored_entry["last_visited_order"] = maxi(
+				0,
+				int(entry.get("last_visited_order", 0))
+			)
+
+		result.append(restored_entry)
+
+	if include_visit_order:
+		result.sort_custom(_sort_browser_history_entries)
+
+	return result
+
+
+func _resolve_favicon(url: String) -> Texture2D:
+	var page: WebsitePage = SimulatedDNS.fetch_page(url)
+
+	if page == null:
+		return null
+
+	return page.favicon
+
+
+func _read_dictionary(value: Variant) -> Dictionary:
+	if value is Dictionary:
+		return (value as Dictionary).duplicate(true)
+
+	return {}

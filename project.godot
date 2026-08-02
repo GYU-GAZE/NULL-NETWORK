@@ -37,6 +37,7 @@ ForumThreadWatcher="*res://core/autoloads/forum_thread_watcher.gd"
 KubuOSMetrics="*res://core/autoloads/kubu_os_metrics.gd"
 KubuDisplaySetting="*res://core/autoloads/kubu_display_setting.gd"
 AppSessionStore="*uid://23edeehx54i1"
+SaveManager="*res://core/autoloads/save_manager.gd"
 
 [display]
 

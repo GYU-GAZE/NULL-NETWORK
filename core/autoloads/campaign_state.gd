@@ -97,6 +97,21 @@ func has_campaign() -> bool:
 	)
 
 
+func get_save_section_id() -> String:
+	return str(SaveConstants.SECTION_CAMPAIGN_STATE)
+
+
+func import_save_data(data: Dictionary) -> void:
+	var errors: PackedStringArray = restore_save_data(data)
+
+	for error: String in errors:
+		push_error("CampaignState import: %s" % error)
+
+
+func reset_save_data() -> void:
+	reset_campaign()
+
+
 func set_money(value: int) -> void:
 	money = maxi(0, value)
 	campaign_changed.emit(&"money")

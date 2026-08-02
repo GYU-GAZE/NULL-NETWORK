@@ -18,6 +18,7 @@ States: `PLANNED`, `READY`, `PASS`, `FAIL`, `BLOCKED`.
 | VS-027 | 1 | Confirmation dialog is open | Close owning app/window | No time is spent and request is cancelled | PASS | Validation #209 · dialog/source cancellation |
 | VS-030 | 2 | Empty runtime | Create, mutate, export, reset and restore campaign | All tested sections round-trip as plain ID-based data and reset without restarting | PASS | Validation #215 · `CAMPAIGN_STATE_TEST: PASS` |
 | VS-031 | 2 | Catalog contains existing Module, App and Location IDs | Resolve IDs; submit duplicate and empty IDs | Correct Resources resolve; invalid catalogs are rejected without replacing the valid registry | PASS | Validation #215 · `CAMPAIGN_STATE_TEST: PASS` |
+| VS-039 | 3 | Core providers contain mutated runtime state | Save SAFE and COMMIT campaigns; corrupt the live record; load again | Aggregate round-trip succeeds, SAFE history is visible, COMMIT history is blocked and the technical backup repairs the live record | PASS | Validation #219 · `SAVE_MANAGER_TEST: PASS` |
 | VS-040 | 3 | Browser, Navigator and Combat have runtime state | Save after one combat cycle; restart | Tabs, windows, area, position and combat reconstruct from IDs | PLANNED | — |
 | VS-041 | 3 | Previous save exists | Interrupt atomic replacement | Official save remains valid or technical backup restores it | PLANNED | — |
 | VS-050 | 4 | Composite content condition | Evaluate time, flag and tendency rules | ALL/ANY/NONE composition is deterministic | PLANNED | — |
