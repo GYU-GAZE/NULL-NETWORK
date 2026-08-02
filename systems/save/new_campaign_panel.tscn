@@ -1,0 +1,85 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/save/new_campaign_panel.gd" id="1"]
+
+[node name="NewCampaignPanel" type="PanelContainer"]
+visible = false
+custom_minimum_size = Vector2(520, 0)
+script = ExtResource("1")
+
+[node name="Margin" type="MarginContainer" parent="."]
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Margin/Content"]
+text = "NEW CAMPAIGN"
+theme_override_font_sizes/font_size = 24
+
+[node name="Divider" type="HSeparator" parent="Margin/Content"]
+
+[node name="NameLabel" type="Label" parent="Margin/Content"]
+text = "Campaign name"
+
+[node name="NameEdit" type="LineEdit" parent="Margin/Content"]
+unique_name_in_owner = true
+placeholder_text = "My NULL NETWORK run"
+max_length = 48
+
+[node name="IdLabel" type="Label" parent="Margin/Content"]
+text = "Save ID"
+
+[node name="IdEdit" type="LineEdit" parent="Margin/Content"]
+unique_name_in_owner = true
+placeholder_text = "campaign_id"
+max_length = 48
+
+[node name="ModeLabel" type="Label" parent="Margin/Content"]
+text = "Save contract"
+
+[node name="ModeButtons" type="HBoxContainer" parent="Margin/Content"]
+theme_override_constants/separation = 12
+
+[node name="SafeButton" type="CheckButton" parent="Margin/Content/ModeButtons"]
+unique_name_in_owner = true
+text = "SAFE MODE"
+button_pressed = true
+
+[node name="CommitButton" type="CheckButton" parent="Margin/Content/ModeButtons"]
+unique_name_in_owner = true
+text = "COMMIT MODE"
+
+[node name="ModeExplanation" type="RichTextLabel" parent="Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 76)
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="CommitAcknowledgement" type="CheckBox" parent="Margin/Content"]
+unique_name_in_owner = true
+text = "I understand that COMMIT MODE has no player-visible rollback."
+autowrap_mode = 2
+
+[node name="ErrorLabel" type="Label" parent="Margin/Content"]
+unique_name_in_owner = true
+visible = false
+theme_override_colors/font_color = Color(1, 0.35, 0.32, 1)
+autowrap_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="Margin/Content"]
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="CancelButton" type="Button" parent="Margin/Content/Buttons"]
+unique_name_in_owner = true
+text = "CANCEL"
+
+[node name="CreateButton" type="Button" parent="Margin/Content/Buttons"]
+unique_name_in_owner = true
+text = "CREATE CAMPAIGN"
+disabled = true
