@@ -5,6 +5,7 @@ class_name ActivityConfirmationDialog
 @onready var title_label: Label = %TitleLabel
 @onready var message_label: Label = %MessageLabel
 @onready var cost_label: Label = %CostLabel
+@onready var available_time_label: Label = %AvailableTimeLabel
 @onready var final_time_label: Label = %FinalTimeLabel
 @onready var transition_label: Label = %TransitionLabel
 @onready var warning_label: Label = %WarningLabel
@@ -147,6 +148,9 @@ func _display_request(payload: Dictionary) -> void:
 		preview.charged_action_cost,
 		block_word
 	]
+	available_time_label.text = "Available Today: %d blocks" % (
+		preview.available_blocks_in_day
+	)
 	final_time_label.text = "Ends: %s" % (
 		preview.get_final_time_text()
 	)

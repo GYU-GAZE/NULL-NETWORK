@@ -68,6 +68,11 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Time Cost: 1 block"
 
+[node name="AvailableTimeLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Available Today: 24 blocks"
+
 [node name="FinalTimeLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/Content"]
 unique_name_in_owner = true
 layout_mode = 2
