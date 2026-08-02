@@ -4,6 +4,9 @@ extends Node
 const CONFIRMATION_SCENE: PackedScene = preload(
 	"res://systems/ui/activity_confirmation_dialog.tscn"
 )
+const NAVIGATOR_SCENE: PackedScene = preload(
+	"res://apps/navigator/app_navigator.tscn"
+)
 
 
 var _failures: PackedStringArray = PackedStringArray()
@@ -71,6 +74,7 @@ func _run_tests() -> void:
 	await _test_cancellation_charges_nothing()
 	await _test_included_activity_reuses_transaction()
 	await _test_source_cancellation_closes_dialog()
+	await _test_navigator_travel_and_voluntary_combat()
 	_test_availability_provider()
 
 
@@ -386,6 +390,131 @@ func _test_source_cancellation_closes_dialog() -> void:
 		"Source cancellation did not cancel its request."
 	)
 	dialog.queue_free()
+
+
+func _test_navigator_travel_and_voluntary_combat() -> void:
+	_reset_state(1, TimeManager.TimePeriod.DAY, 0)
+	var navigator := (
+		NAVIGATOR_SCENE.instantiate() as NavigatorApp
+	)
+	add_child(navigator)
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	var location: MapLocation = (
+		navigator.world_map_view.get_location_by_id(
+			"akihabara"
+		)
+	)
+	_check(
+		location != null
+		and location.travel_activity != null
+		and location.travel_activity.action_cost == 1,
+		"Akihabara does not use a one-block travel activity."
+	)
+
+	if location == null or location.travel_activity == null:
+		navigator.queue_free()
+		return
+
+	navigator._on_world_map_enter_area_requested(location)
+	await get_tree().process_frame
+	var travel_request_id: String = (
+		_confirmation_request_ids.back()
+		if not _confirmation_request_ids.is_empty()
+		else ""
+	)
+	GlobalSignals.activity_confirmation_resolved.emit(
+		travel_request_id,
+		true
+	)
+	var navigator_state: Dictionary = (
+		navigator.get_app_session_state()
+	)
+	_check(
+		TimeManager.current_action_block == 1,
+		"Navigator travel did not charge exactly one block."
+	)
+	_check(
+		str(navigator_state.get("current_location_id", ""))
+		== "akihabara"
+		and int(navigator_state.get("mode", -1))
+		== NavigatorApp.NavigatorMode.LOCAL_AREA,
+		"Confirmed travel did not enter Akihabara Local Area."
+	)
+
+	var area_instance: Node = (
+		navigator.local_area_view.get_current_area_instance()
+	)
+	var exe_actor: LocalAreaExeActor
+
+	if area_instance != null:
+		exe_actor = (
+			area_instance.get_node_or_null(
+				"Interactables/TestEXE"
+			)
+			as LocalAreaExeActor
+		)
+
+	_check(
+		exe_actor != null
+		and exe_actor.interaction_data != null
+		and exe_actor.interaction_data.activity != null
+		and exe_actor.interaction_data.activity.action_cost == 2,
+		"Rattildus does not use a two-block voluntary combat activity."
+	)
+
+	if exe_actor == null or exe_actor.interaction_data == null:
+		navigator.queue_free()
+		return
+
+	navigator._on_local_area_interaction_requested(exe_actor)
+	await get_tree().process_frame
+	var combat_request_id: String = (
+		_confirmation_request_ids.back()
+		if not _confirmation_request_ids.is_empty()
+		else ""
+	)
+	GlobalSignals.activity_confirmation_resolved.emit(
+		combat_request_id,
+		true
+	)
+	var combat_event: Dictionary = _find_started_event(
+		combat_request_id
+	)
+	var combat_transaction_id: String = str(
+		combat_event.get("transaction_id", "")
+	)
+	_check(
+		TimeManager.current_action_block == 3,
+		"Voluntary combat did not charge exactly two blocks "
+		+ "at confirmation."
+	)
+	_check(
+		navigator.combat_app.is_encounter_active()
+		and ActivityManager.has_active_transaction(
+			combat_transaction_id
+		),
+		"Confirmed voluntary combat did not start its transaction."
+	)
+
+	navigator.combat_app._finish_encounter(
+		CombatResult.Outcome.ESCAPED
+	)
+	_check(
+		TimeManager.current_action_block == 3,
+		"Combat resolution charged time a second time."
+	)
+	_check(
+		not ActivityManager.has_active_transaction(
+			combat_transaction_id
+		),
+		"Combat resolution did not complete its activity."
+	)
+
+	CombatManager.reset_encounter()
+	navigator.queue_free()
+	await get_tree().process_frame
 
 
 func _test_availability_provider() -> void:
