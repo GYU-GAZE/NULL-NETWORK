@@ -8,6 +8,7 @@ enum TimePeriod {
 const ACTION_BLOCKS_PER_PERIOD: int = 12
 const TOTAL_ACTION_BLOCKS_PER_DAY: int = ACTION_BLOCKS_PER_PERIOD * 2
 const SECONDS_PER_DAY: int = 86400
+const SAVE_DATA_VERSION: int = 1
 
 @export_category("Game Start Date")
 @export var start_year: int = 2026
@@ -44,6 +45,71 @@ const WEEKDAY_NAMES: Array[String] = [
 
 func _ready() -> void:
 	_sync_calendar_from_days_passed()
+
+
+func get_save_section_id() -> String:
+	return str(SaveConstants.SECTION_TIME)
+
+
+func export_save_data() -> Dictionary:
+	return {
+		"version": SAVE_DATA_VERSION,
+		"days_passed": days_passed,
+		"days_until_update": days_until_update,
+		"current_period": int(current_period),
+		"current_action_block": current_action_block
+	}
+
+
+func import_save_data(data: Dictionary) -> void:
+	var errors: PackedStringArray = validate_save_data(data)
+
+	if not errors.is_empty():
+		for error: String in errors:
+			push_error("TimeManager import: %s" % error)
+		return
+
+	days_passed = maxi(1, int(data.get("days_passed", 1)))
+	days_until_update = maxi(0, int(data.get("days_until_update", 7)))
+	current_period = int(data.get("current_period", TimePeriod.DAY))
+	current_action_block = clampi(
+		int(data.get("current_action_block", 0)),
+		0,
+		ACTION_BLOCKS_PER_PERIOD - 1
+	)
+	_sync_calendar_from_days_passed()
+	_emit_time_signal()
+
+
+func reset_save_data() -> void:
+	days_passed = 1
+	days_until_update = 7
+	current_period = TimePeriod.DAY
+	current_action_block = 0
+	_sync_calendar_from_days_passed()
+	_emit_time_signal()
+
+
+func validate_save_data(data: Dictionary) -> PackedStringArray:
+	var errors := PackedStringArray()
+
+	if int(data.get("version", -1)) != SAVE_DATA_VERSION:
+		errors.append("Unsupported TimeManager save version.")
+
+	if int(data.get("days_passed", 0)) < 1:
+		errors.append("days_passed must be at least 1.")
+
+	var restored_period: int = int(data.get("current_period", -1))
+
+	if restored_period < TimePeriod.DAY or restored_period > TimePeriod.NIGHT:
+		errors.append("current_period is invalid.")
+
+	var restored_block: int = int(data.get("current_action_block", -1))
+
+	if restored_block < 0 or restored_block >= ACTION_BLOCKS_PER_PERIOD:
+		errors.append("current_action_block must be between 0 and 11.")
+
+	return errors
 
 
 func advance_action(amount: int = 1) -> void:
@@ -201,7 +267,6 @@ func is_hour_in_day_period(hour: int) -> bool:
 
 func format_hour_12(hour_24: int) -> String:
 	var safe_hour: int = posmod(hour_24, 24)
-
 	var suffix: String = "AM"
 
 	if safe_hour >= 12:
@@ -230,11 +295,9 @@ func format_forum_timestamp(game_day: int, period: int, action_block: int) -> St
 		return "Yesterday, %s" % time_text
 
 	var date_info: Dictionary = get_date_for_game_day(game_day)
-
 	var day: int = int(date_info.get("day", 1))
 	var month: int = int(date_info.get("month", 1))
 	var year: int = int(date_info.get("year", start_year))
-
 	var month_label: String = MONTH_NAMES[month - 1]
 
 	return "%02d %s %d, %s" % [
