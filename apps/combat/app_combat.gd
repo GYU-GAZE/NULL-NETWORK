@@ -65,6 +65,9 @@ func _ready() -> void:
 	hide_tooltip()
 	refresh_combat_field()
 
+	if CombatManager.is_encounter_active():
+		resume_saved_encounter()
+
 
 func _apply_static_ui_style() -> void:
 	if ui_style == null:
@@ -132,6 +135,27 @@ func start_encounter(
 
 func is_encounter_active() -> bool:
 	return _encounter_active
+
+
+func resume_saved_encounter() -> bool:
+	var encounter := CombatManager.get_current_encounter()
+
+	if encounter == null or not CombatManager.is_encounter_active():
+		return false
+
+	_current_encounter = encounter
+	_pending_outcome = CombatResult.Outcome.CANCELLED
+	_encounter_active = true
+	resolution_screen.hide()
+	module_swap_ui.hide()
+	hide_tooltip()
+	execute_btn.disabled = false
+	change_modules_btn.disabled = false
+	run_away_btn.disabled = false
+	continue_button.disabled = false
+	refresh_combat_field()
+	show()
+	return true
 
 
 func _connect_manager_signals() -> void:
