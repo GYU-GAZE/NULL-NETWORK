@@ -13,49 +13,42 @@
 ## Stable baseline
 
 - Base branch: `main`
-- Last audited stable commit: `4aa63512a4b335d7cf7f2dff8cd6127f43e63652`
-- Last completed system: combat presentation contracts and editable combat UI components
-- Last validated workflow: Godot Project Validation run `#204`
+- Last audited stable commit before the current change: `6e32556f47e55f257563b747aa22a1bae1e11c32`
+- Last completed system: activity previews, confirmations and single-charge transactions
+- Last validated workflow: Godot Project Validation run `#209`
+- Activity marker: `ACTIVITY_MANAGER_TEST: PASS`
 - Runtime marker: `COMBAT_RUNTIME_TEST: PASS`
 - Layout marker: `COMBAT_LAYOUT_TEST: PASS`
 
 ## Current system
 
-- Roadmap phase: **Phase 1 — Time and activity transactions**
-- Status: Phase 0 documentation is complete in the current change; the legacy ConditionData block range is corrected from `0–5` to `0–11`.
-- Architectural objective: make `ActivityManager` the only campaign-facing gateway that may advance `TimeManager`.
+- Roadmap phase: **Phase 2 — CampaignState and content registries**
+- Status: Phase 1 is complete and validated. Navigator travel, paid EXAMINE interactions and voluntary EXE combat no longer advance TimeManager directly.
+- Architectural objective: create one serializable campaign source of truth and resolve immutable content through stable IDs.
 
 ## Next exact task
 
-Implement the activity transaction foundation in this order:
+Implement the campaign state foundation in this order:
 
-1. Create `data/templates/activity/activity_definition_data.gd`.
-2. Create `data/templates/activity/activity_preview_data.gd`.
-3. Create `core/autoloads/activity_manager.gd`.
-4. Register `ActivityManager` in `project.godot`.
-5. Add deterministic tests for preview, confirmation, cancellation, DAY→NIGHT crossing, end-of-day rejection and nested transaction reuse.
-6. Only after the manager gate passes, integrate travel, EXAMINE and voluntary EXE combat.
+1. Create `operator_state_data.gd`, `tendency_state_data.gd`, `world_state_data.gd` and `inventory_state_data.gd`.
+2. Create `core/autoloads/campaign_state.gd` with explicit defaults and a complete runtime reset.
+3. Create `game_content_catalog.gd` and `game_content_catalog.tres`.
+4. Create `core/autoloads/content_registry.gd` and reject duplicate or empty IDs.
+5. Add tests that create, mutate and reset a campaign without restarting the executable.
+6. Add tests that resolve at least one existing Module and reject a duplicate ID.
 
-Do not remove direct `TimeManager.advance_action()` calls until their replacement path is tested.
+Do not begin SaveManager until CampaignState can export plain ID-based data and reset deterministically.
 
-## Files in the current change
+## Phase 1 implementation checkpoint
 
-- `docs/vertical_slice/ROADMAP.md`
-- `docs/vertical_slice/CURRENT_STATE.md`
-- `docs/vertical_slice/DECISIONS.md`
-- `docs/vertical_slice/TEST_MATRIX.md`
-- `docs/vertical_slice/CONTENT_MANIFEST.md`
-- `data/templates/condition_data.gd`
-
-## Confirmed technical debt blocking Phase 1
-
-- `apps/navigator/app_navigator.gd` advances time directly for travel, EXAMINE and combat resolution.
-- `LocalAreaExeActor` computes combat cost after combat resolution; the canonical rule charges a voluntary combat when the player confirms entry.
-- The current default EXE cost is one block; voluntary combat must use two blocks.
-- There is no transaction ID shared by a paid parent activity and its child combat.
-- There is no confirmation UI for time-consuming activities.
-- There is no rule preventing an activity from crossing the absolute end of the day.
-- Occupation schedule blocking does not exist yet; Phase 1 must expose a stable hook that Phase 8 can supply later.
+- `ActivityDefinitionData` owns cost and crossing policy in immutable content.
+- `ActivityPreviewData` exposes final day, period, block, availability and warnings.
+- `ActivityManager` owns confirmation, transaction IDs, charging and nested activity inclusion.
+- `ActivityConfirmationDialog` is a queued global modal.
+- Akihabara travel costs one block through `travel_akihabara.tres`.
+- Voluntary Rattildus combat costs two blocks at FIGHT confirmation through `fight_rattildus.tres`.
+- The activity test instantiates Navigator, travels, starts combat and proves resolution adds no second cost.
+- Availability providers are ready for the Phase 8 occupation schedule without coupling it to Navigator.
 
 ## Known non-blocking gaps
 
@@ -63,6 +56,8 @@ Do not remove direct `TimeManager.advance_action()` calls until their replacemen
 - Combat resolution does not yet apply persistent campaign rewards.
 - The player combat loadout still comes from `CombatEncounter`, not a persistent partner.
 - App installation and campaign persistence do not exist.
+- No occupation provider is registered yet; only its stable ActivityManager contract exists.
+- No current content uses `allow_cross_day`; the behavior is covered by preview tests for future events.
 
 These are planned in later roadmap phases and must not be solved inside Phase 1.
 
@@ -72,11 +67,10 @@ Run the existing baseline tests:
 
 ```bash
 godot --headless --path . --editor --quit
+godot --headless --path . tests/activity/activity_manager_test.tscn
 godot --headless --path . tests/combat/combat_runtime_test.tscn
 godot --headless --path . tests/combat/combat_layout_test.tscn
 ```
-
-Phase 1 must add its own headless test scene and marker before integration reaches the Navigator.
 
 ## Completion rule
 
