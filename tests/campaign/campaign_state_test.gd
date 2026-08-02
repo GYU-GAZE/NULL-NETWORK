@@ -48,7 +48,7 @@ func _test_campaign_round_trip_and_reset() -> void:
 	CampaignState.tendencies.valour = 6
 	CampaignState.tendencies.logic = 4
 	CampaignState.tendencies.sync = 3
-	CampaignState.tendencies.self = 2
+	CampaignState.tendencies.self_value = 2
 	CampaignState.set_money(1250)
 	CampaignState.inventory.add_item("healing_patch", 3)
 	CampaignState.learn_module("basic_attack")
