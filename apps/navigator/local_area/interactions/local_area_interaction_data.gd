@@ -23,6 +23,9 @@ enum InteractionKind {
 @export_category("Activity")
 @export var activity: ActivityDefinitionData
 
+@export_category("Dialogue")
+@export var dialogue: DialogueData
+
 
 func get_display_id() -> String:
 	if not interaction_id.strip_edges().is_empty():
