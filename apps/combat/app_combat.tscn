@@ -41,12 +41,13 @@ size_flags_vertical = 3
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="MenuBox" type="VBoxContainer" parent="ContentMargin/BattleBox/CenterHBox" unique_id=1979134545]
+[node name="MenuBox" type="GridContainer" parent="ContentMargin/BattleBox/CenterHBox" unique_id=1979134545]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
-theme_override_constants/separation = 2
-alignment = 1
+theme_override_constants/h_separation = 2
+theme_override_constants/v_separation = 2
+columns = 2
 
 [node name="ChangeModulesBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=124703014]
 unique_name_in_owner = true

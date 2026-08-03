@@ -24,7 +24,7 @@ const MODULE_SLOT_SCENE: PackedScene = preload(
 var floating_offsets: Dictionary = {}
 var actor_nodes: Dictionary = {}
 
-@onready var menu_box: VBoxContainer = %MenuBox
+@onready var menu_box: GridContainer = %MenuBox
 @onready var execute_btn: Button = %ExecuteBtn
 @onready var change_modules_btn: Button = %ChangeModulesBtn
 @onready var player_actions_btn: Button = %PlayerActionsBtn
