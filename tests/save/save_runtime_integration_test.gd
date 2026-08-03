@@ -22,6 +22,14 @@ func _run_test() -> void:
 		"Runtime Restore"
 	)
 	_check(errors.is_empty(), "Could not create runtime campaign: %s" % errors)
+	_check(
+		AppInstallationManager.install_app("navigator", null, false),
+		"Could not install Navigator for the runtime persistence fixture."
+	)
+	_check(
+		SaveManager.save_checkpoint(&"runtime_fixture_apps"),
+		"Could not persist Navigator before the first runtime boot."
+	)
 
 	var first_boot := await _boot_campaign("runtime_restore")
 

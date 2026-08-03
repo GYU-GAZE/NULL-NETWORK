@@ -13,33 +13,44 @@
 ## Stable baseline
 
 - Base branch: `main`
-- Last audited stable commit before the current change: `157adcf86fc8d6d2e93adfb30cccdebf75d09f34`
-- Last completed system: Phase 4 global Conditions, Effects and UI text catalog
-- Last validated workflow: Godot Project Validation run `#229`
+- Last audited stable commit before the current change: `60fcaeb885d71ab9cff29495e32c9e54e73d1b04`
+- Last completed system: Phase 5 dynamic app catalog and installation
+- Last validated workflow: Godot Project Validation run `#232`
 - Activity marker: `ACTIVITY_MANAGER_TEST: PASS`
 - Campaign marker: `CAMPAIGN_STATE_TEST: PASS`
 - Save marker: `SAVE_MANAGER_TEST: PASS`
 - Save runtime marker: `SAVE_RUNTIME_INTEGRATION_TEST: PASS`
 - Conditions/effects marker: `CONDITIONS_EFFECTS_TEST: PASS`
+- App catalog marker: `APP_CATALOG_TEST: PASS`
 - Runtime marker: `COMBAT_RUNTIME_TEST: PASS`
 - Layout marker: `COMBAT_LAYOUT_TEST: PASS`
 
 ## Current system
 
-- Roadmap phase: **Phase 5 — App catalog and unlocking**
-- Status: Phase 4 is complete and validated. Conditions compose recursively through `ALL`, `ANY` and `NONE`; generic effect bundles mutate only authoritative state; legacy ConditionData consumers and Resources are migrated; reusable interface copy resolves through GlobalTextCatalog.
-- Architectural objective: remove the fixed app list from `main.tscn` and make the Dock a live projection of immutable catalog content plus `CampaignState.installed_app_ids`.
+- Roadmap phase: **Phase 6 — StoryEventManager**
+- Status: Phase 5 is complete and validated. App definitions are ordered by an immutable AppCatalog; installations belong to CampaignState; AppInstallationManager applies conditions, effects and notifications; the Dock projects installed IDs live.
+- Architectural objective: connect time, flags, Browser, Social, Navigator, dialogue and combat through queued, resumable StoryEvent Resources without direct app coupling.
 
 ## Next exact task
 
-Begin Phase 5 in this order:
+Begin Phase 6 in this order:
 
-1. Inventory the fixed app list in `core/main.tscn`, `KubuBottomDock` and every AppResource.
-2. Create `AppCatalog` and `kubu_os_app_catalog.tres` as the immutable ordered source of apps.
-3. Add `installed_by_default`, `unlock_conditions`, `sort_order`, `installation_effects` and `notification_data` to AppResource.
-4. Initialize default installations through campaign creation/migration, never through Dock UI.
-5. Rebuild the Dock from catalog plus `CampaignState.installed_app_ids` and react live to installation signals.
-6. Complete `VS-060`: locked Navigator absent, installation creates one icon, save/load preserves it and only one app instance opens.
+1. Inventory every signal that can make an event eligible: time, campaign flags, location and campaign load.
+2. Create StoryEventData, StoryEventTriggerData, StoryEventStepData and StoryEventCatalog Resources with validation and stable IDs.
+3. Add persisted event queue, active event ID, current step index and completion/repeat state to CampaignState.
+4. Create StoryEventManager as a single queued executor that emits presentation intents instead of resolving Node paths.
+5. Implement the initial step families listed in Roadmap §12 and resume only from stable step boundaries.
+6. Complete `VS-070`: one real StoryEvent Resource queues from a trigger, advances, saves and resumes without duplicating completed steps.
+
+## Phase 5 app catalog checkpoint
+
+- `AppCatalog` is the single ordered immutable app list and is embedded into GameContentCatalog instead of duplicating its array.
+- AppResource owns default-install, unlock Conditions, sort order, installation Effects and notification content; installed state remains ID-only in CampaignState.
+- `AppInstallationManager` validates unlocks, keeps repeated installation idempotent, applies configured Effects and publishes KubuOS notifications.
+- Browser is installed by default during campaign creation/load; Navigator remains absent until an UnlockAppEffectData succeeds.
+- `KubuBottomDock` incrementally synchronizes catalog order against installed IDs, so live unlock does not rebuild existing icons.
+- WindowManager and WorkspaceManager retain their existing singleton behavior for WINDOW and WORKSPACE apps.
+- `VS-060` proves locked absence, live Navigator installation, ordered Dock icons, Effects, notification, save/load and singleton Browser/Navigator instances.
 
 ## Phase 4 conditions/effects checkpoint
 
@@ -97,7 +108,7 @@ Begin Phase 5 in this order:
 - Navigator `DIALOGUE` mode has no dialogue player.
 - Combat resolution does not yet apply persistent campaign rewards.
 - The player combat loadout still comes from `CombatEncounter`, not a persistent partner.
-- The Dock still reads a fixed app array; replacing it is the active Phase 5 task.
+- Story events do not yet coordinate app opening, navigation, dialogue or encounters; this is the active Phase 6 task.
 - Social and Encyclopedia have reserved plain state sections, but their typed domain models belong to Phases 12 and 13.
 - No occupation provider is registered yet; only its stable ActivityManager contract exists.
 - No current content uses `allow_cross_day`; the behavior is covered by preview tests for future events.
@@ -114,6 +125,7 @@ godot --headless --path . core/bootstrap/bootstrap.tscn --quit-after 2
 godot --headless --path . tests/campaign/campaign_state_test.tscn
 godot --headless --path . tests/activity/activity_manager_test.tscn
 godot --headless --path . tests/conditions/conditions_effects_test.tscn
+godot --headless --path . tests/apps/app_catalog_test.tscn
 godot --headless --path . tests/save/save_manager_test.tscn
 godot --headless --path . tests/save/save_runtime_integration_test.tscn
 godot --headless --path . tests/combat/combat_runtime_test.tscn

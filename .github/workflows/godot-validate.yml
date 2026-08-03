@@ -127,6 +127,17 @@ jobs:
             tests/conditions/conditions_effects_test.tscn \
             2>&1 | tee godot-conditions-effects-test.log
 
+      - name: Run app catalog test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            --quit-after 30 \
+            tests/apps/app_catalog_test.tscn \
+            2>&1 | tee godot-app-catalog-test.log
+
       - name: Run save manager test
         shell: bash
         run: |
@@ -173,6 +184,7 @@ jobs:
             godot-activity-test.log \
             godot-campaign-test.log \
             godot-conditions-effects-test.log \
+            godot-app-catalog-test.log \
             godot-save-test.log \
             godot-save-runtime-test.log \
             godot-combat-layout-test.log \
@@ -215,6 +227,14 @@ jobs:
 
           grep -q "CONDITIONS_EFFECTS_TEST: PASS" godot-conditions-effects-test.log
 
+          if grep -E "APP_CATALOG_TEST: " godot-app-catalog-test.log \
+            | grep -v "APP_CATALOG_TEST: PASS"; then
+            echo "The app catalog test reported an error."
+            exit 1
+          fi
+
+          grep -q "APP_CATALOG_TEST: PASS" godot-app-catalog-test.log
+
           if grep -E "SAVE_MANAGER_TEST: " godot-save-test.log \
             | grep -v "SAVE_MANAGER_TEST: PASS"; then
             echo "The save manager test reported an error."
@@ -251,6 +271,7 @@ jobs:
             godot-activity-test.log
             godot-campaign-test.log
             godot-conditions-effects-test.log
+            godot-app-catalog-test.log
             godot-save-test.log
             godot-save-runtime-test.log
             godot-combat-layout-test.log

@@ -5,14 +5,13 @@ class_name UnlockAppEffectData
 @export var app_id: String = ""
 
 
-func _apply_effect(_context: GameEffectContext) -> bool:
+func _apply_effect(context: GameEffectContext) -> bool:
 	var clean_id: String = app_id.strip_edges()
 
 	if ContentRegistry.get_app(clean_id) == null:
 		return false
 
-	CampaignState.install_app(clean_id)
-	return true
+	return AppInstallationManager.install_app(clean_id, context)
 
 
 func _validate_effect() -> PackedStringArray:

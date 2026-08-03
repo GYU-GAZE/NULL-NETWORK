@@ -1,9 +1,6 @@
 extends Control
 class_name KubuBottomDock
 
-@export_category("Dock Data")
-@export var dock_apps: Array[AppResource] = []
-
 @export_category("Dock Scenes")
 @export var dock_item_scene: PackedScene
 
@@ -23,7 +20,7 @@ var _dock_lock_reason: String = ""
 
 func _ready() -> void:
 	_connect_global_signals()
-	_build_dock()
+	_sync_dock()
 
 
 func _connect_global_signals() -> void:
@@ -42,60 +39,108 @@ func _connect_global_signals() -> void:
 	if not GlobalSignals.dock_lock_changed.is_connected(_on_dock_lock_changed):
 		GlobalSignals.dock_lock_changed.connect(_on_dock_lock_changed)
 
+	if not CampaignState.app_installed.is_connected(_on_app_installed):
+		CampaignState.app_installed.connect(_on_app_installed)
 
-func _build_dock() -> void:
-	_clear_dock()
+	if not CampaignState.campaign_changed.is_connected(_on_campaign_changed):
+		CampaignState.campaign_changed.connect(_on_campaign_changed)
 
+	if not ContentRegistry.registry_rebuilt.is_connected(_on_registry_rebuilt):
+		ContentRegistry.registry_rebuilt.connect(_on_registry_rebuilt)
+
+
+func _sync_dock() -> void:
 	if dock_item_scene == null:
 		push_error("KubuBottomDock: dock_item_scene is not configured.")
 		return
 
-	for index in range(dock_apps.size()):
-		var app: AppResource = dock_apps[index]
+	var catalog: AppCatalog = ContentRegistry.get_app_catalog()
 
-		if app == null:
-			push_warning(
-				"KubuBottomDock: null AppResource at index %d."
-				% index
-			)
+	if catalog == null:
+		push_error("KubuBottomDock: AppCatalog is not configured.")
+		return
+
+	var desired_apps: Array[AppResource] = []
+	var desired_ids: Dictionary = {}
+
+	for app: AppResource in catalog.get_ordered_apps():
+		var app_id: String = app.app_id.strip_edges()
+
+		if not app.show_in_dock or not CampaignState.has_installed_app(app_id):
 			continue
 
-		if not app.show_in_dock:
-			continue
+		desired_apps.append(app)
+		desired_ids[app_id] = true
 
-		if app.app_id.strip_edges().is_empty():
-			push_warning(
-				"KubuBottomDock: app '%s' has an empty app_id."
-				% app.app_name
-			)
-			continue
+	for raw_app_id: Variant in _items_by_app_id.keys():
+		var existing_id: String = str(raw_app_id)
 
-		var item: KubuDockItem = (
-			dock_item_scene.instantiate()
-			as KubuDockItem
-		)
+		if not desired_ids.has(existing_id):
+			_remove_item(existing_id)
+
+	for index: int in range(desired_apps.size()):
+		var app: AppResource = desired_apps[index]
+		var app_id: String = app.app_id.strip_edges()
+		var item: KubuDockItem = _get_item(app_id)
 
 		if item == null:
-			push_error(
-				"KubuBottomDock: dock_item_scene did not instantiate KubuDockItem."
-			)
-			return
+			item = _create_item(app, index)
 
-		app_container.add_child(item)
-		item.setup(app)
-		item.activated.connect(_on_item_activated)
-
-		_items_by_app_id[app.app_id] = item
-
-		item.set_locked(_dock_locked)
-		_play_item_spawn_animation(item, index)
+		if item != null and item.get_index() != index:
+			app_container.move_child(item, index)
 
 
-func _clear_dock() -> void:
-	_items_by_app_id.clear()
+func _create_item(app: AppResource, index: int) -> KubuDockItem:
+	var item := dock_item_scene.instantiate() as KubuDockItem
 
-	for child in app_container.get_children():
-		child.queue_free()
+	if item == null:
+		push_error(
+			"KubuBottomDock: dock_item_scene did not instantiate KubuDockItem."
+		)
+		return null
+
+	app_container.add_child(item)
+	item.setup(app)
+	item.activated.connect(_on_item_activated)
+	_items_by_app_id[app.app_id.strip_edges()] = item
+	item.set_locked(_dock_locked)
+	item.set_running(
+		_focused_app_id == app.app_id
+		or _active_workspace_id == app.app_id
+	)
+	item.set_focused(
+		_focused_app_id == app.app_id
+		or _active_workspace_id == app.app_id
+	)
+	_play_item_spawn_animation(item, index)
+	return item
+
+
+func _remove_item(app_id: String) -> void:
+	var item: KubuDockItem = _get_item(app_id)
+
+	if item == null:
+		return
+
+	_items_by_app_id.erase(app_id)
+	app_container.remove_child(item)
+	item.queue_free()
+
+
+func get_visible_app_ids() -> PackedStringArray:
+	var result := PackedStringArray()
+
+	for child: Node in app_container.get_children():
+		var item := child as KubuDockItem
+
+		if item != null and item.app_data != null:
+			result.append(item.app_data.app_id.strip_edges())
+
+	return result
+
+
+func has_app_item(app_id: String) -> bool:
+	return _items_by_app_id.has(app_id.strip_edges())
 
 
 func _on_item_activated(app: AppResource) -> void:
@@ -168,6 +213,19 @@ func _on_dock_lock_changed(
 	reason: String
 ) -> void:
 	set_locked(locked, reason)
+
+
+func _on_app_installed(_app_id: String) -> void:
+	_sync_dock()
+
+
+func _on_campaign_changed(section: StringName) -> void:
+	if section in [&"campaign", &"installed_apps"]:
+		_sync_dock()
+
+
+func _on_registry_rebuilt() -> void:
+	_sync_dock()
 
 
 func set_locked(
