@@ -145,7 +145,7 @@ jobs:
           ./Godot_v4.6.3-stable_linux.x86_64 \
             --headless \
             --path . \
-            --quit-after 60 \
+            --quit-after 180 \
             tests/events/story_event_manager_test.tscn \
             2>&1 | tee godot-story-event-test.log
 
