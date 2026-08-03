@@ -7,6 +7,7 @@ signal campaign_changed(section: StringName)
 signal app_installed(app_id: String)
 signal location_changed(location_id: String)
 signal story_event_state_changed(event_id: String, step_index: int)
+signal partner_changed(apk_id: String)
 
 
 enum CampaignPhase {
@@ -24,7 +25,7 @@ enum SaveMode {
 	COMMIT
 }
 
-const STATE_SCHEMA_VERSION: int = 3
+const STATE_SCHEMA_VERSION: int = 4
 const MIN_SUPPORTED_STATE_SCHEMA_VERSION: int = 1
 const SOCIAL_AFFINITY_KEY: String = "affinity_by_npc"
 
@@ -33,7 +34,24 @@ var campaign_phase: CampaignPhase = CampaignPhase.NO_CAMPAIGN
 var save_mode: SaveMode = SaveMode.UNSET
 
 var operator: OperatorStateData = OperatorStateData.new()
-var partner_id: String = ""
+var partner: PartnerStateData = PartnerStateData.new()
+var partner_id: String:
+	get:
+		return partner.apk_id
+	set(value):
+		var clean_id: String = value.strip_edges()
+
+		if clean_id.is_empty():
+			partner = PartnerStateData.new()
+		else:
+			var migrated_partner: PartnerStateData = (
+				APKProgressionService.create_partner_state(clean_id)
+			)
+			partner = (
+				migrated_partner
+				if migrated_partner != null
+				else PartnerStateData.new()
+			)
 var tendencies: TendencyStateData = TendencyStateData.new()
 var money: int = 0
 var inventory: InventoryStateData = InventoryStateData.new()
@@ -85,7 +103,7 @@ func reset_campaign(emit_signal: bool = true) -> void:
 	campaign_phase = CampaignPhase.NO_CAMPAIGN
 	save_mode = SaveMode.UNSET
 	operator = OperatorStateData.new()
-	partner_id = ""
+	partner = PartnerStateData.new()
 	tendencies = TendencyStateData.new()
 	money = 0
 	inventory = InventoryStateData.new()
@@ -244,8 +262,45 @@ func modify_affinity(npc_id: String, amount: int) -> int:
 	return set_affinity(npc_id, get_affinity(npc_id) + amount)
 
 
-func learn_module(module_id: String) -> bool:
-	return _add_unique_id(known_module_ids, module_id, &"known_modules")
+func learn_module(module_id: String, teach_current_partner: bool = true) -> bool:
+	var learned: bool = _add_unique_id(known_module_ids, module_id, &"known_modules")
+	var clean_id: String = module_id.strip_edges()
+
+	if teach_current_partner \
+		and not partner.is_empty() \
+		and not clean_id.is_empty() \
+		and not partner.known_active_module_ids.has(clean_id):
+		partner.known_active_module_ids.append(clean_id)
+		notify_partner_changed()
+
+	return learned
+
+
+func set_partner_state(new_partner: PartnerStateData) -> bool:
+	if new_partner == null or new_partner.is_empty():
+		return false
+
+	var apk: APKData = ContentRegistry.get_apk(new_partner.apk_id)
+
+	if apk == null \
+		or not APKProgressionService.validate_partner_state(new_partner).is_empty():
+		return false
+
+	partner = new_partner.duplicate_state()
+	notify_partner_changed()
+	return true
+
+
+func clear_partner() -> void:
+	var previous_id: String = partner.apk_id
+	partner = PartnerStateData.new()
+	campaign_changed.emit(&"partner")
+	partner_changed.emit(previous_id)
+
+
+func notify_partner_changed() -> void:
+	campaign_changed.emit(&"partner")
+	partner_changed.emit(partner.apk_id)
 
 
 func install_app(app_id: String) -> bool:
@@ -466,7 +521,7 @@ func export_save_data() -> Dictionary:
 		"campaign_phase": int(campaign_phase),
 		"save_mode": int(save_mode),
 		"operator": operator.to_save_data(),
-		"partner_id": partner_id,
+		"partner": {} if partner.is_empty() else partner.to_save_data(),
 		"tendencies": tendencies.to_save_data(),
 		"money": money,
 		"inventory": inventory.to_save_data(),
@@ -509,7 +564,12 @@ func restore_save_data(data: Dictionary) -> PackedStringArray:
 	campaign_phase = int(data.get("campaign_phase", CampaignPhase.NO_CAMPAIGN))
 	save_mode = int(data.get("save_mode", SaveMode.UNSET))
 	operator.load_save_data(_read_dictionary(data.get("operator", {})))
-	partner_id = str(data.get("partner_id", "")).strip_edges()
+	var saved_partner: Variant = data.get("partner", {})
+
+	if saved_partner is Dictionary and not (saved_partner as Dictionary).is_empty():
+		partner.load_save_data(saved_partner as Dictionary)
+	else:
+		partner_id = str(data.get("partner_id", "")).strip_edges()
 	tendencies.load_save_data(_read_dictionary(data.get("tendencies", {})))
 	money = maxi(0, int(data.get("money", 0)))
 	inventory.load_save_data(_read_dictionary(data.get("inventory", {})))
@@ -586,6 +646,17 @@ func validate_save_data(data: Dictionary) -> PackedStringArray:
 
 	if restored_phase != CampaignPhase.NO_CAMPAIGN and restored_id.is_empty():
 		errors.append("An active campaign requires a campaign_id.")
+
+	var saved_partner: Variant = data.get("partner", {})
+
+	if version >= 4 and saved_partner is not Dictionary:
+		errors.append("CampaignState partner must be a dictionary.")
+	elif saved_partner is Dictionary and not (saved_partner as Dictionary).is_empty():
+		var restored_partner := PartnerStateData.new()
+		restored_partner.load_save_data(saved_partner as Dictionary)
+		errors.append_array(
+			APKProgressionService.validate_partner_state(restored_partner)
+		)
 
 	var queued_events: PackedStringArray = _read_id_array(
 		data.get("queued_story_event_ids", [])

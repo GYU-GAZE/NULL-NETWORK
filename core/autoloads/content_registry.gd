@@ -94,16 +94,16 @@ func get_all(category: StringName) -> Array[Resource]:
 	return result
 
 
-func get_apk(apk_id: String) -> Resource:
-	return resolve(CATEGORY_APKS, apk_id)
+func get_apk(apk_id: String) -> APKData:
+	return resolve(CATEGORY_APKS, apk_id) as APKData
 
 
 func get_module(module_id: String) -> ModuleData:
 	return resolve(CATEGORY_MODULES, module_id) as ModuleData
 
 
-func get_item(item_id: String) -> Resource:
-	return resolve(CATEGORY_ITEMS, item_id)
+func get_item(item_id: String) -> ItemData:
+	return resolve(CATEGORY_ITEMS, item_id) as ItemData
 
 
 func get_combat_encounter(encounter_id: String) -> CombatEncounter:
@@ -268,6 +268,32 @@ func _build_indexes(new_catalog: GameContentCatalog) -> Dictionary:
 				"Occupation '%s' references unknown starting location '%s'."
 				% [occupation.get_display_id(), starting_location_id]
 			)
+
+	var module_index: Dictionary = proposed_indexes.get(CATEGORY_MODULES, {})
+
+	for apk: APKData in new_catalog.apks:
+		if apk == null:
+			continue
+
+		var referenced_module_ids := PackedStringArray()
+
+		for module: ModuleData in apk.default_active_modules:
+			if module != null:
+				referenced_module_ids.append(str(module.module_id))
+
+		if apk.signature_passive != null:
+			referenced_module_ids.append(str(apk.signature_passive.module_id))
+
+		for reward: APKLevelRewardData in apk.learnable_modules:
+			if reward != null:
+				referenced_module_ids.append_array(reward.active_module_ids)
+
+		for module_id: String in referenced_module_ids:
+			if not module_index.has(module_id):
+				errors.append(
+					"APK '%s' references unknown Module '%s'."
+					% [apk.apk_id, module_id]
+				)
 
 	return {
 		"errors": errors,

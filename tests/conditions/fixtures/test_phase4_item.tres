@@ -5,3 +5,4 @@
 [resource]
 script = ExtResource("1_item")
 item_id = "test_phase4_item"
+display_name = "Phase 4 Test Item"

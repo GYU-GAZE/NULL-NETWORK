@@ -50,6 +50,7 @@ var _next_dynamic_action_id: int = 1
 var _is_executing_cycle: bool = false
 var _session_activity_transaction_id: String = ""
 var _session_activity_id: String = ""
+var _partner_state_committed: bool = false
 
 
 func load_encounter(
@@ -88,6 +89,11 @@ func load_encounter(
 		false
 	)
 
+	if _get_player_actor() == null:
+		push_error("CombatManager: encounter has no available player actor.")
+		reset_encounter()
+		return false
+
 	_dispatch_event(
 		_make_context(
 			CombatConstants.TriggerTiming.ENCOUNTER_START
@@ -115,6 +121,7 @@ func reset_encounter() -> void:
 	_is_executing_cycle = false
 	_session_activity_transaction_id = ""
 	_session_activity_id = ""
+	_partner_state_committed = false
 
 
 func is_encounter_active() -> bool:
@@ -249,6 +256,33 @@ func validate_save_data(data: Dictionary) -> PackedStringArray:
 
 func get_player_actor() -> Variant:
 	return _get_player_actor()
+
+
+func commit_player_partner_state(experience_gain: int = 0) -> PackedStringArray:
+	var errors := PackedStringArray()
+
+	if _partner_state_committed:
+		return errors
+
+	var player: Variant = _get_player_actor()
+
+	if player is not Dictionary:
+		errors.append("Combat has no player actor to commit.")
+		return errors
+
+	if int(player.get("source_kind", -1)) != CombatSlotData.ParticipantSource.PLAYER_PARTNER:
+		_partner_state_committed = true
+		return errors
+
+	errors = APKProgressionService.commit_combat_snapshot(
+		player as Dictionary,
+		experience_gain
+	)
+
+	if errors.is_empty():
+		_partner_state_committed = true
+
+	return errors
 
 
 func rebuild_timeline() -> void:
@@ -994,11 +1028,29 @@ func _load_team_from_slots(
 			0,
 			TEAM_SIZE - 1
 		)
+		var loadout: CharacterLoadout = _resolve_slot_loadout(slot_data)
+
+		if loadout == null:
+			continue
+
 		target_team[index] = _create_combatant(
-			slot_data.character,
+			loadout,
 			is_ally,
-			is_ally and index == 0
+			is_ally and index == 0,
+			slot_data.participant_source
 		)
+
+
+func _resolve_slot_loadout(slot_data: CombatSlotData) -> CharacterLoadout:
+	match slot_data.participant_source:
+		CombatSlotData.ParticipantSource.FIXED_LOADOUT:
+			return slot_data.character
+		CombatSlotData.ParticipantSource.PLAYER_PARTNER:
+			return APKProgressionService.create_combat_snapshot()
+		CombatSlotData.ParticipantSource.PARTY_MEMBER:
+			return null
+
+	return null
 
 
 func _initialize_runtime_slots() -> void:
@@ -1056,20 +1108,22 @@ func _normalize_action_slot_order() -> void:
 func _create_combatant(
 	data: CharacterLoadout,
 	is_ally: bool,
-	is_player: bool = false
+	is_player: bool = false,
+	source_kind: CombatSlotData.ParticipantSource = CombatSlotData.ParticipantSource.FIXED_LOADOUT
 ) -> Dictionary:
 	var modules: Array = data.equipped_modules.duplicate()
 	modules.resize(TEAM_SIZE)
 	var actor := {
 		"uid": _consume_uid(),
 		"character_id": data.character_id,
+		"source_kind": int(source_kind),
 		"name": data.char_name,
 		"icon": data.combat_icon,
 		"level": data.level,
 		"type": data.apk_type,
-		"hp": float(data.max_hp),
+		"hp": float(data.starting_hp if data.starting_hp >= 0 else data.max_hp),
 		"max_hp": float(data.max_hp),
-		"stability": float(data.max_stability),
+		"stability": float(data.starting_stability if data.starting_stability >= 0 else data.max_stability),
 		"max_stability": float(data.max_stability),
 		"stability_recovery": float(
 			data.stability_recovery
@@ -3611,6 +3665,7 @@ func _serialize_actor(actor: Dictionary) -> Dictionary:
 	return {
 		"uid": int(actor.get("uid", -1)),
 		"character_id": str(actor.get("character_id", "")),
+		"source_kind": int(actor.get("source_kind", CombatSlotData.ParticipantSource.FIXED_LOADOUT)),
 		"name": str(actor.get("name", "Entity")),
 		"level": int(actor.get("level", 1)),
 		"type": int(actor.get("type", 0)),
@@ -3644,12 +3699,13 @@ func _serialize_actor(actor: Dictionary) -> Dictionary:
 func _deserialize_actor(data: Dictionary) -> Dictionary:
 	var is_dummy: bool = bool(data.get("is_dummy", false))
 	var character_id: String = str(data.get("character_id", ""))
+	var source_kind: int = int(data.get("source_kind", CombatSlotData.ParticipantSource.FIXED_LOADOUT))
 	var dummy: DummyData = null
 	var loadout: CharacterLoadout = null
 
 	if is_dummy:
 		dummy = ContentRegistry.get_dummy(str(data.get("dummy_id", character_id)))
-	else:
+	elif source_kind == CombatSlotData.ParticipantSource.FIXED_LOADOUT:
 		loadout = ContentRegistry.get_character_loadout(character_id)
 
 	var modules: Array = []
@@ -3675,12 +3731,18 @@ func _deserialize_actor(data: Dictionary) -> Dictionary:
 
 	if dummy != null:
 		actor_icon = dummy.combat_icon
+	elif source_kind == CombatSlotData.ParticipantSource.PLAYER_PARTNER:
+		var apk: APKData = ContentRegistry.get_apk(character_id)
+
+		if apk != null:
+			actor_icon = apk.combat_icon
 	elif loadout != null:
 		actor_icon = loadout.combat_icon
 
 	return {
 		"uid": int(data.get("uid", -1)),
 		"character_id": character_id,
+		"source_kind": source_kind,
 		"name": str(data.get("name", "Entity")),
 		"icon": actor_icon,
 		"level": int(data.get("level", 1)),

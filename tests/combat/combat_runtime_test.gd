@@ -30,6 +30,7 @@ func _ready() -> void:
 
 
 func _run() -> void:
+	_prepare_partner_fixture(50)
 	var encounter := load(
 		"res://data/content/combat/1v1.tres"
 	) as CombatEncounter
@@ -48,6 +49,32 @@ func _run() -> void:
 	_test_status_and_cycle_trigger(encounter)
 	_test_combat_resolution(encounter)
 	_finish()
+
+
+func _prepare_partner_fixture(level: int) -> void:
+	CampaignState.reset_campaign(false)
+	CampaignState.create_campaign(
+		"combat_runtime_fixture",
+		CampaignState.SaveMode.SAFE,
+		CampaignState.CampaignPhase.MAIN_CAMPAIGN
+	)
+	var partner: PartnerStateData = APKProgressionService.create_partner_state(
+		"novire_init",
+		"Runtime NOVIRE",
+		1,
+		2
+	)
+
+	if partner == null:
+		_failures.append("Could not create the combat runtime partner fixture.")
+		return
+
+	partner.level = clampi(level, 1, 100)
+	partner.current_exp = APKProgressionService.get_total_exp_for_level(partner.level)
+	partner.allocation_points = maxi(0, partner.level - 1)
+	var stats: Dictionary = APKProgressionService.calculate_partner_stats(partner)
+	partner.current_hp = int(stats.get("max_hp", 1))
+	CampaignState.set_partner_state(partner)
 
 
 func _validate_content(
@@ -730,6 +757,8 @@ func _check(
 
 
 func _finish() -> void:
+	CombatManager.reset_encounter()
+	CampaignState.reset_campaign()
 	if _failures.is_empty():
 		print("COMBAT_RUNTIME_TEST: PASS")
 		get_tree().quit(0)

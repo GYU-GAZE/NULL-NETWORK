@@ -22,6 +22,16 @@ func _run_test() -> void:
 		"Runtime Restore"
 	)
 	_check(errors.is_empty(), "Could not create runtime campaign: %s" % errors)
+	var partner: PartnerStateData = APKProgressionService.create_partner_state(
+		"novire_init",
+		"Persistent NOVIRE",
+		0,
+		2
+	)
+	_check(
+		partner != null and CampaignState.set_partner_state(partner),
+		"Could not create the runtime persistence partner fixture."
+	)
 	_check(
 		AppInstallationManager.install_app("navigator", null, false),
 		"Could not install Navigator for the runtime persistence fixture."
