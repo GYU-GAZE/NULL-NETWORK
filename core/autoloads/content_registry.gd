@@ -151,8 +151,18 @@ func get_dialogue(dialogue_id: String) -> Resource:
 	return resolve(CATEGORY_DIALOGUES, dialogue_id)
 
 
-func get_story_event(story_event_id: String) -> Resource:
-	return resolve(CATEGORY_STORY_EVENTS, story_event_id)
+func get_story_event(story_event_id: String) -> StoryEventData:
+	return resolve(
+		CATEGORY_STORY_EVENTS,
+		story_event_id
+	) as StoryEventData
+
+
+func get_story_event_catalog() -> StoryEventCatalog:
+	if catalog == null:
+		return null
+
+	return catalog.story_event_catalog
 
 
 func get_lead(lead_id: String) -> Resource:
