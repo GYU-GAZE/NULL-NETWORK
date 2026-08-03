@@ -43,7 +43,11 @@ func get_confirmation_message() -> String:
 	if not clean_description.is_empty():
 		return clean_description
 
-	return "Begin %s?" % get_display_name()
+	return GlobalTextCatalog.get_default_text(
+		GlobalTextCatalog.TextCategory.CONFIRMATIONS,
+		"activity.begin",
+		"Begin %s?"
+	) % get_display_name()
 
 
 func get_insufficient_time_message(
@@ -57,12 +61,12 @@ func get_insufficient_time_message(
 	if not clean_message.is_empty():
 		return clean_message
 
-	return (
+	return GlobalTextCatalog.get_default_text(
+		GlobalTextCatalog.TextCategory.ERRORS,
+		"activity.insufficient_time",
 		"Not enough time remaining. Required: %d blocks. "
-		% required_blocks
 		+ "Available: %d blocks."
-		% available_blocks
-	)
+	) % [required_blocks, available_blocks]
 
 
 func validate_data() -> PackedStringArray:

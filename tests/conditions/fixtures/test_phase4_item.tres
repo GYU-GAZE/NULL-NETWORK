@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/conditions/fixtures/test_item_data.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+item_id = "test_phase4_item"

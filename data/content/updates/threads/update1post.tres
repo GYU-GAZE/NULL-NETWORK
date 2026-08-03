@@ -1,6 +1,5 @@
 [gd_resource type="Resource" script_class="ForumPost" format=3 uid="uid://bpq7yx8q1did3"]
 
-[ext_resource type="Script" uid="uid://cgcematgxdayk" path="res://data/templates/condition_data.gd" id="1_o3tb8"]
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_pmg47"]
 [ext_resource type="Script" uid="uid://dtfyctp720emx" path="res://data/templates/network_user_data.gd" id="1_r0jvr"]
 [ext_resource type="Script" uid="uid://blxdqibocgs5x" path="res://data/templates/forum_post.gd" id="2_r0jvr"]

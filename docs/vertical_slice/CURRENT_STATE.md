@@ -13,32 +13,45 @@
 ## Stable baseline
 
 - Base branch: `main`
-- Last audited stable commit before the current change: `1b253c17a76b8adb8d271b43f4606b94cbd51244`
-- Last completed system: Phase 3 campaign boot and full runtime reconstruction
-- Last validated workflow: Godot Project Validation run `#224`
+- Last audited stable commit before the current change: `157adcf86fc8d6d2e93adfb30cccdebf75d09f34`
+- Last completed system: Phase 4 global Conditions, Effects and UI text catalog
+- Last validated workflow: Godot Project Validation run `#229`
 - Activity marker: `ACTIVITY_MANAGER_TEST: PASS`
 - Campaign marker: `CAMPAIGN_STATE_TEST: PASS`
 - Save marker: `SAVE_MANAGER_TEST: PASS`
 - Save runtime marker: `SAVE_RUNTIME_INTEGRATION_TEST: PASS`
+- Conditions/effects marker: `CONDITIONS_EFFECTS_TEST: PASS`
 - Runtime marker: `COMBAT_RUNTIME_TEST: PASS`
 - Layout marker: `COMBAT_LAYOUT_TEST: PASS`
 
 ## Current system
 
-- Roadmap phase: **Phase 4 — Conditions, Effects and global texts**
-- Status: Phase 3 is complete and validated. Startup requires campaign selection, SAFE and COMMIT enforce different player-facing policies over the same schema, scene-owned providers survive a full desktop rebuild, and CombatSession restores only at stable between-cycle boundaries.
-- Architectural objective: replace legacy monolithic conditions/effects with composable Resources while preserving every migrated `.tres` and centralizing reusable interface text.
+- Roadmap phase: **Phase 5 — App catalog and unlocking**
+- Status: Phase 4 is complete and validated. Conditions compose recursively through `ALL`, `ANY` and `NONE`; generic effect bundles mutate only authoritative state; legacy ConditionData consumers and Resources are migrated; reusable interface copy resolves through GlobalTextCatalog.
+- Architectural objective: remove the fixed app list from `main.tscn` and make the Dock a live projection of immutable catalog content plus `CampaignState.installed_app_ids`.
 
 ## Next exact task
 
-Begin Phase 4 in this order:
+Begin Phase 5 in this order:
 
-1. Inventory every existing `ConditionData` and `EffectData` consumer and every `.tres` that embeds them.
-2. Create `ConditionRuleData` and `ConditionSetData` with deterministic `ALL`, `ANY` and `NONE` composition.
-3. Implement flag, time, location, tendency, affinity, partner and occupation rules against authoritative managers/state.
-4. Create the typed `GameEffectData` context and effect subclasses from the roadmap.
-5. Migrate all existing Resources and remove duplicated legacy fields only after equivalence tests pass.
-6. Add `GlobalTextCatalog` and complete `VS-050` without putting content rules in UI code.
+1. Inventory the fixed app list in `core/main.tscn`, `KubuBottomDock` and every AppResource.
+2. Create `AppCatalog` and `kubu_os_app_catalog.tres` as the immutable ordered source of apps.
+3. Add `installed_by_default`, `unlock_conditions`, `sort_order`, `installation_effects` and `notification_data` to AppResource.
+4. Initialize default installations through campaign creation/migration, never through Dock UI.
+5. Rebuild the Dock from catalog plus `CampaignState.installed_app_ids` and react live to installation signals.
+6. Complete `VS-060`: locked Navigator absent, installation creates one icon, save/load preserves it and only one app instance opens.
+
+## Phase 4 conditions/effects checkpoint
+
+- `ConditionRuleData` is the fail-closed base contract; `ConditionSetData` recursively composes `ALL`, `ANY` and `NONE` and detects cycles.
+- Flag, time, location, tendency, affinity, partner and occupation rules query authoritative managers/state and accept stable context IDs where needed.
+- `GameEffectContext` carries `source_id`, `target_id`, `location_id`, `activity_transaction_id` and `event_id` without runtime Nodes or Resources.
+- `ConditionalEffectBundleData` lets any content Resource own conditions and an ordered effect list without UI-specific branches.
+- Effects cover flags, numbers, tendencies, apps, locations, items, Modules, Leads and affinity; registered content IDs resolve through `ContentRegistry`.
+- `CampaignState` exposes stable mutation APIs for tendency, inventory and affinity, with affinity stored inside the already persisted Social section.
+- `ForumPost`, `ThreadButtonData` and `CombatSlotData` now consume `ConditionSetData`; all stale `.tres` references and the legacy `condition_data.gd` were removed.
+- `GlobalTextCatalog` separates reusable UI text by buttons, labels, errors, confirmations, menus, generic messages and tab names; narrative text remains in narrative Resources.
+- `VS-050` loads one composed `.tres`, evaluates every rule family, applies every effect family and round-trips the resulting campaign state.
 
 ## Phase 3 core persistence checkpoint
 
@@ -84,12 +97,12 @@ Begin Phase 4 in this order:
 - Navigator `DIALOGUE` mode has no dialogue player.
 - Combat resolution does not yet apply persistent campaign rewards.
 - The player combat loadout still comes from `CombatEncounter`, not a persistent partner.
-- Dynamic app installation does not exist yet; it belongs to Phase 5.
+- The Dock still reads a fixed app array; replacing it is the active Phase 5 task.
 - Social and Encyclopedia have reserved plain state sections, but their typed domain models belong to Phases 12 and 13.
 - No occupation provider is registered yet; only its stable ActivityManager contract exists.
 - No current content uses `allow_cross_day`; the behavior is covered by preview tests for future events.
 
-These are planned in later roadmap phases and must not be solved inside Phase 1.
+These are planned in their listed roadmap phases and must not be pulled forward into unrelated changes.
 
 ## Validation commands
 
@@ -100,6 +113,7 @@ godot --headless --path . --editor --quit
 godot --headless --path . core/bootstrap/bootstrap.tscn --quit-after 2
 godot --headless --path . tests/campaign/campaign_state_test.tscn
 godot --headless --path . tests/activity/activity_manager_test.tscn
+godot --headless --path . tests/conditions/conditions_effects_test.tscn
 godot --headless --path . tests/save/save_manager_test.tscn
 godot --headless --path . tests/save/save_runtime_integration_test.tscn
 godot --headless --path . tests/combat/combat_runtime_test.tscn

@@ -1,0 +1,142 @@
+[gd_resource type="Resource" script_class="ConditionalEffectBundleData" load_steps=42 format=3]
+
+[ext_resource type="Script" path="res://data/templates/effects/conditional_effect_bundle_data.gd" id="1_bundle"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_rule_data.gd" id="2_rule"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_set_data.gd" id="3_set"]
+[ext_resource type="Script" path="res://data/templates/conditions/time_condition_data.gd" id="4_time"]
+[ext_resource type="Script" path="res://data/templates/conditions/flag_condition_data.gd" id="5_flag"]
+[ext_resource type="Script" path="res://data/templates/conditions/tendency_condition_data.gd" id="6_tendency"]
+[ext_resource type="Script" path="res://data/templates/conditions/location_condition_data.gd" id="7_location"]
+[ext_resource type="Script" path="res://data/templates/conditions/affinity_condition_data.gd" id="8_affinity"]
+[ext_resource type="Script" path="res://data/templates/conditions/partner_condition_data.gd" id="9_partner"]
+[ext_resource type="Script" path="res://data/templates/conditions/occupation_condition_data.gd" id="10_occupation"]
+[ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="11_effect"]
+[ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="12_set_flag"]
+[ext_resource type="Script" path="res://data/templates/effects/modify_number_effect_data.gd" id="13_modify_number"]
+[ext_resource type="Script" path="res://data/templates/effects/modify_tendency_effect_data.gd" id="14_modify_tendency"]
+[ext_resource type="Script" path="res://data/templates/effects/unlock_app_effect_data.gd" id="15_unlock_app"]
+[ext_resource type="Script" path="res://data/templates/effects/discover_location_effect_data.gd" id="16_discover_location"]
+[ext_resource type="Script" path="res://data/templates/effects/grant_item_effect_data.gd" id="17_grant_item"]
+[ext_resource type="Script" path="res://data/templates/effects/grant_module_effect_data.gd" id="18_grant_module"]
+[ext_resource type="Script" path="res://data/templates/effects/add_lead_effect_data.gd" id="19_add_lead"]
+[ext_resource type="Script" path="res://data/templates/effects/modify_affinity_effect_data.gd" id="20_modify_affinity"]
+
+[sub_resource type="Resource" id="Time_gate"]
+script = ExtResource("4_time")
+min_day = 3
+max_day = 3
+required_period = 2
+min_action_block = 2
+max_action_block = 4
+
+[sub_resource type="Resource" id="Flag_ready"]
+script = ExtResource("5_flag")
+flag_name = "phase4.ready"
+expected_value = true
+
+[sub_resource type="Resource" id="Tendency_logic"]
+script = ExtResource("6_tendency")
+tendency = 1
+minimum_value = 4
+
+[sub_resource type="Resource" id="Location_current"]
+script = ExtResource("7_location")
+location_id = "akihabara"
+current_location = 1
+discovery = 0
+
+[sub_resource type="Resource" id="Affinity_target"]
+script = ExtResource("8_affinity")
+minimum_value = 2
+
+[sub_resource type="Resource" id="Partner_any"]
+script = ExtResource("9_partner")
+requirement = 0
+
+[sub_resource type="Resource" id="Occupation_match"]
+script = ExtResource("10_occupation")
+requirement = 2
+occupation_id = "test_occupation"
+
+[sub_resource type="Resource" id="Flag_any_false"]
+script = ExtResource("5_flag")
+flag_name = "phase4.alternative"
+expected_value = true
+
+[sub_resource type="Resource" id="Any_gate"]
+script = ExtResource("3_set")
+match_mode = 1
+rules = Array[ExtResource("2_rule")]([SubResource("Flag_any_false"), SubResource("Flag_ready")])
+
+[sub_resource type="Resource" id="Flag_blocked"]
+script = ExtResource("5_flag")
+flag_name = "phase4.blocked"
+expected_value = true
+
+[sub_resource type="Resource" id="None_gate"]
+script = ExtResource("3_set")
+match_mode = 2
+rules = Array[ExtResource("2_rule")]([SubResource("Flag_blocked")])
+
+[sub_resource type="Resource" id="Root_conditions"]
+script = ExtResource("3_set")
+match_mode = 0
+rules = Array[ExtResource("2_rule")]([SubResource("Time_gate"), SubResource("Flag_ready"), SubResource("Tendency_logic"), SubResource("Location_current"), SubResource("Affinity_target"), SubResource("Partner_any"), SubResource("Occupation_match"), SubResource("Any_gate"), SubResource("None_gate")])
+
+[sub_resource type="Resource" id="Effect_set_flag"]
+script = ExtResource("12_set_flag")
+effect_id = "phase4.set_applied_flag"
+flag_name = "phase4.applied"
+value = true
+
+[sub_resource type="Resource" id="Effect_modify_number"]
+script = ExtResource("13_modify_number")
+effect_id = "phase4.modify_counter"
+variable_name = "phase4.counter"
+operation = 0
+value = 2
+
+[sub_resource type="Resource" id="Effect_modify_tendency"]
+script = ExtResource("14_modify_tendency")
+effect_id = "phase4.modify_logic"
+tendency = 1
+operation = 0
+value = 3
+
+[sub_resource type="Resource" id="Effect_unlock_app"]
+script = ExtResource("15_unlock_app")
+effect_id = "phase4.unlock_navigator"
+app_id = "navigator"
+
+[sub_resource type="Resource" id="Effect_discover_location"]
+script = ExtResource("16_discover_location")
+effect_id = "phase4.discover_akihabara"
+location_id = "akihabara"
+
+[sub_resource type="Resource" id="Effect_grant_item"]
+script = ExtResource("17_grant_item")
+effect_id = "phase4.grant_item"
+item_id = "test_phase4_item"
+amount = 2
+
+[sub_resource type="Resource" id="Effect_grant_module"]
+script = ExtResource("18_grant_module")
+effect_id = "phase4.grant_module"
+module_id = "basic_attack"
+
+[sub_resource type="Resource" id="Effect_add_lead"]
+script = ExtResource("19_add_lead")
+effect_id = "phase4.add_lead"
+lead_id = "test_phase4_lead"
+
+[sub_resource type="Resource" id="Effect_modify_affinity"]
+script = ExtResource("20_modify_affinity")
+effect_id = "phase4.modify_affinity"
+operation = 0
+value = 4
+
+[resource]
+script = ExtResource("1_bundle")
+bundle_id = "phase4.gate_bundle"
+conditions = SubResource("Root_conditions")
+effects = Array[ExtResource("11_effect")]([SubResource("Effect_set_flag"), SubResource("Effect_modify_number"), SubResource("Effect_modify_tendency"), SubResource("Effect_unlock_app"), SubResource("Effect_discover_location"), SubResource("Effect_grant_item"), SubResource("Effect_grant_module"), SubResource("Effect_add_lead"), SubResource("Effect_modify_affinity")])

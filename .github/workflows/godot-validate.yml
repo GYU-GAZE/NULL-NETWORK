@@ -116,6 +116,17 @@ jobs:
             tests/campaign/campaign_state_test.tscn \
             2>&1 | tee godot-campaign-test.log
 
+      - name: Run conditions and effects test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            --quit-after 30 \
+            tests/conditions/conditions_effects_test.tscn \
+            2>&1 | tee godot-conditions-effects-test.log
+
       - name: Run save manager test
         shell: bash
         run: |
@@ -161,6 +172,7 @@ jobs:
             godot-combat-test.log \
             godot-activity-test.log \
             godot-campaign-test.log \
+            godot-conditions-effects-test.log \
             godot-save-test.log \
             godot-save-runtime-test.log \
             godot-combat-layout-test.log \
@@ -194,6 +206,14 @@ jobs:
           fi
 
           grep -q "CAMPAIGN_STATE_TEST: PASS" godot-campaign-test.log
+
+          if grep -E "CONDITIONS_EFFECTS_TEST: " godot-conditions-effects-test.log \
+            | grep -v "CONDITIONS_EFFECTS_TEST: PASS"; then
+            echo "The conditions and effects test reported an error."
+            exit 1
+          fi
+
+          grep -q "CONDITIONS_EFFECTS_TEST: PASS" godot-conditions-effects-test.log
 
           if grep -E "SAVE_MANAGER_TEST: " godot-save-test.log \
             | grep -v "SAVE_MANAGER_TEST: PASS"; then
@@ -230,6 +250,7 @@ jobs:
             godot-combat-test.log
             godot-activity-test.log
             godot-campaign-test.log
+            godot-conditions-effects-test.log
             godot-save-test.log
             godot-save-runtime-test.log
             godot-combat-layout-test.log

@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="GlobalTextCatalog" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/text/global_text_catalog.gd" id="1_catalog"]
+
+[resource]
+script = ExtResource("1_catalog")
+buttons = {
+"cancel": "CANCEL",
+"confirm": "CONFIRM"
+}
+labels = {
+"activity.available_today": "Available Today: %d blocks",
+"activity.ends": "Ends: %s",
+"activity.time_cost.plural": "Time Cost: %d blocks",
+"activity.time_cost.singular": "Time Cost: %d block"
+}
+errors = {
+"activity.insufficient_time": "Not enough time remaining. Required: %d blocks. Available: %d blocks."
+}
+confirmations = {
+"activity.begin": "Begin %s?"
+}
+menus = {
+"campaign.commit": "COMMIT MODE",
+"campaign.safe": "SAFE MODE"
+}
+messages = {
+"activity.crosses_day": "This activity ends on Day %d.",
+"activity.crosses_period": "This activity crosses into %s."
+}
+tabs = {
+"browser.history": "History",
+"browser.new_tab": "New Tab"
+}

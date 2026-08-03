@@ -8,7 +8,7 @@ States: `PLANNED`, `READY`, `PASS`, `FAIL`, `BLOCKED`.
 | VS-001 | Baseline | `main@4aa6351` imports in Godot 4.6.3 | Run combat layout test | Editable combat scenes and 2×/1× layout pass | PASS | Godot Project Validation #204 |
 | VS-010 | 0 | Fresh project resume | Read `CURRENT_STATE.md` | Active phase, next file, next behavior and validation command found in under five minutes | READY | Manual gate after merge |
 | VS-011 | 0 | Roadmap docs exist | Search decision IDs and content manifest | Frozen rules and required slice content are traceable | READY | Documentation review |
-| VS-020 | 1 | DAY block 6–11 | Evaluate legacy `ConditionData` with matching range | Condition may match all twelve blocks | PASS | Validation #209 · `ACTIVITY_MANAGER_TEST: PASS` |
+| VS-020 | 1 | DAY block 6–11 | Evaluate `TimeConditionData` with matching range | Condition may match all twelve blocks | PASS | Validation #229 · `ACTIVITY_MANAGER_TEST: PASS` |
 | VS-021 | 1 | DAY block 11, activity cost 2, crossing allowed | Build preview and confirm | Final time is NIGHT block 1; cost applies exactly once | PASS | Validation #209 · `ACTIVITY_MANAGER_TEST: PASS` |
 | VS-022 | 1 | NIGHT block 11, activity cost 2, cross-day denied | Build preview | Activity rejected with required and available blocks | PASS | Validation #209 · `ACTIVITY_MANAGER_TEST: PASS` |
 | VS-023 | 1 | Paid activity preview visible | Cancel confirmation | Time and transaction state remain unchanged | PASS | Validation #209 · `ACTIVITY_MANAGER_TEST: PASS` |
@@ -21,7 +21,7 @@ States: `PLANNED`, `READY`, `PASS`, `FAIL`, `BLOCKED`.
 | VS-039 | 3 | Core providers contain mutated runtime state | Save SAFE and COMMIT campaigns; corrupt the live record; load again | Aggregate round-trip succeeds, SAFE history is visible, COMMIT history is blocked and the technical backup repairs the live record | PASS | Validation #219 · `SAVE_MANAGER_TEST: PASS` |
 | VS-040 | 3 | Browser, Navigator and Combat have runtime state | Open two tabs and a thread, move a window, restore Akihabara, execute one combat cycle, save, destroy the desktop and boot again | Browser tabs/thread, window geometry, area position, Navigator ENCOUNTER mode and typed CombatSession reconstruct from IDs | PASS | Validation #224 · `SAVE_RUNTIME_INTEGRATION_TEST: PASS` |
 | VS-041 | 3 | Previous save exists | Corrupt the official live record after rotating a valid save | Hidden technical backup repairs the official record without exposing rollback in COMMIT | PASS | Validation #224 · `SAVE_MANAGER_TEST: PASS` |
-| VS-050 | 4 | Composite content condition | Evaluate time, flag and tendency rules | ALL/ANY/NONE composition is deterministic | PLANNED | — |
+| VS-050 | 4 | Composed `.tres` with authoritative campaign state and typed effect context | Evaluate time, flag, tendency, location, affinity, partner and occupation through nested ALL/ANY/NONE; execute the configured effects; export/reset/restore campaign | Composition is deterministic; flags, numbers, tendencies, app, location, item, Module, Lead and affinity update without UI code and survive round-trip | PASS | Validation #229 · `CONDITIONS_EFFECTS_TEST: PASS` |
 | VS-060 | 5 | Navigator is locked | Apply installation effect | Dock adds one Navigator icon live and save preserves it | PLANNED | — |
 | VS-070 | 6 | Eligible StoryEvent exists | Advance time or set trigger flag | Event queues and resumes from saved step index | PLANNED | — |
 | VS-080 | 7 | Dialogue with conditional choices | Save at a node and reload | Node effects do not execute twice | PLANNED | — |

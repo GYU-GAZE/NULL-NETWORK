@@ -20,8 +20,8 @@ enum ThreadPeriod {
 @export_category("Post Lifecycle / Timestamp")
 @export var release_day: int = 1
 @export var release_period: ThreadPeriod = ThreadPeriod.DAY
-@export_range(0, 5) var release_action_block: int = 0
-@export var conditions: Array[ConditionData] = []
+@export_range(0, 11) var release_action_block: int = 0
+@export var availability_conditions: ConditionSetData
 @export var force_hidden: bool = false
 
 @export_category("Content")
@@ -88,14 +88,10 @@ func get_time_label() -> String:
 
 
 func are_conditions_met() -> bool:
-	for condition in conditions:
-		if condition == null:
-			continue
-
-		if not condition.is_met():
-			return false
-
-	return true
+	return (
+		availability_conditions == null
+		or availability_conditions.is_met()
+	)
 
 
 func is_released() -> bool:

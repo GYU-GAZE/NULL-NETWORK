@@ -94,12 +94,12 @@ func _test_definition_validation() -> void:
 
 func _test_condition_blocks_six_through_eleven() -> void:
 	_reset_state(1, TimeManager.TimePeriod.DAY, 10)
-	var condition := ConditionData.new()
+	var condition := TimeConditionData.new()
 	condition.min_action_block = 10
 	condition.max_action_block = 11
 	_check(
 		condition.is_met(),
-		"ConditionData could not match action blocks 6–11."
+		"TimeConditionData could not match action blocks 6–11."
 	)
 
 
