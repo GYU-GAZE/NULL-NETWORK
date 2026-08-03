@@ -2,11 +2,11 @@ extends Node
 
 
 const REGISTRATION_URL: String = "null.net/register"
-const OCCUPATION_IDS: PackedStringArray = PackedStringArray([
+const OCCUPATION_IDS: Array[String] = [
 	"neet",
 	"high_school_student",
 	"salaryperson"
-])
+]
 
 var _failures := PackedStringArray()
 var _test_root: String
