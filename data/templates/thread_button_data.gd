@@ -8,12 +8,12 @@ enum ThreadPeriod {
 
 @export_category("Thread")
 @export var thread_ref: ForumThread
-@export var conditions: Array[ConditionData] = []
+@export var availability_conditions: ConditionSetData
 
 @export_category("Thread Lifecycle")
 @export var release_day: int = 1
 @export var release_period: ThreadPeriod = ThreadPeriod.DAY
-@export_range(0, 5) var release_action_block: int = 0
+@export_range(0, 11) var release_action_block: int = 0
 @export var archive_after_actions: int = -1
 
 @export_category("Visibility Overrides")
@@ -23,14 +23,10 @@ enum ThreadPeriod {
 
 
 func are_conditions_met() -> bool:
-	for condition in conditions:
-		if condition == null:
-			continue
-
-		if not condition.is_met():
-			return false
-
-	return true
+	return (
+		availability_conditions == null
+		or availability_conditions.is_met()
+	)
 
 
 func is_released() -> bool:
