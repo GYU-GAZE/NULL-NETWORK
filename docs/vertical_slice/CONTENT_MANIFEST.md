@@ -9,8 +9,10 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Content | Minimum slice quantity | State | Blocking phase | Notes |
 |---|---:|---|---:|---|
 | Occupations | 3 | EXISTS | 8 | NEET, High School Student and Salaryperson are cataloged Resources with economy, starting location and schedules |
-| Starter APKs | 5 | MISSING | 9 | NOVIRE, VOCALYTE, WIZIP, TROJAW, PAZUZU; greybox art allowed |
-| Initial partner personalities | At least 1 valid result per starter | MISSING | 9 | Selection remains controlled by APK data |
+| Starter APKs | 5 | PARTIAL | 9/15 | NOVIRE integration Resource exists with canonical stats; VOCALYTE, WIZIP, TROJAW and PAZUZU remain Prologue content; greybox art allowed |
+| Initial partner personalities | At least 1 valid result per starter | PARTIAL | 9/15 | NOVIRE exposes Optimistic, Brave and Wise through controlled selection; remaining starters need authored pools |
+| APK progression integration gate | 1 | EXISTS | 9 | NOVIRE proves individuality, address term, Modules, level reward, combat snapshot, allocation and persistence |
+| Typed item integration gate | 1 | EXISTS | 9 | `healing_patch` proves catalog resolution and JSON-safe inventory entries; item use belongs to later gameplay content |
 | Initial district | 1 | PARTIAL | 11 | Akihabara test area exists; canonical Prologue starting area remains content work |
 | Tutorial EXE | 1 | PARTIAL | 10 | Rattildus test encounter exists but lacks campaign resolution |
 | Player Actions | 4 | MISSING | 10 | SCAN, PURGE, PURIFY, TAME |
@@ -49,7 +51,7 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | `null.net/download` | Website page | MISSING | 15 | Installs app through effect |
 | `WELCOME, NEW PLAYERS` | Forum thread | MISSING | 15 | Teaches through existing NPC posts |
 | starter introduction | Dialogue | MISSING | 7/15 | First partner conversation |
-| tutorial encounter | CombatEncounter | PARTIAL | 10/15 | Must support persistent Player Actions and rewards |
+| tutorial encounter | CombatEncounter | PARTIAL | 10/15 | Player slot now resolves persistent PartnerState; Player Actions and centralized rewards remain |
 
 ## Day One / Monday micro-update
 
