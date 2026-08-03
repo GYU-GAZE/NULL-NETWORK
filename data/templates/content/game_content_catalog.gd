@@ -19,7 +19,7 @@ class_name GameContentCatalog
 
 @export_category("World and Narrative")
 @export var locations: Array[MapLocation] = []
-@export var dialogues: Array[Resource] = []
+@export var dialogues: Array[DialogueData] = []
 @export var story_event_catalog: StoryEventCatalog
 @export var leads: Array[Resource] = []
 @export var incidents: Array[Resource] = []
@@ -83,6 +83,16 @@ func validate_data() -> PackedStringArray:
 	else:
 		for error: String in story_event_catalog.validate_data():
 			errors.append("StoryEvent catalog: %s" % error)
+
+	for index: int in range(dialogues.size()):
+		var dialogue: DialogueData = dialogues[index]
+
+		if dialogue == null:
+			errors.append("Dialogue %d is null." % index)
+			continue
+
+		for error: String in dialogue.validate_data():
+			errors.append("Dialogue %d: %s" % [index, error])
 
 	return errors
 
