@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="GameContentCatalog" load_steps=27 format=3]
+[gd_resource type="Resource" script_class="GameContentCatalog" load_steps=29 format=3]
 
 [ext_resource type="Script" path="res://data/templates/content/game_content_catalog.gd" id="1_catalog"]
 [ext_resource type="Script" path="res://data/templates/module_data.gd" id="2_module_type"]
@@ -26,6 +26,8 @@
 [ext_resource type="Script" path="res://data/templates/status_effect.gd" id="26_status_type"]
 [ext_resource type="Script" path="res://data/templates/dummy_data.gd" id="27_dummy_type"]
 [ext_resource type="Resource" path="res://data/content/events/story_event_catalog.tres" id="28_story_events"]
+[ext_resource type="Resource" path="res://data/content/dialogues/prologue_null_network_welcome.tres" id="29_welcome_dialogue"]
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_data.gd" id="30_dialogue_type"]
 
 [resource]
 script = ExtResource("1_catalog")
@@ -36,4 +38,5 @@ status_effects = Array[ExtResource("26_status_type")]([ExtResource("20_barrier")
 dummies = Array[ExtResource("27_dummy_type")]([ExtResource("23_turret")])
 app_catalog = ExtResource("11_app_catalog")
 locations = Array[ExtResource("14_location_type")]([ExtResource("15_akihabara")])
+dialogues = Array[ExtResource("30_dialogue_type")]([ExtResource("29_welcome_dialogue")])
 story_event_catalog = ExtResource("28_story_events")
