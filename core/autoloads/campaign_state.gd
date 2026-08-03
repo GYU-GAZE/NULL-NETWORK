@@ -22,6 +22,7 @@ enum SaveMode {
 }
 
 const STATE_SCHEMA_VERSION: int = 1
+const SOCIAL_AFFINITY_KEY: String = "affinity_by_npc"
 
 var campaign_id: String = ""
 var campaign_phase: CampaignPhase = CampaignPhase.NO_CAMPAIGN
@@ -120,6 +121,63 @@ func set_money(value: int) -> void:
 func add_money(amount: int) -> int:
 	set_money(money + amount)
 	return money
+
+
+func set_tendency(
+	tendency: TendencyStateData.Tendency,
+	value: int
+) -> int:
+	tendencies.set_value(tendency, value)
+	campaign_changed.emit(&"tendencies")
+	return tendencies.get_value(tendency)
+
+
+func modify_tendency(
+	tendency: TendencyStateData.Tendency,
+	amount: int
+) -> int:
+	return set_tendency(
+		tendency,
+		tendencies.get_value(tendency) + amount
+	)
+
+
+func grant_item(item_id: String, amount: int = 1) -> int:
+	var clean_id: String = item_id.strip_edges()
+
+	if clean_id.is_empty() or amount <= 0:
+		return inventory.get_item_count(clean_id)
+
+	var new_amount: int = inventory.add_item(clean_id, amount)
+	campaign_changed.emit(&"inventory")
+	return new_amount
+
+
+func get_affinity(npc_id: String) -> int:
+	var clean_id: String = npc_id.strip_edges()
+
+	if clean_id.is_empty():
+		return 0
+
+	var affinities: Dictionary = _get_affinity_map()
+	return int(affinities.get(clean_id, 0))
+
+
+func set_affinity(npc_id: String, value: int) -> int:
+	var clean_id: String = npc_id.strip_edges()
+
+	if clean_id.is_empty():
+		return 0
+
+	var affinities: Dictionary = _get_affinity_map()
+	affinities[clean_id] = value
+	social_state[SOCIAL_AFFINITY_KEY] = affinities
+	campaign_changed.emit(&"social")
+	return value
+
+
+func modify_affinity(npc_id: String, amount: int) -> int:
+	return set_affinity(npc_id, get_affinity(npc_id) + amount)
 
 
 func learn_module(module_id: String) -> bool:
@@ -289,6 +347,15 @@ func _add_unique_id(
 func _read_dictionary(value: Variant) -> Dictionary:
 	if value is Dictionary:
 		return value.duplicate(true)
+
+	return {}
+
+
+func _get_affinity_map() -> Dictionary:
+	var value: Variant = social_state.get(SOCIAL_AFFINITY_KEY, {})
+
+	if value is Dictionary:
+		return (value as Dictionary).duplicate(true)
 
 	return {}
 
