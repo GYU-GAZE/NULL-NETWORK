@@ -20,6 +20,7 @@ const SECTION_WINDOW_STATES: StringName = &"window_states"
 const SECTION_NAVIGATOR_STATE: StringName = &"navigator_state"
 const SECTION_WORLD_STATE: StringName = &"world_state"
 const SECTION_COMBAT_SESSION: StringName = &"combat_session"
+const SECTION_DIALOGUE_SESSION: StringName = &"dialogue_session"
 
 const REQUIRED_CORE_SECTIONS: Array[StringName] = [
 	SECTION_TIME,
