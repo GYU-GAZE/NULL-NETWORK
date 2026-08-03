@@ -87,6 +87,7 @@ func reset_save_data() -> void:
 	_active_combat_transaction_id = ""
 	_active_combat_activity_id = ""
 	_current_location_id = ""
+	CampaignState.set_current_location("")
 
 	if is_node_ready():
 		local_area_view.close_area()
@@ -430,6 +431,7 @@ func restore_app_session_state(
 		return
 
 	_current_location_id = saved_location_id
+	CampaignState.set_current_location(saved_location_id)
 
 	var saved_mode: int = int(
 		state.get(
@@ -648,6 +650,7 @@ func _enter_location(
 		return false
 
 	_current_location_id = location.get_display_id()
+	CampaignState.set_current_location(_current_location_id)
 	_set_mode(NavigatorMode.LOCAL_AREA)
 	return true
 
