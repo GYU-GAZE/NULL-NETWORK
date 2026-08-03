@@ -10,10 +10,6 @@ const REST_MODULE: ModuleData = preload(
 const BASIC_ATTACK: ModuleData = preload(
 	"res://data/content/combat/modules/basic_attack.tres"
 )
-const HEAVY_ATTACK: ModuleData = preload(
-	"res://data/content/combat/modules/heavy_attack.tres"
-)
-
 var _failures := PackedStringArray()
 var _test_root: String
 
@@ -451,7 +447,7 @@ func _kill_current_enemy() -> void:
 
 	(player as Dictionary)["atk"] = 1000.0
 	for slot_index: int in range(4):
-		CombatManager.set_player_module(slot_index, HEAVY_ATTACK)
+		CombatManager.set_player_module(slot_index, BASIC_ATTACK)
 
 	CombatManager.execute_cycle(false)
 	_check(
