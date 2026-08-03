@@ -551,20 +551,35 @@ func _test_combat_resolution(
 
 	while (
 		_combat_manager.is_encounter_active()
+		and not _combat_manager.is_awaiting_resolution()
 		and cycle_guard < 20
 	):
 		_combat_manager.execute_cycle(false)
 		cycle_guard += 1
 
 	_check(
-		not _combat_manager.is_encounter_active(),
-		"1v1 did not resolve within 20 cycles."
+		_combat_manager.is_awaiting_resolution(),
+		"1v1 did not reach its resolution boundary within 20 cycles."
 	)
 	_check(
 		_all_non_dummy_defeated(
 			_combat_manager.enemy_team
 		),
 		"1v1 did not end in the expected victory."
+	)
+	var resolution_errors: PackedStringArray = (
+		_combat_manager.resolve_encounter(
+			CombatResult.Outcome.VICTORY
+		)
+	)
+	_check(
+		resolution_errors.is_empty(),
+		"1v1 campaign resolution failed: %s" % resolution_errors
+	)
+	_check(
+		_combat_manager.finalize_resolved_encounter()
+		and not _combat_manager.is_encounter_active(),
+		"1v1 did not finalize after applying its resolution."
 	)
 
 	var metadata: Dictionary = (
