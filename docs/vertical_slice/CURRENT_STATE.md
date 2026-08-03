@@ -13,33 +13,32 @@
 ## Stable baseline
 
 - Base branch: `main`
-- Last audited stable commit before the current change: `f35f051d297c9295366f264963ff906b46b4d82c`
-- Last completed system: versioned atomic save core and SAFE/COMMIT persistence policy
-- Last validated workflow: Godot Project Validation run `#219`
+- Last audited stable commit before the current change: `1b253c17a76b8adb8d271b43f4606b94cbd51244`
+- Last completed system: Phase 3 campaign boot and full runtime reconstruction
+- Last validated workflow: Godot Project Validation run `#224`
 - Activity marker: `ACTIVITY_MANAGER_TEST: PASS`
 - Campaign marker: `CAMPAIGN_STATE_TEST: PASS`
 - Save marker: `SAVE_MANAGER_TEST: PASS`
+- Save runtime marker: `SAVE_RUNTIME_INTEGRATION_TEST: PASS`
 - Runtime marker: `COMBAT_RUNTIME_TEST: PASS`
 - Layout marker: `COMBAT_LAYOUT_TEST: PASS`
 
 ## Current system
 
-- Roadmap phase: **Phase 3 — SaveManager, boot and save modes**
-- Status: Phase 3 core persistence is complete and validated. The shared registry aggregates providers, SaveMigrator rejects unsupported versions, SAFE exposes historical checkpoints, COMMIT keeps one living record, and a corrupt live file recovers from the hidden technical backup.
-- Architectural objective: finish Phase 3 by registering scene-owned state, restoring an active combat between cycles and routing executable startup through the campaign Bootstrap.
+- Roadmap phase: **Phase 4 — Conditions, Effects and global texts**
+- Status: Phase 3 is complete and validated. Startup requires campaign selection, SAFE and COMMIT enforce different player-facing policies over the same schema, scene-owned providers survive a full desktop rebuild, and CombatSession restores only at stable between-cycle boundaries.
+- Architectural objective: replace legacy monolithic conditions/effects with composable Resources while preserving every migrated `.tres` and centralizing reusable interface text.
 
 ## Next exact task
 
-Implement boot and scene-owned persistence in this order:
+Begin Phase 4 in this order:
 
-1. Create `core/bootstrap/bootstrap.tscn` and `bootstrap.gd` as the only executable entry point.
-2. Create the campaign selection and new-campaign panels using `SaveManager.list_campaigns()`, `list_checkpoints()`, `create_campaign()` and `load_campaign()`.
-3. Make `WindowManager` a `window_states` provider and snapshot every open app before export.
-4. Make Navigator a `navigator_state` provider with plain coordinate data and active activity/combat context.
-5. Make CombatManager a `combat_session` provider that serializes Resources as content IDs and accepts saves only between logical cycles.
-6. Add the full `VS-040` restart reconstruction test before marking Phase 3 complete.
-
-Do not couple SAFE/COMMIT UI policy to section serialization. Both modes use the same schema.
+1. Inventory every existing `ConditionData` and `EffectData` consumer and every `.tres` that embeds them.
+2. Create `ConditionRuleData` and `ConditionSetData` with deterministic `ALL`, `ANY` and `NONE` composition.
+3. Implement flag, time, location, tendency, affinity, partner and occupation rules against authoritative managers/state.
+4. Create the typed `GameEffectData` context and effect subclasses from the roadmap.
+5. Migrate all existing Resources and remove duplicated legacy fields only after equivalence tests pass.
+6. Add `GlobalTextCatalog` and complete `VS-050` without putting content rules in UI code.
 
 ## Phase 3 core persistence checkpoint
 
@@ -51,6 +50,13 @@ Do not couple SAFE/COMMIT UI policy to section serialization. Both modes use the
 - CampaignState, TimeManager, GameState and AppSessionStore implement the shared persistence contract without disk I/O.
 - Browser history serializes URL/title metadata and resolves favicon Resources again at runtime instead of writing Texture2D objects.
 - The save test proves aggregate round-trip, mode policy, future-version rejection and recovery from a corrupt live record.
+- `GameBootstrap` is the executable entry point and instantiates `core/main.tscn` only after campaign creation or load succeeds.
+- Campaign selection exposes historical checkpoints only in SAFE; COMMIT creation requires explicit acknowledgement and loads only its living record.
+- `WindowManager` serializes open apps, focus and normalized window geometry; app scenes with dedicated providers are not duplicated in `AppSessionStore`.
+- Navigator serializes location, plain numeric coordinates, interactable runtime state and active encounter context.
+- CombatSession resolves Encounter, Character, Module, Status and Dummy IDs through `ContentRegistry`, restores typed runtime state and rebuilds the Timeline.
+- Automatic checkpoints are queued at activity, time and stable combat-cycle boundaries; combat refuses saves while a cycle is executing.
+- `VS-040` destroys the complete desktop tree and proves Browser tabs/thread, moved window, Akihabara position and active combat reconstruction on a second Bootstrap.
 
 ## Phase 2 implementation checkpoint
 
@@ -78,9 +84,7 @@ Do not couple SAFE/COMMIT UI policy to section serialization. Both modes use the
 - Navigator `DIALOGUE` mode has no dialogue player.
 - Combat resolution does not yet apply persistent campaign rewards.
 - The player combat loadout still comes from `CombatEncounter`, not a persistent partner.
-- App installation and campaign persistence do not exist.
-- Boot flow, campaign selection UI and scene-owned save providers do not exist yet.
-- WindowManager, Navigator and CombatManager are not registered in the aggregate save yet.
+- Dynamic app installation does not exist yet; it belongs to Phase 5.
 - Social and Encyclopedia have reserved plain state sections, but their typed domain models belong to Phases 12 and 13.
 - No occupation provider is registered yet; only its stable ActivityManager contract exists.
 - No current content uses `allow_cross_day`; the behavior is covered by preview tests for future events.
@@ -93,8 +97,11 @@ Run the existing baseline tests:
 
 ```bash
 godot --headless --path . --editor --quit
+godot --headless --path . core/bootstrap/bootstrap.tscn --quit-after 2
 godot --headless --path . tests/campaign/campaign_state_test.tscn
 godot --headless --path . tests/activity/activity_manager_test.tscn
+godot --headless --path . tests/save/save_manager_test.tscn
+godot --headless --path . tests/save/save_runtime_integration_test.tscn
 godot --headless --path . tests/combat/combat_runtime_test.tscn
 godot --headless --path . tests/combat/combat_layout_test.tscn
 ```
