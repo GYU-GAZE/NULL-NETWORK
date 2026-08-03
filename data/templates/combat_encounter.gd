@@ -37,15 +37,13 @@ func validate_data() -> PackedStringArray:
 	all_slots.append_array(enemy_slots)
 
 	for slot in all_slots:
-		if slot == null or slot.character == null:
+		if slot == null:
 			errors.append(
 				"Encounter '%s' contains an invalid slot."
 				% encounter_id
 			)
 			continue
 
-		errors.append_array(
-			slot.character.validate_data()
-		)
+		errors.append_array(slot.validate_data())
 
 	return errors

@@ -35,10 +35,16 @@
 [ext_resource type="Resource" path="res://data/content/navigator/areas/operator_starts/residential.tres" id="35_residential"]
 [ext_resource type="Resource" path="res://data/content/navigator/areas/operator_starts/high_school.tres" id="36_high_school"]
 [ext_resource type="Resource" path="res://data/content/navigator/areas/operator_starts/corporate.tres" id="37_corporate"]
+[ext_resource type="Script" path="res://data/templates/apk/apk_data.gd" id="38_apk_type"]
+[ext_resource type="Resource" path="res://data/content/apks/starters/novire_init.tres" id="39_novire"]
+[ext_resource type="Script" path="res://data/templates/items/item_data.gd" id="40_item_type"]
+[ext_resource type="Resource" path="res://data/content/items/healing_patch.tres" id="41_healing_patch"]
 
 [resource]
 script = ExtResource("1_catalog")
+apks = Array[ExtResource("38_apk_type")]([ExtResource("39_novire")])
 modules = Array[ExtResource("2_module_type")]([ExtResource("3_basic_attack"), ExtResource("4_basic_defense"), ExtResource("5_basic_dodge"), ExtResource("6_basic_heal"), ExtResource("7_dummy_turret"), ExtResource("8_heavy_attack"), ExtResource("9_idle"), ExtResource("10_new_attack")])
+items = Array[ExtResource("40_item_type")]([ExtResource("41_healing_patch")])
 combat_encounters = Array[ExtResource("24_encounter_type")]([ExtResource("16_encounter_1v1"), ExtResource("17_encounter_3v1")])
 character_loadouts = Array[ExtResource("25_loadout_type")]([ExtResource("18_player_loadout"), ExtResource("19_rattus_loadout")])
 status_effects = Array[ExtResource("26_status_type")]([ExtResource("20_barrier"), ExtResource("21_dodge_up"), ExtResource("22_unstability")])

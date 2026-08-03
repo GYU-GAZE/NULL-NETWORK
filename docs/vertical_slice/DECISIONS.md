@@ -21,6 +21,9 @@ This log records canonical decisions that implementation must preserve. Change a
 | DVS-015 | Apps communicate through signals and global services, not absolute Node paths or direct cross-app references. | Story events and app installation publish intents; presentation nodes respond. | Project rules |
 | DVS-016 | UI never grants rewards or mutates campaign progression directly. | Services resolve rewards and state; UI only displays decisions and results. | Roadmap Definition of Done |
 | DVS-017 | The vertical slice limits content volume, not structural quality. | Every system is final-form, data-driven and reusable beyond the Aquarium. | Project programming rule |
+| DVS-018 | `APKData` is immutable species/form content; `PartnerStateData` is the persistent individual. | Saves contain partner values and stable IDs, while `CharacterLoadout` exists only as a combat snapshot. | GDD: APK and Partner progression; Roadmap Phase 9 |
+| DVS-019 | Partner stats are recalculated from level-100 profiles, level and Allocation Points instead of accumulating rounded deltas. | Level-up, evolution and load produce deterministic stats; Stability maximum remains 100 and recovery is separate. | GDD: APK stat growth |
+| DVS-020 | Save authorities restore before runtime snapshots that resolve them. | CampaignState must import before CombatSession; dynamic presentation sections may remain pending until their providers register. | Persistence dependency exposed by Phase 9 |
 
 ## Change protocol
 

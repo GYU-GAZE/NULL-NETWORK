@@ -19,6 +19,23 @@ func _ready() -> void:
 
 
 func _run_test() -> void:
+	CampaignState.reset_campaign(false)
+	CampaignState.create_campaign(
+		"combat_layout_fixture",
+		CampaignState.SaveMode.SAFE,
+		CampaignState.CampaignPhase.MAIN_CAMPAIGN
+	)
+	var partner: PartnerStateData = APKProgressionService.create_partner_state(
+		"novire_init",
+		"NOVIRE",
+		0,
+		0
+	)
+
+	if partner == null or not CampaignState.set_partner_state(partner):
+		_fail("Could not create the combat layout partner fixture.")
+		return
+
 	var kubu_density_theme := Theme.new()
 	kubu_density_theme.default_font_size = (
 		KUBU_DEFAULT_FONT_SIZE
@@ -185,6 +202,8 @@ func _run_test() -> void:
 		return
 
 	print("COMBAT_LAYOUT_TEST: PASS")
+	CombatManager.reset_encounter()
+	CampaignState.reset_campaign()
 	get_tree().quit(0)
 
 

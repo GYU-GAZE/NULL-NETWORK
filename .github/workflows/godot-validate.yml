@@ -171,6 +171,17 @@ jobs:
             tests/operator/operator_creation_test.tscn \
             2>&1 | tee godot-operator-test.log
 
+      - name: Run APK progression test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            --quit-after 180 \
+            tests/progression/apk_progression_test.tscn \
+            2>&1 | tee godot-apk-progression-test.log
+
       - name: Run save manager test
         shell: bash
         run: |
@@ -221,6 +232,7 @@ jobs:
             godot-story-event-test.log \
             godot-dialogue-test.log \
             godot-operator-test.log \
+            godot-apk-progression-test.log \
             godot-save-test.log \
             godot-save-runtime-test.log \
             godot-combat-layout-test.log \
@@ -295,6 +307,14 @@ jobs:
 
           grep -q "OPERATOR_CREATION_TEST: PASS" godot-operator-test.log
 
+          if grep -E "APK_PROGRESSION_TEST: " godot-apk-progression-test.log \
+            | grep -v "APK_PROGRESSION_TEST: PASS"; then
+            echo "The APK progression test reported an error."
+            exit 1
+          fi
+
+          grep -q "APK_PROGRESSION_TEST: PASS" godot-apk-progression-test.log
+
           if grep -E "SAVE_MANAGER_TEST: " godot-save-test.log \
             | grep -v "SAVE_MANAGER_TEST: PASS"; then
             echo "The save manager test reported an error."
@@ -335,6 +355,7 @@ jobs:
             godot-story-event-test.log
             godot-dialogue-test.log
             godot-operator-test.log
+            godot-apk-progression-test.log
             godot-save-test.log
             godot-save-runtime-test.log
             godot-combat-layout-test.log

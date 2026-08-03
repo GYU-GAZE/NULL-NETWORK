@@ -403,6 +403,22 @@ func _test_source_cancellation_closes_dialog() -> void:
 
 func _test_navigator_travel_and_voluntary_combat() -> void:
 	_reset_state(1, TimeManager.TimePeriod.DAY, 0)
+	CampaignState.reset_campaign(false)
+	CampaignState.create_campaign(
+		"activity_partner_fixture",
+		CampaignState.SaveMode.SAFE,
+		CampaignState.CampaignPhase.MAIN_CAMPAIGN
+	)
+	var partner: PartnerStateData = APKProgressionService.create_partner_state(
+		"novire_init",
+		"Activity NOVIRE",
+		0,
+		0
+	)
+	_check(
+		partner != null and CampaignState.set_partner_state(partner),
+		"Could not create the ActivityManager partner fixture."
+	)
 	var navigator := (
 		NAVIGATOR_SCENE.instantiate() as NavigatorApp
 	)

@@ -13,9 +13,9 @@
 ## Stable baseline
 
 - Base branch: `main`
-- Last audited stable commit before the current change: `09b657f387e565066429f5a8fbcb86b9108f8e11`
-- Last completed system: Phase 8 persistent Operator creation and occupation schedules
-- Last validated workflow: Godot Project Validation run `#245`
+- Last audited stable commit before the current change: `5f04ff0efc85879b5d62f8c7e2da1df184e64ac2`
+- Last completed system: Phase 9 persistent APK partner, typed inventory and progression
+- Last validated workflow: Godot Project Validation run `#251`
 - Activity marker: `ACTIVITY_MANAGER_TEST: PASS`
 - Campaign marker: `CAMPAIGN_STATE_TEST: PASS`
 - Save marker: `SAVE_MANAGER_TEST: PASS`
@@ -25,25 +25,38 @@
 - Story event marker: `STORY_EVENT_MANAGER_TEST: PASS`
 - Dialogue marker: `DIALOGUE_SYSTEM_TEST: PASS`
 - Operator marker: `OPERATOR_CREATION_TEST: PASS`
+- APK progression marker: `APK_PROGRESSION_TEST: PASS`
 - Runtime marker: `COMBAT_RUNTIME_TEST: PASS`
 - Layout marker: `COMBAT_LAYOUT_TEST: PASS`
 
 ## Current system
 
-- Roadmap phase: **Phase 9 — APK, partner, inventory and progression**
-- Status: Phase 8 is complete and validated. Operator identity, layered appearance, exact initial tendencies, occupation economy and occupied schedule blocks are persistent and data-driven.
-- Architectural objective: separate immutable APK definitions from persistent PartnerState, then make combat loadouts temporary snapshots of that state.
+- Roadmap phase: **Phase 10 — combat completion**
+- Status: Phase 9 is complete and validated. Immutable APK content, persistent PartnerState, typed inventory, canonical growth and player-partner combat snapshots now share one ID-driven pipeline.
+- Architectural objective: turn the existing combat runtime into a complete campaign activity with Player Actions, centralized rewards, projected tendencies and evolution.
 
 ## Next exact task
 
-Begin Phase 9 in this order:
+Begin Phase 10 in this order:
 
-1. Inventory the current player `CharacterLoadout`, `CombatSlotData`, inventory schema and all combat result write-back paths before changing ownership.
-2. Create immutable `APKData`, personality, address-term, growth-profile and level-reward Resources with stable IDs and catalog validation.
-3. Create JSON-safe `PartnerStateData` and inventory entries; migrate CampaignState without serializing Resources.
-4. Implement the canonical GDD level/EXP, projected stat, allocation-point and growth calculations in progression services.
-5. Make allied combat slot `0` resolve `PLAYER_PARTNER` into an entry snapshot, then write HP, Stability, EXP and Module changes back only at stable encounter boundaries.
-6. Complete `VS-100`: persist a partner, enter and leave combat, restart and prove partner HP, Stability, EXP, affinity and Modules remain authoritative.
+1. Audit the current Timeline action-slot schema, encounter result path and every direct combat-to-campaign mutation.
+2. Create typed Player Action, progress, reward, resolution, tendency-gain, tendency-log and Combat Style Resources.
+3. Implement `PlayerActionService` for SCAN, PURGE, PURIFY and contextual TAME as Timeline actions with 25% progress per committed slot.
+4. Implement `CombatResolutionService` as the only authority for EXP, drops, Modules, tendencies, Encyclopedia, partner/enemy state, event Effects and save.
+5. Add projected tendencies and data-driven evolution branches, pausing combat only at stable end-of-cycle boundaries and rebuilding the snapshot/Timeline afterward.
+6. Complete `VS-110`: prove normal defeat plus all four Player Actions, rewards, level-up, evolution, run/loss and between-cycle save without UI-owned mutations.
+
+## Phase 9 APK, partner, inventory and progression checkpoint
+
+- `APKData`, personality, address-term, growth-profile and level-reward Resources own immutable species/form content; `PartnerStateData` owns the current individual as JSON-safe values and IDs.
+- `CharacterLoadout` is now an entry snapshot. `CombatSlotData.PLAYER_PARTNER` resolves allied slot `0` from CampaignState and writes HP, Stability and equipped Modules back only at a stable result boundary.
+- `APKProgressionService` owns controlled personality/address selection, starter creation, the canonical EXP curve through level 100, level rewards and Allocation Points.
+- `APKStatCalculator` derives stats from level-100 profiles on demand, keeps Stability at 100 and supports the GDD's weighted growth-lineage recalculation without cumulative rounding.
+- Typed `InventoryEntryData` is the inventory source of truth while supported legacy `item_counts` saves remain readable.
+- Campaign schema 4 persists complete PartnerState and migrates known legacy `partner_id` values through the same creation service.
+- Save sections restore authoritative campaign state before dependent runtime snapshots, allowing an active `PLAYER_PARTNER` CombatSession to reconstruct exactly.
+- The cataloged NOVIRE integration starter has the GDD's level-100 profile, three controlled personalities, three address-term choices, four initial Modules and a level-2 Module reward.
+- `VS-100` proves formulas, starter individuality, inventory resolution, combat snapshot/write-back, EXP, level-up, reward, allocation, legacy migration and save/restart.
 
 ## Phase 8 Operator and occupation checkpoint
 
@@ -144,8 +157,8 @@ Begin Phase 9 in this order:
 
 ## Known non-blocking gaps
 
-- Combat resolution does not yet apply persistent campaign rewards.
-- The player combat loadout still comes from `CombatEncounter`, not persistent `PartnerStateData`; this is the active Phase 9 task.
+- Combat resolution does not yet centralize rewards, Player Actions, projected tendencies, evolution or Encyclopedia updates; this is the active Phase 10 task.
+- Only NOVIRE has an authored starter integration Resource; the other four Prologue starter choices remain final content work.
 - Social and Encyclopedia have reserved plain state sections, but their typed domain models belong to Phases 12 and 13.
 - No current content uses `allow_cross_day`; the behavior is covered by preview tests for future events.
 
@@ -165,6 +178,7 @@ godot --headless --path . tests/apps/app_catalog_test.tscn
 godot --headless --path . tests/events/story_event_manager_test.tscn
 godot --headless --path . tests/dialogue/dialogue_system_test.tscn
 godot --headless --path . tests/operator/operator_creation_test.tscn
+godot --headless --path . tests/progression/apk_progression_test.tscn
 godot --headless --path . tests/save/save_manager_test.tscn
 godot --headless --path . tests/save/save_runtime_integration_test.tscn
 godot --headless --path . tests/combat/combat_runtime_test.tscn

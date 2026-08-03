@@ -99,7 +99,16 @@ func _prepare_gate_state() -> void:
 	)
 	CampaignState.operator.operator_id = "phase4_operator"
 	CampaignState.operator.occupation_id = "test_occupation"
-	CampaignState.partner_id = "test_partner"
+	var partner: PartnerStateData = APKProgressionService.create_partner_state(
+		"novire_init",
+		"Phase Four Partner",
+		0,
+		0
+	)
+	_check(
+		partner != null and CampaignState.set_partner_state(partner),
+		"Could not create the Phase 4 partner condition fixture."
+	)
 	CampaignState.set_tendency(TendencyStateData.Tendency.LOGIC, 4)
 	CampaignState.set_affinity("test_npc", 2)
 

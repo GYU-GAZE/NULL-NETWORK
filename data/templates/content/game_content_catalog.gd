@@ -3,9 +3,9 @@ class_name GameContentCatalog
 
 
 @export_category("Creatures and Equipment")
-@export var apks: Array[Resource] = []
+@export var apks: Array[APKData] = []
 @export var modules: Array[ModuleData] = []
-@export var items: Array[Resource] = []
+@export var items: Array[ItemData] = []
 
 @export_category("Combat Runtime Content")
 @export var combat_encounters: Array[CombatEncounter] = []
@@ -103,6 +103,36 @@ func validate_data() -> PackedStringArray:
 
 		for error: String in occupation.validate_data():
 			errors.append("Occupation %d: %s" % [index, error])
+
+	for index: int in range(apks.size()):
+		var apk: APKData = apks[index]
+
+		if apk == null:
+			errors.append("APK %d is null." % index)
+			continue
+
+		for error: String in apk.validate_data():
+			errors.append("APK %d: %s" % [index, error])
+
+	for index: int in range(items.size()):
+		var item: ItemData = items[index]
+
+		if item == null:
+			errors.append("Item %d is null." % index)
+			continue
+
+		for error: String in item.validate_data():
+			errors.append("Item %d: %s" % [index, error])
+
+	for index: int in range(combat_encounters.size()):
+		var encounter: CombatEncounter = combat_encounters[index]
+
+		if encounter == null:
+			errors.append("Combat encounter %d is null." % index)
+			continue
+
+		for error: String in encounter.validate_data():
+			errors.append("Combat encounter %d: %s" % [index, error])
 
 	return errors
 

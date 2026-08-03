@@ -671,6 +671,15 @@ func _finish_encounter(
 	if not _encounter_active:
 		return
 
+	var commit_errors: PackedStringArray = (
+		CombatManager.commit_player_partner_state()
+	)
+
+	if not commit_errors.is_empty():
+		for error: String in commit_errors:
+			push_error("Combat partner write-back: %s" % error)
+		return
+
 	_encounter_active = false
 	resolution_screen.hide()
 	module_swap_ui.hide()

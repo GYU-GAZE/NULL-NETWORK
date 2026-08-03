@@ -29,6 +29,19 @@ const REQUIRED_CORE_SECTIONS: Array[StringName] = [
 	SECTION_APP_SESSIONS
 ]
 
+# Authoritative state must be restored before runtime snapshots that resolve it.
+const RESTORE_SECTION_ORDER: Array[StringName] = [
+	SECTION_TIME,
+	SECTION_GAME_STATE,
+	SECTION_CAMPAIGN_STATE,
+	SECTION_APP_SESSIONS,
+	SECTION_DIALOGUE_SESSION,
+	SECTION_COMBAT_SESSION,
+	SECTION_NAVIGATOR_STATE,
+	SECTION_WINDOW_STATES,
+	SECTION_WORLD_STATE
+]
+
 const CHECKPOINT_CAMPAIGN_CREATED: StringName = &"campaign_created"
 const CHECKPOINT_MANUAL: StringName = &"manual"
 

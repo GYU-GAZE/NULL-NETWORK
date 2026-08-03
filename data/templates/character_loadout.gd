@@ -14,7 +14,7 @@ class_name CharacterLoadout
 	"SYNC",
 	"SELF",
 	"BALANCED",
-	"null",
+	"NULL",
 	"XVALOUR",
 	"XLOGIC",
 	"XSYNC",
@@ -23,7 +23,9 @@ class_name CharacterLoadout
 
 @export_category("Stats")
 @export var max_hp: int = 100
+@export var starting_hp: int = -1
 @export var max_stability: int = 100
+@export var starting_stability: int = -1
 @export var stability_recovery: int = 20
 @export var base_atk: int = 10
 @export var base_def: int = 5
@@ -56,6 +58,12 @@ func validate_data() -> PackedStringArray:
 			"Character '%s' must equip exactly four modules."
 			% char_name
 		)
+
+	if starting_hp > max_hp:
+		errors.append("Character '%s' starts above max HP." % char_name)
+
+	if starting_stability > max_stability:
+		errors.append("Character '%s' starts above max Stability." % char_name)
 
 	for module in equipped_modules:
 		if module == null:

@@ -44,7 +44,16 @@ func _test_campaign_round_trip_and_reset() -> void:
 	CampaignState.operator.operator_id = "operator_gyu"
 	CampaignState.operator.display_name = "GYU"
 	CampaignState.operator.occupation_id = "highschooler"
-	CampaignState.partner_id = "novire_init"
+	var partner: PartnerStateData = APKProgressionService.create_partner_state(
+		"novire_init",
+		"NOVIRE",
+		0,
+		0
+	)
+	_assert(
+		partner != null and CampaignState.set_partner_state(partner),
+		"CampaignState rejected the valid partner fixture."
+	)
 	CampaignState.tendencies.valour = 6
 	CampaignState.tendencies.logic = 4
 	CampaignState.tendencies.sync = 3
