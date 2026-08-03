@@ -73,7 +73,7 @@ func _configure_fixture_catalog() -> void:
 	fixture_catalog.status_effects.append_array(source.status_effects)
 	fixture_catalog.dummies.append_array(source.dummies)
 	fixture_catalog.occupations.append_array(source.occupations)
-	fixture_catalog.apps.append_array(source.apps)
+	fixture_catalog.app_catalog = source.app_catalog
 	fixture_catalog.locations.append_array(source.locations)
 	fixture_catalog.dialogues.append_array(source.dialogues)
 	fixture_catalog.story_events.append_array(source.story_events)

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="UnlockAppEffectData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/effects/unlock_app_effect_data.gd" id="1_effect"]
+
+[resource]
+script = ExtResource("1_effect")
+effect_id = "test.install_navigator"
+app_id = "navigator"

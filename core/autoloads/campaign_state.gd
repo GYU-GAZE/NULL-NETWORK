@@ -4,6 +4,7 @@ extends Node
 signal campaign_created(campaign_id: String)
 signal campaign_reset
 signal campaign_changed(section: StringName)
+signal app_installed(app_id: String)
 
 
 enum CampaignPhase {
@@ -185,7 +186,22 @@ func learn_module(module_id: String) -> bool:
 
 
 func install_app(app_id: String) -> bool:
-	return _add_unique_id(installed_app_ids, app_id, &"installed_apps")
+	var clean_id: String = app_id.strip_edges()
+	var installed: bool = _add_unique_id(
+		installed_app_ids,
+		clean_id,
+		&"installed_apps"
+	)
+
+	if installed:
+		app_installed.emit(clean_id)
+
+	return installed
+
+
+func has_installed_app(app_id: String) -> bool:
+	var clean_id: String = app_id.strip_edges()
+	return not clean_id.is_empty() and installed_app_ids.has(clean_id)
 
 
 func discover_location(location_id: String) -> bool:

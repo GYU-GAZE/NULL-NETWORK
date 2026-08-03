@@ -136,6 +136,13 @@ func get_app(app_id: String) -> AppResource:
 	return resolve(CATEGORY_APPS, app_id) as AppResource
 
 
+func get_app_catalog() -> AppCatalog:
+	if catalog == null:
+		return null
+
+	return catalog.app_catalog
+
+
 func get_location(location_id: String) -> MapLocation:
 	return resolve(CATEGORY_LOCATIONS, location_id) as MapLocation
 
@@ -162,6 +169,15 @@ func _build_indexes(new_catalog: GameContentCatalog) -> Dictionary:
 
 	if new_catalog == null:
 		errors.append("ContentRegistry requires a GameContentCatalog.")
+		return {
+			"errors": errors,
+			"indexes": proposed_indexes
+		}
+
+	var catalog_errors: PackedStringArray = new_catalog.validate_data()
+
+	if not catalog_errors.is_empty():
+		errors.append_array(catalog_errors)
 		return {
 			"errors": errors,
 			"indexes": proposed_indexes

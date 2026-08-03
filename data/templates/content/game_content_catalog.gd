@@ -15,7 +15,7 @@ class_name GameContentCatalog
 
 @export_category("Operator and KubuOS")
 @export var occupations: Array[Resource] = []
-@export var apps: Array[AppResource] = []
+@export var app_catalog: AppCatalog
 
 @export_category("World and Narrative")
 @export var locations: Array[MapLocation] = []
@@ -26,6 +26,11 @@ class_name GameContentCatalog
 
 
 func get_content_groups() -> Array[Dictionary]:
+	var registered_apps: Array[AppResource] = []
+
+	if app_catalog != null:
+		registered_apps = app_catalog.apps
+
 	return [
 		_create_group(&"apks", &"apk_id", apks),
 		_create_group(&"modules", &"module_id", modules),
@@ -47,13 +52,25 @@ func get_content_groups() -> Array[Dictionary]:
 		),
 		_create_group(&"dummies", &"dummy_id", dummies),
 		_create_group(&"occupations", &"occupation_id", occupations),
-		_create_group(&"apps", &"app_id", apps),
+		_create_group(&"apps", &"app_id", registered_apps),
 		_create_group(&"locations", &"location_id", locations),
 		_create_group(&"dialogues", &"dialogue_id", dialogues),
 		_create_group(&"story_events", &"story_event_id", story_events),
 		_create_group(&"leads", &"lead_id", leads),
 		_create_group(&"incidents", &"incident_id", incidents)
 	]
+
+
+func validate_data() -> PackedStringArray:
+	var errors := PackedStringArray()
+
+	if app_catalog == null:
+		errors.append("app_catalog cannot be null.")
+	else:
+		for error: String in app_catalog.validate_data():
+			errors.append("App catalog: %s" % error)
+
+	return errors
 
 
 func _create_group(
