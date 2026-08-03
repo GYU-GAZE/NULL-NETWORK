@@ -28,6 +28,18 @@ func _run_test() -> void:
 		0,
 		2
 	)
+
+	if partner != null:
+		partner.level = 50
+		partner.current_exp = APKProgressionService.get_total_exp_for_level(
+			partner.level
+		)
+		partner.allocation_points = partner.level - 1
+		var partner_stats: Dictionary = (
+			APKProgressionService.calculate_partner_stats(partner)
+		)
+		partner.current_hp = int(partner_stats.get("max_hp", 1))
+
 	_check(
 		partner != null and CampaignState.set_partner_state(partner),
 		"Could not create the runtime persistence partner fixture."
