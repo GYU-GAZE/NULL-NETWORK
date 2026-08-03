@@ -17,6 +17,7 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Core apps | 6 | PARTIAL | 5/13 | Browser and Navigator exist; Profile, Encyclopedia, Social and Calendar do not |
 | Global UI text catalog | 1 | EXISTS | 4 | Interface text only; narrative stays in narrative Resources |
 | StoryEvent integration gate | 1 | EXISTS | 6 | `story.prologue.null_network_welcome` proves orchestration and persistence; it does not replace the final Phase 15 Prologue sequence |
+| Dialogue integration gate | 1 | EXISTS | 7 | `dialogue.prologue.null_network_welcome` proves six portraits, conditions, Effects, paid choice and persistence; final narrative dialogue remains Phase 15/16 content |
 
 ## Prologue
 

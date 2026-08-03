@@ -1,0 +1,160 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/navigator/dialogue/dialogue_player.gd" id="1_player"]
+
+[node name="DialoguePlayer" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_player")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.015, 0.025, 0.05, 0.62)
+
+[node name="PortraitLayer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LeftSlots" type="HBoxContainer" parent="PortraitLayer"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 0.49
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 42.0
+offset_right = -8.0
+offset_bottom = -190.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Left1" type="TextureRect" parent="PortraitLayer/LeftSlots"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 180)
+layout_mode = 2
+size_flags_horizontal = 3
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Left2" type="TextureRect" parent="PortraitLayer/LeftSlots"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 180)
+layout_mode = 2
+size_flags_horizontal = 3
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Left3" type="TextureRect" parent="PortraitLayer/LeftSlots"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 180)
+layout_mode = 2
+size_flags_horizontal = 3
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RightSlots" type="HBoxContainer" parent="PortraitLayer"]
+layout_mode = 1
+anchors_preset = 12
+anchor_left = 0.51
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 42.0
+offset_right = -28.0
+offset_bottom = -190.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Right1" type="TextureRect" parent="PortraitLayer/RightSlots"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 180)
+layout_mode = 2
+size_flags_horizontal = 3
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Right2" type="TextureRect" parent="PortraitLayer/RightSlots"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 180)
+layout_mode = 2
+size_flags_horizontal = 3
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Right3" type="TextureRect" parent="PortraitLayer/RightSlots"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 180)
+layout_mode = 2
+size_flags_horizontal = 3
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DialoguePanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_left = 0.04
+anchor_top = 1.0
+anchor_right = 0.96
+anchor_bottom = 1.0
+offset_top = -220.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="DialoguePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 14
+
+[node name="Content" type="VBoxContainer" parent="DialoguePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SpeakerLabel" type="Label" parent="DialoguePanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "SPEAKER"
+
+[node name="DialogueText" type="RichTextLabel" parent="DialoguePanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+text = "Dialogue text"
+
+[node name="ChoiceContainer" type="VBoxContainer" parent="DialoguePanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="AdvanceButton" type="Button" parent="DialoguePanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 30)
+layout_mode = 2
+size_flags_horizontal = 8
+text = "ADVANCE"

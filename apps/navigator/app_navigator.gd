@@ -21,7 +21,7 @@ enum PendingActivityKind {
 }
 
 
-const SESSION_STATE_VERSION: int = 3
+const SESSION_STATE_VERSION: int = 4
 const APP_ID: String = "navigator"
 
 
@@ -43,6 +43,7 @@ const APP_ID: String = "navigator"
 @onready var dialogue_container: Control = (
 	%DialogueContainer
 )
+@onready var dialogue_player: DialoguePlayer = %DialoguePlayer
 @onready var combat_app: CombatApp = %CombatApp
 
 
@@ -53,11 +54,16 @@ var _pending_exe_actor: LocalAreaExeActor
 var _pending_activity_requests: Dictionary = {}
 var _active_combat_transaction_id: String = ""
 var _active_combat_activity_id: String = ""
+var _mode_before_dialogue: NavigatorMode = NavigatorMode.WORLD_MAP
 
 
 func _ready() -> void:
 	_connect_signals()
-	_set_mode(NavigatorMode.WORLD_MAP)
+
+	if DialogueManager.is_dialogue_active():
+		_set_mode(NavigatorMode.DIALOGUE)
+	else:
+		_set_mode(NavigatorMode.WORLD_MAP)
 
 	var registration_errors := SaveManager.register_save_section(self)
 
@@ -178,6 +184,21 @@ func _connect_signals() -> void:
 			_on_activity_cancelled
 		)
 
+	if not DialogueManager.dialogue_started.is_connected(
+		_on_dialogue_started
+	):
+		DialogueManager.dialogue_started.connect(_on_dialogue_started)
+
+	if not DialogueManager.dialogue_resumed.is_connected(
+		_on_dialogue_resumed
+	):
+		DialogueManager.dialogue_resumed.connect(_on_dialogue_resumed)
+
+	if not DialogueManager.dialogue_completed.is_connected(
+		_on_dialogue_completed
+	):
+		DialogueManager.dialogue_completed.connect(_on_dialogue_completed)
+
 
 func _set_mode(mode: NavigatorMode) -> void:
 	_current_mode = mode
@@ -250,7 +271,8 @@ func show_encounter() -> void:
 
 
 func show_dialogue() -> void:
-	_set_mode(NavigatorMode.DIALOGUE)
+	if DialogueManager.is_dialogue_active():
+		_set_mode(NavigatorMode.DIALOGUE)
 
 
 func get_app_session_state() -> Dictionary:
@@ -340,6 +362,10 @@ func restore_app_session_state(
 	var saved_location_id: String = str(
 		state.get("current_location_id", "")
 	).strip_edges()
+
+	if saved_location_id.is_empty() and DialogueManager.is_dialogue_active():
+		_set_mode(NavigatorMode.DIALOGUE)
+		return
 
 	if saved_location_id.is_empty():
 		_set_mode(NavigatorMode.WORLD_MAP)
@@ -440,7 +466,10 @@ func restore_app_session_state(
 		)
 	)
 
-	if (
+	if saved_mode == NavigatorMode.DIALOGUE \
+		and DialogueManager.is_dialogue_active():
+		_set_mode(NavigatorMode.DIALOGUE)
+	elif (
 		saved_mode == NavigatorMode.ENCOUNTER
 		and CombatManager.is_encounter_active()
 	):
@@ -573,6 +602,16 @@ func _on_local_area_interaction_requested(
 				exe_actor,
 				data.activity
 			)
+
+		LocalAreaInteractionData.InteractionKind.DIALOGUE:
+			if data.dialogue == null:
+				push_error(
+					"NavigatorApp: dialogue interaction '%s' has no DialogueData."
+					% data.get_display_id()
+				)
+				return
+
+			DialogueManager.start_dialogue(data.dialogue.get_display_id())
 
 		_:
 			push_warning(
@@ -859,3 +898,22 @@ func _set_app_active(active: bool) -> void:
 	local_area_view.set_interaction_enabled(
 		_is_app_active
 	)
+
+
+func _on_dialogue_started(_dialogue_id: String, _node_id: String) -> void:
+	if _current_mode != NavigatorMode.DIALOGUE:
+		_mode_before_dialogue = _current_mode
+
+	_set_mode(NavigatorMode.DIALOGUE)
+
+
+func _on_dialogue_resumed(_dialogue_id: String, _node_id: String) -> void:
+	_set_mode(NavigatorMode.DIALOGUE)
+
+
+func _on_dialogue_completed(_dialogue_id: String) -> void:
+	if _mode_before_dialogue == NavigatorMode.LOCAL_AREA \
+		and local_area_view.get_current_area_instance() != null:
+		_set_mode(NavigatorMode.LOCAL_AREA)
+	else:
+		_set_mode(NavigatorMode.WORLD_MAP)

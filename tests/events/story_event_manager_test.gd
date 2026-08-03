@@ -96,11 +96,14 @@ func _run_test() -> void:
 		"Reload duplicated a completed notification or app installation effect."
 	)
 
-	GlobalSignals.story_event_step_completed.emit(
-		EVENT_ID,
-		DIALOGUE_STEP_ID,
-		true
+	_check(DialogueManager.advance(), "Dialogue did not advance to its choice node.")
+	await _wait_frames(3)
+	_check(
+		DialogueManager.select_choice("valour"),
+		"Dialogue test choice could not be selected."
 	)
+	await _wait_frames(3)
+	_check(DialogueManager.advance(), "Dialogue did not complete its final node.")
 	await _wait_frames(18)
 
 	_check(

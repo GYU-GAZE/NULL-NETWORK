@@ -147,8 +147,8 @@ func get_location(location_id: String) -> MapLocation:
 	return resolve(CATEGORY_LOCATIONS, location_id) as MapLocation
 
 
-func get_dialogue(dialogue_id: String) -> Resource:
-	return resolve(CATEGORY_DIALOGUES, dialogue_id)
+func get_dialogue(dialogue_id: String) -> DialogueData:
+	return resolve(CATEGORY_DIALOGUES, dialogue_id) as DialogueData
 
 
 func get_story_event(story_event_id: String) -> StoryEventData:

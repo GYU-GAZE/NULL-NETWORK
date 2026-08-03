@@ -40,6 +40,7 @@ KubuDisplaySetting="*res://core/autoloads/kubu_display_setting.gd"
 AppSessionStore="*uid://23edeehx54i1"
 SaveManager="*res://core/autoloads/save_manager.gd"
 StoryEventManager="*res://core/autoloads/story_event_manager.gd"
+DialogueManager="*res://core/autoloads/dialogue_manager.gd"
 
 [display]
 

@@ -1,0 +1,237 @@
+[gd_resource type="Resource" script_class="DialogueData" load_steps=31 format=3]
+
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_data.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_speaker_data.gd" id="2_speaker"]
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_node_data.gd" id="3_node"]
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_choice_data.gd" id="4_choice"]
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_portrait_state.gd" id="5_portrait_state"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_rule_data.gd" id="6_rule"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_set_data.gd" id="7_condition_set"]
+[ext_resource type="Script" path="res://data/templates/conditions/flag_condition_data.gd" id="8_flag_condition"]
+[ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="9_effect"]
+[ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="10_set_flag"]
+[ext_resource type="Script" path="res://data/templates/effects/modify_number_effect_data.gd" id="11_modify_number"]
+[ext_resource type="Script" path="res://data/templates/activity/activity_definition_data.gd" id="12_activity"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="13_portrait"]
+
+[sub_resource type="Resource" id="Speaker_player"]
+script = ExtResource("2_speaker")
+speaker_id = "player"
+display_name = "OPERATOR"
+
+[sub_resource type="Resource" id="Speaker_partner"]
+script = ExtResource("2_speaker")
+speaker_id = "partner"
+display_name = "PARTNER"
+
+[sub_resource type="Resource" id="Speaker_ally"]
+script = ExtResource("2_speaker")
+speaker_id = "ally"
+display_name = "ALLY"
+
+[sub_resource type="Resource" id="Speaker_tenya"]
+script = ExtResource("2_speaker")
+speaker_id = "tenya"
+display_name = "TENYA"
+
+[sub_resource type="Resource" id="Speaker_nursery"]
+script = ExtResource("2_speaker")
+speaker_id = "nursery"
+display_name = "NURSERY育"
+
+[sub_resource type="Resource" id="Speaker_ganbare"]
+script = ExtResource("2_speaker")
+speaker_id = "ganbarekun"
+display_name = "Ganbarekun"
+
+[sub_resource type="Resource" id="Portrait_left_1"]
+script = ExtResource("5_portrait_state")
+side = 0
+slot_index = 0
+speaker_id = "player"
+portrait = ExtResource("13_portrait")
+visible = true
+active = true
+
+[sub_resource type="Resource" id="Portrait_left_2"]
+script = ExtResource("5_portrait_state")
+side = 0
+slot_index = 1
+speaker_id = "partner"
+portrait = ExtResource("13_portrait")
+visible = true
+active = false
+
+[sub_resource type="Resource" id="Portrait_left_3"]
+script = ExtResource("5_portrait_state")
+side = 0
+slot_index = 2
+speaker_id = "ally"
+portrait = ExtResource("13_portrait")
+visible = true
+active = false
+
+[sub_resource type="Resource" id="Portrait_right_1"]
+script = ExtResource("5_portrait_state")
+side = 1
+slot_index = 0
+speaker_id = "tenya"
+portrait = ExtResource("13_portrait")
+visible = true
+active = false
+
+[sub_resource type="Resource" id="Portrait_right_2"]
+script = ExtResource("5_portrait_state")
+side = 1
+slot_index = 1
+speaker_id = "nursery"
+portrait = ExtResource("13_portrait")
+visible = true
+active = false
+
+[sub_resource type="Resource" id="Portrait_right_3"]
+script = ExtResource("5_portrait_state")
+side = 1
+slot_index = 2
+speaker_id = "ganbarekun"
+portrait = ExtResource("13_portrait")
+visible = true
+active = false
+
+[sub_resource type="Resource" id="Effect_intro_counter"]
+script = ExtResource("11_modify_number")
+effect_id = "dialogue.prologue.count_intro_entry"
+variable_name = "dialogue.phase7.intro_entries"
+operation = 0
+value = 1
+
+[sub_resource type="Resource" id="Choice_activity"]
+script = ExtResource("12_activity")
+activity_id = "dialogue.prologue.consider_signal"
+display_name = "Consider the Signal"
+description = "Spend one action investigating the signal before answering."
+action_cost = 1
+allow_cross_period = true
+allow_cross_day = false
+requires_confirmation = true
+confirmation_message = "Spend 1 action to investigate the signal?"
+
+[sub_resource type="Resource" id="Effect_logic_flag"]
+script = ExtResource("10_set_flag")
+effect_id = "dialogue.prologue.mark_logic_choice"
+flag_name = "dialogue.phase7.logic_selected"
+value = true
+
+[sub_resource type="Resource" id="Choice_logic_paid"]
+script = ExtResource("4_choice")
+choice_id = "logic_paid"
+text = "Analyze the signal before answering."
+effects = Array[ExtResource("9_effect")]([SubResource("Effect_logic_flag")])
+tendency_changes = Array[int]([0, 2, 0, 0])
+next_node_id = "outro"
+activity_definition = SubResource("Choice_activity")
+
+[sub_resource type="Resource" id="Effect_valour_flag"]
+script = ExtResource("10_set_flag")
+effect_id = "dialogue.prologue.mark_valour_choice"
+flag_name = "dialogue.phase7.valour_selected"
+value = true
+
+[sub_resource type="Resource" id="Choice_valour"]
+script = ExtResource("4_choice")
+choice_id = "valour"
+text = "Connect immediately."
+effects = Array[ExtResource("9_effect")]([SubResource("Effect_valour_flag")])
+tendency_changes = Array[int]([1, 0, 0, 0])
+next_node_id = "outro"
+
+[sub_resource type="Resource" id="Effect_sync_flag"]
+script = ExtResource("10_set_flag")
+effect_id = "dialogue.prologue.mark_sync_choice"
+flag_name = "dialogue.phase7.sync_selected"
+value = true
+
+[sub_resource type="Resource" id="Choice_sync"]
+script = ExtResource("4_choice")
+choice_id = "sync"
+text = "Ask whether everyone else is safe."
+effects = Array[ExtResource("9_effect")]([SubResource("Effect_sync_flag")])
+tendency_changes = Array[int]([0, 0, 1, 0])
+next_node_id = "outro"
+
+[sub_resource type="Resource" id="Effect_self_flag"]
+script = ExtResource("10_set_flag")
+effect_id = "dialogue.prologue.mark_self_choice"
+flag_name = "dialogue.phase7.self_selected"
+value = true
+
+[sub_resource type="Resource" id="Choice_self"]
+script = ExtResource("4_choice")
+choice_id = "self"
+text = "Demand something in return."
+effects = Array[ExtResource("9_effect")]([SubResource("Effect_self_flag")])
+tendency_changes = Array[int]([0, 0, 0, 1])
+next_node_id = "outro"
+
+[sub_resource type="Resource" id="Condition_special_flag"]
+script = ExtResource("8_flag_condition")
+flag_name = "dialogue.phase7.special_unlocked"
+expected_value = true
+
+[sub_resource type="Resource" id="Conditions_special"]
+script = ExtResource("7_condition_set")
+match_mode = 0
+rules = Array[ExtResource("6_rule")]([SubResource("Condition_special_flag")])
+
+[sub_resource type="Resource" id="Effect_special_flag"]
+script = ExtResource("10_set_flag")
+effect_id = "dialogue.prologue.mark_special_choice"
+flag_name = "dialogue.phase7.special_selected"
+value = true
+
+[sub_resource type="Resource" id="Choice_special"]
+script = ExtResource("4_choice")
+choice_id = "special"
+text = "[SPECIAL] Reply using the hidden handshake."
+conditions = SubResource("Conditions_special")
+effects = Array[ExtResource("9_effect")]([SubResource("Effect_special_flag")])
+tendency_changes = Array[int]([0, 1, 1, 0])
+next_node_id = "outro"
+
+[sub_resource type="Resource" id="Node_intro"]
+script = ExtResource("3_node")
+node_id = "intro"
+speaker_id = "player"
+text = "Six profiles resolve around the encrypted channel."
+portrait_states = Array[ExtResource("5_portrait_state")]([SubResource("Portrait_left_1"), SubResource("Portrait_left_2"), SubResource("Portrait_left_3"), SubResource("Portrait_right_1"), SubResource("Portrait_right_2"), SubResource("Portrait_right_3")])
+effects_on_enter = Array[ExtResource("9_effect")]([SubResource("Effect_intro_counter")])
+next_node_id = "decision"
+
+[sub_resource type="Resource" id="Node_decision"]
+script = ExtResource("3_node")
+node_id = "decision"
+speaker_id = "tenya"
+text = "The channel recognizes you. How do you answer?"
+portrait_states = Array[ExtResource("5_portrait_state")]([SubResource("Portrait_left_1"), SubResource("Portrait_left_2"), SubResource("Portrait_left_3"), SubResource("Portrait_right_1"), SubResource("Portrait_right_2"), SubResource("Portrait_right_3")])
+choices = Array[ExtResource("4_choice")]([SubResource("Choice_logic_paid"), SubResource("Choice_valour"), SubResource("Choice_sync"), SubResource("Choice_self"), SubResource("Choice_special")])
+
+[sub_resource type="Resource" id="Effect_outro_flag"]
+script = ExtResource("10_set_flag")
+effect_id = "dialogue.prologue.mark_outro_entered"
+flag_name = "dialogue.phase7.outro_entered"
+value = true
+
+[sub_resource type="Resource" id="Node_outro"]
+script = ExtResource("3_node")
+node_id = "outro"
+speaker_id = "tenya"
+text = "Acknowledged. The rest of the network is now listening."
+portrait_states = Array[ExtResource("5_portrait_state")]([SubResource("Portrait_left_1"), SubResource("Portrait_left_2"), SubResource("Portrait_left_3"), SubResource("Portrait_right_1"), SubResource("Portrait_right_2"), SubResource("Portrait_right_3")])
+effects_on_enter = Array[ExtResource("9_effect")]([SubResource("Effect_outro_flag")])
+
+[resource]
+script = ExtResource("1_dialogue")
+dialogue_id = "dialogue.prologue.null_network_welcome"
+initial_node_id = "intro"
+speakers = Array[ExtResource("2_speaker")]([SubResource("Speaker_player"), SubResource("Speaker_partner"), SubResource("Speaker_ally"), SubResource("Speaker_tenya"), SubResource("Speaker_nursery"), SubResource("Speaker_ganbare")])
+nodes = Array[ExtResource("3_node")]([SubResource("Node_intro"), SubResource("Node_decision"), SubResource("Node_outro")])
