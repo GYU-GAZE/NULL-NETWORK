@@ -6,7 +6,8 @@
 script = ExtResource("1_catalog")
 buttons = {
 "cancel": "CANCEL",
-"confirm": "CONFIRM"
+"confirm": "CONFIRM",
+"advance": "ADVANCE"
 }
 labels = {
 "activity.available_today": "Available Today: %d blocks",
