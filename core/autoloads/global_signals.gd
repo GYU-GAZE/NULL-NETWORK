@@ -34,3 +34,24 @@ signal activity_confirmation_resolved(
 signal activity_request_cancelled(request_id: String)
 
 signal request_combat(encounter: CombatEncounter)
+
+signal request_browser_navigation(
+	url: String,
+	event_id: String,
+	step_id: String
+)
+signal request_story_dialogue(
+	dialogue_id: String,
+	event_id: String,
+	step_id: String
+)
+signal request_story_encounter(
+	encounter: CombatEncounter,
+	event_id: String,
+	step_id: String
+)
+signal story_event_step_completed(
+	event_id: String,
+	step_id: String,
+	success: bool
+)
