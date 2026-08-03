@@ -149,6 +149,17 @@ jobs:
             tests/events/story_event_manager_test.tscn \
             2>&1 | tee godot-story-event-test.log
 
+      - name: Run dialogue system test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            --quit-after 240 \
+            tests/dialogue/dialogue_system_test.tscn \
+            2>&1 | tee godot-dialogue-test.log
+
       - name: Run save manager test
         shell: bash
         run: |
@@ -197,6 +208,7 @@ jobs:
             godot-conditions-effects-test.log \
             godot-app-catalog-test.log \
             godot-story-event-test.log \
+            godot-dialogue-test.log \
             godot-save-test.log \
             godot-save-runtime-test.log \
             godot-combat-layout-test.log \
@@ -255,6 +267,14 @@ jobs:
 
           grep -q "STORY_EVENT_MANAGER_TEST: PASS" godot-story-event-test.log
 
+          if grep -E "DIALOGUE_SYSTEM_TEST: " godot-dialogue-test.log \
+            | grep -v "DIALOGUE_SYSTEM_TEST: PASS"; then
+            echo "The dialogue system test reported an error."
+            exit 1
+          fi
+
+          grep -q "DIALOGUE_SYSTEM_TEST: PASS" godot-dialogue-test.log
+
           if grep -E "SAVE_MANAGER_TEST: " godot-save-test.log \
             | grep -v "SAVE_MANAGER_TEST: PASS"; then
             echo "The save manager test reported an error."
@@ -293,6 +313,7 @@ jobs:
             godot-conditions-effects-test.log
             godot-app-catalog-test.log
             godot-story-event-test.log
+            godot-dialogue-test.log
             godot-save-test.log
             godot-save-runtime-test.log
             godot-combat-layout-test.log
