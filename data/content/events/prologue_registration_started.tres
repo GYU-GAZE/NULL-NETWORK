@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="StoryEventData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://data/templates/events/story_event_data.gd" id="1_event"]
+[ext_resource type="Script" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
+[ext_resource type="Script" path="res://data/templates/events/story_event_step_data.gd" id="3_step"]
+[ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="4_effect"]
+[ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="5_flag"]
+
+[sub_resource type="Resource" id="Trigger_campaign_created"]
+script = ExtResource("2_trigger")
+trigger_type = 0
+
+[sub_resource type="Resource" id="Step_open_browser"]
+script = ExtResource("3_step")
+step_id = "open_browser"
+step_type = 2
+app_id = "browser"
+
+[sub_resource type="Resource" id="Step_navigate_register"]
+script = ExtResource("3_step")
+step_id = "navigate_registration"
+step_type = 3
+browser_url = "null.net/register"
+
+[sub_resource type="Resource" id="Effect_started"]
+script = ExtResource("5_flag")
+effect_id = "prologue.registration.mark_started"
+flag_name = "prologue.registration_started"
+value = true
+
+[resource]
+script = ExtResource("1_event")
+event_id = "prologue.registration_started"
+priority = 1000
+trigger = SubResource("Trigger_campaign_created")
+repeat_policy = 0
+steps = Array[ExtResource("3_step")]([SubResource("Step_open_browser"), SubResource("Step_navigate_register")])
+completion_effects = Array[ExtResource("4_effect")]([SubResource("Effect_started")])
+interruption_policy = 1

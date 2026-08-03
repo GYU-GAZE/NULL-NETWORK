@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="GameContentCatalog" load_steps=29 format=3]
+[gd_resource type="Resource" script_class="GameContentCatalog" format=3]
 
 [ext_resource type="Script" path="res://data/templates/content/game_content_catalog.gd" id="1_catalog"]
 [ext_resource type="Script" path="res://data/templates/module_data.gd" id="2_module_type"]
@@ -28,6 +28,13 @@
 [ext_resource type="Resource" path="res://data/content/events/story_event_catalog.tres" id="28_story_events"]
 [ext_resource type="Resource" path="res://data/content/dialogues/prologue_null_network_welcome.tres" id="29_welcome_dialogue"]
 [ext_resource type="Script" path="res://data/templates/dialogue/dialogue_data.gd" id="30_dialogue_type"]
+[ext_resource type="Script" path="res://data/templates/operator/occupation_data.gd" id="31_occupation_type"]
+[ext_resource type="Resource" path="res://data/content/occupations/neet.tres" id="32_neet"]
+[ext_resource type="Resource" path="res://data/content/occupations/high_school_student.tres" id="33_student"]
+[ext_resource type="Resource" path="res://data/content/occupations/salaryperson.tres" id="34_salaryperson"]
+[ext_resource type="Resource" path="res://data/content/navigator/areas/operator_starts/residential.tres" id="35_residential"]
+[ext_resource type="Resource" path="res://data/content/navigator/areas/operator_starts/high_school.tres" id="36_high_school"]
+[ext_resource type="Resource" path="res://data/content/navigator/areas/operator_starts/corporate.tres" id="37_corporate"]
 
 [resource]
 script = ExtResource("1_catalog")
@@ -36,7 +43,8 @@ combat_encounters = Array[ExtResource("24_encounter_type")]([ExtResource("16_enc
 character_loadouts = Array[ExtResource("25_loadout_type")]([ExtResource("18_player_loadout"), ExtResource("19_rattus_loadout")])
 status_effects = Array[ExtResource("26_status_type")]([ExtResource("20_barrier"), ExtResource("21_dodge_up"), ExtResource("22_unstability")])
 dummies = Array[ExtResource("27_dummy_type")]([ExtResource("23_turret")])
+occupations = Array[ExtResource("31_occupation_type")]([ExtResource("32_neet"), ExtResource("33_student"), ExtResource("34_salaryperson")])
 app_catalog = ExtResource("11_app_catalog")
-locations = Array[ExtResource("14_location_type")]([ExtResource("15_akihabara")])
+locations = Array[ExtResource("14_location_type")]([ExtResource("15_akihabara"), ExtResource("35_residential"), ExtResource("36_high_school"), ExtResource("37_corporate")])
 dialogues = Array[ExtResource("30_dialogue_type")]([ExtResource("29_welcome_dialogue")])
 story_event_catalog = ExtResource("28_story_events")

@@ -128,8 +128,21 @@ func get_dummy(dummy_id: String) -> DummyData:
 	return resolve(CATEGORY_DUMMIES, dummy_id) as DummyData
 
 
-func get_occupation(occupation_id: String) -> Resource:
-	return resolve(CATEGORY_OCCUPATIONS, occupation_id)
+func get_occupation(occupation_id: String) -> OccupationData:
+	return resolve(CATEGORY_OCCUPATIONS, occupation_id) as OccupationData
+
+
+func get_occupations() -> Array[OccupationData]:
+	var result: Array[OccupationData] = []
+
+	if catalog == null:
+		return result
+
+	for occupation: OccupationData in catalog.occupations:
+		if occupation != null:
+			result.append(occupation)
+
+	return result
 
 
 func get_app(app_id: String) -> AppResource:
@@ -235,6 +248,26 @@ func _build_indexes(new_catalog: GameContentCatalog) -> Dictionary:
 			category_index[content_id] = resource
 
 		proposed_indexes[category] = category_index
+
+	var location_index: Dictionary = proposed_indexes.get(
+		CATEGORY_LOCATIONS,
+		{}
+	)
+
+	for occupation: OccupationData in new_catalog.occupations:
+		if occupation == null:
+			continue
+
+		var starting_location_id: String = (
+			occupation.starting_location_id.strip_edges()
+		)
+
+		if not starting_location_id.is_empty() \
+			and not location_index.has(starting_location_id):
+			errors.append(
+				"Occupation '%s' references unknown starting location '%s'."
+				% [occupation.get_display_id(), starting_location_id]
+			)
 
 	return {
 		"errors": errors,

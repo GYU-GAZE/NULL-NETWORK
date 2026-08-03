@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="OccupationData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/templates/operator/occupation_data.gd" id="1_occupation"]
+[ext_resource type="Script" path="res://data/templates/operator/occupation_schedule_data.gd" id="2_schedule"]
+
+[sub_resource type="Resource" id="Schedule_high_school"]
+script = ExtResource("2_schedule")
+schedule_id = "schedule.occupation.high_school_student"
+occupied_reason = "School is in session."
+occupied_weekday_indices = PackedInt32Array(1, 2, 3, 4, 5)
+occupied_day_blocks = PackedInt32Array(2, 3, 4, 5, 6, 7, 8, 9)
+
+[resource]
+script = ExtResource("1_occupation")
+occupation_id = "high_school_student"
+display_name = "High School Student"
+description = "Weekday school routine, a modest weekly allowance, and access to school life and younger social circles."
+initial_money = 1500
+recurring_income = 800
+income_interval_days = 7
+schedule = SubResource("Schedule_high_school")
+starting_location_id = "operator_start_high_school"
+routine_event_ids = PackedStringArray("routine.occupation.high_school.school_day")

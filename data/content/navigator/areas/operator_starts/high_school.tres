@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="MapLocation" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/navigator/map_location.gd" id="1_location"]
+
+[resource]
+script = ExtResource("1_location")
+location_id = "operator_start_high_school"
+location_name = "High School"
+location_subtitle = "Student Routine"
+location_description = "The High School Student's routine starting point."
+show_on_world_map = false
+unlocked_by_default = false

@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="StoryEventData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://data/templates/events/story_event_data.gd" id="1_event"]
+[ext_resource type="Script" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
+[ext_resource type="Script" path="res://data/templates/events/story_event_step_data.gd" id="3_step"]
+[ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="4_effect"]
+[ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="5_flag"]
+
+[sub_resource type="Resource" id="Trigger_operator_registered"]
+script = ExtResource("2_trigger")
+trigger_type = 3
+watched_flag_name = "operator.registered"
+watched_flag_value = true
+
+[sub_resource type="Resource" id="Step_notification"]
+script = ExtResource("3_step")
+step_id = "registration_notification"
+step_type = 1
+title = "ACCOUNT REGISTERED"
+message = "Operator profile synchronized with TOKYO, JAPAN."
+source_app_id = "browser"
+notification_type = 0
+notification_priority = 1
+
+[sub_resource type="Resource" id="Effect_forum_account"]
+script = ExtResource("5_flag")
+effect_id = "prologue.registration.create_forum_account"
+flag_name = "forum.account_created"
+value = true
+
+[resource]
+script = ExtResource("1_event")
+event_id = "prologue.registration_completed"
+priority = 900
+trigger = SubResource("Trigger_operator_registered")
+repeat_policy = 0
+steps = Array[ExtResource("3_step")]([SubResource("Step_notification")])
+completion_effects = Array[ExtResource("4_effect")]([SubResource("Effect_forum_account")])
+interruption_policy = 1

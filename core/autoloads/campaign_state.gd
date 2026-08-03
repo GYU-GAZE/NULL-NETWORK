@@ -24,7 +24,7 @@ enum SaveMode {
 	COMMIT
 }
 
-const STATE_SCHEMA_VERSION: int = 2
+const STATE_SCHEMA_VERSION: int = 3
 const MIN_SUPPORTED_STATE_SCHEMA_VERSION: int = 1
 const SOCIAL_AFFINITY_KEY: String = "affinity_by_npc"
 
@@ -161,6 +161,49 @@ func modify_tendency(
 		tendency,
 		tendencies.get_value(tendency) + amount
 	)
+
+
+func set_operator_state(new_operator: OperatorStateData) -> bool:
+	if new_operator == null or new_operator.is_empty():
+		return false
+
+	operator = OperatorStateData.new()
+	operator.load_save_data(new_operator.to_save_data())
+	campaign_changed.emit(&"operator")
+	return true
+
+
+func set_operator_last_income_day(game_day: int) -> bool:
+	if operator.is_empty():
+		return false
+
+	operator.last_income_day = maxi(operator.registration_day, game_day)
+	campaign_changed.emit(&"operator")
+	return true
+
+
+func set_initial_tendencies(
+	valour: int,
+	logic: int,
+	sync: int,
+	self_value: int
+) -> bool:
+	var values: Array[int] = [valour, logic, sync, self_value]
+
+	for value: int in values:
+		if value < 0:
+			return false
+
+	if valour + logic + sync + self_value != 15:
+		return false
+
+	tendencies = TendencyStateData.new()
+	tendencies.valour = valour
+	tendencies.logic = logic
+	tendencies.sync = sync
+	tendencies.self_value = self_value
+	campaign_changed.emit(&"tendencies")
+	return true
 
 
 func grant_item(item_id: String, amount: int = 1) -> int:
