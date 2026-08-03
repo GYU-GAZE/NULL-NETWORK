@@ -20,8 +20,22 @@ var _current_request_id: String = ""
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_apply_global_texts()
 	hide()
 	_connect_signals()
+
+
+func _apply_global_texts() -> void:
+	confirm_button.text = GlobalTextCatalog.get_default_text(
+		GlobalTextCatalog.TextCategory.BUTTONS,
+		"confirm",
+		"CONFIRM"
+	)
+	cancel_button.text = GlobalTextCatalog.get_default_text(
+		GlobalTextCatalog.TextCategory.BUTTONS,
+		"cancel",
+		"CANCEL"
+	)
 
 
 func _connect_signals() -> void:
@@ -139,33 +153,40 @@ func _display_request(payload: Dictionary) -> void:
 	title_label.text = definition.get_display_name()
 	message_label.text = definition.get_confirmation_message()
 
-	var block_word: String = (
-		"block"
+	var cost_key: String = (
+		"activity.time_cost.singular"
 		if preview.charged_action_cost == 1
-		else "blocks"
+		else "activity.time_cost.plural"
 	)
-	cost_label.text = "Time Cost: %d %s" % [
-		preview.charged_action_cost,
-		block_word
-	]
-	available_time_label.text = "Available Today: %d blocks" % (
-		preview.available_blocks_in_day
-	)
-	final_time_label.text = "Ends: %s" % (
-		preview.get_final_time_text()
-	)
+	cost_label.text = GlobalTextCatalog.get_default_text(
+		GlobalTextCatalog.TextCategory.LABELS,
+		cost_key,
+		"Time Cost: %d blocks"
+	) % preview.charged_action_cost
+	available_time_label.text = GlobalTextCatalog.get_default_text(
+		GlobalTextCatalog.TextCategory.LABELS,
+		"activity.available_today",
+		"Available Today: %d blocks"
+	) % preview.available_blocks_in_day
+	final_time_label.text = GlobalTextCatalog.get_default_text(
+		GlobalTextCatalog.TextCategory.LABELS,
+		"activity.ends",
+		"Ends: %s"
+	) % preview.get_final_time_text()
 
 	if preview.crosses_day:
-		transition_label.text = (
+		transition_label.text = GlobalTextCatalog.get_default_text(
+			GlobalTextCatalog.TextCategory.MESSAGES,
+			"activity.crosses_day",
 			"This activity ends on Day %d."
-			% preview.final_day
-		)
+		) % preview.final_day
 		transition_label.show()
 	elif preview.crosses_period:
-		transition_label.text = (
+		transition_label.text = GlobalTextCatalog.get_default_text(
+			GlobalTextCatalog.TextCategory.MESSAGES,
+			"activity.crosses_period",
 			"This activity crosses into %s."
-			% preview.get_final_period_name()
-		)
+		) % preview.get_final_period_name()
 		transition_label.show()
 	else:
 		transition_label.text = ""
