@@ -13,9 +13,9 @@
 ## Stable baseline
 
 - Base branch: `main`
-- Last audited stable commit before the current change: `5e70413c5c47f67fec0cf2b90d195edc7fbb1931`
-- Last completed system: Phase 7 persistent data-driven dialogue execution
-- Last validated workflow: Godot Project Validation run `#240`
+- Last audited stable commit before the current change: `09b657f387e565066429f5a8fbcb86b9108f8e11`
+- Last completed system: Phase 8 persistent Operator creation and occupation schedules
+- Last validated workflow: Godot Project Validation run `#245`
 - Activity marker: `ACTIVITY_MANAGER_TEST: PASS`
 - Campaign marker: `CAMPAIGN_STATE_TEST: PASS`
 - Save marker: `SAVE_MANAGER_TEST: PASS`
@@ -24,25 +24,39 @@
 - App catalog marker: `APP_CATALOG_TEST: PASS`
 - Story event marker: `STORY_EVENT_MANAGER_TEST: PASS`
 - Dialogue marker: `DIALOGUE_SYSTEM_TEST: PASS`
+- Operator marker: `OPERATOR_CREATION_TEST: PASS`
 - Runtime marker: `COMBAT_RUNTIME_TEST: PASS`
 - Layout marker: `COMBAT_LAYOUT_TEST: PASS`
 
 ## Current system
 
-- Roadmap phase: **Phase 8 — Operator creation and occupations**
-- Status: Phase 7 is complete and validated. Dialogue Resources execute inside Navigator with conditional choices, six portrait slots, one-time effects, paid actions and exact save/load restoration.
-- Architectural objective: create and persist the Operator profile, appearance, initial tendencies and occupation schedule before the official campaign begins.
+- Roadmap phase: **Phase 9 — APK, partner, inventory and progression**
+- Status: Phase 8 is complete and validated. Operator identity, layered appearance, exact initial tendencies, occupation economy and occupied schedule blocks are persistent and data-driven.
+- Architectural objective: separate immutable APK definitions from persistent PartnerState, then make combat loadouts temporary snapshots of that state.
 
 ## Next exact task
 
-Begin Phase 8 in this order:
+Begin Phase 9 in this order:
 
-1. Inventory the existing `OperatorStateData`, campaign schema and NULL NETWORK registration page routes before changing the persisted profile contract.
-2. Create `OperatorProfileData`, `AppearanceData`, `OccupationData` and `OccupationScheduleData` with stable IDs and validation.
-3. Author and catalog NEET, High School Student and Salaryperson occupation Resources, including initial money, recurring income, starting location, routine event IDs and occupied blocks.
-4. Register one occupation availability provider with ActivityManager; apps must not duplicate schedule checks.
-5. Build the Operator creation page with exact 15-point tendency allocation and service-owned submission.
-6. Complete `VS-090`: create each occupation, reject an invalid tendency total, save/restart, restore profile/appearance/schedule and block an activity during an occupied block.
+1. Inventory the current player `CharacterLoadout`, `CombatSlotData`, inventory schema and all combat result write-back paths before changing ownership.
+2. Create immutable `APKData`, personality, address-term, growth-profile and level-reward Resources with stable IDs and catalog validation.
+3. Create JSON-safe `PartnerStateData` and inventory entries; migrate CampaignState without serializing Resources.
+4. Implement the canonical GDD level/EXP, projected stat, allocation-point and growth calculations in progression services.
+5. Make allied combat slot `0` resolve `PLAYER_PARTNER` into an entry snapshot, then write HP, Stability, EXP and Module changes back only at stable encounter boundaries.
+6. Complete `VS-100`: persist a partner, enter and leave combat, restart and prove partner HP, Stability, EXP, affinity and Modules remain authoritative.
+
+## Phase 8 Operator and occupation checkpoint
+
+- `OperatorProfileData` owns personal identity, NULL NETWORK account, Tokyo/Japan server binding, occupation, avatar, gender and pronouns.
+- `AppearanceData` persists body, face, eyes, three clothing layers, hat and facial accessory as stable IDs.
+- `OccupationData` and `OccupationScheduleData` define economy, starting location, recurring income, routine event hooks and occupied weekday/action blocks as Resources.
+- The catalog contains NEET, High School Student and Salaryperson. Their schedules remain editable data; no app or scene hardcodes occupation rules.
+- `OperatorService` is the sole registration authority, requires exactly 15 tendency points and registers one ActivityManager availability provider.
+- Schedule availability rejects both activities begun inside an occupied block and activities whose cost crosses into one; StoryEvent-owned routines remain allowed.
+- Recurring income advances from the persisted last-payment day and cannot duplicate after save/load.
+- `null.net/register` hosts the diegetic creation UI; `prologue.registration_started` opens it and `prologue.registration_completed` reacts to the authoritative registration flag.
+- Campaign save schema 3 stores the profile and appearance as plain values while continuing to read prior supported schemas.
+- `VS-090` creates all three occupations, rejects a 14-point allocation without mutation, saves/reloads the complete Operator and verifies schedule blocking and weekly income.
 
 ## Phase 7 dialogue checkpoint
 
@@ -126,14 +140,13 @@ Begin Phase 8 in this order:
 - Akihabara travel costs one block through `travel_akihabara.tres`.
 - Voluntary Rattildus combat costs two blocks at FIGHT confirmation through `fight_rattildus.tres`.
 - The activity test instantiates Navigator, travels, starts combat and proves resolution adds no second cost.
-- Availability providers are ready for the Phase 8 occupation schedule without coupling it to Navigator.
+- The ActivityManager availability-provider contract is now consumed by the Phase 8 occupation schedule without coupling it to Navigator.
 
 ## Known non-blocking gaps
 
 - Combat resolution does not yet apply persistent campaign rewards.
-- The player combat loadout still comes from `CombatEncounter`, not a persistent partner.
+- The player combat loadout still comes from `CombatEncounter`, not persistent `PartnerStateData`; this is the active Phase 9 task.
 - Social and Encyclopedia have reserved plain state sections, but their typed domain models belong to Phases 12 and 13.
-- No occupation provider is registered yet; this is the active Phase 8 task.
 - No current content uses `allow_cross_day`; the behavior is covered by preview tests for future events.
 
 These are planned in their listed roadmap phases and must not be pulled forward into unrelated changes.
@@ -151,6 +164,7 @@ godot --headless --path . tests/conditions/conditions_effects_test.tscn
 godot --headless --path . tests/apps/app_catalog_test.tscn
 godot --headless --path . tests/events/story_event_manager_test.tscn
 godot --headless --path . tests/dialogue/dialogue_system_test.tscn
+godot --headless --path . tests/operator/operator_creation_test.tscn
 godot --headless --path . tests/save/save_manager_test.tscn
 godot --headless --path . tests/save/save_runtime_integration_test.tscn
 godot --headless --path . tests/combat/combat_runtime_test.tscn

@@ -8,7 +8,7 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 
 | Content | Minimum slice quantity | State | Blocking phase | Notes |
 |---|---:|---|---:|---|
-| Occupations | 3 | MISSING | 8 | NEET, High School Student, Salaryperson |
+| Occupations | 3 | EXISTS | 8 | NEET, High School Student and Salaryperson are cataloged Resources with economy, starting location and schedules |
 | Starter APKs | 5 | MISSING | 9 | NOVIRE, VOCALYTE, WIZIP, TROJAW, PAZUZU; greybox art allowed |
 | Initial partner personalities | At least 1 valid result per starter | MISSING | 9 | Selection remains controlled by APK data |
 | Initial district | 1 | PARTIAL | 11 | Akihabara test area exists; canonical Prologue starting area remains content work |
@@ -26,8 +26,8 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | `prologue.boot` | Story Event | MISSING | 6 | Starts diegetic KubuOS boot |
 | `prologue.denpa_opened` | Story Event | MISSING | 6 | Detects intended denpa-channel entry |
 | `prologue.null_link_clicked` | Story Event | MISSING | 6 | Opens NULL CHANNEL path |
-| `prologue.registration_started` | Story Event | MISSING | 8 | Opens Operator creation |
-| `prologue.registration_completed` | Story Event | MISSING | 8 | Persists Operator and tendencies |
+| `prologue.registration_started` | Story Event | EXISTS | 8 | Opens Browser at `null.net/register` and marks the registration boundary |
+| `prologue.registration_completed` | Story Event | EXISTS | 8 | Reacts to the persisted Operator and creates the forum account flag |
 | `prologue.forum_unlocked` | Story Event | MISSING | 6 | Makes forum available |
 | `prologue.welcome_available` | Story Event | MISSING | 6 | Publishes only the tutorial thread |
 | `prologue.welcome_read` | Story Event | MISSING | 6 | Detects completed reading |
@@ -44,7 +44,7 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | `null.net/introduction` | Website page | MISSING | 15 | Explains game fiction |
 | `null.net/get-started` | Website page | MISSING | 15 | Guides registration and install |
 | `null.net/rankings` | Website page | PARTIAL | 15 | Uses existing ranking/user data |
-| `null.net/register` | Website page | MISSING | 8/15 | Hosts Operator creation |
+| `null.net/register` | Website page | EXISTS | 8/15 | Hosts service-owned Operator creation with appearance, occupation and exact 15-point allocation |
 | `null.net/forums` | Website page | PARTIAL | 15 | Existing forum system becomes condition-gated |
 | `null.net/download` | Website page | MISSING | 15 | Installs app through effect |
 | `WELCOME, NEW PLAYERS` | Forum thread | MISSING | 15 | Teaches through existing NPC posts |
