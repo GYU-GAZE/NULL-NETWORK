@@ -138,6 +138,17 @@ jobs:
             tests/apps/app_catalog_test.tscn \
             2>&1 | tee godot-app-catalog-test.log
 
+      - name: Run story event manager test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            --quit-after 180 \
+            tests/events/story_event_manager_test.tscn \
+            2>&1 | tee godot-story-event-test.log
+
       - name: Run save manager test
         shell: bash
         run: |
@@ -185,6 +196,7 @@ jobs:
             godot-campaign-test.log \
             godot-conditions-effects-test.log \
             godot-app-catalog-test.log \
+            godot-story-event-test.log \
             godot-save-test.log \
             godot-save-runtime-test.log \
             godot-combat-layout-test.log \
@@ -235,6 +247,14 @@ jobs:
 
           grep -q "APP_CATALOG_TEST: PASS" godot-app-catalog-test.log
 
+          if grep -E "STORY_EVENT_MANAGER_TEST: " godot-story-event-test.log \
+            | grep -v "STORY_EVENT_MANAGER_TEST: PASS"; then
+            echo "The story event manager test reported an error."
+            exit 1
+          fi
+
+          grep -q "STORY_EVENT_MANAGER_TEST: PASS" godot-story-event-test.log
+
           if grep -E "SAVE_MANAGER_TEST: " godot-save-test.log \
             | grep -v "SAVE_MANAGER_TEST: PASS"; then
             echo "The save manager test reported an error."
@@ -272,6 +292,7 @@ jobs:
             godot-campaign-test.log
             godot-conditions-effects-test.log
             godot-app-catalog-test.log
+            godot-story-event-test.log
             godot-save-test.log
             godot-save-runtime-test.log
             godot-combat-layout-test.log

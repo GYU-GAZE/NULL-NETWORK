@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="StoryEventCatalog" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/templates/events/story_event_catalog.gd" id="1_catalog"]
+[ext_resource type="Script" path="res://data/templates/events/story_event_data.gd" id="2_event_type"]
+[ext_resource type="Resource" path="res://data/content/events/prologue_null_network_welcome.tres" id="3_welcome"]
+
+[resource]
+script = ExtResource("1_catalog")
+events = Array[ExtResource("2_event_type")]([ExtResource("3_welcome")])

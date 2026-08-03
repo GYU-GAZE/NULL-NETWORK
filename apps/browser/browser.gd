@@ -58,6 +58,14 @@ func _ready() -> void:
 		resized.connect(_refresh_tab_layout_only)
 
 	_connect_browser_navigation_signals(self)
+
+	if not GlobalSignals.request_browser_navigation.is_connected(
+		_on_story_browser_navigation_requested
+	):
+		GlobalSignals.request_browser_navigation.connect(
+			_on_story_browser_navigation_requested
+		)
+
 	_create_tab(home_url)
 
 
@@ -77,6 +85,19 @@ func _apply_browser_shell_layout() -> void:
 	site_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	site_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	site_container.clip_contents = true
+
+func _on_story_browser_navigation_requested(
+	url: String,
+	event_id: String,
+	step_id: String
+) -> void:
+	_load_page(url)
+	GlobalSignals.story_event_step_completed.emit(
+		event_id,
+		step_id,
+		true
+	)
+
 
 func _on_go_pressed() -> void:
 	_load_page(url_line_edit.text)
@@ -582,3 +603,4 @@ func restore_app_session_state(state: Dictionary) -> void:
 	_render_current_tab()
 	_refresh_tab_buttons()
 	_refresh_favorite_button()
+

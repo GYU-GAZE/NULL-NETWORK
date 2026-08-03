@@ -15,7 +15,8 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Tutorial EXE | 1 | PARTIAL | 10 | Rattildus test encounter exists but lacks campaign resolution |
 | Player Actions | 4 | MISSING | 10 | SCAN, PURGE, PURIFY, TAME |
 | Core apps | 6 | PARTIAL | 5/13 | Browser and Navigator exist; Profile, Encyclopedia, Social and Calendar do not |
-| Global UI text catalog | 1 | MISSING | 4 | Interface text only; narrative stays in narrative Resources |
+| Global UI text catalog | 1 | EXISTS | 4 | Interface text only; narrative stays in narrative Resources |
+| StoryEvent integration gate | 1 | EXISTS | 6 | `story.prologue.null_network_welcome` proves orchestration and persistence; it does not replace the final Phase 15 Prologue sequence |
 
 ## Prologue
 

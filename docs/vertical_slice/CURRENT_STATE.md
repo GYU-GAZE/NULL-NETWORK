@@ -13,34 +13,46 @@
 ## Stable baseline
 
 - Base branch: `main`
-- Last audited stable commit before the current change: `60fcaeb885d71ab9cff29495e32c9e54e73d1b04`
-- Last completed system: Phase 5 dynamic app catalog and installation
-- Last validated workflow: Godot Project Validation run `#232`
+- Last audited stable commit before the current change: `941d7559eacaf50ce4adeeae7383043faf4eb4fc`
+- Last completed system: Phase 6 queued and resumable StoryEvent execution
+- Last validated workflow: Godot Project Validation run `#236`
 - Activity marker: `ACTIVITY_MANAGER_TEST: PASS`
 - Campaign marker: `CAMPAIGN_STATE_TEST: PASS`
 - Save marker: `SAVE_MANAGER_TEST: PASS`
 - Save runtime marker: `SAVE_RUNTIME_INTEGRATION_TEST: PASS`
 - Conditions/effects marker: `CONDITIONS_EFFECTS_TEST: PASS`
 - App catalog marker: `APP_CATALOG_TEST: PASS`
+- Story event marker: `STORY_EVENT_MANAGER_TEST: PASS`
 - Runtime marker: `COMBAT_RUNTIME_TEST: PASS`
 - Layout marker: `COMBAT_LAYOUT_TEST: PASS`
 
 ## Current system
 
-- Roadmap phase: **Phase 6 — StoryEventManager**
-- Status: Phase 5 is complete and validated. App definitions are ordered by an immutable AppCatalog; installations belong to CampaignState; AppInstallationManager applies conditions, effects and notifications; the Dock projects installed IDs live.
-- Architectural objective: connect time, flags, Browser, Social, Navigator, dialogue and combat through queued, resumable StoryEvent Resources without direct app coupling.
+- Roadmap phase: **Phase 7 — Dialogue system**
+- Status: Phase 6 is complete and validated. StoryEvent Resources are triggered by campaign, time, flags and location; StoryEventManager queues and executes them at persisted step boundaries through typed service and presentation intents.
+- Architectural objective: execute data-driven Visual Novel scenes inside Navigator, with conditional choices, one-time node effects and mid-scene save/load.
 
 ## Next exact task
 
-Begin Phase 6 in this order:
+Begin Phase 7 in this order:
 
-1. Inventory every signal that can make an event eligible: time, campaign flags, location and campaign load.
-2. Create StoryEventData, StoryEventTriggerData, StoryEventStepData and StoryEventCatalog Resources with validation and stable IDs.
-3. Add persisted event queue, active event ID, current step index and completion/repeat state to CampaignState.
-4. Create StoryEventManager as a single queued executor that emits presentation intents instead of resolving Node paths.
-5. Implement the initial step families listed in Roadmap §12 and resume only from stable step boundaries.
-6. Complete `VS-070`: one real StoryEvent Resource queues from a trigger, advances, saves and resumes without duplicating completed steps.
+1. Inventory Navigator's reserved DIALOGUE mode, current interaction contract and StoryEvent `START_DIALOGUE` intent.
+2. Create DialogueData, DialogueNodeData, DialogueChoiceData, DialoguePortraitState and DialogueSpeakerData with stable IDs and validation.
+3. Add persisted dialogue ID, current node ID, executed node effects and selected choices to CampaignState or a dedicated registered save provider.
+4. Build DialoguePlayer inside Navigator with six portrait slots, conditional choices and no direct campaign mutation from UI.
+5. Route node and choice effects through the Phase 4 effect context; route paid choices through ActivityManager.
+6. Complete `VS-080`: save at a dialogue node, rebuild the runtime and prove node effects are not executed twice.
+
+## Phase 6 StoryEvent checkpoint
+
+- `StoryEventCatalog` is the immutable ordered source for event Resources; `ContentRegistry` resolves events by stable ID.
+- Trigger Resources cover campaign create/load, time, flag, location and manual triggers with optional filters.
+- `StoryEventManager` owns eligibility, priority queueing, repeat/interruption policy and one-at-a-time step execution without absolute Node paths.
+- The twelve Roadmap step families dispatch through global services or typed signals: alerts, notifications, apps, Browser navigation, dialogue, encounters, locations, installation, Leads, Effects, Activities and event chaining.
+- CampaignState persists queued event IDs, active event/step boundary, waiting state, completed IDs and repeat metadata as JSON-safe values.
+- External dialogue/encounter boundaries acknowledge completion by event and step ID; already-completed steps are not redispatched after reload.
+- `story.prologue.null_network_welcome` is the integration Resource proving Browser open/navigation, alert/notification, Navigator installation, dialogue intent, Effects and completion save.
+- `VS-070` destroys and rebuilds Main while the event waits for dialogue, then proves the exact step resumes once and the ONCE event cannot repeat.
 
 ## Phase 5 app catalog checkpoint
 
@@ -105,10 +117,10 @@ Begin Phase 6 in this order:
 
 ## Known non-blocking gaps
 
-- Navigator `DIALOGUE` mode has no dialogue player.
+- Navigator `DIALOGUE` mode has no dialogue player; this is the active Phase 7 task.
 - Combat resolution does not yet apply persistent campaign rewards.
 - The player combat loadout still comes from `CombatEncounter`, not a persistent partner.
-- Story events do not yet coordinate app opening, navigation, dialogue or encounters; this is the active Phase 6 task.
+- No dialogue runtime consumes the StoryEvent dialogue intent yet; the persisted StoryEvent boundary is ready for Phase 7 acknowledgement.
 - Social and Encyclopedia have reserved plain state sections, but their typed domain models belong to Phases 12 and 13.
 - No occupation provider is registered yet; only its stable ActivityManager contract exists.
 - No current content uses `allow_cross_day`; the behavior is covered by preview tests for future events.
@@ -126,6 +138,7 @@ godot --headless --path . tests/campaign/campaign_state_test.tscn
 godot --headless --path . tests/activity/activity_manager_test.tscn
 godot --headless --path . tests/conditions/conditions_effects_test.tscn
 godot --headless --path . tests/apps/app_catalog_test.tscn
+godot --headless --path . tests/events/story_event_manager_test.tscn
 godot --headless --path . tests/save/save_manager_test.tscn
 godot --headless --path . tests/save/save_runtime_integration_test.tscn
 godot --headless --path . tests/combat/combat_runtime_test.tscn
