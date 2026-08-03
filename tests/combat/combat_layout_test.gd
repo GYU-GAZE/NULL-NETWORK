@@ -215,6 +215,9 @@ func _combat_uses_kubu_font_density(
 			"ContentMargin/BattleBox/CenterHBox/MenuBox/ChangeModulesBtn"
 		) as Control,
 		combat_app.get_node(
+			"ContentMargin/BattleBox/CenterHBox/MenuBox/PlayerActionsBtn"
+		) as Control,
+		combat_app.get_node(
 			"ContentMargin/BattleBox/CenterHBox/MenuBox/ExecuteBtn"
 		) as Control,
 		combat_app.get_node(
@@ -224,7 +227,7 @@ func _combat_uses_kubu_font_density(
 			"OverlayLayer/ModuleSwapUI/Title"
 		) as Control,
 		combat_app.get_node(
-			"OverlayLayer/ResolutionScreen/ResolutionCenter/ResolutionBox/ResolutionTitle"
+			"OverlayLayer/CombatResolutionPanel/Center/Box/TitleLabel"
 		) as Control
 	]
 

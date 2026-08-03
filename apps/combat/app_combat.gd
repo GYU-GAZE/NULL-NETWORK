@@ -82,7 +82,22 @@ func _apply_static_ui_style() -> void:
 		execute_btn,
 		run_away_btn,
 		tooltip_label,
-		module_swap_ui.get_node("Title") as Label
+		module_swap_ui.get_node("Title") as Label,
+		player_action_selector.get_node("Margin/Rows/Title") as Label,
+		player_action_selector.get_node("Margin/Rows/ActionOptions") as OptionButton,
+		player_action_selector.get_node("Margin/Rows/TargetOptions") as OptionButton,
+		player_action_selector.get_node("Margin/Rows/SlotOptions") as OptionButton,
+		player_action_selector.get_node("Margin/Rows/Buttons/AssignButton") as Button,
+		player_action_selector.get_node("Margin/Rows/Buttons/CloseButton") as Button,
+		resolution_panel.get_node("Center/Box/TitleLabel") as Label,
+		resolution_panel.get_node("Center/Box/SummaryLabel") as Label,
+		resolution_panel.get_node("Center/Box/ModuleOptions") as OptionButton,
+		resolution_panel.get_node("Center/Box/ConfirmChoiceButton") as Button,
+		resolution_panel.get_node("Center/Box/ContinueButton") as Button,
+		evolution_overlay.get_node("Center/Box/TitleLabel") as Label,
+		evolution_overlay.get_node("Center/Box/RouteLabel") as Label,
+		evolution_overlay.get_node("Center/Box/Buttons/EvolveButton") as Button,
+		evolution_overlay.get_node("Center/Box/Buttons/HoldButton") as Button
 	]
 
 	for control in interface_controls:
