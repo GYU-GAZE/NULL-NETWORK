@@ -523,9 +523,27 @@ func _test_navigator_travel_and_voluntary_combat() -> void:
 		"Confirmed voluntary combat did not start its transaction."
 	)
 
-	navigator.combat_app._finish_encounter(
+	var player_actor: Variant = CombatManager.get_player_actor()
+
+	if player_actor is Dictionary:
+		player_actor["dodge"] = 1.0
+
+	var escaped: bool = false
+
+	for _attempt: int in range(100):
+		if CombatManager.try_escape():
+			escaped = true
+			break
+
+	_check(escaped, "Voluntary combat could not reach its escape boundary.")
+	var resolution_errors: PackedStringArray = CombatManager.resolve_encounter(
 		CombatResult.Outcome.ESCAPED
 	)
+	_check(
+		resolution_errors.is_empty(),
+		"Voluntary combat escape resolution failed: %s" % resolution_errors
+	)
+	navigator.combat_app._finish_encounter(CombatResult.Outcome.ESCAPED)
 	_check(
 		TimeManager.current_action_block == 3,
 		"Combat resolution charged time a second time."
