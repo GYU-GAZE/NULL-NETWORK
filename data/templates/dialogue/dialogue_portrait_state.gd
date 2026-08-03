@@ -2,7 +2,7 @@ extends Resource
 class_name DialoguePortraitState
 
 
-enum Side {
+enum PortraitSide {
 	LEFT,
 	RIGHT
 }
@@ -10,7 +10,7 @@ enum Side {
 const SLOTS_PER_SIDE: int = 3
 
 @export_category("Placement")
-@export var side: Side = Side.LEFT
+@export var side: PortraitSide = PortraitSide.LEFT
 @export_range(0, SLOTS_PER_SIDE - 1, 1) var slot_index: int = 0
 
 @export_category("Presentation")
