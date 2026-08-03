@@ -14,7 +14,7 @@ class_name GameContentCatalog
 @export var dummies: Array[DummyData] = []
 
 @export_category("Operator and KubuOS")
-@export var occupations: Array[Resource] = []
+@export var occupations: Array[OccupationData] = []
 @export var app_catalog: AppCatalog
 
 @export_category("World and Narrative")
@@ -93,6 +93,16 @@ func validate_data() -> PackedStringArray:
 
 		for error: String in dialogue.validate_data():
 			errors.append("Dialogue %d: %s" % [index, error])
+
+	for index: int in range(occupations.size()):
+		var occupation: OccupationData = occupations[index]
+
+		if occupation == null:
+			errors.append("Occupation %d is null." % index)
+			continue
+
+		for error: String in occupation.validate_data():
+			errors.append("Occupation %d: %s" % [index, error])
 
 	return errors
 

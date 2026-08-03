@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="OccupationData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/templates/operator/occupation_data.gd" id="1_occupation"]
+[ext_resource type="Script" path="res://data/templates/operator/occupation_schedule_data.gd" id="2_schedule"]
+
+[sub_resource type="Resource" id="Schedule_neet"]
+script = ExtResource("2_schedule")
+schedule_id = "schedule.occupation.neet"
+occupied_reason = "NEET has no mandatory routine during this block."
+
+[resource]
+script = ExtResource("1_occupation")
+occupation_id = "neet"
+display_name = "NEET"
+description = "Maximum daily freedom, no fixed income, and greater dependence on NULL NETWORK rewards."
+initial_money = 1000
+recurring_income = 0
+income_interval_days = 7
+schedule = SubResource("Schedule_neet")
+starting_location_id = "operator_start_residential"
+routine_event_ids = PackedStringArray("routine.occupation.neet.home")

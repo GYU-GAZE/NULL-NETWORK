@@ -160,6 +160,17 @@ jobs:
             tests/dialogue/dialogue_system_test.tscn \
             2>&1 | tee godot-dialogue-test.log
 
+      - name: Run Operator creation test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            --quit-after 180 \
+            tests/operator/operator_creation_test.tscn \
+            2>&1 | tee godot-operator-test.log
+
       - name: Run save manager test
         shell: bash
         run: |
@@ -209,6 +220,7 @@ jobs:
             godot-app-catalog-test.log \
             godot-story-event-test.log \
             godot-dialogue-test.log \
+            godot-operator-test.log \
             godot-save-test.log \
             godot-save-runtime-test.log \
             godot-combat-layout-test.log \
@@ -275,6 +287,14 @@ jobs:
 
           grep -q "DIALOGUE_SYSTEM_TEST: PASS" godot-dialogue-test.log
 
+          if grep -E "OPERATOR_CREATION_TEST: " godot-operator-test.log \
+            | grep -v "OPERATOR_CREATION_TEST: PASS"; then
+            echo "The Operator creation test reported an error."
+            exit 1
+          fi
+
+          grep -q "OPERATOR_CREATION_TEST: PASS" godot-operator-test.log
+
           if grep -E "SAVE_MANAGER_TEST: " godot-save-test.log \
             | grep -v "SAVE_MANAGER_TEST: PASS"; then
             echo "The save manager test reported an error."
@@ -314,6 +334,7 @@ jobs:
             godot-app-catalog-test.log
             godot-story-event-test.log
             godot-dialogue-test.log
+            godot-operator-test.log
             godot-save-test.log
             godot-save-runtime-test.log
             godot-combat-layout-test.log

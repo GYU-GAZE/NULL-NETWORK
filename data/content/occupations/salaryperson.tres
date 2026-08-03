@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="OccupationData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/templates/operator/occupation_data.gd" id="1_occupation"]
+[ext_resource type="Script" path="res://data/templates/operator/occupation_schedule_data.gd" id="2_schedule"]
+
+[sub_resource type="Resource" id="Schedule_salaryperson"]
+script = ExtResource("2_schedule")
+schedule_id = "schedule.occupation.salaryperson"
+occupied_reason = "Your work shift is in progress."
+occupied_weekday_indices = PackedInt32Array(1, 2, 3, 4, 5)
+occupied_day_blocks = PackedInt32Array(3, 4, 5, 6, 7, 8, 9, 10, 11)
+
+[resource]
+script = ExtResource("1_occupation")
+occupation_id = "salaryperson"
+display_name = "Salaryperson"
+description = "A rigid weekday work shift, the highest fixed income, and natural access to adult and after-work events."
+initial_money = 4000
+recurring_income = 5000
+income_interval_days = 7
+schedule = SubResource("Schedule_salaryperson")
+starting_location_id = "operator_start_corporate"
+routine_event_ids = PackedStringArray("routine.occupation.salaryperson.workday")

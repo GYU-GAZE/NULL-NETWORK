@@ -1,0 +1,282 @@
+extends Node
+
+
+const REGISTRATION_URL: String = "null.net/register"
+const OCCUPATION_IDS: PackedStringArray = PackedStringArray([
+	"neet",
+	"high_school_student",
+	"salaryperson"
+])
+
+var _failures := PackedStringArray()
+var _test_root: String
+
+
+func _ready() -> void:
+	call_deferred("_run_test")
+
+
+func _run_test() -> void:
+	_test_root = "user://null_network/tests/operator_%d" % Time.get_ticks_usec()
+	SaveManager.configure_storage_root(_test_root)
+	var registry_errors: PackedStringArray = ContentRegistry.reset_to_default_catalog()
+	_check(registry_errors.is_empty(), "Default catalog failed: %s" % registry_errors)
+
+	await _test_registration_route()
+	_test_invalid_tendency_total()
+	_test_all_occupations()
+	_test_persistence_and_schedule()
+	await _wait_frames(8)
+	_finish_test()
+
+
+func _test_registration_route() -> void:
+	var page: WebsitePage = SimulatedDNS.fetch_page(REGISTRATION_URL)
+	_check(page != null, "NULL NETWORK registration route is missing.")
+
+	if page == null:
+		return
+
+	_check(page.site_scene != null, "Registration route has no scene.")
+
+	if page.site_scene == null:
+		return
+
+	var page_instance: Node = page.site_scene.instantiate()
+	add_child(page_instance)
+	await _wait_frames(2)
+	_check(
+		page_instance is OperatorCreationPage,
+		"Registration route did not instantiate OperatorCreationPage."
+	)
+	var occupation_option := page_instance.find_child(
+		"OccupationOption",
+		true,
+		false
+	) as OptionButton
+	_check(
+		occupation_option != null and occupation_option.item_count == 3,
+		"Registration page did not render all three occupations."
+	)
+	page_instance.queue_free()
+	await _wait_frames(2)
+
+
+func _test_invalid_tendency_total() -> void:
+	var create_errors: PackedStringArray = SaveManager.create_campaign(
+		"operator_invalid_total",
+		CampaignState.SaveMode.SAFE,
+		"Invalid Operator"
+	)
+	_check(create_errors.is_empty(), "Invalid-total campaign failed to create.")
+	var errors: PackedStringArray = OperatorService.register_operator(
+		_make_profile("neet", "invalid_total"),
+		_make_appearance("invalid"),
+		{"valour": 4, "logic": 4, "sync": 3, "self": 3}
+	)
+	_check(
+		_contains_text(errors, "exactly 15")
+		and CampaignState.operator.is_empty(),
+		"A 14-point allocation was not rejected without mutation."
+	)
+
+
+func _test_all_occupations() -> void:
+	for occupation_id: String in OCCUPATION_IDS:
+		var campaign_id: String = "operator_%s" % occupation_id
+		var create_errors: PackedStringArray = SaveManager.create_campaign(
+			campaign_id,
+			CampaignState.SaveMode.SAFE,
+			campaign_id
+		)
+		_check(
+			create_errors.is_empty(),
+			"Campaign for %s failed: %s" % [occupation_id, create_errors]
+		)
+		var errors: PackedStringArray = OperatorService.register_operator(
+			_make_profile(occupation_id, occupation_id),
+			_make_appearance(occupation_id),
+			{"valour": 4, "logic": 4, "sync": 4, "self": 3}
+		)
+		var occupation: OccupationData = ContentRegistry.get_occupation(
+			occupation_id
+		)
+		_check(errors.is_empty(), "%s registration failed: %s" % [occupation_id, errors])
+		_check(
+			occupation != null
+			and CampaignState.operator.occupation_id == occupation_id
+			and CampaignState.tendencies.get_total() == 15
+			and CampaignState.money == occupation.initial_money
+			and CampaignState.current_location_id == occupation.starting_location_id
+			and OperatorService.get_current_schedule() == occupation.schedule,
+			"%s did not apply its profile, economy, location and schedule." % occupation_id
+		)
+
+
+func _test_persistence_and_schedule() -> void:
+	var campaign_id: String = "operator_persistence"
+	var create_errors: PackedStringArray = SaveManager.create_campaign(
+		campaign_id,
+		CampaignState.SaveMode.SAFE,
+		"Operator Persistence"
+	)
+	_check(create_errors.is_empty(), "Persistence campaign failed to create.")
+	var errors: PackedStringArray = OperatorService.register_operator(
+		_make_profile("salaryperson", "persistent_operator"),
+		_make_appearance("persistent"),
+		{"valour": 2, "logic": 7, "sync": 3, "self": 3}
+	)
+	_check(errors.is_empty(), "Persistent Operator registration failed: %s" % errors)
+
+	TimeManager.import_save_data({
+		"version": TimeManager.SAVE_DATA_VERSION,
+		"days_passed": 5,
+		"days_until_update": 3,
+		"current_period": TimeManager.TimePeriod.DAY,
+		"current_action_block": 3
+	})
+	var activity := ActivityDefinitionData.new()
+	activity.activity_id = "operator.schedule.test"
+	activity.display_name = "Schedule Test"
+	activity.action_cost = 1
+	activity.requires_confirmation = false
+	var occupied_preview: ActivityPreviewData = ActivityManager.create_preview(activity)
+	_check(
+		not occupied_preview.is_valid()
+		and "work shift" in occupied_preview.denial_reason.to_lower(),
+		"Salaryperson activity was not blocked during the work shift."
+	)
+
+	TimeManager.current_action_block = 0
+	var free_preview: ActivityPreviewData = ActivityManager.create_preview(activity)
+	_check(free_preview.is_valid(), "Salaryperson could not act before work.")
+	TimeManager.current_action_block = 2
+	activity.action_cost = 2
+	var crossing_preview: ActivityPreviewData = ActivityManager.create_preview(activity)
+	_check(
+		not crossing_preview.is_valid(),
+		"An activity crossing into the work shift was not blocked."
+	)
+
+	_check(
+		SaveManager.save_checkpoint(&"phase8.operator", true),
+		"Could not save the Phase 8 Operator checkpoint."
+	)
+	CampaignState.reset_campaign()
+	TimeManager.reset_save_data()
+	var load_errors: PackedStringArray = SaveManager.load_campaign(campaign_id)
+	_check(load_errors.is_empty(), "Operator reload failed: %s" % load_errors)
+	var restored_schedule: OccupationScheduleData = OperatorService.get_current_schedule()
+	_check(
+		CampaignState.operator.profile.first_name == "Gyu"
+		and CampaignState.operator.profile.last_name == "Phase Eight"
+		and CampaignState.operator.profile.username == "persistent_operator"
+		and CampaignState.operator.profile.server_id == "tokyo_japan"
+		and CampaignState.operator.appearance.body_type_id == "body_persistent"
+		and CampaignState.operator.appearance.outer_layer_id == "outer_persistent"
+		and CampaignState.operator.appearance_part_ids.size() == 8
+		and CampaignState.tendencies.get_total() == 15
+		and restored_schedule != null
+		and restored_schedule.get_display_id() == "schedule.occupation.salaryperson",
+		"Profile, appearance, tendencies or schedule did not survive reload."
+	)
+
+	var money_before_income: int = CampaignState.money
+	TimeManager.import_save_data({
+		"version": TimeManager.SAVE_DATA_VERSION,
+		"days_passed": 8,
+		"days_until_update": 0,
+		"current_period": TimeManager.TimePeriod.DAY,
+		"current_action_block": 0
+	})
+	_check(
+		CampaignState.money == money_before_income + 5000
+		and CampaignState.operator.last_income_day == 8,
+		"Salaryperson recurring weekly income was not applied exactly once."
+	)
+
+
+func _make_profile(occupation_id: String, username: String) -> OperatorProfileData:
+	var profile := OperatorProfileData.new()
+	profile.first_name = "Gyu"
+	profile.last_name = "Phase Eight"
+	profile.nickname = "Operator"
+	profile.username = username
+	profile.server_id = "tokyo_japan"
+	profile.occupation_id = occupation_id
+	profile.gender = "other"
+	profile.pronoun_set_id = "they_them"
+	profile.avatar_id = "avatar_01"
+	return profile
+
+
+func _make_appearance(suffix: String) -> AppearanceData:
+	var appearance := AppearanceData.new()
+	appearance.body_type_id = "body_%s" % suffix
+	appearance.face_id = "face_%s" % suffix
+	appearance.eye_id = "eyes_%s" % suffix
+	appearance.outer_layer_id = "outer_%s" % suffix
+	appearance.middle_layer_id = "middle_%s" % suffix
+	appearance.lower_layer_id = "lower_%s" % suffix
+	appearance.hat_id = "hat_%s" % suffix
+	appearance.facial_accessory_id = "accessory_%s" % suffix
+	return appearance
+
+
+func _contains_text(values: PackedStringArray, fragment: String) -> bool:
+	for value: String in values:
+		if fragment.to_lower() in value.to_lower():
+			return true
+
+	return false
+
+
+func _wait_frames(count: int) -> void:
+	for _index: int in range(count):
+		await get_tree().process_frame
+
+
+func _check(condition: bool, message: String) -> void:
+	if not condition:
+		_failures.append(message)
+
+
+func _finish_test() -> void:
+	CampaignState.reset_campaign()
+	TimeManager.reset_save_data()
+	SaveManager.configure_storage_root(SaveConstants.DEFAULT_STORAGE_ROOT)
+	_remove_directory_recursive(_test_root)
+
+	if _failures.is_empty():
+		print("OPERATOR_CREATION_TEST: PASS")
+		get_tree().quit(0)
+		return
+
+	for failure: String in _failures:
+		push_error(failure)
+
+	print("OPERATOR_CREATION_TEST: FAIL (%d)" % _failures.size())
+	get_tree().quit(1)
+
+
+func _remove_directory_recursive(path: String) -> void:
+	var directory := DirAccess.open(path)
+
+	if directory == null:
+		return
+
+	directory.list_dir_begin()
+	var entry: String = directory.get_next()
+
+	while not entry.is_empty():
+		var child_path: String = "%s/%s" % [path, entry]
+
+		if directory.current_is_dir():
+			_remove_directory_recursive(child_path)
+		else:
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(child_path))
+
+		entry = directory.get_next()
+
+	directory.list_dir_end()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))

@@ -1,0 +1,297 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/browser/sites/null_network/register/operator_creation.gd" id="1_page"]
+
+[node name="OperatorCreation" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_page")
+gender_ids = PackedStringArray("male", "female", "other")
+gender_labels = PackedStringArray("M", "F", "Other")
+pronoun_set_ids = PackedStringArray("he_him", "she_her", "they_them")
+pronoun_labels = PackedStringArray("He / Him", "She / Her", "They / Them")
+avatar_ids = PackedStringArray("avatar_01", "avatar_02", "avatar_03", "avatar_04", "avatar_05", "avatar_06")
+avatar_labels = PackedStringArray("Avatar 01", "Avatar 02", "Avatar 03", "Avatar 04", "Avatar 05", "Avatar 06")
+body_type_ids = PackedStringArray("body_01", "body_02", "body_03", "body_04")
+face_ids = PackedStringArray("face_01", "face_02", "face_03", "face_04")
+eye_ids = PackedStringArray("eyes_01", "eyes_02", "eyes_03", "eyes_04")
+outer_layer_ids = PackedStringArray("outer_01", "outer_02", "outer_03")
+middle_layer_ids = PackedStringArray("middle_01", "middle_02", "middle_03")
+lower_layer_ids = PackedStringArray("lower_01", "lower_02", "lower_03")
+hat_ids = PackedStringArray("hat_01", "hat_02", "hat_03")
+facial_accessory_ids = PackedStringArray("facial_accessory_01", "facial_accessory_02", "facial_accessory_03")
+
+[node name="MasterScroll" type="ScrollContainer" parent="."]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="PageMargin" type="MarginContainer" parent="MasterScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 36
+
+[node name="Page" type="VBoxContainer" parent="MasterScroll/PageMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="MasterScroll/PageMargin/Page"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "OPERATOR REGISTRATION"
+horizontal_alignment = 1
+
+[node name="Intro" type="Label" parent="MasterScroll/PageMargin/Page"]
+layout_mode = 2
+text = "Create the physical identity bound to this NULL NETWORK account. This registration cannot be overwritten while the Operator remains active."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Form" type="VBoxContainer" parent="MasterScroll/PageMargin/Page"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="IdentityTitle" type="Label" parent="MasterScroll/PageMargin/Page/Form"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "IDENTITY"
+
+[node name="IdentityGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/Form"]
+layout_mode = 2
+columns = 2
+
+[node name="FirstNameLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+layout_mode = 2
+text = "First name"
+[node name="FirstNameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_length = 32
+
+[node name="LastNameLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+layout_mode = 2
+text = "Last name"
+[node name="LastNameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_length = 32
+
+[node name="NicknameLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+layout_mode = 2
+text = "IRL nickname"
+[node name="NicknameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_length = 32
+
+[node name="UsernameLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+layout_mode = 2
+text = "NULL NETWORK username"
+[node name="UsernameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_length = 24
+
+[node name="ServerLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+layout_mode = 2
+text = "Physical server"
+[node name="ServerOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OccupationLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+layout_mode = 2
+text = "Occupation"
+[node name="OccupationOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GenderLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+layout_mode = 2
+text = "Gender"
+[node name="GenderOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PronounsLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+layout_mode = 2
+text = "Pronouns"
+[node name="PronounOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AvatarLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+layout_mode = 2
+text = "Forum avatar"
+[node name="AvatarOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OccupationSummary" type="Label" parent="MasterScroll/PageMargin/Page/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="AppearanceTitle" type="Label" parent="MasterScroll/PageMargin/Page/Form"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "APPEARANCE"
+
+[node name="AppearanceGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/Form"]
+layout_mode = 2
+columns = 4
+
+[node name="BodyLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+layout_mode = 2
+text = "Body"
+[node name="BodyOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="FaceLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+layout_mode = 2
+text = "Face"
+[node name="FaceOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EyesLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+layout_mode = 2
+text = "Eyes"
+[node name="EyeOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="OuterLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+layout_mode = 2
+text = "Outer"
+[node name="OuterOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MiddleLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+layout_mode = 2
+text = "Middle"
+[node name="MiddleOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="LowerLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+layout_mode = 2
+text = "Lower"
+[node name="LowerOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HatLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+layout_mode = 2
+text = "Hat"
+[node name="HatOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="AccessoryLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+layout_mode = 2
+text = "Face accessory"
+[node name="AccessoryOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TendenciesTitle" type="Label" parent="MasterScroll/PageMargin/Page/Form"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "INITIAL TENDENCIES"
+
+[node name="TendencyGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/Form"]
+layout_mode = 2
+columns = 4
+
+[node name="ValourLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
+layout_mode = 2
+text = "VALOUR"
+[node name="ValourSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 15.0
+value = 4.0
+[node name="LogicLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
+layout_mode = 2
+text = "LOGIC"
+[node name="LogicSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 15.0
+value = 4.0
+[node name="SyncLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
+layout_mode = 2
+text = "SYNC"
+[node name="SyncSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 15.0
+value = 4.0
+[node name="SelfLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
+layout_mode = 2
+text = "SELF"
+[node name="SelfSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 15.0
+value = 3.0
+
+[node name="TotalLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "15 / 15 POINTS"
+horizontal_alignment = 2
+
+[node name="ErrorLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.32, 1)
+autowrap_mode = 2
+
+[node name="SubmitButton" type="Button" parent="MasterScroll/PageMargin/Page/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "REGISTER OPERATOR"
+
+[node name="RegisteredPanel" type="VBoxContainer" parent="MasterScroll/PageMargin/Page"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="RegisteredLabel" type="Label" parent="MasterScroll/PageMargin/Page/RegisteredPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "OPERATOR REGISTERED"
+horizontal_alignment = 1
+
+[node name="RegisteredBody" type="Label" parent="MasterScroll/PageMargin/Page/RegisteredPanel"]
+layout_mode = 2
+text = "Your physical identity, appearance, occupation and initial tendencies are synchronized with this campaign."
+horizontal_alignment = 1
+autowrap_mode = 2
