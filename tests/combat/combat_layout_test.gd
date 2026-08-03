@@ -581,7 +581,7 @@ func _combat_overlay_coordinates_are_transform_safe(
 	) as Control
 	var menu_box := combat_app.get_node(
 		"ContentMargin/BattleBox/CenterHBox/MenuBox"
-	) as VBoxContainer
+	) as GridContainer
 	var module_swap_ui := combat_app.get_node(
 		"OverlayLayer/ModuleSwapUI"
 	) as VBoxContainer
