@@ -2,12 +2,20 @@ extends Resource
 class_name ModuleData
 
 
+enum ModuleKind {
+	ACTIVE,
+	PASSIVE
+}
+
+
 @export_category("Identity")
 @export var module_id: StringName = &"module"
 @export var module_name: String = "New Module"
 @export var module_icon: Texture2D
 @export var classification: StringName = &""
 @export_multiline var description: String = ""
+@export var module_kind: ModuleKind = ModuleKind.ACTIVE
+@export var is_corrupted: bool = false
 
 @export_category("Execution")
 @export var stability_cost: int = 10
@@ -24,6 +32,9 @@ class_name ModuleData
 
 @export_category("Combat Effects")
 @export var combat_effects: Array[CombatEffectData] = []
+
+@export_category("Combat Identity")
+@export var combat_tendency_gains: Array[CombatTendencyGainData] = []
 
 @export_category("Presentation")
 @export var presentation: CombatPresentationData
@@ -51,7 +62,7 @@ func validate_data() -> PackedStringArray:
 			% module_name
 		)
 
-	if combat_effects.is_empty():
+	if module_kind == ModuleKind.ACTIVE and combat_effects.is_empty():
 		errors.append(
 			"Module '%s' has no combat effects."
 			% module_name
@@ -65,7 +76,13 @@ func validate_data() -> PackedStringArray:
 			)
 			continue
 
-		errors.append_array(effect.validate_data())
+			errors.append_array(effect.validate_data())
+
+	for gain: CombatTendencyGainData in combat_tendency_gains:
+		if gain == null:
+			errors.append("Module '%s' contains a null tendency gain." % module_name)
+		else:
+			errors.append_array(gain.validate_data())
 
 	if presentation != null:
 		errors.append_array(

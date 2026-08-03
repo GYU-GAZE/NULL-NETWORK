@@ -182,6 +182,17 @@ jobs:
             tests/progression/apk_progression_test.tscn \
             2>&1 | tee godot-apk-progression-test.log
 
+      - name: Run combat campaign resolution test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            --quit-after 240 \
+            tests/combat/combat_campaign_resolution_test.tscn \
+            2>&1 | tee godot-combat-campaign-resolution-test.log
+
       - name: Run save manager test
         shell: bash
         run: |
@@ -233,6 +244,7 @@ jobs:
             godot-dialogue-test.log \
             godot-operator-test.log \
             godot-apk-progression-test.log \
+            godot-combat-campaign-resolution-test.log \
             godot-save-test.log \
             godot-save-runtime-test.log \
             godot-combat-layout-test.log \
@@ -315,6 +327,14 @@ jobs:
 
           grep -q "APK_PROGRESSION_TEST: PASS" godot-apk-progression-test.log
 
+          if grep -E "COMBAT_CAMPAIGN_RESOLUTION_TEST: " godot-combat-campaign-resolution-test.log \
+            | grep -v "COMBAT_CAMPAIGN_RESOLUTION_TEST: PASS"; then
+            echo "The combat campaign resolution test reported an error."
+            exit 1
+          fi
+
+          grep -q "COMBAT_CAMPAIGN_RESOLUTION_TEST: PASS" godot-combat-campaign-resolution-test.log
+
           if grep -E "SAVE_MANAGER_TEST: " godot-save-test.log \
             | grep -v "SAVE_MANAGER_TEST: PASS"; then
             echo "The save manager test reported an error."
@@ -356,6 +376,7 @@ jobs:
             godot-dialogue-test.log
             godot-operator-test.log
             godot-apk-progression-test.log
+            godot-combat-campaign-resolution-test.log
             godot-save-test.log
             godot-save-runtime-test.log
             godot-combat-layout-test.log

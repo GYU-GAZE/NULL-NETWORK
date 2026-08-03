@@ -1,6 +1,13 @@
 extends Node
 
 
+enum TimelineActionKind {
+	MODULE,
+	PLAYER_ACTION,
+	EMPTY
+}
+
+
 signal encounter_started(encounter: CombatEncounter)
 signal combat_victory
 signal combat_defeat
@@ -23,11 +30,25 @@ signal action_executed(
 signal presentation_event_emitted(
 	event: CombatPresentationEvent
 )
+signal player_action_progressed(
+	action_id: String,
+	target_uid: int,
+	progress: int,
+	completed: bool
+)
+signal player_action_choice_requested(
+	action_id: String,
+	target_uid: int,
+	module_ids: PackedStringArray
+)
+signal evolution_prompt_requested(branch: EvolutionBranchData)
+signal combat_resolution_applied(outcome: CombatResult.Outcome, metadata: Dictionary)
 
 
 const TEAM_SIZE: int = 4
 const MAX_EVENT_DEPTH: int = 16
-const SAVE_DATA_VERSION: int = 1
+const SAVE_DATA_VERSION: int = 2
+const MIN_SAVE_DATA_VERSION: int = 1
 const UNSTABILITY_STATUS: StatusEffectData = preload(
 	"res://data/content/combat/status_effects/unstability.tres"
 )
@@ -40,6 +61,8 @@ var enemy_position_slots: Array[CombatRuntimeSlot] = []
 var action_slots: Array[CombatRuntimeSlot] = []
 var current_cycle_actions: Array = []
 var current_cycle: int = 0
+var player_action_progress: Array[PlayerActionProgressData] = []
+var combat_tendency_log: CombatTendencyLog = CombatTendencyLog.new()
 
 
 var _current_encounter: CombatEncounter
@@ -51,6 +74,15 @@ var _is_executing_cycle: bool = false
 var _session_activity_transaction_id: String = ""
 var _session_activity_id: String = ""
 var _partner_state_committed: bool = false
+var _resolved_enemy_records: Array[Dictionary] = []
+var _player_resolution_record: Dictionary = {}
+var _pending_player_action_choice: Dictionary = {}
+var _pending_evolution_branch_id: String = ""
+var _completed_evolution_branch_ids: PackedStringArray = PackedStringArray()
+var _awaiting_resolution: bool = false
+var _pending_outcome: CombatResult.Outcome = CombatResult.Outcome.CANCELLED
+var _resolution_applied: bool = false
+var _resolution_metadata: Dictionary = {}
 
 
 func load_encounter(
@@ -113,6 +145,8 @@ func reset_encounter() -> void:
 	action_slots.clear()
 	current_cycle_actions.clear()
 	current_cycle = 0
+	player_action_progress.clear()
+	combat_tendency_log = CombatTendencyLog.new()
 	_current_encounter = null
 	_encounter_active = false
 	_next_uid = 1
@@ -122,10 +156,40 @@ func reset_encounter() -> void:
 	_session_activity_transaction_id = ""
 	_session_activity_id = ""
 	_partner_state_committed = false
+	_resolved_enemy_records.clear()
+	_player_resolution_record.clear()
+	_pending_player_action_choice.clear()
+	_pending_evolution_branch_id = ""
+	_completed_evolution_branch_ids.clear()
+	_awaiting_resolution = false
+	_pending_outcome = CombatResult.Outcome.CANCELLED
+	_resolution_applied = false
+	_resolution_metadata.clear()
+	EvolutionManager.reset()
 
 
 func is_encounter_active() -> bool:
 	return _encounter_active
+
+
+func is_awaiting_resolution() -> bool:
+	return _awaiting_resolution
+
+
+func is_resolution_applied() -> bool:
+	return _resolution_applied
+
+
+func get_pending_outcome() -> CombatResult.Outcome:
+	return _pending_outcome
+
+
+func get_pending_player_action_choice() -> Dictionary:
+	return _pending_player_action_choice.duplicate(true)
+
+
+func get_pending_evolution_branch() -> EvolutionBranchData:
+	return EvolutionManager.get_pending_branch()
 
 
 func get_current_encounter() -> CombatEncounter:
@@ -172,6 +236,21 @@ func export_save_data() -> Dictionary:
 		"next_uid": _next_uid,
 		"next_event_id": _next_event_id,
 		"next_dynamic_action_id": _next_dynamic_action_id,
+		"awaiting_resolution": _awaiting_resolution,
+		"pending_outcome": int(_pending_outcome),
+		"resolution_applied": _resolution_applied,
+		"resolution_metadata": _plain_copy(_resolution_metadata),
+		"player_action_progress": PlayerActionService.serialize_states(player_action_progress),
+		"combat_tendency_log": combat_tendency_log.to_save_data(),
+		"resolved_enemy_records": _serialize_team_records(_resolved_enemy_records),
+		"player_resolution_record": (
+			_serialize_actor(_player_resolution_record)
+			if not _player_resolution_record.is_empty()
+			else {}
+		),
+		"pending_player_action_choice": _plain_copy(_pending_player_action_choice),
+		"pending_evolution_branch_id": _pending_evolution_branch_id,
+		"completed_evolution_branch_ids": Array(_completed_evolution_branch_ids),
 		"ally_team": _serialize_team(ally_team),
 		"enemy_team": _serialize_team(enemy_team),
 		"ally_position_slots": _serialize_slots(ally_position_slots),
@@ -183,7 +262,9 @@ func export_save_data() -> Dictionary:
 func import_save_data(data: Dictionary) -> void:
 	reset_encounter()
 
-	if int(data.get("version", -1)) != SAVE_DATA_VERSION \
+	var version: int = int(data.get("version", -1))
+
+	if version < MIN_SAVE_DATA_VERSION or version > SAVE_DATA_VERSION \
 		or not bool(data.get("active", false)):
 		return
 
@@ -219,21 +300,69 @@ func import_save_data(data: Dictionary) -> void:
 		data.get("activity_transaction_id", "")
 	).strip_edges()
 	_session_activity_id = str(data.get("activity_id", "")).strip_edges()
+	_awaiting_resolution = bool(data.get("awaiting_resolution", false))
+	_pending_outcome = clampi(
+		int(data.get("pending_outcome", CombatResult.Outcome.CANCELLED)),
+		CombatResult.Outcome.VICTORY,
+		CombatResult.Outcome.CANCELLED
+	)
+	_resolution_applied = bool(data.get("resolution_applied", false))
+	_resolution_metadata = _read_dictionary(data.get("resolution_metadata", {}))
+	player_action_progress = PlayerActionService.deserialize_states(
+		data.get("player_action_progress", [])
+	)
+	combat_tendency_log.load_save_data(
+		_read_dictionary(data.get("combat_tendency_log", {}))
+	)
+	_resolved_enemy_records = _deserialize_team_records(
+		data.get("resolved_enemy_records", [])
+	)
+	var raw_player_record: Variant = data.get("player_resolution_record", {})
+
+	if raw_player_record is Dictionary and not (raw_player_record as Dictionary).is_empty():
+		_player_resolution_record = _deserialize_actor(raw_player_record as Dictionary)
+	_pending_player_action_choice = _read_dictionary(
+		data.get("pending_player_action_choice", {})
+	)
+	_pending_evolution_branch_id = str(
+		data.get("pending_evolution_branch_id", "")
+	).strip_edges()
+	_completed_evolution_branch_ids = _read_string_array(
+		data.get("completed_evolution_branch_ids", [])
+	)
 	_encounter_active = true
 	_is_executing_cycle = false
 	runtime_slots_changed.emit()
 	stats_updated.emit()
-	rebuild_timeline()
+
+	if _resolution_applied:
+		_emit_restored_resolution.call_deferred()
+	elif not _pending_evolution_branch_id.is_empty():
+		EvolutionManager.restore_offer(_pending_evolution_branch_id)
+	elif not _pending_player_action_choice.is_empty():
+		_emit_pending_player_action_choice.call_deferred()
+	elif not _awaiting_resolution:
+		rebuild_timeline()
 
 
 func reset_save_data() -> void:
 	reset_encounter()
 
 
+func _emit_restored_resolution() -> void:
+	if _resolution_applied:
+		combat_resolution_applied.emit(
+			_pending_outcome,
+			_resolution_metadata.duplicate(true)
+		)
+
+
 func validate_save_data(data: Dictionary) -> PackedStringArray:
 	var errors := PackedStringArray()
 
-	if int(data.get("version", -1)) != SAVE_DATA_VERSION:
+	var version: int = int(data.get("version", -1))
+
+	if version < MIN_SAVE_DATA_VERSION or version > SAVE_DATA_VERSION:
 		errors.append("Unsupported CombatSession save version.")
 		return errors
 
@@ -252,6 +381,210 @@ func validate_save_data(data: Dictionary) -> PackedStringArray:
 			errors.append("CombatSession %s must contain four slots." % team_key)
 
 	return errors
+
+
+func get_player_actions() -> Array[PlayerActionData]:
+	if _current_encounter == null or _current_encounter.resolution == null:
+		var empty: Array[PlayerActionData] = []
+		return empty
+
+	return _current_encounter.resolution.player_actions.duplicate()
+
+
+func get_available_player_action_targets(action_id: String) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var action: PlayerActionData = _get_player_action(action_id)
+
+	for actor: Variant in enemy_team:
+		if actor is not Dictionary:
+			continue
+
+		if PlayerActionService.validate_assignment(
+			action,
+			actor as Dictionary,
+			player_action_progress
+		).is_empty():
+			result.append(actor as Dictionary)
+
+	return result
+
+
+func set_player_action(slot_index: int, action_id: String, target_uid: int) -> PackedStringArray:
+	var errors := PackedStringArray()
+	var player: Variant = _get_player_actor()
+
+	if player is not Dictionary or slot_index < 0 or slot_index >= TEAM_SIZE:
+		errors.append("Player Action slot index is invalid.")
+		return errors
+
+	var action: PlayerActionData = _get_player_action(action_id)
+	var target: Variant = _find_combatant_by_uid(target_uid)
+
+	if target is not Dictionary:
+		errors.append("Player Action target is unavailable.")
+		return errors
+
+	errors.append_array(PlayerActionService.validate_assignment(
+		action,
+		target as Dictionary,
+		player_action_progress
+	))
+
+	if not errors.is_empty():
+		return errors
+
+	var assignments: Array = player.get("player_action_assignments", [])
+	assignments.resize(TEAM_SIZE)
+	assignments[slot_index] = {
+		"action_id": action.action_id,
+		"target_uid": target_uid
+	}
+	player["player_action_assignments"] = assignments
+	rebuild_timeline()
+	return errors
+
+
+func clear_player_action(slot_index: int) -> bool:
+	var player: Variant = _get_player_actor()
+
+	if player is not Dictionary or slot_index < 0 or slot_index >= TEAM_SIZE:
+		return false
+
+	var assignments: Array = player.get("player_action_assignments", [])
+	assignments.resize(TEAM_SIZE)
+	assignments[slot_index] = null
+	player["player_action_assignments"] = assignments
+	rebuild_timeline()
+	return true
+
+
+func select_player_action_reward(module_id: String) -> PackedStringArray:
+	var errors := PackedStringArray()
+
+	if _pending_player_action_choice.is_empty():
+		errors.append("No Player Action reward choice is pending.")
+		return errors
+
+	var clean_id: String = module_id.strip_edges()
+	var candidates: PackedStringArray = _read_string_array(
+		_pending_player_action_choice.get("module_ids", [])
+	)
+
+	if not candidates.has(clean_id):
+		errors.append("Selected Module is not available for this Player Action.")
+		return errors
+
+	var state: PlayerActionProgressData = PlayerActionService.get_progress(
+		player_action_progress,
+		str(_pending_player_action_choice.get("action_id", "")),
+		int(_pending_player_action_choice.get("target_uid", -1))
+	)
+
+	if state == null or not state.completed:
+		errors.append("Pending Player Action progress could not be restored.")
+		return errors
+
+	state.selected_reward_id = clean_id
+	_pending_player_action_choice.clear()
+
+	if _awaiting_resolution:
+		_emit_terminal_outcome()
+	else:
+		_continue_after_cycle_boundary()
+
+	return errors
+
+
+func accept_pending_evolution() -> PackedStringArray:
+	var branch: EvolutionBranchData = EvolutionManager.get_pending_branch()
+	var branch_id: String = branch.branch_id if branch != null else ""
+	var errors: PackedStringArray = EvolutionManager.accept_pending()
+
+	if not errors.is_empty():
+		return errors
+
+	_pending_evolution_branch_id = ""
+
+	if not branch_id.is_empty() and not _completed_evolution_branch_ids.has(branch_id):
+		_completed_evolution_branch_ids.append(branch_id)
+
+	_refresh_player_actor_from_partner()
+	SaveManager.request_checkpoint(&"combat_evolution", true)
+	_continue_after_cycle_boundary()
+	return errors
+
+
+func decline_pending_evolution() -> bool:
+	var branch_id: String = EvolutionManager.decline_pending()
+
+	if branch_id.is_empty():
+		return false
+
+	_pending_evolution_branch_id = ""
+
+	if not _completed_evolution_branch_ids.has(branch_id):
+		_completed_evolution_branch_ids.append(branch_id)
+
+	_continue_after_cycle_boundary()
+	return true
+
+
+func resolve_encounter(outcome: CombatResult.Outcome) -> PackedStringArray:
+	var errors := PackedStringArray()
+
+	if _resolution_applied:
+		return errors
+
+	if not _encounter_active or _current_encounter == null:
+		errors.append("No active encounter is available for resolution.")
+		return errors
+
+	if not _awaiting_resolution:
+		errors.append("Combat has not reached a terminal resolution boundary.")
+		return errors
+
+	if outcome != _pending_outcome:
+		errors.append("Combat outcome does not match the pending terminal state.")
+		return errors
+
+	var player: Variant = _get_player_resolution_actor()
+
+	if player is not Dictionary:
+		errors.append("Combat has no player actor to resolve.")
+		return errors
+
+	var result: Dictionary = CombatResolutionService.resolve(
+		outcome,
+		_current_encounter,
+		player as Dictionary,
+		_get_enemy_resolution_records(),
+		player_action_progress,
+		combat_tendency_log
+	)
+	errors.append_array(result.get("errors", PackedStringArray()))
+
+	if not errors.is_empty():
+		return errors
+
+	_resolution_metadata = result.get("metadata", {}).duplicate(true)
+	_resolution_applied = true
+	_partner_state_committed = true
+	_awaiting_resolution = false
+	_pending_outcome = outcome
+	SaveManager.request_checkpoint(
+		StringName("combat_resolved.%s" % _current_encounter.encounter_id),
+		not str(_resolution_metadata.get("tamed_apk_id", "")).is_empty()
+	)
+	combat_resolution_applied.emit(outcome, _resolution_metadata.duplicate(true))
+	return errors
+
+
+func finalize_resolved_encounter() -> bool:
+	if not _encounter_active or not _resolution_applied:
+		return false
+
+	_encounter_active = false
+	return true
 
 
 func get_player_actor() -> Variant:
@@ -288,7 +621,10 @@ func commit_player_partner_state(experience_gain: int = 0) -> PackedStringArray:
 func rebuild_timeline() -> void:
 	current_cycle_actions.clear()
 
-	if not _encounter_active:
+	if not _encounter_active \
+		or _awaiting_resolution \
+		or not _pending_player_action_choice.is_empty() \
+		or not _pending_evolution_branch_id.is_empty():
 		timeline_generated.emit(
 			current_cycle_actions
 		)
@@ -321,7 +657,10 @@ func rebuild_timeline() -> void:
 func execute_cycle(
 	animated: bool = true
 ) -> void:
-	if not _encounter_active:
+	if not _encounter_active \
+		or _awaiting_resolution \
+		or not _pending_player_action_choice.is_empty() \
+		or not _pending_evolution_branch_id.is_empty():
 		return
 
 	if animated:
@@ -350,6 +689,13 @@ func try_escape() -> bool:
 		escape_attempted.emit(false)
 		return false
 
+	combat_tendency_log.run_attempts += 1
+
+	if _current_encounter.resolution != null:
+		for gain: CombatTendencyGainData in _current_encounter.resolution.escape_attempt_tendency_gains:
+			if gain != null and gain.is_available():
+				combat_tendency_log.add_tendency(gain.tendency, gain.amount)
+
 	var dodge := get_effective_stat(
 		player,
 		CombatConstants.Stat.DODGE
@@ -363,7 +709,8 @@ func try_escape() -> bool:
 	var success := randf() <= chance
 
 	if success:
-		_encounter_active = false
+		_awaiting_resolution = true
+		_pending_outcome = CombatResult.Outcome.ESCAPED
 		combat_log_added.emit(
 			"> Escape successful."
 		)
@@ -607,6 +954,7 @@ func set_player_module(
 		return false
 
 	player["modules"][slot_index] = module
+	clear_player_action(slot_index)
 	rebuild_timeline()
 	return true
 
@@ -792,13 +1140,42 @@ func get_module_tooltip(
 	return "\n".join(lines)
 
 
+func get_player_action_tooltip(
+	action: PlayerActionData,
+	target_uid: int = -1
+) -> String:
+	if action == null:
+		return "UNAVAILABLE"
+
+	var lines := PackedStringArray([
+		"[%s]" % action.display_name,
+		action.description,
+		"Progress per slot: %d%%" % action.progress_amount
+	])
+
+	if target_uid >= 0:
+		var state: PlayerActionProgressData = PlayerActionService.get_progress(
+			player_action_progress,
+			action.action_id,
+			target_uid
+		)
+		lines.append("Current progress: %d%%" % (state.progress if state != null else 0))
+
+	return "\n".join(lines)
+
+
 func get_result_metadata() -> Dictionary:
-	return {
+	var metadata: Dictionary = {
 		"cycles": current_cycle,
 		"allies": _team_snapshot(ally_team),
 		"enemies": _team_snapshot(enemy_team),
 		"runtime_slots": _runtime_slot_snapshot()
 	}
+
+	for key: Variant in _resolution_metadata:
+		metadata[str(key)] = _resolution_metadata[key]
+
+	return metadata
 
 
 func resolve_targets(
@@ -1037,7 +1414,9 @@ func _load_team_from_slots(
 			loadout,
 			is_ally,
 			is_ally and index == 0,
-			slot_data.participant_source
+			slot_data.participant_source,
+			slot_data.slot_index,
+			slot_data.reward_profile
 		)
 
 
@@ -1109,7 +1488,9 @@ func _create_combatant(
 	data: CharacterLoadout,
 	is_ally: bool,
 	is_player: bool = false,
-	source_kind: CombatSlotData.ParticipantSource = CombatSlotData.ParticipantSource.FIXED_LOADOUT
+	source_kind: CombatSlotData.ParticipantSource = CombatSlotData.ParticipantSource.FIXED_LOADOUT,
+	encounter_slot_index: int = -1,
+	reward_profile: CombatRewardData = null
 ) -> Dictionary:
 	var modules: Array = data.equipped_modules.duplicate()
 	modules.resize(TEAM_SIZE)
@@ -1117,6 +1498,8 @@ func _create_combatant(
 		"uid": _consume_uid(),
 		"character_id": data.character_id,
 		"source_kind": int(source_kind),
+		"encounter_slot_index": encounter_slot_index,
+		"reward_profile": reward_profile,
 		"name": data.char_name,
 		"icon": data.combat_icon,
 		"level": data.level,
@@ -1135,6 +1518,10 @@ func _create_combatant(
 		"dodge": data.dodge_chance,
 		"crit": data.crit_chance,
 		"modules": modules,
+		"player_action_assignments": [null, null, null, null],
+		"purged": false,
+		"purified": false,
+		"tamed": false,
 		"is_ally": is_ally,
 		"is_player": is_player,
 		"is_dummy": false,
@@ -1250,6 +1637,32 @@ func _append_timeline_action(
 		return
 
 	var modules: Array = actor.get("modules", [])
+	var assignments: Array = actor.get("player_action_assignments", [])
+
+	if bool(actor.get("is_player", false)) and action_slot < assignments.size():
+		var assignment: Variant = assignments[action_slot]
+
+		if assignment is Dictionary and not (assignment as Dictionary).is_empty():
+			var player_action: PlayerActionData = _get_player_action(
+				str(assignment.get("action_id", ""))
+			)
+			var target: Variant = _find_combatant_by_uid(
+				int(assignment.get("target_uid", -1))
+			)
+
+			if player_action != null and target is Dictionary:
+				current_cycle_actions.append({
+					"action_kind": int(TimelineActionKind.PLAYER_ACTION),
+					"actor": actor,
+					"module": null,
+					"player_action": player_action,
+					"action_slot": action_slot,
+					"action_slot_id": runtime_slot.slot_id,
+					"position_slot_id": _get_actor_position_slot_id(actor),
+					"target": target,
+					"target_uid": int(target.get("uid", -1))
+				})
+				return
 
 	if action_slot >= modules.size():
 		return
@@ -1260,6 +1673,7 @@ func _append_timeline_action(
 		return
 
 	var action := {
+		"action_kind": int(TimelineActionKind.MODULE),
 		"actor": actor,
 		"module": module,
 		"action_slot": action_slot,
@@ -1360,6 +1774,7 @@ func _execute_cycle_animated() -> void:
 func _begin_cycle() -> void:
 	_is_executing_cycle = true
 	current_cycle += 1
+	combat_tendency_log.begin_cycle()
 	combat_log_added.emit(
 		"\n[color=yellow]--- CYCLE %d ---[/color]"
 		% current_cycle
@@ -1377,12 +1792,19 @@ func _execute_action(
 ) -> void:
 	var actor: Variant = action.get("actor")
 	var module: ModuleData = action.get("module")
+	var action_kind: int = int(action.get("action_kind", TimelineActionKind.MODULE))
 
 	if (
 		not (actor is Dictionary)
-		or module == null
 		or float(actor.get("hp", 0.0)) <= 0.0
 	):
+		return
+
+	if action_kind == TimelineActionKind.PLAYER_ACTION:
+		_execute_player_action(timeline_index, action)
+		return
+
+	if module == null:
 		return
 
 	var before_context := _context_from_action(
@@ -1487,6 +1909,9 @@ func _execute_action(
 				actor
 			)
 
+		if bool(actor.get("is_player", false)):
+			combat_tendency_log.record_module(module)
+
 	action_executed.emit(
 		timeline_index,
 		action
@@ -1499,6 +1924,63 @@ func _execute_action(
 		timeline_index
 	)
 	_dispatch_event(after_context)
+
+
+func _execute_player_action(timeline_index: int, action: Dictionary) -> void:
+	var actor: Dictionary = action.get("actor", {})
+	var target: Variant = action.get("target")
+	var player_action: PlayerActionData = action.get("player_action") as PlayerActionData
+
+	if actor.is_empty() or target is not Dictionary or player_action == null:
+		return
+
+	var result: Dictionary = PlayerActionService.apply_slot(
+		player_action,
+		target as Dictionary,
+		player_action_progress,
+		combat_tendency_log
+	)
+	var errors: PackedStringArray = result.get("errors", PackedStringArray())
+
+	if not errors.is_empty():
+		for error: String in errors:
+			combat_log_added.emit("> PLAYER ACTION FAILED: %s" % error)
+		return
+
+	var state: PlayerActionProgressData = result.get("state") as PlayerActionProgressData
+	combat_log_added.emit(
+		"[color=cyan]OPERATOR[/color] used [b]%s[/b] on %s (+%d%%)."
+		% [player_action.display_name, target.get("name", "Entity"), player_action.progress_amount]
+	)
+	action_executed.emit(timeline_index, action)
+
+	if state != null:
+		player_action_progressed.emit(
+			state.action_id,
+			state.target_uid,
+			state.progress,
+			state.completed
+		)
+
+	if bool(result.get("completed_now", false)):
+		combat_log_added.emit(
+			"> %s reached 100%% on %s."
+			% [player_action.display_name, target.get("name", "Entity")]
+		)
+		var choice_ids: PackedStringArray = result.get("choice_ids", PackedStringArray())
+
+		if not choice_ids.is_empty():
+			_pending_player_action_choice = {
+				"action_id": player_action.action_id,
+				"target_uid": int(target.get("uid", -1)),
+				"module_ids": Array(choice_ids)
+			}
+
+		if bool(result.get("remove_target", false)):
+			_record_resolved_enemy(target as Dictionary, false, true)
+			_remove_actor_from_grid(target as Dictionary)
+
+	stats_updated.emit()
 
 
 func _execute_effects(
@@ -1892,6 +2374,9 @@ func _apply_damage(
 		float(target.get("hp", 0.0))
 		- damage
 	)
+
+	if bool(caster.get("is_player", false)) and not bool(target.get("is_ally", true)):
+		combat_tendency_log.record_damage(damage, did_crit)
 
 	if status_instance == null:
 		_emit_module_presentation(
@@ -2538,32 +3023,89 @@ func _finish_non_terminal_cycle() -> void:
 	_desfragment_enemies()
 	stats_updated.emit()
 	_is_executing_cycle = false
+	_close_tendency_cycle()
 
 	if _has_terminal_state():
 		_finish_terminal_cycle()
 		return
 
-	rebuild_timeline()
 	cycle_completed.emit(current_cycle)
-	cycle_ended_ready_for_next.emit()
+	_continue_after_cycle_boundary()
 
 
 func _finish_terminal_cycle() -> void:
-	_encounter_active = false
+	if _awaiting_resolution:
+		return
+
 	_is_executing_cycle = false
+	_close_tendency_cycle()
+	_awaiting_resolution = true
 	stats_updated.emit()
 	cycle_completed.emit(current_cycle)
 
+	if not _pending_player_action_choice.is_empty():
+		_emit_pending_player_action_choice()
+		return
+
+	_emit_terminal_outcome()
+
+
+func _emit_terminal_outcome() -> void:
 	if _all_defeated(enemy_team):
+		_pending_outcome = CombatResult.Outcome.VICTORY
 		combat_log_added.emit(
 			"\n[color=lime]>>> VICTORY <<<[/color]"
 		)
 		combat_victory.emit()
 	elif _all_defeated(ally_team):
+		_pending_outcome = CombatResult.Outcome.DEFEAT
 		combat_log_added.emit(
 			"\n[color=red]>>> DEFEAT <<<[/color]"
 		)
 		combat_defeat.emit()
+
+
+func _close_tendency_cycle() -> void:
+	if combat_tendency_log.cycles_elapsed < current_cycle:
+		combat_tendency_log.finish_cycle()
+
+
+func _continue_after_cycle_boundary() -> void:
+	if _awaiting_resolution or not _encounter_active:
+		return
+
+	if not _pending_player_action_choice.is_empty():
+		_emit_pending_player_action_choice()
+		return
+
+	var branch: EvolutionBranchData = EvolutionManager.find_valid_branch(
+		combat_tendency_log,
+		_completed_evolution_branch_ids
+	)
+
+	if branch != null:
+		_pending_evolution_branch_id = branch.branch_id
+		EvolutionManager.offer(branch)
+		evolution_prompt_requested.emit(branch)
+
+		if branch.forced_if_valid and not branch.prompt_player:
+			accept_pending_evolution()
+
+		return
+
+	rebuild_timeline()
+	cycle_ended_ready_for_next.emit()
+
+
+func _emit_pending_player_action_choice() -> void:
+	if _pending_player_action_choice.is_empty():
+		return
+
+	player_action_choice_requested.emit(
+		str(_pending_player_action_choice.get("action_id", "")),
+		int(_pending_player_action_choice.get("target_uid", -1)),
+		_read_string_array(_pending_player_action_choice.get("module_ids", []))
+	)
 
 
 func _recover_stability() -> void:
@@ -2695,6 +3237,15 @@ func _defeat_actor(
 	actor: Dictionary,
 	parent_context: CombatEventContext
 ) -> void:
+	if not bool(actor.get("is_dummy", false)):
+		if bool(actor.get("is_player", false)):
+			_player_resolution_record = actor.duplicate(true)
+		elif bool(actor.get("is_ally", false)):
+			combat_tendency_log.allies_defeated += 1
+		elif not bool(actor.get("is_ally", true)):
+			combat_tendency_log.enemies_defeated += 1
+			_record_resolved_enemy(actor, true, false)
+
 	if bool(actor.get("is_dummy", false)):
 		_dispatch_event(
 			_make_context(
@@ -3606,6 +4157,111 @@ func _get_player_actor() -> Variant:
 	return null
 
 
+func _get_player_resolution_actor() -> Variant:
+	var active_player: Variant = _get_player_actor()
+
+	if active_player is Dictionary:
+		return active_player
+
+	return _player_resolution_record if not _player_resolution_record.is_empty() else null
+
+
+func _get_player_action(action_id: String) -> PlayerActionData:
+	if _current_encounter == null or _current_encounter.resolution == null:
+		return null
+
+	return _current_encounter.resolution.get_player_action(action_id)
+
+
+func _record_resolved_enemy(
+	actor: Dictionary,
+	defeated: bool,
+	tamed: bool
+) -> void:
+	var uid: int = int(actor.get("uid", -1))
+	var record: Dictionary = actor.duplicate(true)
+	record["defeated"] = defeated
+	record["tamed"] = tamed
+
+	for index: int in range(_resolved_enemy_records.size()):
+		if int(_resolved_enemy_records[index].get("uid", -1)) == uid:
+			_resolved_enemy_records[index] = record
+			return
+
+	_resolved_enemy_records.append(record)
+
+
+func _get_enemy_resolution_records() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var seen_uids: Array[int] = []
+
+	for record: Dictionary in _resolved_enemy_records:
+		result.append(record.duplicate(true))
+		seen_uids.append(int(record.get("uid", -1)))
+
+	for actor: Variant in enemy_team:
+		if actor is not Dictionary:
+			continue
+
+		var uid: int = int(actor.get("uid", -1))
+
+		if seen_uids.has(uid):
+			continue
+
+		var living_record: Dictionary = (actor as Dictionary).duplicate(true)
+		living_record["defeated"] = false
+		result.append(living_record)
+
+	return result
+
+
+func _refresh_player_actor_from_partner() -> void:
+	var player: Variant = _get_player_actor()
+	var snapshot: CharacterLoadout = APKProgressionService.create_combat_snapshot()
+
+	if player is not Dictionary or snapshot == null:
+		return
+
+	var assignments: Array = player.get("player_action_assignments", []).duplicate(true)
+	var statuses: Array = player.get("active_statuses", []).duplicate()
+	var refreshed: Dictionary = _create_combatant(
+		snapshot,
+		true,
+		true,
+		CombatSlotData.ParticipantSource.PLAYER_PARTNER,
+		int(player.get("encounter_slot_index", 0)),
+		null
+	)
+	refreshed["uid"] = int(player.get("uid", -1))
+	refreshed["player_action_assignments"] = assignments
+	refreshed["active_statuses"] = statuses
+
+	for key: Variant in refreshed:
+		player[key] = refreshed[key]
+
+	stats_updated.emit()
+
+
+func _reward_profile_for_actor(
+	is_ally: bool,
+	encounter_slot_index: int
+) -> CombatRewardData:
+	if _current_encounter == null:
+		return null
+
+	var slots: Array[CombatSlotData] = (
+		_current_encounter.ally_slots
+		if is_ally
+		else _current_encounter.enemy_slots
+	)
+
+	for slot: CombatSlotData in slots:
+		if slot != null and slot.slot_index == encounter_slot_index:
+			return slot.reward_profile
+
+	return null
+
+
 func _all_combatants() -> Array:
 	var actors: Array = []
 
@@ -3666,6 +4322,7 @@ func _serialize_actor(actor: Dictionary) -> Dictionary:
 		"uid": int(actor.get("uid", -1)),
 		"character_id": str(actor.get("character_id", "")),
 		"source_kind": int(actor.get("source_kind", CombatSlotData.ParticipantSource.FIXED_LOADOUT)),
+		"encounter_slot_index": int(actor.get("encounter_slot_index", -1)),
 		"name": str(actor.get("name", "Entity")),
 		"level": int(actor.get("level", 1)),
 		"type": int(actor.get("type", 0)),
@@ -3681,6 +4338,11 @@ func _serialize_actor(actor: Dictionary) -> Dictionary:
 		"dodge": float(actor.get("dodge", 0.0)),
 		"crit": float(actor.get("crit", 0.0)),
 		"modules": module_ids,
+		"player_action_assignments": _plain_copy(actor.get("player_action_assignments", [])),
+		"purged": bool(actor.get("purged", false)),
+		"purified": bool(actor.get("purified", false)),
+		"tamed": bool(actor.get("tamed", false)),
+		"defeated": bool(actor.get("defeated", false)),
 		"is_ally": bool(actor.get("is_ally", false)),
 		"is_player": bool(actor.get("is_player", false)),
 		"is_dummy": bool(actor.get("is_dummy", false)),
@@ -3700,6 +4362,7 @@ func _deserialize_actor(data: Dictionary) -> Dictionary:
 	var is_dummy: bool = bool(data.get("is_dummy", false))
 	var character_id: String = str(data.get("character_id", ""))
 	var source_kind: int = int(data.get("source_kind", CombatSlotData.ParticipantSource.FIXED_LOADOUT))
+	var encounter_slot_index: int = int(data.get("encounter_slot_index", -1))
 	var dummy: DummyData = null
 	var loadout: CharacterLoadout = null
 
@@ -3743,6 +4406,8 @@ func _deserialize_actor(data: Dictionary) -> Dictionary:
 		"uid": int(data.get("uid", -1)),
 		"character_id": character_id,
 		"source_kind": source_kind,
+		"encounter_slot_index": encounter_slot_index,
+		"reward_profile": _reward_profile_for_actor(bool(data.get("is_ally", false)), encounter_slot_index),
 		"name": str(data.get("name", "Entity")),
 		"icon": actor_icon,
 		"level": int(data.get("level", 1)),
@@ -3759,6 +4424,11 @@ func _deserialize_actor(data: Dictionary) -> Dictionary:
 		"dodge": float(data.get("dodge", 0.0)),
 		"crit": float(data.get("crit", 0.0)),
 		"modules": modules,
+		"player_action_assignments": _read_action_assignments(data.get("player_action_assignments", [])),
+		"purged": bool(data.get("purged", false)),
+		"purified": bool(data.get("purified", false)),
+		"tamed": bool(data.get("tamed", false)),
+		"defeated": bool(data.get("defeated", false)),
 		"is_ally": bool(data.get("is_ally", false)),
 		"is_player": bool(data.get("is_player", false)),
 		"is_dummy": is_dummy,
@@ -3945,6 +4615,63 @@ func _deserialize_targeting_history(raw_history: Variant) -> Array:
 		})
 
 	return history
+
+
+func _serialize_team_records(records: Array[Dictionary]) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+
+	for record: Dictionary in records:
+		result.append(_serialize_actor(record))
+
+	return result
+
+
+func _deserialize_team_records(raw_records: Variant) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+
+	if raw_records is not Array:
+		return result
+
+	for raw_record: Variant in raw_records:
+		if raw_record is Dictionary:
+			result.append(_deserialize_actor(raw_record as Dictionary))
+
+	return result
+
+
+func _read_action_assignments(value: Variant) -> Array:
+	var result: Array = [null, null, null, null]
+
+	if value is not Array:
+		return result
+
+	for index: int in range(mini(TEAM_SIZE, value.size())):
+		if value[index] is Dictionary:
+			result[index] = {
+				"action_id": str(value[index].get("action_id", "")).strip_edges(),
+				"target_uid": int(value[index].get("target_uid", -1))
+			}
+
+	return result
+
+
+func _read_dictionary(value: Variant) -> Dictionary:
+	return (value as Dictionary).duplicate(true) if value is Dictionary else {}
+
+
+func _read_string_array(value: Variant) -> PackedStringArray:
+	var result := PackedStringArray()
+
+	if value is not Array and value is not PackedStringArray:
+		return result
+
+	for raw_value: Variant in value:
+		var clean_value: String = str(raw_value).strip_edges()
+
+		if not clean_value.is_empty() and not result.has(clean_value):
+			result.append(clean_value)
+
+	return result
 
 
 func _all_defeated(

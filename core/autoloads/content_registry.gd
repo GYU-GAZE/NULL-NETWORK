@@ -295,6 +295,49 @@ func _build_indexes(new_catalog: GameContentCatalog) -> Dictionary:
 					% [apk.apk_id, module_id]
 				)
 
+		for branch: EvolutionBranchData in apk.evolution_branches:
+			if branch != null and not proposed_indexes.get(CATEGORY_APKS, {}).has(branch.target_apk_id):
+				errors.append(
+					"APK '%s' evolution branch references unknown target '%s'."
+					% [apk.apk_id, branch.target_apk_id]
+				)
+
+	var item_index: Dictionary = proposed_indexes.get(CATEGORY_ITEMS, {})
+	var apk_index: Dictionary = proposed_indexes.get(CATEGORY_APKS, {})
+
+	for encounter: CombatEncounter in new_catalog.combat_encounters:
+		if encounter == null:
+			continue
+
+		for slot: CombatSlotData in encounter.enemy_slots:
+			if slot == null or slot.reward_profile == null:
+				continue
+
+			var reward: CombatRewardData = slot.reward_profile
+
+			for module_id: String in reward.active_module_ids + reward.purification_passive_module_ids:
+				if not module_index.has(module_id):
+					errors.append("Combat reward '%s' references unknown Module '%s'." % [reward.reward_id, module_id])
+
+			for module_id: String in reward.active_module_ids:
+				var active_module: ModuleData = module_index.get(module_id) as ModuleData
+
+				if active_module != null and active_module.module_kind != ModuleData.ModuleKind.ACTIVE:
+					errors.append("Combat reward '%s' exposes passive Module '%s' as active extraction." % [reward.reward_id, module_id])
+
+			for module_id: String in reward.purification_passive_module_ids:
+				var passive_module: ModuleData = module_index.get(module_id) as ModuleData
+
+				if passive_module != null and passive_module.module_kind != ModuleData.ModuleKind.PASSIVE:
+					errors.append("Combat reward '%s' exposes active Module '%s' as a PURIFY passive." % [reward.reward_id, module_id])
+
+			for item_id: String in reward.common_item_ids:
+				if not item_index.has(item_id):
+					errors.append("Combat reward '%s' references unknown item '%s'." % [reward.reward_id, item_id])
+
+			if not reward.tame_apk_id.is_empty() and not apk_index.has(reward.tame_apk_id):
+				errors.append("Combat reward '%s' references unknown tame APK '%s'." % [reward.reward_id, reward.tame_apk_id])
+
 	return {
 		"errors": errors,
 		"indexes": proposed_indexes

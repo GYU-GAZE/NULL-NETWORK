@@ -13,9 +13,9 @@
 ## Stable baseline
 
 - Base branch: `main`
-- Last audited stable commit before the current change: `5f04ff0efc85879b5d62f8c7e2da1df184e64ac2`
-- Last completed system: Phase 9 persistent APK partner, typed inventory and progression
-- Last validated workflow: Godot Project Validation run `#251`
+- Last audited stable commit before the current change: `6c1af9fec831034a6c0f3ce31031fedf13943d5c`
+- Last completed system: Phase 10 Player Actions, campaign combat resolution and combat-only evolution
+- Last validated workflow: Godot Project Validation run `#261`
 - Activity marker: `ACTIVITY_MANAGER_TEST: PASS`
 - Campaign marker: `CAMPAIGN_STATE_TEST: PASS`
 - Save marker: `SAVE_MANAGER_TEST: PASS`
@@ -26,25 +26,40 @@
 - Dialogue marker: `DIALOGUE_SYSTEM_TEST: PASS`
 - Operator marker: `OPERATOR_CREATION_TEST: PASS`
 - APK progression marker: `APK_PROGRESSION_TEST: PASS`
+- Combat campaign resolution marker: `COMBAT_CAMPAIGN_RESOLUTION_TEST: PASS`
 - Runtime marker: `COMBAT_RUNTIME_TEST: PASS`
 - Layout marker: `COMBAT_LAYOUT_TEST: PASS`
 
 ## Current system
 
-- Roadmap phase: **Phase 10 — combat completion**
-- Status: Phase 9 is complete and validated. Immutable APK content, persistent PartnerState, typed inventory, canonical growth and player-partner combat snapshots now share one ID-driven pipeline.
-- Architectural objective: turn the existing combat runtime into a complete campaign activity with Player Actions, centralized rewards, projected tendencies and evolution.
+- Roadmap phase: **Phase 11 — Leads, Incidents and Local Area population**
+- Status: Phase 10 is complete and validated. Combat now enters from persistent PartnerState, executes Modules and Player Actions in one Timeline, resolves campaign rewards once and can evolve at stable cycle boundaries.
+- Architectural objective: connect forum/community discoveries to reusable Leads, Incidents and condition-driven Local Area populations without hardcoded Aquarium paths.
 
 ## Next exact task
 
-Begin Phase 10 in this order:
+Begin Phase 11 in this order:
 
-1. Audit the current Timeline action-slot schema, encounter result path and every direct combat-to-campaign mutation.
-2. Create typed Player Action, progress, reward, resolution, tendency-gain, tendency-log and Combat Style Resources.
-3. Implement `PlayerActionService` for SCAN, PURGE, PURIFY and contextual TAME as Timeline actions with 25% progress per committed slot.
-4. Implement `CombatResolutionService` as the only authority for EXP, drops, Modules, tendencies, Encyclopedia, partner/enemy state, event Effects and save.
-5. Add projected tendencies and data-driven evolution branches, pausing combat only at stable end-of-cycle boundaries and rebuilding the snapshot/Timeline afterward.
-6. Complete `VS-110`: prove normal defeat plus all four Player Actions, rewards, level-up, evolution, run/loss and between-cycle save without UI-owned mutations.
+1. Audit existing forum link actions, Navigator badges, `MapLocation.spawn_table`, Local Area interactables and the reserved Lead/Incident catalog categories.
+2. Create typed `LeadData`, `LeadStageData`, `LeadCatalog`, `IncidentData` and `IncidentStageData` Resources with stable IDs, conditions, expiration and Effects.
+3. Make CampaignState's existing active/completed Lead IDs the authoritative mutable progression, with stage state added as plain ID/value data only when required by the Resources.
+4. Implement `LocalAreaSpawnPoint` and `LocalAreaPopulationController` against each MapLocation's existing SpawnTable, restoring resolved actors instead of rerolling them.
+5. Connect one forum link to one Lead, badge, paid Incident, dialogue, combat resolution and forum reaction through the shared services.
+6. Complete `VS-120`, including save/restart at a stable Lead or Incident boundary.
+
+## Phase 10 combat completion checkpoint
+
+- `PlayerActionData` and `PlayerActionProgressData` define SCAN, PURGE, PURIFY and contextual TAME as Timeline replacements; every committed slot adds 25% to one stable target UID.
+- `PlayerActionService` owns assignment legality, one-per-target/encounter policy, PURGE/PURIFY/TAME exclusions and completion state.
+- SCAN selects one active Module; PURGE marks the target for increased EXP and deterministic active extraction; PURIFY grants only an installed passive; duplicate Modules convert to configured EXP.
+- TAME removes the target without marking it defeated and replaces PartnerState as PURIFIED only after PURIFY; direct TAME creates an EXE-integrity partner.
+- `CombatResolutionService` is the sole authority for snapshot write-back, EXP, drops, Modules, tendencies, Encyclopedia discovery, partner replacement and outcome Effects.
+- Terminal combat state remains serializable after victory, defeat or escape. Rewards are idempotent and the session finalizes only when presentation confirms the return boundary.
+- `CombatTendencyLog` accumulates data-driven temporary behavior; `CombatStyleRuleData` converts at most two points into the campaign at resolution.
+- `EvolutionBranchData` separates Core Requirements, alternative Catalysts and stable combat windows. The authored NOVIRE VALOUR branch proves an end-of-cycle offer, immediate stat recalculation and unchanged level/EXP.
+- Rattildus provides the integration reward profile, non-extractable Species Signature, transferable installed passive and tameable APK content; it does not replace the final tutorial content pass.
+- Defeat remains recoverable. Partner Loss, TURD/LOST and Operator Loss stay reserved for Phase 14.
+- `VS-110` proves normal victory, all four Player Actions, active/passive rewards, duplicate conversion, Combat Style, Encyclopedia, level-up, both TAME integrity paths, evolution, escape, defeat and save/restart at 25% progress.
 
 ## Phase 9 APK, partner, inventory and progression checkpoint
 
@@ -157,9 +172,10 @@ Begin Phase 10 in this order:
 
 ## Known non-blocking gaps
 
-- Combat resolution does not yet centralize rewards, Player Actions, projected tendencies, evolution or Encyclopedia updates; this is the active Phase 10 task.
 - Only NOVIRE has an authored starter integration Resource; the other four Prologue starter choices remain final content work.
 - Social and Encyclopedia have reserved plain state sections, but their typed domain models belong to Phases 12 and 13.
+- Only the NOVIRE VALOUR evolution branch and Rattildus campaign reward profile are authored integration content; the remaining branches and EXE families belong to later content work.
+- Lead/Incident Resources and condition-driven Local Area population do not exist yet; this is the active Phase 11 task.
 - No current content uses `allow_cross_day`; the behavior is covered by preview tests for future events.
 
 These are planned in their listed roadmap phases and must not be pulled forward into unrelated changes.
@@ -179,6 +195,7 @@ godot --headless --path . tests/events/story_event_manager_test.tscn
 godot --headless --path . tests/dialogue/dialogue_system_test.tscn
 godot --headless --path . tests/operator/operator_creation_test.tscn
 godot --headless --path . tests/progression/apk_progression_test.tscn
+godot --headless --path . tests/combat/combat_campaign_resolution_test.tscn
 godot --headless --path . tests/save/save_manager_test.tscn
 godot --headless --path . tests/save/save_runtime_integration_test.tscn
 godot --headless --path . tests/combat/combat_runtime_test.tscn

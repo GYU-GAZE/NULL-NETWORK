@@ -13,6 +13,9 @@ class_name CombatEncounter
 @export var can_escape: bool = true
 @export_range(0.0, 1.0, 0.01) var base_escape_chance: float = 0.25
 
+@export_category("Campaign Resolution")
+@export var resolution: CombatResolutionData
+
 
 func validate_data() -> PackedStringArray:
 	var errors := PackedStringArray()
@@ -31,6 +34,11 @@ func validate_data() -> PackedStringArray:
 			"Encounter '%s' has no enemies."
 			% encounter_id
 		)
+
+	if resolution == null:
+		errors.append("Encounter '%s' has no campaign resolution profile." % encounter_id)
+	else:
+		errors.append_array(resolution.validate_data())
 
 	var all_slots: Array[CombatSlotData] = []
 	all_slots.append_array(ally_slots)

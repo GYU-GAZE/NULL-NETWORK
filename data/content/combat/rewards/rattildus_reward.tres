@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CombatRewardData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/combat/combat_reward_data.gd" id="1_reward"]
+
+[resource]
+script = ExtResource("1_reward")
+reward_id = "reward.rattildus"
+base_experience = 20
+purge_experience_multiplier = 1.5
+duplicate_module_experience = 10
+common_item_ids = PackedStringArray("healing_patch")
+common_item_amounts = Array[int]([1])
+active_module_ids = PackedStringArray("basic_attack", "heavy_attack", "basic_defense", "basic_heal")
+purification_passive_module_ids = PackedStringArray("rattildus_guard")
+tame_apk_id = "rattildus_init"
+encyclopedia_entry_id = "exe.rattildus"

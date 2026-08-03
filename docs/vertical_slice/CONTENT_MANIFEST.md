@@ -14,8 +14,10 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | APK progression integration gate | 1 | EXISTS | 9 | NOVIRE proves individuality, address term, Modules, level reward, combat snapshot, allocation and persistence |
 | Typed item integration gate | 1 | EXISTS | 9 | `healing_patch` proves catalog resolution and JSON-safe inventory entries; item use belongs to later gameplay content |
 | Initial district | 1 | PARTIAL | 11 | Akihabara test area exists; canonical Prologue starting area remains content work |
-| Tutorial EXE | 1 | PARTIAL | 10 | Rattildus test encounter exists but lacks campaign resolution |
-| Player Actions | 4 | MISSING | 10 | SCAN, PURGE, PURIFY, TAME |
+| Tutorial EXE | 1 | PARTIAL | 15 | Rattildus integration encounter has a reward profile and campaign resolution; final tutorial placement/narrative remains |
+| Player Actions | 4 | EXISTS | 10 | SCAN, PURGE, PURIFY and TAME are typed Timeline Resources with persistent progress |
+| Combat resolution integration gate | 1 | EXISTS | 10 | Rattildus proves normal rewards, active/passive extraction, both TAME integrity paths, Encyclopedia, Combat Style and idempotence |
+| Combat evolution integration branch | 1 | EXISTS | 10 | NOVIRE VALOUR proves Core Requirements, alternative Catalysts, end-of-cycle prompt and snapshot rebuild |
 | Core apps | 6 | PARTIAL | 5/13 | Browser and Navigator exist; Profile, Encyclopedia, Social and Calendar do not |
 | Global UI text catalog | 1 | EXISTS | 4 | Interface text only; narrative stays in narrative Resources |
 | StoryEvent integration gate | 1 | EXISTS | 6 | `story.prologue.null_network_welcome` proves orchestration and persistence; it does not replace the final Phase 15 Prologue sequence |
@@ -51,7 +53,7 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | `null.net/download` | Website page | MISSING | 15 | Installs app through effect |
 | `WELCOME, NEW PLAYERS` | Forum thread | MISSING | 15 | Teaches through existing NPC posts |
 | starter introduction | Dialogue | MISSING | 7/15 | First partner conversation |
-| tutorial encounter | CombatEncounter | PARTIAL | 10/15 | Player slot now resolves persistent PartnerState; Player Actions and centralized rewards remain |
+| tutorial encounter | CombatEncounter | PARTIAL | 15 | Player slot, Player Actions and centralized rewards are functional; final Prologue trigger and content remain |
 
 ## Day One / Monday micro-update
 
@@ -89,13 +91,13 @@ Canonical clue progression from the GDD:
 | Local Area | 1 | MISSING | 11/16 | Abandoned aquarium |
 | Subareas | 2–3 | MISSING | 11/16 | Data-driven transitions |
 | Common EXEs | 2 | MISSING | 9/11/16 | Spawn table content |
-| Anomalous encounter | 1 | MISSING | 10/11/16 | Distinct combat state |
+| Anomalous encounter | 1 | MISSING | 11/16 | Distinct authored encounter using the final combat pipeline |
 | Involved NPC | 1 | MISSING | 12/16 | Social and/or party link |
 | Dialogue sequence | 1 | MISSING | 7/16 | Supports choices and persistence |
-| Boss | 1 | MISSING | 10/16 | Uses final combat pipeline |
+| Boss | 1 | MISSING | 16 | Uses final combat pipeline |
 | Hardware/UI mechanic | 1 | MISSING | 16 | Authored only after systemic dependencies |
 | Resolution branches | At least 2 observable outcomes | MISSING | 4/11/16 | Effects alter campaign/world state |
-| Evolution opportunity | 1 | MISSING | 9/10/16 | Uses projected tendencies |
+| Evolution opportunity | 1 | MISSING | 16 | Uses the validated projected-tendency evolution pipeline |
 | Forum aftermath | 1 response set | MISSING | 6/16 | Old and new threads react |
 | Slice completion event | 1 | MISSING | 6/16 | Marks vertical slice complete |
 

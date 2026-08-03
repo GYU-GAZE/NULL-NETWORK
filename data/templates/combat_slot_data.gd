@@ -13,6 +13,7 @@ enum ParticipantSource {
 @export var character: CharacterLoadout
 @export var party_member_id: String = ""
 @export var availability_conditions: ConditionSetData
+@export var reward_profile: CombatRewardData
 
 
 func is_available() -> bool:
@@ -45,5 +46,8 @@ func validate_data() -> PackedStringArray:
 		ParticipantSource.PARTY_MEMBER:
 			if party_member_id.strip_edges().is_empty():
 				errors.append("PARTY_MEMBER combat slot requires party_member_id.")
+
+	if reward_profile != null:
+		errors.append_array(reward_profile.validate_data())
 
 	return errors

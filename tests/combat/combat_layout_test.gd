@@ -215,6 +215,9 @@ func _combat_uses_kubu_font_density(
 			"ContentMargin/BattleBox/CenterHBox/MenuBox/ChangeModulesBtn"
 		) as Control,
 		combat_app.get_node(
+			"ContentMargin/BattleBox/CenterHBox/MenuBox/PlayerActionsBtn"
+		) as Control,
+		combat_app.get_node(
 			"ContentMargin/BattleBox/CenterHBox/MenuBox/ExecuteBtn"
 		) as Control,
 		combat_app.get_node(
@@ -224,7 +227,7 @@ func _combat_uses_kubu_font_density(
 			"OverlayLayer/ModuleSwapUI/Title"
 		) as Control,
 		combat_app.get_node(
-			"OverlayLayer/ResolutionScreen/ResolutionCenter/ResolutionBox/ResolutionTitle"
+			"OverlayLayer/CombatResolutionPanel/Center/Box/TitleLabel"
 		) as Control
 	]
 
@@ -503,7 +506,13 @@ func _combat_inherits_adaptive_scale(
 			"OverlayLayer/HoverTooltip"
 		) as Control,
 		combat_app.get_node(
-			"OverlayLayer/ResolutionScreen"
+			"OverlayLayer/PlayerActionSelector"
+		) as Control,
+		combat_app.get_node(
+			"OverlayLayer/CombatResolutionPanel"
+		) as Control,
+		combat_app.get_node(
+			"OverlayLayer/EvolutionOverlay"
 		) as Control
 	]
 
@@ -572,7 +581,7 @@ func _combat_overlay_coordinates_are_transform_safe(
 	) as Control
 	var menu_box := combat_app.get_node(
 		"ContentMargin/BattleBox/CenterHBox/MenuBox"
-	) as VBoxContainer
+	) as GridContainer
 	var module_swap_ui := combat_app.get_node(
 		"OverlayLayer/ModuleSwapUI"
 	) as VBoxContainer

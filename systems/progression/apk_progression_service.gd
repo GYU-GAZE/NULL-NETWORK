@@ -4,6 +4,7 @@ extends Node
 signal partner_selected(apk_id: String)
 signal partner_state_changed(apk_id: String)
 signal partner_leveled_up(apk_id: String, old_level: int, new_level: int)
+signal partner_evolved(previous_apk_id: String, target_apk_id: String)
 
 
 const MIN_LEVEL: int = 1
@@ -43,6 +44,76 @@ func create_partner_state(
 	var stats: Dictionary = APKStatCalculator.calculate_stats(apk, partner)
 	partner.current_hp = int(stats.get("max_hp", 1))
 	return partner
+
+
+func create_tamed_partner_state(
+	apk_id: String,
+	level: int,
+	integrity_state: PartnerStateData.IntegrityState,
+	individual_roll: int = -1
+) -> PartnerStateData:
+	var partner: PartnerStateData = create_partner_state(
+		apk_id,
+		"",
+		individual_roll,
+		individual_roll
+	)
+
+	if partner == null:
+		return null
+
+	partner.level = clampi(level, MIN_LEVEL, MAX_LEVEL)
+	partner.current_exp = get_total_exp_for_level(partner.level)
+	partner.allocation_points = maxi(0, partner.level - 1)
+	partner.integrity_state = integrity_state
+	var stats: Dictionary = calculate_partner_stats(partner)
+	partner.current_hp = int(stats.get("max_hp", 1))
+	return partner
+
+
+func evolve_partner(target_apk_id: String) -> PackedStringArray:
+	var errors := PackedStringArray()
+	var source: PartnerStateData = CampaignState.partner
+	var current_apk: APKData = get_current_apk()
+	var target_apk: APKData = ContentRegistry.get_apk(target_apk_id)
+
+	if source.is_empty() or current_apk == null:
+		errors.append("Cannot evolve without a valid persistent partner.")
+	elif target_apk == null:
+		errors.append("Evolution target APK '%s' is not registered." % target_apk_id)
+	elif target_apk.get_address_term(source.address_term_id) == null:
+		errors.append("Evolution target does not preserve the partner's address term.")
+
+	if not errors.is_empty():
+		return errors
+
+	var old_apk_id: String = source.apk_id
+	var old_stats: Dictionary = get_current_stats()
+	var hp_ratio: float = float(source.current_hp) / maxf(1.0, float(old_stats.get("max_hp", 1)))
+
+	if source.growth_lineage.strip_edges().is_empty():
+		source.growth_lineage = current_apk.apk_id
+
+	source.apk_id = target_apk.apk_id
+
+	if target_apk.get_personality(source.personality_id) == null:
+		source.personality_id = _select_personality_id(target_apk, -1)
+
+	for module: ModuleData in target_apk.default_active_modules:
+		if module != null and not source.known_active_module_ids.has(str(module.module_id)):
+			source.known_active_module_ids.append(str(module.module_id))
+			CampaignState.learn_module(str(module.module_id), false)
+
+	var new_stats: Dictionary = get_current_stats()
+	source.current_hp = clampi(
+		roundi(float(new_stats.get("max_hp", 1)) * hp_ratio),
+		1 if hp_ratio > 0.0 else 0,
+		int(new_stats.get("max_hp", 1))
+	)
+	CampaignState.notify_partner_changed()
+	partner_state_changed.emit(source.apk_id)
+	partner_evolved.emit(old_apk_id, source.apk_id)
+	return errors
 
 
 func select_starter(

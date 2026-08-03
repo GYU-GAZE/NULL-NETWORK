@@ -1,8 +1,10 @@
-[gd_resource type="Resource" script_class="CombatEncounter" load_steps=6 format=3 uid="uid://cdxjje47qsri2"]
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=8 format=3 uid="uid://cdxjje47qsri2"]
 
 [ext_resource type="Script" path="res://data/templates/combat_encounter.gd" id="1_encounter"]
 [ext_resource type="Script" path="res://data/templates/combat_slot_data.gd" id="2_slot"]
 [ext_resource type="Resource" path="res://data/content/combat/loadouts/enemy_rattus.tres" id="4_enemy"]
+[ext_resource type="Resource" path="res://data/content/combat/rewards/rattildus_reward.tres" id="5_reward"]
+[ext_resource type="Resource" path="res://data/content/combat/resolutions/default_exe_resolution.tres" id="6_resolution"]
 
 [sub_resource type="Resource" id="Slot_player"]
 script = ExtResource("2_slot")
@@ -12,6 +14,7 @@ participant_source = 1
 script = ExtResource("2_slot")
 slot_index = 1
 character = ExtResource("4_enemy")
+reward_profile = ExtResource("5_reward")
 
 [resource]
 script = ExtResource("1_encounter")
@@ -20,3 +23,4 @@ encounter_name = "Akihabara Rattildus"
 ally_slots = Array[ExtResource("2_slot")]([SubResource("Slot_player")])
 enemy_slots = Array[ExtResource("2_slot")]([SubResource("Slot_enemy")])
 base_escape_chance = 0.25
+resolution = ExtResource("6_resolution")

@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://c7acibtxdt54a"]
+[gd_scene load_steps=5 format=3 uid="uid://c7acibtxdt54a"]
 
 [ext_resource type="Script" uid="uid://d8jvy70iy3nu" path="res://apps/combat/app_combat.gd" id="1_combat"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_resolution"]
-bg_color = Color(0, 0, 0, 0.9)
+[ext_resource type="PackedScene" path="res://apps/combat/player_actions/player_action_selector.tscn" id="2_actions"]
+[ext_resource type="PackedScene" path="res://apps/combat/resolution/combat_resolution_panel.tscn" id="3_resolution"]
+[ext_resource type="PackedScene" path="res://apps/navigator/evolution/evolution_overlay.tscn" id="4_evolution"]
 
 [node name="CombatApp" type="PanelContainer" unique_id=1771139256]
 clip_contents = true
@@ -41,12 +41,13 @@ size_flags_vertical = 3
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="MenuBox" type="VBoxContainer" parent="ContentMargin/BattleBox/CenterHBox" unique_id=1979134545]
+[node name="MenuBox" type="GridContainer" parent="ContentMargin/BattleBox/CenterHBox" unique_id=1979134545]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
-theme_override_constants/separation = 2
-alignment = 1
+theme_override_constants/h_separation = 2
+theme_override_constants/v_separation = 2
+columns = 2
 
 [node name="ChangeModulesBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=124703014]
 unique_name_in_owner = true
@@ -54,6 +55,14 @@ custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 tooltip_text = "Change Modules"
 text = "MODULES"
+clip_text = true
+
+[node name="PlayerActionsBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+tooltip_text = "Assign Player Actions"
+text = "ACTIONS"
 clip_text = true
 
 [node name="ExecuteBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=1608989675]
@@ -155,6 +164,26 @@ size_flags_vertical = 3
 unique_name_in_owner = true
 layout_mode = 2
 
+[node name="PlayerActionSelector" parent="OverlayLayer" instance=ExtResource("2_actions")]
+unique_name_in_owner = true
+visible = false
+z_index = 150
+layout_mode = 0
+offset_left = 110.0
+offset_top = 82.0
+
+[node name="CombatResolutionPanel" parent="OverlayLayer" instance=ExtResource("3_resolution")]
+unique_name_in_owner = true
+visible = false
+z_index = 200
+layout_mode = 1
+
+[node name="EvolutionOverlay" parent="OverlayLayer" instance=ExtResource("4_evolution")]
+unique_name_in_owner = true
+visible = false
+z_index = 190
+layout_mode = 1
+
 [node name="HoverTooltip" type="PanelContainer" parent="OverlayLayer" unique_id=1231451110]
 unique_name_in_owner = true
 visible = false
@@ -166,34 +195,3 @@ size_flags_vertical = 0
 [node name="TooltipLabel" type="Label" parent="OverlayLayer/HoverTooltip" unique_id=1280043019]
 unique_name_in_owner = true
 layout_mode = 2
-
-[node name="ResolutionScreen" type="PanelContainer" parent="OverlayLayer" unique_id=1866246050]
-unique_name_in_owner = true
-visible = false
-z_index = 200
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_resolution")
-
-[node name="ResolutionCenter" type="CenterContainer" parent="OverlayLayer/ResolutionScreen"]
-layout_mode = 2
-
-[node name="ResolutionBox" type="VBoxContainer" parent="OverlayLayer/ResolutionScreen/ResolutionCenter"]
-layout_mode = 2
-theme_override_constants/separation = 12
-alignment = 1
-
-[node name="ResolutionTitle" type="Label" parent="OverlayLayer/ResolutionScreen/ResolutionCenter/ResolutionBox"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "VITÓRIA"
-horizontal_alignment = 1
-
-[node name="ContinueButton" type="Button" parent="OverlayLayer/ResolutionScreen/ResolutionCenter/ResolutionBox"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "RETURN TO AREA"

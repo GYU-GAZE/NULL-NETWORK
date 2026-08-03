@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="APKData" load_steps=14 format=3]
+[gd_resource type="Resource" script_class="APKData" load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://data/templates/apk/apk_data.gd" id="1_apk"]
 [ext_resource type="Script" path="res://data/templates/apk/apk_growth_profile_data.gd" id="2_growth"]
@@ -11,6 +11,8 @@
 [ext_resource type="Resource" path="res://data/content/combat/modules/basic_dodge.tres" id="9_dodge"]
 [ext_resource type="Resource" path="res://data/content/combat/modules/basic_heal.tres" id="10_heal"]
 [ext_resource type="Texture2D" path="res://icon.svg" id="11_icon"]
+[ext_resource type="Script" path="res://data/templates/evolution/evolution_branch_data.gd" id="12_branch_type"]
+[ext_resource type="Resource" path="res://data/content/evolution/novire_valour_branch.tres" id="13_valour_branch"]
 
 [sub_resource type="Resource" id="Growth_novire"]
 script = ExtResource("2_growth")
@@ -74,3 +76,4 @@ available_personalities = Array[ExtResource("3_personality")]([SubResource("Pers
 available_address_terms = Array[ExtResource("4_address")]([SubResource("Address_name"), SubResource("Address_nickname"), SubResource("Address_boss")])
 default_active_modules = Array[ExtResource("6_module")]([ExtResource("7_attack"), ExtResource("8_defense"), ExtResource("9_dodge"), ExtResource("7_attack")])
 learnable_modules = Array[ExtResource("5_reward")]([SubResource("Reward_level_2")])
+evolution_branches = Array[ExtResource("12_branch_type")]([ExtResource("13_valour_branch")])

@@ -24,6 +24,10 @@ This log records canonical decisions that implementation must preserve. Change a
 | DVS-018 | `APKData` is immutable species/form content; `PartnerStateData` is the persistent individual. | Saves contain partner values and stable IDs, while `CharacterLoadout` exists only as a combat snapshot. | GDD: APK and Partner progression; Roadmap Phase 9 |
 | DVS-019 | Partner stats are recalculated from level-100 profiles, level and Allocation Points instead of accumulating rounded deltas. | Level-up, evolution and load produce deterministic stats; Stability maximum remains 100 and recovery is separate. | GDD: APK stat growth |
 | DVS-020 | Save authorities restore before runtime snapshots that resolve them. | CampaignState must import before CombatSession; dynamic presentation sections may remain pending until their providers register. | Persistence dependency exposed by Phase 9 |
+| DVS-021 | Applying combat resolution and finalizing the encounter are separate stable boundaries. | The resolved session remains saveable; rewards are idempotent; UI confirms exit only after the service result exists. | GDD combat consequences; Roadmap Phase 10 |
+| DVS-022 | Ordinary defeat in Phase 10 is recoverable; definitive Partner Loss, TURD/LOST and Operator Loss belong to Phase 14. | Combat may persist zero HP and a defeat result, but it must not advance the irreversible loss lifecycle early. | Roadmap Phases 10 and 14 |
+| DVS-023 | SCAN and PURGE extract only active Modules; PURIFY grants only Installed Passives; Species Signatures and other intrinsic traits are not extractable. | Reward profiles separate active and purification pools and ContentRegistry validates their Module kinds. | GDD: Player Actions and Module taxonomy |
+| DVS-024 | Evolution occurs only during combat at declared stable windows and preserves level, EXP, individual identity and HP ratio. | Branches separate Core Requirements from alternative Catalysts; CombatManager rebuilds the partner snapshot after acceptance. | GDD: Evolution; Roadmap Phase 10 |
 
 ## Change protocol
 

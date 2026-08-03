@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ModuleData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/module_data.gd" id="1_module"]
+
+[resource]
+script = ExtResource("1_module")
+module_id = &"rattildus_signature"
+module_name = "Scavenger Protocol"
+classification = &"species_signature"
+description = "Rattildus species signature. It belongs to the line and cannot be extracted."
+module_kind = 1
+stability_cost = 0

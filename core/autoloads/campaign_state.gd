@@ -265,8 +265,11 @@ func modify_affinity(npc_id: String, amount: int) -> int:
 func learn_module(module_id: String, teach_current_partner: bool = true) -> bool:
 	var learned: bool = _add_unique_id(known_module_ids, module_id, &"known_modules")
 	var clean_id: String = module_id.strip_edges()
+	var module: ModuleData = ContentRegistry.get_module(clean_id)
 
 	if teach_current_partner \
+		and module != null \
+		and module.module_kind == ModuleData.ModuleKind.ACTIVE \
 		and not partner.is_empty() \
 		and not clean_id.is_empty() \
 		and not partner.known_active_module_ids.has(clean_id):
@@ -274,6 +277,29 @@ func learn_module(module_id: String, teach_current_partner: bool = true) -> bool
 		notify_partner_changed()
 
 	return learned
+
+
+func record_encyclopedia_entry(
+	entry_id: String,
+	entry_data: Dictionary = {}
+) -> bool:
+	var clean_id: String = entry_id.strip_edges()
+
+	if clean_id.is_empty():
+		return false
+
+	var entries: Dictionary = encyclopedia_state.get("entries", {})
+	var existing: Dictionary = entries.get(clean_id, {})
+	var merged: Dictionary = existing.duplicate(true)
+
+	for key: Variant in entry_data:
+		merged[str(key)] = entry_data[key]
+
+	merged["discovered"] = true
+	entries[clean_id] = merged
+	encyclopedia_state["entries"] = entries
+	campaign_changed.emit(&"encyclopedia")
+	return true
 
 
 func set_partner_state(new_partner: PartnerStateData) -> bool:
