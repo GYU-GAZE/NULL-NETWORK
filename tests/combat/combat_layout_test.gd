@@ -506,7 +506,13 @@ func _combat_inherits_adaptive_scale(
 			"OverlayLayer/HoverTooltip"
 		) as Control,
 		combat_app.get_node(
-			"OverlayLayer/ResolutionScreen"
+			"OverlayLayer/PlayerActionSelector"
+		) as Control,
+		combat_app.get_node(
+			"OverlayLayer/CombatResolutionPanel"
+		) as Control,
+		combat_app.get_node(
+			"OverlayLayer/EvolutionOverlay"
 		) as Control
 	]
 
