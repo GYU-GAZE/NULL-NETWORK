@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="APKData" load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://data/templates/apk/apk_data.gd" id="1_apk"]
+[ext_resource type="Script" path="res://data/templates/apk/apk_growth_profile_data.gd" id="2_growth"]
+[ext_resource type="Script" path="res://data/templates/apk/apk_personality_data.gd" id="3_personality"]
+[ext_resource type="Script" path="res://data/templates/apk/address_term_data.gd" id="4_address"]
+[ext_resource type="Script" path="res://data/templates/module_data.gd" id="5_module"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_attack.tres" id="6_attack"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_defense.tres" id="7_defense"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_dodge.tres" id="8_dodge"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_heal.tres" id="9_heal"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/rattildus_signature.tres" id="10_signature"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="11_icon"]
+
+[sub_resource type="Resource" id="Growth_rattildus"]
+script = ExtResource("2_growth")
+hp = 180
+atk = 55
+def = 45
+matk = 35
+mdef = 40
+
+[sub_resource type="Resource" id="Personality_curious"]
+script = ExtResource("3_personality")
+personality_id = "curious"
+display_name = "Curious"
+description = "Investigates unfamiliar signals before committing."
+
+[sub_resource type="Resource" id="Personality_scrappy"]
+script = ExtResource("3_personality")
+personality_id = "scrappy"
+display_name = "Scrappy"
+description = "Survives by improvising with whatever data remains."
+
+[sub_resource type="Resource" id="Address_name"]
+script = ExtResource("4_address")
+address_term_id = "operator_first_name"
+source = 1
+
+[sub_resource type="Resource" id="Address_boss"]
+script = ExtResource("4_address")
+address_term_id = "boss"
+literal_text = "Boss"
+
+[resource]
+script = ExtResource("1_apk")
+apk_id = "rattildus_init"
+display_name = "RATTILDUS"
+species_line_id = "rattildus"
+form_id = "rattildus.init"
+form_type = 0
+sprites = Array[Texture2D]([ExtResource("11_icon")])
+portraits = Array[Texture2D]([ExtResource("11_icon")])
+combat_icon = ExtResource("11_icon")
+level_100_stats = SubResource("Growth_rattildus")
+stability_recovery = 18
+available_personalities = Array[ExtResource("3_personality")]([SubResource("Personality_curious"), SubResource("Personality_scrappy")])
+available_address_terms = Array[ExtResource("4_address")]([SubResource("Address_name"), SubResource("Address_boss")])
+default_active_modules = Array[ExtResource("5_module")]([ExtResource("6_attack"), ExtResource("9_heal"), ExtResource("7_defense"), ExtResource("8_dodge")])
+signature_passive = ExtResource("10_signature")

@@ -44,7 +44,7 @@ enum FormType {
 @export var learnable_modules: Array[APKLevelRewardData] = []
 
 @export_category("Evolution")
-@export var evolution_branches: Array[Resource] = []
+@export var evolution_branches: Array[EvolutionBranchData] = []
 
 
 func validate_data() -> PackedStringArray:
@@ -115,6 +115,12 @@ func validate_data() -> PackedStringArray:
 			errors.append("APK '%s' contains a null level reward." % apk_id)
 		else:
 			errors.append_array(reward.validate_data())
+
+	for branch: EvolutionBranchData in evolution_branches:
+		if branch == null:
+			errors.append("APK '%s' contains a null evolution branch." % apk_id)
+		else:
+			errors.append_array(branch.validate_data())
 
 	return errors
 

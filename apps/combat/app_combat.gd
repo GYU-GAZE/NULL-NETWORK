@@ -27,6 +27,7 @@ var actor_nodes: Dictionary = {}
 @onready var menu_box: VBoxContainer = %MenuBox
 @onready var execute_btn: Button = %ExecuteBtn
 @onready var change_modules_btn: Button = %ChangeModulesBtn
+@onready var player_actions_btn: Button = %PlayerActionsBtn
 @onready var run_away_btn: Button = %RunAwayBtn
 @onready var module_swap_ui: VBoxContainer = %ModuleSwapUI
 @onready var equipped_list: VBoxContainer = %EquippedModulesList
@@ -42,9 +43,9 @@ var actor_nodes: Dictionary = {}
 @onready var hover_tooltip: PanelContainer = %HoverTooltip
 @onready var tooltip_label: Label = %TooltipLabel
 
-@onready var resolution_screen: PanelContainer = %ResolutionScreen
-@onready var resolution_title: Label = %ResolutionTitle
-@onready var continue_button: Button = %ContinueButton
+@onready var player_action_selector: PlayerActionSelector = %PlayerActionSelector
+@onready var resolution_panel: CombatResolutionPanel = %CombatResolutionPanel
+@onready var evolution_overlay: EvolutionOverlay = %EvolutionOverlay
 
 
 var _current_encounter: CombatEncounter
@@ -60,7 +61,9 @@ func _ready() -> void:
 	_connect_manager_signals()
 	_connect_ui_signals()
 
-	resolution_screen.hide()
+	player_action_selector.hide()
+	resolution_panel.hide()
+	evolution_overlay.hide()
 	module_swap_ui.hide()
 	hide_tooltip()
 	refresh_combat_field()
@@ -75,11 +78,10 @@ func _apply_static_ui_style() -> void:
 
 	var interface_controls: Array[Control] = [
 		change_modules_btn,
+		player_actions_btn,
 		execute_btn,
 		run_away_btn,
 		tooltip_label,
-		resolution_title,
-		continue_button,
 		module_swap_ui.get_node("Title") as Label
 	]
 
@@ -112,14 +114,16 @@ func start_encounter(
 
 	combat_log.clear()
 	floating_offsets.clear()
-	resolution_screen.hide()
+	player_action_selector.hide()
+	resolution_panel.hide()
+	evolution_overlay.hide()
 	module_swap_ui.hide()
 	hide_tooltip()
 
 	execute_btn.disabled = false
 	change_modules_btn.disabled = false
+	player_actions_btn.disabled = false
 	run_away_btn.disabled = false
-	continue_button.disabled = false
 
 	if not CombatManager.load_encounter(
 		_current_encounter
@@ -146,15 +150,37 @@ func resume_saved_encounter() -> bool:
 	_current_encounter = encounter
 	_pending_outcome = CombatResult.Outcome.CANCELLED
 	_encounter_active = true
-	resolution_screen.hide()
+	player_action_selector.hide()
+	resolution_panel.hide()
+	evolution_overlay.hide()
 	module_swap_ui.hide()
 	hide_tooltip()
 	execute_btn.disabled = false
 	change_modules_btn.disabled = false
+	player_actions_btn.disabled = false
 	run_away_btn.disabled = false
-	continue_button.disabled = false
 	refresh_combat_field()
 	show()
+
+	if CombatManager.is_resolution_applied():
+		_show_applied_resolution(
+			CombatManager.get_pending_outcome(),
+			CombatManager.get_result_metadata()
+		)
+	elif not CombatManager.get_pending_player_action_choice().is_empty():
+		var choice: Dictionary = CombatManager.get_pending_player_action_choice()
+		_on_player_action_choice_requested(
+			str(choice.get("action_id", "")),
+			int(choice.get("target_uid", -1)),
+			_read_string_array(choice.get("module_ids", []))
+		)
+	elif CombatManager.get_pending_evolution_branch() != null:
+		_on_evolution_prompt_requested(
+			CombatManager.get_pending_evolution_branch()
+		)
+	elif CombatManager.is_awaiting_resolution():
+		_resolve_and_show(CombatManager.get_pending_outcome())
+
 	return true
 
 
@@ -215,6 +241,27 @@ func _connect_manager_signals() -> void:
 			_on_cycle_ended
 		)
 
+	if not CombatManager.player_action_choice_requested.is_connected(
+		_on_player_action_choice_requested
+	):
+		CombatManager.player_action_choice_requested.connect(
+			_on_player_action_choice_requested
+		)
+
+	if not CombatManager.evolution_prompt_requested.is_connected(
+		_on_evolution_prompt_requested
+	):
+		CombatManager.evolution_prompt_requested.connect(
+			_on_evolution_prompt_requested
+		)
+
+	if not CombatManager.combat_resolution_applied.is_connected(
+		_show_applied_resolution
+	):
+		CombatManager.combat_resolution_applied.connect(
+			_show_applied_resolution
+		)
+
 
 func _connect_ui_signals() -> void:
 	if not execute_btn.pressed.is_connected(
@@ -231,6 +278,13 @@ func _connect_ui_signals() -> void:
 			_on_change_modules_pressed
 		)
 
+	if not player_actions_btn.pressed.is_connected(
+		_on_player_actions_pressed
+	):
+		player_actions_btn.pressed.connect(
+			_on_player_actions_pressed
+		)
+
 	if not run_away_btn.pressed.is_connected(
 		_on_run_away_pressed
 	):
@@ -238,12 +292,24 @@ func _connect_ui_signals() -> void:
 			_on_run_away_pressed
 		)
 
-	if not continue_button.pressed.is_connected(
+	player_action_selector.action_assignment_requested.connect(
+		_on_player_action_assignment_requested
+	)
+	player_action_selector.close_requested.connect(
+		func() -> void: player_action_selector.hide()
+	)
+	resolution_panel.module_choice_requested.connect(
+		_on_module_choice_requested
+	)
+	resolution_panel.continue_requested.connect(
 		_on_continue_pressed
-	):
-		continue_button.pressed.connect(
-			_on_continue_pressed
-		)
+	)
+	evolution_overlay.evolution_accepted.connect(
+		_on_evolution_accepted
+	)
+	evolution_overlay.evolution_declined.connect(
+		_on_evolution_declined
+	)
 
 
 func _update_log(message: String) -> void:
@@ -525,6 +591,9 @@ func _get_player_loadout() -> CharacterLoadout:
 		if not slot_data.is_available():
 			continue
 
+		if slot_data.participant_source == CombatSlotData.ParticipantSource.PLAYER_PARTNER:
+			return APKProgressionService.create_combat_snapshot()
+
 		return slot_data.character
 
 	return null
@@ -563,6 +632,7 @@ func _on_execute_pressed() -> void:
 
 	execute_btn.disabled = true
 	change_modules_btn.disabled = true
+	player_actions_btn.disabled = true
 	run_away_btn.disabled = true
 	module_swap_ui.hide()
 	CombatManager.execute_cycle()
@@ -573,6 +643,7 @@ func _on_change_modules_pressed() -> void:
 		return
 
 	module_swap_ui.visible = not module_swap_ui.visible
+	player_action_selector.hide()
 
 	if not module_swap_ui.visible:
 		return
@@ -587,22 +658,59 @@ func _on_change_modules_pressed() -> void:
 	)
 
 
+func _on_player_actions_pressed() -> void:
+	if not _encounter_active:
+		return
+
+	module_swap_ui.hide()
+	var targets_by_action: Dictionary = {}
+
+	for action: PlayerActionData in CombatManager.get_player_actions():
+		targets_by_action[action.action_id] = (
+			CombatManager.get_available_player_action_targets(action.action_id)
+		)
+
+	player_action_selector.setup(
+		CombatManager.get_player_actions(),
+		targets_by_action
+	)
+	player_action_selector.visible = not player_action_selector.visible
+
+
+func _on_player_action_assignment_requested(
+	slot_index: int,
+	action_id: String,
+	target_uid: int
+) -> void:
+	var errors: PackedStringArray = CombatManager.set_player_action(
+		slot_index,
+		action_id,
+		target_uid
+	)
+	player_action_selector.show_feedback(
+		"SLOT %d ASSIGNED" % (slot_index + 1)
+		if errors.is_empty()
+		else "\n".join(errors),
+		not errors.is_empty()
+	)
+
+
 func _on_run_away_pressed() -> void:
 	if not _encounter_active:
 		return
 
 	execute_btn.disabled = true
 	change_modules_btn.disabled = true
+	player_actions_btn.disabled = true
 	run_away_btn.disabled = true
 
 	if CombatManager.try_escape():
-		_finish_encounter(
-			CombatResult.Outcome.ESCAPED
-		)
+		_resolve_and_show(CombatResult.Outcome.ESCAPED)
 		return
 
 	execute_btn.disabled = false
 	change_modules_btn.disabled = false
+	player_actions_btn.disabled = false
 	run_away_btn.disabled = false
 
 
@@ -612,6 +720,7 @@ func _on_cycle_ended() -> void:
 
 	execute_btn.disabled = false
 	change_modules_btn.disabled = false
+	player_actions_btn.disabled = false
 	run_away_btn.disabled = false
 
 
@@ -620,10 +729,7 @@ func _on_victory() -> void:
 		return
 
 	_pending_outcome = CombatResult.Outcome.VICTORY
-	_show_resolution(
-		"VITÓRIA",
-		Color.LIME_GREEN
-	)
+	_resolve_and_show(_pending_outcome)
 
 
 func _on_defeat() -> void:
@@ -631,27 +737,73 @@ func _on_defeat() -> void:
 		return
 
 	_pending_outcome = CombatResult.Outcome.DEFEAT
-	_show_resolution(
-		"DERROTA CRÍTICA",
-		Color.CRIMSON
-	)
+	_resolve_and_show(_pending_outcome)
 
 
-func _show_resolution(
-	title: String,
-	color: Color
-) -> void:
+func _resolve_and_show(outcome: CombatResult.Outcome) -> void:
 	execute_btn.disabled = true
 	change_modules_btn.disabled = true
+	player_actions_btn.disabled = true
 	run_away_btn.disabled = true
 	module_swap_ui.hide()
+	player_action_selector.hide()
+	var errors: PackedStringArray = CombatManager.resolve_encounter(outcome)
 
-	resolution_title.text = title
-	resolution_title.add_theme_color_override(
-		"font_color",
-		color
-	)
-	resolution_screen.show()
+	if not errors.is_empty():
+		for error: String in errors:
+			push_error("Combat resolution: %s" % error)
+		return
+
+	_show_applied_resolution(outcome, CombatManager.get_result_metadata())
+
+
+func _show_applied_resolution(
+	outcome: CombatResult.Outcome,
+	metadata: Dictionary
+) -> void:
+	_pending_outcome = outcome
+	resolution_panel.show_result(outcome, metadata)
+
+
+func _on_player_action_choice_requested(
+	action_id: String,
+	_target_uid: int,
+	module_ids: PackedStringArray
+) -> void:
+	player_action_selector.hide()
+	resolution_panel.show_module_choice(action_id, module_ids)
+
+
+func _on_module_choice_requested(module_id: String) -> void:
+	resolution_panel.hide()
+	var errors: PackedStringArray = CombatManager.select_player_action_reward(module_id)
+
+	if not errors.is_empty():
+		for error: String in errors:
+			push_error("Player Action reward: %s" % error)
+		resolution_panel.show()
+		return
+
+
+func _on_evolution_prompt_requested(branch: EvolutionBranchData) -> void:
+	evolution_overlay.setup(branch)
+
+
+func _on_evolution_accepted() -> void:
+	var errors: PackedStringArray = CombatManager.accept_pending_evolution()
+
+	if not errors.is_empty():
+		for error: String in errors:
+			push_error("Evolution: %s" % error)
+		return
+
+	evolution_overlay.hide()
+	refresh_combat_field()
+
+
+func _on_evolution_declined() -> void:
+	if CombatManager.decline_pending_evolution():
+		evolution_overlay.hide()
 
 
 func _on_continue_pressed() -> void:
@@ -661,7 +813,6 @@ func _on_continue_pressed() -> void:
 	if _pending_outcome == CombatResult.Outcome.CANCELLED:
 		return
 
-	continue_button.disabled = true
 	_finish_encounter(_pending_outcome)
 
 
@@ -671,17 +822,14 @@ func _finish_encounter(
 	if not _encounter_active:
 		return
 
-	var commit_errors: PackedStringArray = (
-		CombatManager.commit_player_partner_state()
-	)
-
-	if not commit_errors.is_empty():
-		for error: String in commit_errors:
-			push_error("Combat partner write-back: %s" % error)
+	if not CombatManager.finalize_resolved_encounter():
+		push_error("Combat resolution was not ready to finalize.")
 		return
 
 	_encounter_active = false
-	resolution_screen.hide()
+	resolution_panel.hide()
+	evolution_overlay.hide()
+	player_action_selector.hide()
 	module_swap_ui.hide()
 	hide_tooltip()
 
@@ -696,3 +844,18 @@ func _finish_encounter(
 		CombatManager.get_result_metadata()
 	)
 	combat_finished.emit(result)
+
+
+func _read_string_array(value: Variant) -> PackedStringArray:
+	var result := PackedStringArray()
+
+	if value is not Array and value is not PackedStringArray:
+		return result
+
+	for raw_value: Variant in value:
+		var clean_value: String = str(raw_value).strip_edges()
+
+		if not clean_value.is_empty():
+			result.append(clean_value)
+
+	return result

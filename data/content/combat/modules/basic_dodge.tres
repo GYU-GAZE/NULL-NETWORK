@@ -1,10 +1,16 @@
-[gd_resource type="Resource" script_class="ModuleData" load_steps=6 format=3 uid="uid://bdb5bnnhx1o76"]
+[gd_resource type="Resource" script_class="ModuleData" load_steps=7 format=3 uid="uid://bdb5bnnhx1o76"]
 
 [ext_resource type="Script" path="res://data/templates/module_data.gd" id="1_module"]
 [ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
 [ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="3_target"]
 [ext_resource type="Script" path="res://data/templates/combat_value_formula.gd" id="4_formula"]
 [ext_resource type="Resource" path="res://data/content/combat/status_effects/dodge_up.tres" id="5_status"]
+[ext_resource type="Script" path="res://data/templates/combat/combat_tendency_gain_data.gd" id="6_gain"]
+
+[sub_resource type="Resource" id="Gain_logic"]
+script = ExtResource("6_gain")
+tendency = 1
+amount = 1
 
 [sub_resource type="Resource" id="Target_self"]
 script = ExtResource("3_target")
@@ -31,3 +37,4 @@ description = "Raises DODGE for the remainder of the cycle."
 stability_cost = 30
 module_tags = 20
 combat_effects = Array[ExtResource("2_effect")]([SubResource("Effect_status")])
+combat_tendency_gains = Array[ExtResource("6_gain")]([SubResource("Gain_logic")])

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ModuleData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/module_data.gd" id="1_module"]
+
+[resource]
+script = ExtResource("1_module")
+module_id = &"rattildus_guard"
+module_name = "Scrap Guard"
+classification = &"installed_passive"
+description = "A transferable defensive passive stabilized from Rattildus data."
+module_kind = 1
+stability_cost = 0

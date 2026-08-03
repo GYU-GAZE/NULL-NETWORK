@@ -1,0 +1,49 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://apps/combat/resolution/combat_resolution_panel.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="Style_panel"]
+bg_color = Color(0, 0, 0, 0.92)
+
+[node name="CombatResolutionPanel" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("Style_panel")
+script = ExtResource("1_script")
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 2
+
+[node name="Box" type="VBoxContainer" parent="Center"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="Center/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "RESOLUTION"
+horizontal_alignment = 1
+
+[node name="SummaryLabel" type="Label" parent="Center/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ModuleOptions" type="OptionButton" parent="Center/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ConfirmChoiceButton" type="Button" parent="Center/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "INSTALL MODULE"
+
+[node name="ContinueButton" type="Button" parent="Center/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "RETURN TO AREA"

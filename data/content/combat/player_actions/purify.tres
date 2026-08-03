@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="PlayerActionData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/templates/combat/player_action_data.gd" id="1_action"]
+[ext_resource type="Script" path="res://data/templates/combat/combat_tendency_gain_data.gd" id="2_gain"]
+
+[sub_resource type="Resource" id="Gain_temporary"]
+script = ExtResource("2_gain")
+tendency = 2
+amount = 2
+
+[sub_resource type="Resource" id="Gain_permanent"]
+script = ExtResource("2_gain")
+tendency = 2
+amount = 1
+
+[resource]
+script = ExtResource("1_action")
+action_id = "purify"
+display_name = "PURIFY"
+description = "Stabilize one EXE. At 100%, obtain an associated installed passive and enable a clean TAME."
+action_kind = 2
+completion_tendency_gains = Array[ExtResource("2_gain")]([SubResource("Gain_temporary")])
+permanent_tendency_gains = Array[ExtResource("2_gain")]([SubResource("Gain_permanent")])

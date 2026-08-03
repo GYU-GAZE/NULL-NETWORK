@@ -41,19 +41,32 @@ func setup(
 	var module: ModuleData = action_data.get(
 		"module"
 	) as ModuleData
+	var player_action: PlayerActionData = action_data.get(
+		"player_action"
+	) as PlayerActionData
 	var actor: Variant = action_data.get("actor")
 
 	_apply_style(actor)
 	icon_rect.texture = (
-		module.module_icon
+		player_action.icon
+		if player_action != null
+		else module.module_icon
 		if module != null
 		else null
 	)
 	icon_rect.visible = (
-		module != null
-		and module.module_icon != null
+		(player_action != null and player_action.icon != null)
+		or (module != null and module.module_icon != null)
 	)
 	icon_fallback.visible = not icon_rect.visible
+
+	if player_action != null:
+		name_label.text = player_action.display_name
+		_tooltip_text = CombatManager.get_player_action_tooltip(
+			player_action,
+			int(action_data.get("target_uid", -1))
+		)
+		return
 
 	if module == null:
 		name_label.text = "VAZIO"

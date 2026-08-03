@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PlayerActionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/combat/player_action_data.gd" id="1_action"]
+
+[resource]
+script = ExtResource("1_action")
+action_id = "tame"
+display_name = "TAME"
+description = "Replace the current partner with this individual. Without PURIFY, the new partner remains EXE."
+action_kind = 3
