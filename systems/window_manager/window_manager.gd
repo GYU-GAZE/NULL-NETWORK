@@ -1,6 +1,8 @@
 extends Control
 class_name WindowManager
 
+const SAVE_DATA_VERSION: int = 1
+
 @export_category("Dependencies")
 @export var window_base_scene: PackedScene
 
@@ -13,6 +15,7 @@ class_name WindowManager
 var open_windows: Dictionary = {}
 var saved_window_states: Dictionary = {}
 var focused_app_id: String = ""
+var _saved_open_app_ids: Array[String] = []
 
 var _last_work_rect: Rect2 = Rect2()
 var _last_pixel_scale: int = 1
@@ -31,6 +34,109 @@ func _ready() -> void:
 
 	GlobalSignals.request_open_app.connect(_on_request_open_app)
 	GlobalSignals.request_close_app.connect(close_window)
+
+	var registration_errors: PackedStringArray = (
+		SaveManager.register_save_section(self)
+	)
+
+	for error: String in registration_errors:
+		push_error("WindowManager save registration: %s" % error)
+
+	call_deferred("_restore_saved_open_windows")
+
+
+func _exit_tree() -> void:
+	SaveManager.unregister_save_section(self)
+
+
+func get_save_section_id() -> String:
+	return str(SaveConstants.SECTION_WINDOW_STATES)
+
+
+func prepare_for_save() -> void:
+	for raw_app_id: Variant in open_windows.keys():
+		var app_id: String = str(raw_app_id)
+		var window := open_windows.get(app_id) as WindowBase
+
+		if window == null:
+			continue
+
+		_save_app_session_state(app_id, window)
+		_save_window_state(app_id, window)
+
+
+func export_save_data() -> Dictionary:
+	var serialized_states: Dictionary = {}
+
+	for raw_app_id: Variant in saved_window_states.keys():
+		var app_id: String = str(raw_app_id).strip_edges()
+		var raw_state: Variant = saved_window_states[raw_app_id]
+
+		if app_id.is_empty() or raw_state is not Dictionary:
+			continue
+
+		serialized_states[app_id] = _serialize_window_state(
+			raw_state as Dictionary
+		)
+
+	return {
+		"version": SAVE_DATA_VERSION,
+		"open_app_ids": _get_open_app_ids_in_z_order(),
+		"focused_app_id": focused_app_id,
+		"window_states": serialized_states
+	}
+
+
+func import_save_data(data: Dictionary) -> void:
+	reset_save_data()
+
+	if int(data.get("version", -1)) != SAVE_DATA_VERSION:
+		push_warning("WindowManager: unsupported save version.")
+		return
+
+	var raw_states: Variant = data.get("window_states", {})
+
+	if raw_states is Dictionary:
+		for raw_app_id: Variant in (raw_states as Dictionary).keys():
+			var app_id: String = str(raw_app_id).strip_edges()
+			var raw_state: Variant = raw_states[raw_app_id]
+
+			if app_id.is_empty() or raw_state is not Dictionary:
+				continue
+
+			saved_window_states[app_id] = _deserialize_window_state(
+				raw_state as Dictionary
+			)
+
+	_saved_open_app_ids = _read_id_array(data.get("open_app_ids", []))
+	focused_app_id = str(data.get("focused_app_id", "")).strip_edges()
+	call_deferred("_restore_saved_open_windows")
+
+
+func reset_save_data() -> void:
+	for value: Variant in open_windows.values():
+		if value is WindowBase:
+			(value as WindowBase).queue_free()
+
+	open_windows.clear()
+	saved_window_states.clear()
+	focused_app_id = ""
+	_saved_open_app_ids.clear()
+
+
+func validate_save_data(data: Dictionary) -> PackedStringArray:
+	var errors := PackedStringArray()
+
+	if int(data.get("version", -1)) != SAVE_DATA_VERSION:
+		errors.append("Unsupported WindowManager save version.")
+
+	if data.get("window_states", {}) is not Dictionary:
+		errors.append("window_states must be a Dictionary.")
+
+	if data.get("open_app_ids", []) is not Array:
+		errors.append("open_app_ids must be an Array.")
+
+	return errors
 
 
 func _input(event: InputEvent) -> void:
@@ -160,6 +266,9 @@ func _restore_app_session_state(
 	if app_instance == null:
 		return
 
+	if _uses_dedicated_save_section(app_instance):
+		return
+
 	if not AppSessionStore.has_app_state(app_id):
 		return
 
@@ -184,6 +293,9 @@ func _save_app_session_state(
 	var app_instance: Node = _get_window_app_instance(window)
 
 	if app_instance == null:
+		return
+
+	if _uses_dedicated_save_section(app_instance):
 		return
 
 	if not app_instance.has_method("get_app_session_state"):
@@ -414,6 +526,9 @@ func _apply_saved_window_state(state: Dictionary, window: WindowBase) -> void:
 	)
 	window.position = KubuOSMetrics.snap_vector(target_rect.position)
 
+	if bool(state.get("is_maximized", false)):
+		window.maximize()
+
 
 func _apply_default_window_state(window: WindowBase) -> void:
 	var work_rect: Rect2 = get_work_area_rect()
@@ -459,7 +574,8 @@ func _save_window_state(app_id: String, window: WindowBase) -> void:
 		"position": KubuOSMetrics.snap_vector(saved_position),
 		"size": KubuOSMetrics.snap_vector(saved_size),
 		"work_rect": get_work_area_rect(),
-		"pixel_scale": KubuOSMetrics.get_pixel_scale()
+		"pixel_scale": KubuOSMetrics.get_pixel_scale(),
+		"is_maximized": window.is_maximized
 	}
 
 
@@ -564,3 +680,119 @@ func _safe_ratio(value: float, divisor: float) -> float:
 
 func _is_valid_work_rect(work_rect: Rect2) -> bool:
 	return work_rect.size.x > 0.0 and work_rect.size.y > 0.0
+
+
+func _uses_dedicated_save_section(app_instance: Node) -> bool:
+	return (
+		app_instance != null
+		and app_instance.has_method("get_save_section_id")
+		and app_instance.has_method("export_save_data")
+		and app_instance.has_method("import_save_data")
+		and app_instance.has_method("reset_save_data")
+	)
+
+
+func _restore_saved_open_windows() -> void:
+	if not is_inside_tree() or _saved_open_app_ids.is_empty():
+		return
+
+	var app_ids: Array[String] = _saved_open_app_ids.duplicate()
+	var desired_focus_id: String = focused_app_id
+	_saved_open_app_ids.clear()
+
+	for app_id: String in app_ids:
+		var app: AppResource = ContentRegistry.get_app(app_id)
+
+		if app == null:
+			push_warning(
+				"WindowManager: saved app '%s' is not registered." % app_id
+			)
+			continue
+
+		_on_request_open_app(app)
+
+	if not desired_focus_id.is_empty() and open_windows.has(desired_focus_id):
+		focus_window(desired_focus_id)
+
+
+func _get_open_app_ids_in_z_order() -> Array[String]:
+	var result: Array[String] = []
+
+	for child: Node in get_children():
+		if child is not WindowBase:
+			continue
+
+		var app_id: String = (child as WindowBase).app_id.strip_edges()
+
+		if not app_id.is_empty():
+			result.append(app_id)
+
+	return result
+
+
+func _serialize_window_state(state: Dictionary) -> Dictionary:
+	var position: Vector2 = state.get("position", Vector2.ZERO)
+	var size_value: Vector2 = state.get("size", Vector2.ZERO)
+	var work_rect: Rect2 = state.get("work_rect", Rect2())
+
+	return {
+		"position": _vector_to_data(position),
+		"size": _vector_to_data(size_value),
+		"work_rect": {
+			"position": _vector_to_data(work_rect.position),
+			"size": _vector_to_data(work_rect.size)
+		},
+		"pixel_scale": int(state.get("pixel_scale", 1)),
+		"is_maximized": bool(state.get("is_maximized", false))
+	}
+
+
+func _deserialize_window_state(state: Dictionary) -> Dictionary:
+	var raw_work_rect: Variant = state.get("work_rect", {})
+	var work_rect := Rect2()
+
+	if raw_work_rect is Dictionary:
+		work_rect = Rect2(
+			_data_to_vector(raw_work_rect.get("position", {})),
+			_data_to_vector(raw_work_rect.get("size", {}))
+		)
+
+	return {
+		"position": _data_to_vector(state.get("position", {})),
+		"size": _data_to_vector(state.get("size", {})),
+		"work_rect": work_rect,
+		"pixel_scale": maxi(1, int(state.get("pixel_scale", 1))),
+		"is_maximized": bool(state.get("is_maximized", false))
+	}
+
+
+func _vector_to_data(value: Vector2) -> Dictionary:
+	return {"x": value.x, "y": value.y}
+
+
+func _data_to_vector(value: Variant) -> Vector2:
+	if value is Vector2:
+		return value
+
+	if value is Dictionary:
+		return Vector2(
+			float(value.get("x", 0.0)),
+			float(value.get("y", 0.0))
+		)
+
+	return Vector2.ZERO
+
+
+func _read_id_array(value: Variant) -> Array[String]:
+	var result: Array[String] = []
+
+	if value is not Array:
+		return result
+
+	for raw_id: Variant in value:
+		var clean_id: String = str(raw_id).strip_edges()
+
+		if not clean_id.is_empty() and not result.has(clean_id):
+			result.append(clean_id)
+
+	return result

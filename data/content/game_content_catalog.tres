@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="GameContentCatalog" load_steps=16 format=3]
+[gd_resource type="Resource" script_class="GameContentCatalog" load_steps=28 format=3]
 
 [ext_resource type="Script" path="res://data/templates/content/game_content_catalog.gd" id="1_catalog"]
 [ext_resource type="Script" path="res://data/templates/module_data.gd" id="2_module_type"]
@@ -15,9 +15,25 @@
 [ext_resource type="Resource" path="res://data/content/apps/app_navigator.tres" id="13_navigator"]
 [ext_resource type="Script" path="res://data/templates/navigator/map_location.gd" id="14_location_type"]
 [ext_resource type="Resource" path="res://data/content/navigator/areas/akihabara/akihabara_location.tres" id="15_akihabara"]
+[ext_resource type="Resource" path="res://data/content/combat/1v1.tres" id="16_encounter_1v1"]
+[ext_resource type="Resource" path="res://data/content/combat/3v1.tres" id="17_encounter_3v1"]
+[ext_resource type="Resource" path="res://data/content/combat/loadouts/main_character.tres" id="18_player_loadout"]
+[ext_resource type="Resource" path="res://data/content/combat/loadouts/enemy_rattus.tres" id="19_rattus_loadout"]
+[ext_resource type="Resource" path="res://data/content/combat/status_effects/defense_up.tres" id="20_barrier"]
+[ext_resource type="Resource" path="res://data/content/combat/status_effects/dodge_up.tres" id="21_dodge_up"]
+[ext_resource type="Resource" path="res://data/content/combat/status_effects/unstability.tres" id="22_unstability"]
+[ext_resource type="Resource" path="res://data/content/combat/dummies/turret.tres" id="23_turret"]
+[ext_resource type="Script" path="res://data/templates/combat_encounter.gd" id="24_encounter_type"]
+[ext_resource type="Script" path="res://data/templates/character_loadout.gd" id="25_loadout_type"]
+[ext_resource type="Script" path="res://data/templates/status_effect.gd" id="26_status_type"]
+[ext_resource type="Script" path="res://data/templates/dummy_data.gd" id="27_dummy_type"]
 
 [resource]
 script = ExtResource("1_catalog")
 modules = Array[ExtResource("2_module_type")]([ExtResource("3_basic_attack"), ExtResource("4_basic_defense"), ExtResource("5_basic_dodge"), ExtResource("6_basic_heal"), ExtResource("7_dummy_turret"), ExtResource("8_heavy_attack"), ExtResource("9_idle"), ExtResource("10_new_attack")])
+combat_encounters = Array[ExtResource("24_encounter_type")]([ExtResource("16_encounter_1v1"), ExtResource("17_encounter_3v1")])
+character_loadouts = Array[ExtResource("25_loadout_type")]([ExtResource("18_player_loadout"), ExtResource("19_rattus_loadout")])
+status_effects = Array[ExtResource("26_status_type")]([ExtResource("20_barrier"), ExtResource("21_dodge_up"), ExtResource("22_unstability")])
+dummies = Array[ExtResource("27_dummy_type")]([ExtResource("23_turret")])
 apps = Array[ExtResource("11_app_type")]([ExtResource("12_browser"), ExtResource("13_navigator")])
 locations = Array[ExtResource("14_location_type")]([ExtResource("15_akihabara")])

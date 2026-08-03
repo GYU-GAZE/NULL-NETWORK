@@ -81,7 +81,7 @@ jobs:
             --path . \
             --quit-after 2 \
             --verbose \
-            core/main.tscn 2>&1 | tee godot-runtime.log
+            core/bootstrap/bootstrap.tscn 2>&1 | tee godot-runtime.log
 
       - name: Run combat runtime test
         shell: bash
@@ -127,6 +127,17 @@ jobs:
             tests/save/save_manager_test.tscn \
             2>&1 | tee godot-save-test.log
 
+      - name: Run save runtime integration test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            --quit-after 60 \
+            tests/save/save_runtime_integration_test.tscn \
+            2>&1 | tee godot-save-runtime-test.log
+
       - name: Run combat layout test
         shell: bash
         run: |
@@ -151,6 +162,7 @@ jobs:
             godot-activity-test.log \
             godot-campaign-test.log \
             godot-save-test.log \
+            godot-save-runtime-test.log \
             godot-combat-layout-test.log \
             > godot-validation.log
 
@@ -191,6 +203,14 @@ jobs:
 
           grep -q "SAVE_MANAGER_TEST: PASS" godot-save-test.log
 
+          if grep -E "SAVE_RUNTIME_INTEGRATION_TEST: " godot-save-runtime-test.log \
+            | grep -v "SAVE_RUNTIME_INTEGRATION_TEST: PASS"; then
+            echo "The save runtime integration test reported an error."
+            exit 1
+          fi
+
+          grep -q "SAVE_RUNTIME_INTEGRATION_TEST: PASS" godot-save-runtime-test.log
+
           if grep -E "COMBAT_LAYOUT_TEST: " godot-combat-layout-test.log \
             | grep -v "COMBAT_LAYOUT_TEST: PASS"; then
             echo "The combat layout test reported an error."
@@ -211,6 +231,7 @@ jobs:
             godot-activity-test.log
             godot-campaign-test.log
             godot-save-test.log
+            godot-save-runtime-test.log
             godot-combat-layout-test.log
             godot-validation.log
           if-no-files-found: ignore

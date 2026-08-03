@@ -1,0 +1,158 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://systems/save/campaign_select.gd" id="1"]
+[ext_resource type="PackedScene" path="res://systems/save/new_campaign_panel.tscn" id="2"]
+
+[node name="CampaignSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.025, 0.035, 0.055, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 56.0
+offset_top = 40.0
+offset_right = -56.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Root" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Brand" type="Label" parent="Margin/Root"]
+layout_mode = 2
+text = "NULL NETWORK // CAMPAIGN BOOT"
+theme_override_colors/font_color = Color(0.39, 0.84, 1, 1)
+theme_override_font_sizes/font_size = 28
+
+[node name="Subtitle" type="Label" parent="Margin/Root"]
+layout_mode = 2
+text = "Select a persistent campaign record before KubuOS starts."
+
+[node name="Body" type="HSplitContainer" parent="Margin/Root"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 420
+
+[node name="CampaignColumn" type="VBoxContainer" parent="Margin/Root/Body"]
+custom_minimum_size = Vector2(390, 0)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ListTitle" type="Label" parent="Margin/Root/Body/CampaignColumn"]
+layout_mode = 2
+text = "CAMPAIGNS"
+theme_override_font_sizes/font_size = 18
+
+[node name="CampaignList" type="ItemList" parent="Margin/Root/Body/CampaignColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+allow_reselect = true
+
+[node name="EmptyLabel" type="Label" parent="Margin/Root/Body/CampaignColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "No campaign records found."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NewCampaignButton" type="Button" parent="Margin/Root/Body/CampaignColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+ NEW CAMPAIGN"
+
+[node name="Details" type="VBoxContainer" parent="Margin/Root/Body"]
+custom_minimum_size = Vector2(480, 0)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="CampaignNameLabel" type="Label" parent="Margin/Root/Body/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NO CAMPAIGN SELECTED"
+theme_override_font_sizes/font_size = 22
+
+[node name="ModeLabel" type="Label" parent="Margin/Root/Body/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.39, 0.84, 1, 1)
+
+[node name="UpdatedLabel" type="Label" parent="Margin/Root/Body/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CheckpointLabel" type="Label" parent="Margin/Root/Body/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Restore point"
+
+[node name="CheckpointSelect" type="OptionButton" parent="Margin/Root/Body/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ModeNotice" type="RichTextLabel" parent="Margin/Root/Body/Details"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="Spacer" type="Control" parent="Margin/Root/Body/Details"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ErrorLabel" type="Label" parent="Margin/Root/Body/Details"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.32, 1)
+autowrap_mode = 2
+
+[node name="LoadButton" type="Button" parent="Margin/Root/Body/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "BOOT SELECTED CAMPAIGN"
+disabled = true
+
+[node name="ModalShade" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.72)
+
+[node name="ModalCenter" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="NewCampaignPanel" parent="ModalCenter" instance=ExtResource("2")]
+unique_name_in_owner = true
+layout_mode = 2

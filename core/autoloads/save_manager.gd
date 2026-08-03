@@ -19,6 +19,11 @@ var _migrator := SaveMigrator.new()
 var _active_metadata: Dictionary = {}
 var _checkpoint_sequence: int = 0
 var _save_in_progress: bool = false
+var _is_loading: bool = false
+var _queued_checkpoint: StringName = &""
+var _queued_irreversible: bool = false
+var _last_observed_day: int = 1
+var _last_observed_period: int = 0
 
 
 func _ready() -> void:
@@ -26,6 +31,23 @@ func _ready() -> void:
 	register_save_section(CampaignState)
 	register_save_section(GameState)
 	register_save_section(AppSessionStore)
+	register_save_section(CombatManager)
+	_last_observed_day = TimeManager.days_passed
+	_last_observed_period = int(TimeManager.current_period)
+
+	if not ActivityManager.activity_started.is_connected(_on_activity_started):
+		ActivityManager.activity_started.connect(_on_activity_started)
+
+	if not ActivityManager.activity_completed.is_connected(
+		_on_activity_completed
+	):
+		ActivityManager.activity_completed.connect(_on_activity_completed)
+
+	if not CombatManager.cycle_completed.is_connected(_on_combat_cycle_completed):
+		CombatManager.cycle_completed.connect(_on_combat_cycle_completed)
+
+	if not GlobalSignals.time_advanced.is_connected(_on_time_advanced):
+		GlobalSignals.time_advanced.connect(_on_time_advanced)
 
 
 func register_save_section(provider: Object) -> PackedStringArray:
@@ -116,6 +138,12 @@ func save_checkpoint(
 
 	if _save_in_progress:
 		errors.append("A save operation is already in progress.")
+		_fail_save(errors)
+		return false
+
+	errors.append_array(_registry.validate_save_readiness())
+
+	if not errors.is_empty():
 		_fail_save(errors)
 		return false
 
@@ -258,7 +286,9 @@ func load_campaign(
 
 		document = checkpoint_result.get("document", {})
 
+	_is_loading = true
 	errors.append_array(_restore_document(document))
+	_is_loading = false
 
 	if not errors.is_empty():
 		_fail_load(clean_id, errors)
@@ -268,6 +298,8 @@ func load_campaign(
 	_checkpoint_sequence = int(
 		_active_metadata.get("checkpoint_order", 0)
 	)
+	_last_observed_day = TimeManager.days_passed
+	_last_observed_period = int(TimeManager.current_period)
 	campaign_loaded.emit(
 		clean_id,
 		bool(live_result.get("recovered_from_backup", false))
@@ -421,7 +453,83 @@ func get_last_errors() -> PackedStringArray:
 	return PackedStringArray()
 
 
+func request_checkpoint(
+	checkpoint: StringName,
+	irreversible: bool = false
+) -> void:
+	if _is_loading or not CampaignState.has_campaign():
+		return
+
+	var clean_checkpoint := StringName(str(checkpoint).strip_edges())
+
+	if clean_checkpoint.is_empty():
+		return
+
+	_queued_checkpoint = clean_checkpoint
+	_queued_irreversible = _queued_irreversible or irreversible
+
+	if not is_queued_for_deletion():
+		call_deferred("_flush_requested_checkpoint")
+
+
+func _flush_requested_checkpoint() -> void:
+	if _queued_checkpoint.is_empty() or _is_loading:
+		return
+
+	if _save_in_progress:
+		call_deferred("_flush_requested_checkpoint")
+		return
+
+	var checkpoint: StringName = _queued_checkpoint
+	var irreversible: bool = _queued_irreversible
+	_queued_checkpoint = &""
+	_queued_irreversible = false
+	save_checkpoint(checkpoint, irreversible)
+
+
+func _on_activity_started(
+	_transaction_id: String,
+	activity_id: String,
+	_source_id: String,
+	_request_id: String
+) -> void:
+	request_checkpoint(StringName("activity_started.%s" % activity_id))
+
+
+func _on_activity_completed(
+	_transaction_id: String,
+	activity_id: String,
+	_source_id: String
+) -> void:
+	request_checkpoint(StringName("activity_completed.%s" % activity_id))
+
+
+func _on_combat_cycle_completed(cycle_index: int) -> void:
+	request_checkpoint(StringName("combat_cycle.%d" % cycle_index))
+
+
+func _on_time_advanced(
+	period: int,
+	days_passed: int,
+	_calendar_day: int,
+	_calendar_month: String
+) -> void:
+	if _is_loading:
+		return
+
+	if days_passed != _last_observed_day:
+		_last_observed_day = days_passed
+		_last_observed_period = period
+		request_checkpoint(&"day_advanced", true)
+		return
+
+	if period != _last_observed_period:
+		_last_observed_period = period
+		request_checkpoint(&"period_changed")
+
+
 func _build_document(metadata: Dictionary) -> Dictionary:
+	_registry.prepare_providers_for_save()
 	return {
 		"save_version": SaveConstants.SAVE_VERSION,
 		"metadata": metadata.duplicate(true),

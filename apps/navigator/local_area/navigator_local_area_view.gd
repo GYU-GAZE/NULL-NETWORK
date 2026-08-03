@@ -209,6 +209,15 @@ func get_current_runtime_state() -> Dictionary:
 	return _current_area_instance.get_runtime_state()
 
 
+func find_interactable_by_id(
+	interaction_id: String
+) -> LocalAreaInteractable:
+	if not is_instance_valid(_current_area_instance):
+		return null
+
+	return _current_area_instance.find_interactable_by_id(interaction_id)
+
+
 func _connect_area_signals(
 	area_instance: NavigatorLocalAreaScene
 ) -> void:

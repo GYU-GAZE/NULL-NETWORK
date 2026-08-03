@@ -12,6 +12,10 @@ const DEFAULT_CATALOG: GameContentCatalog = preload(
 const CATEGORY_APKS: StringName = &"apks"
 const CATEGORY_MODULES: StringName = &"modules"
 const CATEGORY_ITEMS: StringName = &"items"
+const CATEGORY_COMBAT_ENCOUNTERS: StringName = &"combat_encounters"
+const CATEGORY_CHARACTER_LOADOUTS: StringName = &"character_loadouts"
+const CATEGORY_STATUS_EFFECTS: StringName = &"status_effects"
+const CATEGORY_DUMMIES: StringName = &"dummies"
 const CATEGORY_OCCUPATIONS: StringName = &"occupations"
 const CATEGORY_APPS: StringName = &"apps"
 const CATEGORY_LOCATIONS: StringName = &"locations"
@@ -100,6 +104,28 @@ func get_module(module_id: String) -> ModuleData:
 
 func get_item(item_id: String) -> Resource:
 	return resolve(CATEGORY_ITEMS, item_id)
+
+
+func get_combat_encounter(encounter_id: String) -> CombatEncounter:
+	return resolve(
+		CATEGORY_COMBAT_ENCOUNTERS,
+		encounter_id
+	) as CombatEncounter
+
+
+func get_character_loadout(character_id: String) -> CharacterLoadout:
+	return resolve(
+		CATEGORY_CHARACTER_LOADOUTS,
+		character_id
+	) as CharacterLoadout
+
+
+func get_status_effect(status_id: String) -> StatusEffectData:
+	return resolve(CATEGORY_STATUS_EFFECTS, status_id) as StatusEffectData
+
+
+func get_dummy(dummy_id: String) -> DummyData:
+	return resolve(CATEGORY_DUMMIES, dummy_id) as DummyData
 
 
 func get_occupation(occupation_id: String) -> Resource:

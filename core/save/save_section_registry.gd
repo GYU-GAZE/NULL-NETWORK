@@ -58,6 +58,13 @@ func unregister_provider(provider: Object) -> void:
 	if _providers.get(section_id) != provider:
 		return
 
+	var exported: Variant = provider.call("export_save_data")
+
+	if exported is Dictionary:
+		_pending_sections[section_id] = (
+			exported as Dictionary
+		).duplicate(true)
+
 	_providers.erase(section_id)
 	provider_unregistered.emit(section_id)
 
@@ -104,7 +111,7 @@ func get_registered_section_ids() -> Array[StringName]:
 
 
 func export_sections() -> Dictionary:
-	var result: Dictionary = {}
+	var result: Dictionary = _pending_sections.duplicate(true)
 
 	for section_id: StringName in get_registered_section_ids():
 		var provider: Object = _providers[section_id]
@@ -120,6 +127,36 @@ func export_sections() -> Dictionary:
 		result[str(section_id)] = (exported as Dictionary).duplicate(true)
 
 	return result
+
+
+func prepare_providers_for_save() -> void:
+	for section_id: StringName in get_registered_section_ids():
+		var provider: Object = _providers[section_id]
+
+		if provider.has_method("prepare_for_save"):
+			provider.call("prepare_for_save")
+
+
+func validate_save_readiness() -> PackedStringArray:
+	var errors := PackedStringArray()
+
+	for section_id: StringName in get_registered_section_ids():
+		var provider: Object = _providers[section_id]
+
+		if not provider.has_method("can_save_now"):
+			continue
+
+		var readiness: Variant = provider.call("can_save_now")
+
+		if readiness is bool and not bool(readiness):
+			errors.append(
+				"Save section '%s' is not at a stable save boundary."
+				% section_id
+			)
+		elif readiness is String and not str(readiness).is_empty():
+			errors.append("[%s] %s" % [section_id, readiness])
+
+	return errors
 
 
 func validate_sections(sections: Dictionary) -> PackedStringArray:
