@@ -69,10 +69,13 @@ func _run_test() -> void:
 		"Browser did not enter the selected forum thread."
 	)
 
-	browser_window.position = Vector2(72, 64)
-	browser_window.size = Vector2(620, 410)
-	navigator_window.position = Vector2(540, 120)
-	navigator_window.size = Vector2(660, 470)
+	var work_rect: Rect2 = first_window_manager.get_work_area_rect()
+	var browser_valid_size: Vector2 = browser_window.size
+	var max_browser_position := work_rect.end - browser_valid_size
+	browser_window.position = Vector2(
+		clamp(work_rect.position.x + 40.0, work_rect.position.x, max_browser_position.x),
+		clamp(work_rect.position.y + 24.0, work_rect.position.y, max_browser_position.y)
+	)
 	await _wait_frames(2)
 	var browser_position_before: Vector2 = browser_window.position
 	var browser_size_before: Vector2 = browser_window.size
@@ -174,18 +177,6 @@ func _run_test() -> void:
 			_check(false, "Reloaded Browser instance is missing.")
 
 		if restored_browser_window != null:
-			if (
-				restored_browser_window.position != browser_position_before
-				or restored_browser_window.size != browser_size_before
-			):
-				print("GEOMETRY_BEFORE: %s %s" % [
-					browser_position_before,
-					browser_size_before
-				])
-				print("GEOMETRY_AFTER: %s %s" % [
-					restored_browser_window.position,
-					restored_browser_window.size
-				])
 			_check(
 				restored_browser_window.position == browser_position_before
 				and restored_browser_window.size == browser_size_before,
@@ -210,19 +201,6 @@ func _run_test() -> void:
 			_check(false, "Reloaded Navigator instance is missing.")
 
 	var combat_after := CombatManager.export_save_data()
-
-	if (
-		combat_after.get("ally_team", []) != combat_before.get("ally_team", [])
-		or combat_after.get("enemy_team", []) != combat_before.get("enemy_team", [])
-	):
-		print("COMBAT_BEFORE: %s" % JSON.stringify({
-			"ally_team": combat_before.get("ally_team", []),
-			"enemy_team": combat_before.get("enemy_team", [])
-		}))
-		print("COMBAT_AFTER: %s" % JSON.stringify({
-			"ally_team": combat_after.get("ally_team", []),
-			"enemy_team": combat_after.get("enemy_team", [])
-		}))
 
 	_check(
 		CombatManager.is_encounter_active()
