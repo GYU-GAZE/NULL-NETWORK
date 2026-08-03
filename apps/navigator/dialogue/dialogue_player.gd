@@ -107,7 +107,7 @@ func _render_portraits(node: DialogueNodeData) -> void:
 
 		var slots: Array[TextureRect] = (
 			_left_slots
-			if state.side == DialoguePortraitState.Side.LEFT
+			if state.side == DialoguePortraitState.PortraitSide.LEFT
 			else _right_slots
 		)
 
