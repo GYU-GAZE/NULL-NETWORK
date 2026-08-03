@@ -13,9 +13,9 @@
 ## Stable baseline
 
 - Base branch: `main`
-- Last audited stable commit before the current change: `941d7559eacaf50ce4adeeae7383043faf4eb4fc`
-- Last completed system: Phase 6 queued and resumable StoryEvent execution
-- Last validated workflow: Godot Project Validation run `#236`
+- Last audited stable commit before the current change: `5e70413c5c47f67fec0cf2b90d195edc7fbb1931`
+- Last completed system: Phase 7 persistent data-driven dialogue execution
+- Last validated workflow: Godot Project Validation run `#240`
 - Activity marker: `ACTIVITY_MANAGER_TEST: PASS`
 - Campaign marker: `CAMPAIGN_STATE_TEST: PASS`
 - Save marker: `SAVE_MANAGER_TEST: PASS`
@@ -23,25 +23,38 @@
 - Conditions/effects marker: `CONDITIONS_EFFECTS_TEST: PASS`
 - App catalog marker: `APP_CATALOG_TEST: PASS`
 - Story event marker: `STORY_EVENT_MANAGER_TEST: PASS`
+- Dialogue marker: `DIALOGUE_SYSTEM_TEST: PASS`
 - Runtime marker: `COMBAT_RUNTIME_TEST: PASS`
 - Layout marker: `COMBAT_LAYOUT_TEST: PASS`
 
 ## Current system
 
-- Roadmap phase: **Phase 7 — Dialogue system**
-- Status: Phase 6 is complete and validated. StoryEvent Resources are triggered by campaign, time, flags and location; StoryEventManager queues and executes them at persisted step boundaries through typed service and presentation intents.
-- Architectural objective: execute data-driven Visual Novel scenes inside Navigator, with conditional choices, one-time node effects and mid-scene save/load.
+- Roadmap phase: **Phase 8 — Operator creation and occupations**
+- Status: Phase 7 is complete and validated. Dialogue Resources execute inside Navigator with conditional choices, six portrait slots, one-time effects, paid actions and exact save/load restoration.
+- Architectural objective: create and persist the Operator profile, appearance, initial tendencies and occupation schedule before the official campaign begins.
 
 ## Next exact task
 
-Begin Phase 7 in this order:
+Begin Phase 8 in this order:
 
-1. Inventory Navigator's reserved DIALOGUE mode, current interaction contract and StoryEvent `START_DIALOGUE` intent.
-2. Create DialogueData, DialogueNodeData, DialogueChoiceData, DialoguePortraitState and DialogueSpeakerData with stable IDs and validation.
-3. Add persisted dialogue ID, current node ID, executed node effects and selected choices to CampaignState or a dedicated registered save provider.
-4. Build DialoguePlayer inside Navigator with six portrait slots, conditional choices and no direct campaign mutation from UI.
-5. Route node and choice effects through the Phase 4 effect context; route paid choices through ActivityManager.
-6. Complete `VS-080`: save at a dialogue node, rebuild the runtime and prove node effects are not executed twice.
+1. Inventory the existing `OperatorStateData`, campaign schema and NULL NETWORK registration page routes before changing the persisted profile contract.
+2. Create `OperatorProfileData`, `AppearanceData`, `OccupationData` and `OccupationScheduleData` with stable IDs and validation.
+3. Author and catalog NEET, High School Student and Salaryperson occupation Resources, including initial money, recurring income, starting location, routine event IDs and occupied blocks.
+4. Register one occupation availability provider with ActivityManager; apps must not duplicate schedule checks.
+5. Build the Operator creation page with exact 15-point tendency allocation and service-owned submission.
+6. Complete `VS-090`: create each occupation, reject an invalid tendency total, save/restart, restore profile/appearance/schedule and block an activity during an occupied block.
+
+## Phase 7 dialogue checkpoint
+
+- `DialogueData`, `DialogueNodeData`, `DialogueChoiceData`, `DialoguePortraitState` and `DialogueSpeakerData` are immutable validated Resources resolved by stable ID.
+- `DialogueManager` owns the registered `dialogue_session` save section: active dialogue/node, executed node effects, selected choices and optional StoryEvent boundary.
+- Node conditions skip deterministically through `next_node_id`; choice conditions refresh from authoritative flags and campaign state.
+- Node effects execute at most once per stable node/effect key. Choice Effects use `GameEffectContext`; tendency changes use CampaignState.
+- Paid choices request ActivityManager and transition only after confirmation and charging; cancellation leaves the current node unchanged.
+- `DialoguePlayer` is contained by Navigator's DIALOGUE mode and renders three portrait slots on each side, speaker, text, conditional buttons and Advance.
+- Local Area DIALOGUE interactions and StoryEvent START_DIALOGUE share the same manager instead of parallel pipelines.
+- `dialogue.prologue.null_network_welcome` is the integration Resource; it does not replace the final Phase 15 Prologue dialogue content.
+- `VS-080` destroys and rebuilds Main at the choice node and after a paid choice, proving effects, tendencies, time cost, selected choice and StoryEvent acknowledgement do not duplicate.
 
 ## Phase 6 StoryEvent checkpoint
 
@@ -102,7 +115,7 @@ Begin Phase 7 in this order:
 - `GameState` preserves its public flag/number API while delegating authoritative storage to `CampaignState.world_state`.
 - `GameContentCatalog` declares APK, Module, Item, Occupation, App, Location, Dialogue, StoryEvent, Lead and Incident categories.
 - `ContentRegistry` builds category-scoped indexes atomically and preserves the last valid registry when a candidate contains null, empty or duplicate IDs.
-- The default catalog currently indexes eight Modules, Browser, Navigator and Akihabara.
+- The default catalog currently indexes eight Modules, Browser, Navigator, Akihabara, the Prologue integration StoryEvent and its dialogue gate.
 
 ## Phase 1 implementation checkpoint
 
@@ -117,12 +130,10 @@ Begin Phase 7 in this order:
 
 ## Known non-blocking gaps
 
-- Navigator `DIALOGUE` mode has no dialogue player; this is the active Phase 7 task.
 - Combat resolution does not yet apply persistent campaign rewards.
 - The player combat loadout still comes from `CombatEncounter`, not a persistent partner.
-- No dialogue runtime consumes the StoryEvent dialogue intent yet; the persisted StoryEvent boundary is ready for Phase 7 acknowledgement.
 - Social and Encyclopedia have reserved plain state sections, but their typed domain models belong to Phases 12 and 13.
-- No occupation provider is registered yet; only its stable ActivityManager contract exists.
+- No occupation provider is registered yet; this is the active Phase 8 task.
 - No current content uses `allow_cross_day`; the behavior is covered by preview tests for future events.
 
 These are planned in their listed roadmap phases and must not be pulled forward into unrelated changes.
@@ -139,6 +150,7 @@ godot --headless --path . tests/activity/activity_manager_test.tscn
 godot --headless --path . tests/conditions/conditions_effects_test.tscn
 godot --headless --path . tests/apps/app_catalog_test.tscn
 godot --headless --path . tests/events/story_event_manager_test.tscn
+godot --headless --path . tests/dialogue/dialogue_system_test.tscn
 godot --headless --path . tests/save/save_manager_test.tscn
 godot --headless --path . tests/save/save_runtime_integration_test.tscn
 godot --headless --path . tests/combat/combat_runtime_test.tscn
