@@ -3705,8 +3705,10 @@ func _deserialize_actor(data: Dictionary) -> Dictionary:
 		"remaining_cycles": int(data.get("remaining_cycles", -1)),
 		"spawned_cycle": int(data.get("spawned_cycle", -1)),
 		"active_statuses": statuses,
-		"runtime_effects": _plain_copy(data.get("runtime_effects", [])),
-		"module_targeting_history": _plain_copy(
+		"runtime_effects": _deserialize_runtime_effects(
+			data.get("runtime_effects", [])
+		),
+		"module_targeting_history": _deserialize_targeting_history(
 			data.get("module_targeting_history", [])
 		)
 	}
@@ -3831,6 +3833,56 @@ func _plain_copy(value: Variant) -> Variant:
 		return str(value)
 
 	return value
+
+
+func _deserialize_runtime_effects(raw_effects: Variant) -> Array:
+	var effects: Array = []
+
+	if raw_effects is not Array:
+		return effects
+
+	for raw_effect: Variant in raw_effects:
+		if raw_effect is not Dictionary:
+			continue
+
+		var effect := (raw_effect as Dictionary).duplicate(true)
+		effect["type"] = StringName(str(effect.get("type", "")))
+
+		if effect.has("redirect_to_uid"):
+			effect["redirect_to_uid"] = int(effect["redirect_to_uid"])
+
+		if effect.has("remaining_actions"):
+			effect["remaining_actions"] = int(effect["remaining_actions"])
+
+		effects.append(effect)
+
+	return effects
+
+
+func _deserialize_targeting_history(raw_history: Variant) -> Array:
+	var history: Array = []
+
+	if raw_history is not Array:
+		return history
+
+	for raw_entry: Variant in raw_history:
+		if raw_entry is not Dictionary:
+			continue
+
+		var entry := raw_entry as Dictionary
+		history.append({
+			"cycle": int(entry.get("cycle", -1)),
+			"source_uid": int(entry.get("source_uid", -1)),
+			"module_id": str(entry.get("module_id", "")),
+			"classification": StringName(str(
+				entry.get("classification", "")
+			)),
+			"action_slot_id": StringName(str(
+				entry.get("action_slot_id", "")
+			))
+		})
+
+	return history
 
 
 func _all_defeated(
