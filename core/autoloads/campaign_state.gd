@@ -5,6 +5,8 @@ signal campaign_created(campaign_id: String)
 signal campaign_reset
 signal campaign_changed(section: StringName)
 signal app_installed(app_id: String)
+signal location_changed(location_id: String)
+signal story_event_state_changed(event_id: String, step_index: int)
 
 
 enum CampaignPhase {
@@ -22,7 +24,8 @@ enum SaveMode {
 	COMMIT
 }
 
-const STATE_SCHEMA_VERSION: int = 1
+const STATE_SCHEMA_VERSION: int = 2
+const MIN_SUPPORTED_STATE_SCHEMA_VERSION: int = 1
 const SOCIAL_AFFINITY_KEY: String = "affinity_by_npc"
 
 var campaign_id: String = ""
@@ -38,8 +41,17 @@ var inventory: InventoryStateData = InventoryStateData.new()
 var known_module_ids: PackedStringArray = PackedStringArray()
 var installed_app_ids: PackedStringArray = PackedStringArray()
 var discovered_location_ids: PackedStringArray = PackedStringArray()
+var current_location_id: String = ""
 var active_lead_ids: PackedStringArray = PackedStringArray()
 var completed_lead_ids: PackedStringArray = PackedStringArray()
+
+var queued_story_event_ids: PackedStringArray = PackedStringArray()
+var active_story_event_id: String = ""
+var active_story_event_step_index: int = 0
+var active_story_event_step_id: String = ""
+var active_story_event_waiting: bool = false
+var completed_story_event_ids: PackedStringArray = PackedStringArray()
+var story_event_repeat_state: Dictionary = {}
 
 var social_state: Dictionary = {}
 var encyclopedia_state: Dictionary = {}
@@ -80,8 +92,16 @@ func reset_campaign(emit_signal: bool = true) -> void:
 	known_module_ids.clear()
 	installed_app_ids.clear()
 	discovered_location_ids.clear()
+	current_location_id = ""
 	active_lead_ids.clear()
 	completed_lead_ids.clear()
+	queued_story_event_ids.clear()
+	active_story_event_id = ""
+	active_story_event_step_index = 0
+	active_story_event_step_id = ""
+	active_story_event_waiting = false
+	completed_story_event_ids.clear()
+	story_event_repeat_state.clear()
 	social_state.clear()
 	encyclopedia_state.clear()
 	world_state = WorldStateData.new()
@@ -212,6 +232,150 @@ func discover_location(location_id: String) -> bool:
 	)
 
 
+func set_current_location(location_id: String) -> bool:
+	var clean_id: String = location_id.strip_edges()
+
+	if current_location_id == clean_id:
+		return false
+
+	current_location_id = clean_id
+	campaign_changed.emit(&"current_location")
+	location_changed.emit(current_location_id)
+	return true
+
+
+func enqueue_story_event(event_id: String, at_front: bool = false) -> bool:
+	var clean_id: String = event_id.strip_edges()
+
+	if clean_id.is_empty() \
+		or clean_id == active_story_event_id \
+		or queued_story_event_ids.has(clean_id):
+		return false
+
+	if at_front:
+		queued_story_event_ids.insert(0, clean_id)
+	else:
+		queued_story_event_ids.append(clean_id)
+
+	_emit_story_event_state_changed(clean_id)
+	return true
+
+
+func remove_queued_story_event(event_id: String) -> bool:
+	var clean_id: String = event_id.strip_edges()
+	var index: int = queued_story_event_ids.find(clean_id)
+
+	if index < 0:
+		return false
+
+	queued_story_event_ids.remove_at(index)
+	_emit_story_event_state_changed(clean_id)
+	return true
+
+
+func reorder_queued_story_events(ordered_ids: PackedStringArray) -> bool:
+	if ordered_ids.size() != queued_story_event_ids.size():
+		return false
+
+	var validated := PackedStringArray()
+
+	for raw_id: String in ordered_ids:
+		var clean_id: String = raw_id.strip_edges()
+
+		if clean_id.is_empty() \
+			or validated.has(clean_id) \
+			or not queued_story_event_ids.has(clean_id):
+			return false
+
+		validated.append(clean_id)
+
+	queued_story_event_ids = validated
+	_emit_story_event_state_changed(active_story_event_id)
+	return true
+
+
+func begin_story_event(event_id: String) -> bool:
+	var clean_id: String = event_id.strip_edges()
+
+	if clean_id.is_empty() or not active_story_event_id.is_empty():
+		return false
+
+	remove_queued_story_event(clean_id)
+	active_story_event_id = clean_id
+	active_story_event_step_index = 0
+	active_story_event_step_id = ""
+	active_story_event_waiting = false
+	_emit_story_event_state_changed(clean_id)
+	return true
+
+
+func set_active_story_event_step(
+	step_index: int,
+	step_id: String,
+	waiting: bool
+) -> bool:
+	if active_story_event_id.is_empty() or step_index < 0:
+		return false
+
+	active_story_event_step_index = step_index
+	active_story_event_step_id = step_id.strip_edges()
+	active_story_event_waiting = waiting
+	_emit_story_event_state_changed(active_story_event_id)
+	return true
+
+
+func clear_active_story_event() -> void:
+	var previous_id: String = active_story_event_id
+	active_story_event_id = ""
+	active_story_event_step_index = 0
+	active_story_event_step_id = ""
+	active_story_event_waiting = false
+	_emit_story_event_state_changed(previous_id)
+
+
+func record_story_event_completion(
+	event_id: String,
+	completed_day: int,
+	completed_action_index: int
+) -> void:
+	var clean_id: String = event_id.strip_edges()
+
+	if clean_id.is_empty():
+		return
+
+	var state: Dictionary = _read_dictionary(
+		story_event_repeat_state.get(clean_id, {})
+	)
+	state["completion_count"] = maxi(
+		0,
+		int(state.get("completion_count", 0))
+	) + 1
+	state["last_completed_day"] = maxi(1, completed_day)
+	state["last_completed_action_index"] = maxi(
+		0,
+		completed_action_index
+	)
+	story_event_repeat_state[clean_id] = state
+
+	if not completed_story_event_ids.has(clean_id):
+		completed_story_event_ids.append(clean_id)
+
+	_emit_story_event_state_changed(clean_id)
+
+
+func get_story_event_repeat_state(event_id: String) -> Dictionary:
+	var clean_id: String = event_id.strip_edges()
+
+	if clean_id.is_empty():
+		return {}
+
+	return _read_dictionary(story_event_repeat_state.get(clean_id, {}))
+
+
+func has_completed_story_event(event_id: String) -> bool:
+	return completed_story_event_ids.has(event_id.strip_edges())
+
+
 func activate_lead(lead_id: String) -> bool:
 	var clean_id: String = lead_id.strip_edges()
 
@@ -268,10 +432,22 @@ func export_save_data() -> Dictionary:
 		"discovered_location_ids": _string_array_to_array(
 			discovered_location_ids
 		),
+		"current_location_id": current_location_id,
 		"active_lead_ids": _string_array_to_array(active_lead_ids),
 		"completed_lead_ids": _string_array_to_array(
 			completed_lead_ids
 		),
+		"queued_story_event_ids": _string_array_to_array(
+			queued_story_event_ids
+		),
+		"active_story_event_id": active_story_event_id,
+		"active_story_event_step_index": active_story_event_step_index,
+		"active_story_event_step_id": active_story_event_step_id,
+		"active_story_event_waiting": active_story_event_waiting,
+		"completed_story_event_ids": _string_array_to_array(
+			completed_story_event_ids
+		),
+		"story_event_repeat_state": story_event_repeat_state.duplicate(true),
 		"social_state": social_state.duplicate(true),
 		"encyclopedia_state": encyclopedia_state.duplicate(true),
 		"world_state": world_state.to_save_data(),
@@ -299,9 +475,34 @@ func restore_save_data(data: Dictionary) -> PackedStringArray:
 	discovered_location_ids = _read_id_array(
 		data.get("discovered_location_ids", [])
 	)
+	current_location_id = str(
+		data.get("current_location_id", "")
+	).strip_edges()
 	active_lead_ids = _read_id_array(data.get("active_lead_ids", []))
 	completed_lead_ids = _read_id_array(
 		data.get("completed_lead_ids", [])
+	)
+	queued_story_event_ids = _read_id_array(
+		data.get("queued_story_event_ids", [])
+	)
+	active_story_event_id = str(
+		data.get("active_story_event_id", "")
+	).strip_edges()
+	active_story_event_step_index = maxi(
+		0,
+		int(data.get("active_story_event_step_index", 0))
+	)
+	active_story_event_step_id = str(
+		data.get("active_story_event_step_id", "")
+	).strip_edges()
+	active_story_event_waiting = bool(
+		data.get("active_story_event_waiting", false)
+	)
+	completed_story_event_ids = _read_id_array(
+		data.get("completed_story_event_ids", [])
+	)
+	story_event_repeat_state = _read_dictionary(
+		data.get("story_event_repeat_state", {})
 	)
 	social_state = _read_dictionary(data.get("social_state", {}))
 	encyclopedia_state = _read_dictionary(
@@ -321,7 +522,8 @@ func validate_save_data(data: Dictionary) -> PackedStringArray:
 	var errors := PackedStringArray()
 	var version: int = int(data.get("schema_version", -1))
 
-	if version != STATE_SCHEMA_VERSION:
+	if version < MIN_SUPPORTED_STATE_SCHEMA_VERSION \
+		or version > STATE_SCHEMA_VERSION:
 		errors.append(
 			"Unsupported CampaignState schema version: %d." % version
 		)
@@ -341,6 +543,25 @@ func validate_save_data(data: Dictionary) -> PackedStringArray:
 
 	if restored_phase != CampaignPhase.NO_CAMPAIGN and restored_id.is_empty():
 		errors.append("An active campaign requires a campaign_id.")
+
+	var queued_events: PackedStringArray = _read_id_array(
+		data.get("queued_story_event_ids", [])
+	)
+	var restored_active_event: String = str(
+		data.get("active_story_event_id", "")
+	).strip_edges()
+
+	if not restored_active_event.is_empty() and queued_events.has(
+		restored_active_event
+	):
+		errors.append("The active StoryEvent cannot also be queued.")
+
+	if restored_active_event.is_empty() and (
+		int(data.get("active_story_event_step_index", 0)) != 0
+		or not str(data.get("active_story_event_step_id", "")).is_empty()
+		or bool(data.get("active_story_event_waiting", false))
+	):
+		errors.append("StoryEvent step state requires an active event ID.")
 
 	return errors
 
@@ -411,3 +632,11 @@ func _string_array_to_array(value: PackedStringArray) -> Array[String]:
 		result.append(entry)
 
 	return result
+
+
+func _emit_story_event_state_changed(event_id: String) -> void:
+	campaign_changed.emit(&"story_events")
+	story_event_state_changed.emit(
+		event_id.strip_edges(),
+		active_story_event_step_index
+	)
