@@ -208,9 +208,17 @@ func import_sections(
 	reset_registered_providers()
 	_pending_sections.clear()
 
+	var ordered_section_ids: Array[StringName] = []
+
 	for raw_id: Variant in sections.keys():
-		var section_id := StringName(str(raw_id).strip_edges())
-		var section_data := (sections[raw_id] as Dictionary).duplicate(true)
+		ordered_section_ids.append(StringName(str(raw_id).strip_edges()))
+
+	ordered_section_ids.sort_custom(_is_restore_section_before)
+
+	for section_id: StringName in ordered_section_ids:
+		var section_data := (
+			sections.get(str(section_id), {}) as Dictionary
+		).duplicate(true)
 
 		if _providers.has(section_id):
 			var provider: Object = _providers[section_id]
@@ -239,3 +247,15 @@ func get_pending_section_ids() -> Array[StringName]:
 
 	result.sort()
 	return result
+
+
+func _is_restore_section_before(first: StringName, second: StringName) -> bool:
+	var first_index: int = SaveConstants.RESTORE_SECTION_ORDER.find(first)
+	var second_index: int = SaveConstants.RESTORE_SECTION_ORDER.find(second)
+	first_index = first_index if first_index >= 0 else SaveConstants.RESTORE_SECTION_ORDER.size()
+	second_index = second_index if second_index >= 0 else SaveConstants.RESTORE_SECTION_ORDER.size()
+
+	if first_index != second_index:
+		return first_index < second_index
+
+	return str(first) < str(second)
