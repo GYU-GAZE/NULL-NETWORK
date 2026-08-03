@@ -27,7 +27,7 @@ func _run_test() -> void:
 	)
 	var partner: PartnerStateData = APKProgressionService.create_partner_state(
 		"novire_init",
-		"Layout NOVIRE",
+		"NOVIRE",
 		0,
 		0
 	)
