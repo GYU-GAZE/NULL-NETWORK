@@ -24,7 +24,23 @@ var _loadout_panel_mode: LoadoutPanelMode = (
 
 
 func _ready() -> void:
-	super._ready()
+	# The base scene still owns the combat presentation, but this concrete
+	# version replaces the legacy three-dropdown Player Action input.
+	# Initialize explicitly so no legacy selector signal/path is touched.
+	add_to_group("CombatUI")
+	_apply_static_ui_style()
+	_connect_manager_signals()
+	_connect_ui_signals()
+
+	player_action_selector.hide()
+	resolution_panel.hide()
+	evolution_overlay.hide()
+	module_swap_ui.hide()
+	hide_tooltip()
+	refresh_combat_field()
+
+	if CombatManager.is_encounter_active():
+		resume_saved_encounter()
 
 
 func _apply_static_ui_style() -> void:
