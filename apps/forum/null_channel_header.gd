@@ -19,6 +19,7 @@ signal alerts_requested
 @onready var threads_btn: Button = %ThreadsBtn
 @onready var updates_btn: Button = %UpdatesBtn
 @onready var rankings_btn: Button = %RankingsBtn
+@onready var profile_btn: Button = %ProfileBtn
 @onready var alerts_btn: Button = %AlertsBtn
 @onready var alerts_notification_badge: Control = %AlertsNotificationBadge
 
@@ -46,11 +47,13 @@ func refresh_player() -> void:
 		username_label.text = fallback_username
 		user_rank_label.text = fallback_rank_label
 		user_avatar_rect.texture = null
+		profile_btn.disabled = true
 		return
 
 	username_label.text = player_user.display_name
 	user_rank_label.text = "%s Worldwide" % player_user.get_global_rank_label()
 	user_avatar_rect.texture = player_user.avatar
+	profile_btn.disabled = false
 
 
 func configure_navigation(
@@ -63,6 +66,7 @@ func configure_navigation(
 	threads_btn.visible = show_main_nav
 	updates_btn.visible = show_main_nav and show_updates_navigation
 	rankings_btn.visible = show_main_nav and show_rankings_navigation
+	profile_btn.visible = show_main_nav
 	alerts_btn.visible = show_main_nav and show_alerts_navigation
 
 
@@ -96,6 +100,9 @@ func _connect_navigation_buttons() -> void:
 	_connect_site_action_button(updates_btn)
 	_connect_site_action_button(rankings_btn)
 
+	if not profile_btn.pressed.is_connected(_on_profile_pressed):
+		profile_btn.pressed.connect(_on_profile_pressed)
+
 
 func _connect_site_action_button(button: Button) -> void:
 	if button == null:
@@ -125,6 +132,18 @@ func _on_button_navigation_requested(url: String) -> void:
 
 	if not clean_url.is_empty():
 		navigation_requested.emit(clean_url)
+
+
+func _on_profile_pressed() -> void:
+	var player_user: NetworkUserData = NetworkUserDatabase.get_player_user()
+
+	if player_user == null:
+		return
+
+	var profile_url: String = player_user.get_profile_url()
+
+	if not profile_url.is_empty():
+		navigation_requested.emit(profile_url)
 
 
 func _on_alerts_pressed() -> void:
