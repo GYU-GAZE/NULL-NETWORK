@@ -28,4 +28,5 @@ custom_minimum_size = Vector2(24, 0)
 layout_mode = 2
 size_flags_horizontal = 8
 text = "x"
-text_overrun_behavior = 5
+text_overrun_behavior = 0
+clip_text = false
