@@ -27,6 +27,14 @@ func _ready() -> void:
 	_apply_banner()
 	_connect_navigation_buttons()
 	_connect_alerts_button()
+
+	if not NetworkUserDatabase.player_user_changed.is_connected(
+		_on_player_user_changed
+	):
+		NetworkUserDatabase.player_user_changed.connect(
+			_on_player_user_changed
+		)
+
 	refresh_player()
 	set_alerts_badge_visible(false)
 
@@ -121,3 +129,7 @@ func _on_button_navigation_requested(url: String) -> void:
 
 func _on_alerts_pressed() -> void:
 	alerts_requested.emit()
+
+
+func _on_player_user_changed(_player_user: NetworkUserData) -> void:
+	refresh_player()
