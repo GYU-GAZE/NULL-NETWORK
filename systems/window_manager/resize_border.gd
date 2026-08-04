@@ -1,29 +1,24 @@
 extends Control
 class_name ResizeBorder
 
+
 @export var border_size: float = 8.0
+
 var force_capture: bool = false
 
 
 func _ready() -> void:
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-
-func _process(_delta: float) -> void:
-	if force_capture:
-		mouse_filter = Control.MOUSE_FILTER_STOP
-		return
-
-	var mouse_pos: Vector2 = get_local_mouse_position()
-
-	if _is_mouse_inside_control(mouse_pos) and _is_on_resize_border(mouse_pos):
-		mouse_filter = Control.MOUSE_FILTER_STOP
-	else:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_STOP
 
 
 func _has_point(point: Vector2) -> bool:
-	return _is_on_resize_border(point)
+	if force_capture:
+		return true
+
+	return (
+		_is_mouse_inside_control(point)
+		and _is_on_resize_border(point)
+	)
 
 
 func _is_mouse_inside_control(point: Vector2) -> bool:
