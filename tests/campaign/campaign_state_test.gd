@@ -171,6 +171,7 @@ func _test_content_registry() -> void:
 	duplicate_catalog.story_event_catalog = (
 		ContentRegistry.get_story_event_catalog()
 	)
+	duplicate_catalog.lead_catalog = ContentRegistry.get_lead_catalog()
 	duplicate_catalog.modules.append(basic_attack)
 	duplicate_catalog.modules.append(basic_attack)
 	var duplicate_errors: PackedStringArray = (
@@ -192,6 +193,7 @@ func _test_content_registry() -> void:
 	empty_id_catalog.story_event_catalog = (
 		ContentRegistry.get_story_event_catalog()
 	)
+	empty_id_catalog.lead_catalog = ContentRegistry.get_lead_catalog()
 	empty_id_catalog.modules.append(empty_id_module)
 	var empty_id_errors: PackedStringArray = (
 		ContentRegistry.configure_catalog(empty_id_catalog)
