@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="LeadData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/templates/leads/lead_data.gd" id="1_lead"]
+[ext_resource type="Script" path="res://data/templates/leads/lead_stage_data.gd" id="2_stage"]
+[ext_resource type="Resource" path="res://data/content/navigator/badges/badge_rumour_lead.tres" id="3_badge"]
+
+[sub_resource type="Resource" id="Stage_field_test"]
+script = ExtResource("2_stage")
+stage_id = "run_akihabara_showcase"
+title = "Run the Akihabara systems showcase"
+description = "Travel to Akihabara, inspect the deterministic population and resolve the relay Incident."
+location_id = "akihabara"
+incident_id = "akihabara_aquarium_relay"
+
+[resource]
+script = ExtResource("1_lead")
+lead_id = "integration_field_test"
+lead_type = 0
+title = "Systems Field Test"
+description = "Temporary non-canon Lead that exposes the Phase 1-11 integration route."
+source_type = 0
+source_id = "integration_field_test"
+location_id = "akihabara"
+discover_location_on_activation = true
+navigator_badge = ExtResource("3_badge")
+initial_stage_id = "run_akihabara_showcase"
+stages = Array[ExtResource("2_stage")]([SubResource("Stage_field_test")])
