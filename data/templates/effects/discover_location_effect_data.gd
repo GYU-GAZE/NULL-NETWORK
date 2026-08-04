@@ -6,14 +6,7 @@ class_name DiscoverLocationEffectData
 
 
 func _apply_effect(_context: GameEffectContext) -> bool:
-	var clean_id: String = location_id.strip_edges()
-	var location: MapLocation = ContentRegistry.get_location(clean_id)
-
-	if location == null:
-		return false
-
-	NavigatorLocationStateResolver.discover(location)
-	return true
+	return LocationDiscoveryService.discover(location_id)
 
 
 func _validate_effect() -> PackedStringArray:
