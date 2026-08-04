@@ -42,9 +42,13 @@ static func resolve(
 		or location.show_when_locked
 	)
 
-	state.is_discovered = GameState.get_flag(
-		get_discovered_flag(location),
-		false
+	var location_id: String = location.get_display_id()
+	state.is_discovered = (
+		CampaignState.discovered_location_ids.has(location_id)
+		or GameState.get_flag(
+			get_discovered_flag(location),
+			false
+		)
 	)
 
 	state.is_announced = GameState.get_flag(
@@ -81,12 +85,15 @@ static func discover(location: MapLocation) -> void:
 	if location == null:
 		return
 
+	var location_id: String = location.get_display_id()
+
+	if not location_id.is_empty():
+		CampaignState.discover_location(location_id)
+
 	var flag_name: String = get_discovered_flag(location)
 
-	if GameState.get_flag(flag_name, false):
-		return
-
-	GameState.set_flag(flag_name, true)
+	if not GameState.get_flag(flag_name, false):
+		GameState.set_flag(flag_name, true)
 
 
 static func mark_announced(location: MapLocation) -> void:
@@ -144,6 +151,11 @@ static func get_viewed_flag(
 static func _is_progression_unlocked(
 	location: MapLocation
 ) -> bool:
+	if CampaignState.discovered_location_ids.has(
+		location.get_display_id()
+	):
+		return true
+
 	if location.unlocked_by_default:
 		return true
 
