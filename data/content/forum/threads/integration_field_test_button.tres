@@ -26,10 +26,10 @@ post_id = "field_test_checklist"
 time_label_override = "BOOTSTRAP"
 is_op = true
 is_system_post_override = true
-release_day = 0
+release_day = 1
 release_period = 0
 release_action_block = 0
-text_content = "[b]TEMPORARY SYSTEMS FIELD TEST[/b]\n\nRegistration should have created a NOVIRE partner, installed Navigator and synchronized your forum identity.\n\n1. Click [url=lead://aquarium_signal]FOLLOW THE AKIHABARA RELAY[/url].\n2. Open Navigator from the KubuOS dock.\n3. Select Akihabara and confirm the one-block travel activity.\n4. Move with WASD and interact with E.\n5. Approach a Rattildus actor to start a voluntary two-block combat.\n6. Test Modules and the SCAN, PURGE, PURIFY and TAME Timeline actions.\n7. The Lead also projects an Incident actor into the same Local Area.\n8. Close and reload the campaign at stable boundaries to verify persistence.\n\nThis thread is integration content, not final narrative canon."
+text_content = "[b]TEMPORARY SYSTEMS FIELD TEST[/b]\n\nRegistration should have created a NOVIRE partner, installed Navigator and synchronized your forum identity.\n\n1. Click [url=lead://integration_field_test]FOLLOW THE AKIHABARA RELAY[/url].\n2. Open Navigator from the KubuOS dock.\n3. Select Akihabara and confirm the one-block travel activity.\n4. Move with WASD and interact with E.\n5. Approach a Rattildus actor to start a voluntary two-block combat.\n6. Test Modules and the SCAN, PURGE, PURIFY and TAME Timeline actions.\n7. The Lead also projects an Incident actor into the same Local Area.\n8. Close and reload the campaign at stable boundaries to verify persistence.\n\nThis thread is integration content, not final narrative canon."
 
 [sub_resource type="Resource" id="Thread_field_test"]
 script = ExtResource("2_thread")
@@ -46,6 +46,6 @@ posts = Array[ExtResource("3_post")]([SubResource("Post_checklist")])
 [resource]
 script = ExtResource("1_button")
 thread_ref = SubResource("Thread_field_test")
-release_day = 0
+release_day = 1
 release_period = 0
 release_action_block = 0
