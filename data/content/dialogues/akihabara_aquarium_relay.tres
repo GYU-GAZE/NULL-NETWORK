@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="DialogueData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_data.gd" id="1_dialogue"]
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_speaker_data.gd" id="2_speaker"]
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_node_data.gd" id="3_node"]
+
+[sub_resource type="Resource" id="Speaker_relay"]
+script = ExtResource("2_speaker")
+speaker_id = "relay"
+display_name = "UNKNOWN RELAY"
+
+[sub_resource type="Resource" id="Node_signal"]
+script = ExtResource("3_node")
+node_id = "signal"
+speaker_id = "relay"
+text = "The corrupted aquarium clip repeats through a relay hidden in Akihabara. Something inside the packet is moving."
+next_node_id = "contact"
+
+[sub_resource type="Resource" id="Node_contact"]
+script = ExtResource("3_node")
+node_id = "contact"
+speaker_id = "relay"
+text = "SIGNAL LOCKED. FOREIGN PROCESS DETECTED."
+
+[resource]
+script = ExtResource("1_dialogue")
+dialogue_id = "incident.akihabara_aquarium_relay"
+initial_node_id = "signal"
+speakers = Array[ExtResource("2_speaker")]([SubResource("Speaker_relay")])
+nodes = Array[ExtResource("3_node")]([SubResource("Node_signal"), SubResource("Node_contact")])

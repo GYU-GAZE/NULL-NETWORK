@@ -1,7 +1,18 @@
-[gd_resource type="Resource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="LeadData" load_steps=3 format=3]
 
-[ext_resource type="Script" path="res://tests/conditions/fixtures/test_lead_data.gd" id="1_lead"]
+[ext_resource type="Script" path="res://data/templates/leads/lead_data.gd" id="1_lead"]
+[ext_resource type="Script" path="res://data/templates/leads/lead_stage_data.gd" id="2_stage"]
+
+[sub_resource type="Resource" id="Stage_fixture"]
+script = ExtResource("2_stage")
+stage_id = "fixture"
+location_id = "akihabara"
 
 [resource]
 script = ExtResource("1_lead")
 lead_id = "test_phase4_lead"
+title = "Phase 4 Test Lead"
+source_id = "phase4_fixture"
+location_id = "akihabara"
+initial_stage_id = "fixture"
+stages = Array[ExtResource("2_stage")]([SubResource("Stage_fixture")])

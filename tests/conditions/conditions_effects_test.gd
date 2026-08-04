@@ -4,7 +4,7 @@ extends Node
 const GATE_BUNDLE: ConditionalEffectBundleData = preload(
 	"res://tests/conditions/fixtures/phase4_gate_bundle.tres"
 )
-const TEST_LEAD: Resource = preload(
+const TEST_LEAD: LeadData = preload(
 	"res://tests/conditions/fixtures/test_phase4_lead.tres"
 )
 const TEST_ITEM: Resource = preload(
@@ -77,8 +77,11 @@ func _configure_fixture_catalog() -> void:
 	fixture_catalog.locations.append_array(source.locations)
 	fixture_catalog.dialogues.append_array(source.dialogues)
 	fixture_catalog.story_event_catalog = source.story_event_catalog
-	fixture_catalog.leads.append_array(source.leads)
-	fixture_catalog.leads.append(TEST_LEAD)
+	fixture_catalog.lead_catalog = LeadCatalog.new()
+	fixture_catalog.lead_catalog.leads.append_array(
+		source.lead_catalog.leads
+	)
+	fixture_catalog.lead_catalog.leads.append(TEST_LEAD)
 	fixture_catalog.incidents.append_array(source.incidents)
 
 	var errors: PackedStringArray = ContentRegistry.configure_catalog(

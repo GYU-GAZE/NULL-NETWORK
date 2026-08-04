@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="ThreadButtonData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://data/templates/thread_button_data.gd" id="1_button"]
+[ext_resource type="Script" path="res://data/templates/forum_thread.gd" id="2_thread"]
+[ext_resource type="Script" path="res://data/templates/forum_post.gd" id="3_post"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_rule_data.gd" id="4_rule"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_set_data.gd" id="5_set"]
+[ext_resource type="Script" path="res://data/templates/conditions/flag_condition_data.gd" id="6_flag"]
+
+[sub_resource type="Resource" id="Condition_resolved"]
+script = ExtResource("6_flag")
+flag_name = "incident.akihabara_aquarium_relay.resolved"
+expected_value = true
+
+[sub_resource type="Resource" id="Condition_set"]
+script = ExtResource("5_set")
+match_mode = 0
+rules = Array[ExtResource("4_rule")]([SubResource("Condition_resolved")])
+
+[sub_resource type="Resource" id="Post_confirmed"]
+script = ExtResource("3_post")
+post_id = "1"
+time_label_override = "LIVE"
+is_op = true
+release_day = 1
+text_content = "UPDATE: the Akihabara relay went dark. Whoever traced it confirmed that the Aquarium clip was carrying a hostile process."
+
+[sub_resource type="Resource" id="Thread_confirmed"]
+script = ExtResource("2_thread")
+thread_id = "aquarium_signal_confirmed"
+thread_title = "UPDATE: AQUARIUM RELAY CONFIRMED"
+thread_category = 1
+thread_tags = Array[String](["rumour", "aquarium", "confirmed"])
+popularity_score = 95
+thread_preview = "The relay is offline and the forum is reacting."
+posts = Array[ExtResource("3_post")]([SubResource("Post_confirmed")])
+
+[resource]
+script = ExtResource("1_button")
+thread_ref = SubResource("Thread_confirmed")
+availability_conditions = SubResource("Condition_set")
+release_day = 1
+release_period = 0
+release_action_block = 0

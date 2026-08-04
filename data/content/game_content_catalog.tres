@@ -43,6 +43,10 @@
 [ext_resource type="Resource" path="res://data/content/combat/modules/rattildus_guard.tres" id="43_rattildus_guard"]
 [ext_resource type="Resource" path="res://data/content/apks/common/rattildus_init.tres" id="44_rattildus"]
 [ext_resource type="Resource" path="res://data/content/apks/starters/novire_valour.tres" id="45_novire_valour"]
+[ext_resource type="Resource" path="res://data/content/leads/lead_catalog.tres" id="46_lead_catalog"]
+[ext_resource type="Script" path="res://data/templates/incidents/incident_data.gd" id="47_incident_type"]
+[ext_resource type="Resource" path="res://data/content/incidents/akihabara_aquarium_relay.tres" id="48_aquarium_incident"]
+[ext_resource type="Resource" path="res://data/content/dialogues/akihabara_aquarium_relay.tres" id="49_aquarium_dialogue"]
 
 [resource]
 script = ExtResource("1_catalog")
@@ -56,5 +60,7 @@ dummies = Array[ExtResource("27_dummy_type")]([ExtResource("23_turret")])
 occupations = Array[ExtResource("31_occupation_type")]([ExtResource("32_neet"), ExtResource("33_student"), ExtResource("34_salaryperson")])
 app_catalog = ExtResource("11_app_catalog")
 locations = Array[ExtResource("14_location_type")]([ExtResource("15_akihabara"), ExtResource("35_residential"), ExtResource("36_high_school"), ExtResource("37_corporate")])
-dialogues = Array[ExtResource("30_dialogue_type")]([ExtResource("29_welcome_dialogue")])
+dialogues = Array[ExtResource("30_dialogue_type")]([ExtResource("29_welcome_dialogue"), ExtResource("49_aquarium_dialogue")])
 story_event_catalog = ExtResource("28_story_events")
+lead_catalog = ExtResource("46_lead_catalog")
+incidents = Array[ExtResource("47_incident_type")]([ExtResource("48_aquarium_incident")])

@@ -196,7 +196,7 @@ func _apply_icon() -> void:
 
 func _apply_badges() -> void:
 	var notice_badge: NavigatorMarkerBadge = (
-		_location.activity_badge
+		_runtime_state.activity_badge
 	)
 
 	if (

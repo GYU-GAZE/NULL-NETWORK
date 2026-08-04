@@ -21,19 +21,23 @@ class_name GameContentCatalog
 @export var locations: Array[MapLocation] = []
 @export var dialogues: Array[DialogueData] = []
 @export var story_event_catalog: StoryEventCatalog
-@export var leads: Array[Resource] = []
-@export var incidents: Array[Resource] = []
+@export var lead_catalog: LeadCatalog
+@export var incidents: Array[IncidentData] = []
 
 
 func get_content_groups() -> Array[Dictionary]:
 	var registered_apps: Array[AppResource] = []
 	var registered_story_events: Array[StoryEventData] = []
+	var registered_leads: Array[LeadData] = []
 
 	if app_catalog != null:
 		registered_apps = app_catalog.apps
 
 	if story_event_catalog != null:
 		registered_story_events = story_event_catalog.events
+
+	if lead_catalog != null:
+		registered_leads = lead_catalog.leads
 
 	return [
 		_create_group(&"apks", &"apk_id", apks),
@@ -64,7 +68,7 @@ func get_content_groups() -> Array[Dictionary]:
 			&"event_id",
 			registered_story_events
 		),
-		_create_group(&"leads", &"lead_id", leads),
+		_create_group(&"leads", &"lead_id", registered_leads),
 		_create_group(&"incidents", &"incident_id", incidents)
 	]
 
@@ -83,6 +87,22 @@ func validate_data() -> PackedStringArray:
 	else:
 		for error: String in story_event_catalog.validate_data():
 			errors.append("StoryEvent catalog: %s" % error)
+
+	if lead_catalog == null:
+		errors.append("lead_catalog cannot be null.")
+	else:
+		for error: String in lead_catalog.validate_data():
+			errors.append("Lead catalog: %s" % error)
+
+	for index: int in range(incidents.size()):
+		var incident: IncidentData = incidents[index]
+
+		if incident == null:
+			errors.append("Incident %d is null." % index)
+			continue
+
+		for error: String in incident.validate_data():
+			errors.append("Incident %d: %s" % [index, error])
 
 	for index: int in range(dialogues.size()):
 		var dialogue: DialogueData = dialogues[index]

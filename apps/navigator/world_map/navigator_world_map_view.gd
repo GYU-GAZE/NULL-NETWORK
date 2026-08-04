@@ -85,6 +85,13 @@ func _connect_signals() -> void:
 			_on_game_state_changed
 		)
 
+	if not LeadIncidentManager.lead_state_changed.is_connected(
+		_on_lead_state_changed
+	):
+		LeadIncidentManager.lead_state_changed.connect(
+			_on_lead_state_changed
+		)
+
 	if not GlobalSignals.time_advanced.is_connected(
 		_on_navigator_time_advanced
 	):
@@ -830,6 +837,14 @@ func _select_location_by_id(location_id: String) -> void:
 			return
 
 func _on_game_state_changed() -> void:
+	if _discovery_sequence_running:
+		_location_state_refresh_pending_after_discovery = true
+		return
+
+	_queue_location_state_refresh()
+
+
+func _on_lead_state_changed(_lead_id: String) -> void:
 	if _discovery_sequence_running:
 		_location_state_refresh_pending_after_discovery = true
 		return

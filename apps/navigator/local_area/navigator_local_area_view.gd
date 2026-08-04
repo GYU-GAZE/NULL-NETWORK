@@ -60,7 +60,8 @@ func open_area(
 	entry_id: String = "",
 	restored_player_position: Vector2 = Vector2.ZERO,
 	has_restored_player_position: bool = false,
-	restored_runtime_state: Dictionary = {}
+	restored_runtime_state: Dictionary = {},
+	location: MapLocation = null
 ) -> bool:
 	if data == null:
 		_show_error(
@@ -103,7 +104,8 @@ func open_area(
 			entry_id,
 			restored_player_position,
 			has_restored_player_position,
-			restored_runtime_state
+			restored_runtime_state,
+			location
 		)
 	)
 
@@ -216,6 +218,11 @@ func find_interactable_by_id(
 		return null
 
 	return _current_area_instance.find_interactable_by_id(interaction_id)
+
+
+func refresh_population() -> void:
+	if is_instance_valid(_current_area_instance):
+		_current_area_instance.refresh_population()
 
 
 func _connect_area_signals(

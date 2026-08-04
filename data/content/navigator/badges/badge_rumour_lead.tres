@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="NavigatorMarkerBadge" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/navigator/navigator_marker_badge.gd" id="1_badge"]
+
+[resource]
+script = ExtResource("1_badge")
+badge_id = "rumour_lead"
+text = "RUMOUR"
+tint = Color(0.45, 0.95, 1, 1)
+tooltip_text = "An active Lead points to this location."

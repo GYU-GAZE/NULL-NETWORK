@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="LeadData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/templates/leads/lead_data.gd" id="1_lead"]
+[ext_resource type="Script" path="res://data/templates/leads/lead_stage_data.gd" id="2_stage"]
+[ext_resource type="Resource" path="res://data/content/navigator/badges/badge_rumour_lead.tres" id="3_badge"]
+
+[sub_resource type="Resource" id="Stage_investigate"]
+script = ExtResource("2_stage")
+stage_id = "investigate_relay"
+title = "Investigate the signal relay"
+description = "The thread points to a signal repeater somewhere in Akihabara."
+location_id = "akihabara"
+incident_id = "akihabara_aquarium_relay"
+
+[resource]
+script = ExtResource("1_lead")
+lead_id = "aquarium_signal"
+lead_type = 0
+title = "Aquarium Signal"
+description = "A corrupted Aquarium clip on NULL CHANNEL contains a traceable relay signature."
+source_type = 0
+source_id = "aquarium_signal_rumour"
+location_id = "akihabara"
+discover_location_on_activation = true
+navigator_badge = ExtResource("3_badge")
+initial_stage_id = "investigate_relay"
+stages = Array[ExtResource("2_stage")]([SubResource("Stage_investigate")])

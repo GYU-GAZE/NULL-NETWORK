@@ -6,6 +6,7 @@ var story_flags: Dictionary = {}
 var numeric_vars: Dictionary = {}
 var location_infestation: Dictionary = {}
 var persistent_objects: Dictionary = {}
+var population_states: Dictionary = {}
 var completed_incident_ids: PackedStringArray = PackedStringArray()
 
 
@@ -14,6 +15,7 @@ func reset() -> void:
 	numeric_vars.clear()
 	location_infestation.clear()
 	persistent_objects.clear()
+	population_states.clear()
 	completed_incident_ids.clear()
 
 
@@ -63,12 +65,36 @@ func mark_incident_completed(incident_id: String) -> void:
 		completed_incident_ids.append(clean_id)
 
 
+func set_population_state(
+	location_id: String,
+	state: Dictionary
+) -> bool:
+	var clean_id: String = location_id.strip_edges()
+
+	if clean_id.is_empty():
+		return false
+
+	population_states[clean_id] = state.duplicate(true)
+	return true
+
+
+func get_population_state(location_id: String) -> Dictionary:
+	var clean_id: String = location_id.strip_edges()
+	var value: Variant = population_states.get(clean_id, {})
+
+	if value is Dictionary:
+		return (value as Dictionary).duplicate(true)
+
+	return {}
+
+
 func to_save_data() -> Dictionary:
 	return {
 		"story_flags": story_flags.duplicate(true),
 		"numeric_vars": numeric_vars.duplicate(true),
 		"location_infestation": location_infestation.duplicate(true),
 		"persistent_objects": persistent_objects.duplicate(true),
+		"population_states": population_states.duplicate(true),
 		"completed_incident_ids": _string_array_to_array(
 			completed_incident_ids
 		)
@@ -84,6 +110,9 @@ func load_save_data(data: Dictionary) -> void:
 	)
 	persistent_objects = _read_dictionary(
 		data.get("persistent_objects", {})
+	)
+	population_states = _read_dictionary(
+		data.get("population_states", {})
 	)
 	completed_incident_ids = _read_id_array(
 		data.get("completed_incident_ids", [])

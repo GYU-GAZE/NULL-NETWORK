@@ -17,6 +17,13 @@ static func resolve(
 	if not location.show_on_world_map:
 		return state
 
+	state.activity_badge = LeadIncidentManager.get_navigator_badge(
+		location.get_display_id()
+	)
+
+	if state.activity_badge == null:
+		state.activity_badge = location.activity_badge
+
 	state.is_progression_unlocked = (
 		_is_progression_unlocked(location)
 	)

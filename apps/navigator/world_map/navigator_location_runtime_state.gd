@@ -14,6 +14,7 @@ var is_new: bool = false
 var needs_discovery_announcement: bool = false
 
 var availability_message: String = ""
+var activity_badge: NavigatorMarkerBadge
 
 
 func can_select() -> bool:

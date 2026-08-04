@@ -8,6 +8,8 @@ signal app_installed(app_id: String)
 signal location_changed(location_id: String)
 signal story_event_state_changed(event_id: String, step_index: int)
 signal partner_changed(apk_id: String)
+signal lead_state_changed(lead_id: String)
+signal incident_state_changed(incident_id: String)
 
 
 enum CampaignPhase {
@@ -25,7 +27,7 @@ enum SaveMode {
 	COMMIT
 }
 
-const STATE_SCHEMA_VERSION: int = 4
+const STATE_SCHEMA_VERSION: int = 5
 const MIN_SUPPORTED_STATE_SCHEMA_VERSION: int = 1
 const SOCIAL_AFFINITY_KEY: String = "affinity_by_npc"
 
@@ -62,6 +64,8 @@ var discovered_location_ids: PackedStringArray = PackedStringArray()
 var current_location_id: String = ""
 var active_lead_ids: PackedStringArray = PackedStringArray()
 var completed_lead_ids: PackedStringArray = PackedStringArray()
+var lead_progress: Dictionary = {}
+var incident_progress: Dictionary = {}
 
 var queued_story_event_ids: PackedStringArray = PackedStringArray()
 var active_story_event_id: String = ""
@@ -113,6 +117,8 @@ func reset_campaign(emit_signal: bool = true) -> void:
 	current_location_id = ""
 	active_lead_ids.clear()
 	completed_lead_ids.clear()
+	lead_progress.clear()
+	incident_progress.clear()
 	queued_story_event_ids.clear()
 	active_story_event_id = ""
 	active_story_event_step_index = 0
@@ -506,7 +512,48 @@ func activate_lead(lead_id: String) -> bool:
 	if clean_id.is_empty() or completed_lead_ids.has(clean_id):
 		return false
 
-	return _add_unique_id(active_lead_ids, clean_id, &"active_leads")
+	var changed: bool = _add_unique_id(
+		active_lead_ids,
+		clean_id,
+		&"active_leads"
+	)
+
+	if changed:
+		lead_state_changed.emit(clean_id)
+
+	return changed
+
+
+func set_lead_progress(lead_id: String, progress: Dictionary) -> bool:
+	var clean_id: String = lead_id.strip_edges()
+
+	if clean_id.is_empty() or not active_lead_ids.has(clean_id):
+		return false
+
+	var clean_progress: Dictionary = progress.duplicate(true)
+	clean_progress["lead_id"] = clean_id
+	lead_progress[clean_id] = clean_progress
+	campaign_changed.emit(&"leads")
+	lead_state_changed.emit(clean_id)
+	return true
+
+
+func get_lead_progress(lead_id: String) -> Dictionary:
+	var clean_id: String = lead_id.strip_edges()
+	return _read_dictionary(lead_progress.get(clean_id, {}))
+
+
+func remove_active_lead(lead_id: String) -> bool:
+	var clean_id: String = lead_id.strip_edges()
+
+	if not active_lead_ids.has(clean_id):
+		return false
+
+	active_lead_ids.erase(clean_id)
+	lead_progress.erase(clean_id)
+	campaign_changed.emit(&"leads")
+	lead_state_changed.emit(clean_id)
+	return true
 
 
 func complete_lead(lead_id: String) -> bool:
@@ -516,6 +563,7 @@ func complete_lead(lead_id: String) -> bool:
 		return false
 
 	active_lead_ids.erase(clean_id)
+	lead_progress.erase(clean_id)
 	var changed: bool = _add_unique_id(
 		completed_lead_ids,
 		clean_id,
@@ -525,7 +573,79 @@ func complete_lead(lead_id: String) -> bool:
 	if not changed:
 		campaign_changed.emit(&"active_leads")
 
+	lead_state_changed.emit(clean_id)
+
 	return true
+
+
+func set_incident_progress(
+	incident_id: String,
+	progress: Dictionary
+) -> bool:
+	var clean_id: String = incident_id.strip_edges()
+
+	if clean_id.is_empty() \
+		or world_state.completed_incident_ids.has(clean_id):
+		return false
+
+	var clean_progress: Dictionary = progress.duplicate(true)
+	clean_progress["incident_id"] = clean_id
+	incident_progress[clean_id] = clean_progress
+	campaign_changed.emit(&"incidents")
+	incident_state_changed.emit(clean_id)
+	return true
+
+
+func get_incident_progress(incident_id: String) -> Dictionary:
+	var clean_id: String = incident_id.strip_edges()
+	return _read_dictionary(incident_progress.get(clean_id, {}))
+
+
+func clear_incident_progress(incident_id: String) -> bool:
+	var clean_id: String = incident_id.strip_edges()
+
+	if not incident_progress.has(clean_id):
+		return false
+
+	incident_progress.erase(clean_id)
+	campaign_changed.emit(&"incidents")
+	incident_state_changed.emit(clean_id)
+	return true
+
+
+func complete_incident(incident_id: String) -> bool:
+	var clean_id: String = incident_id.strip_edges()
+
+	if clean_id.is_empty() \
+		or world_state.completed_incident_ids.has(clean_id):
+		return false
+
+	incident_progress.erase(clean_id)
+	world_state.mark_incident_completed(clean_id)
+	campaign_changed.emit(&"incidents")
+	incident_state_changed.emit(clean_id)
+	return true
+
+
+func has_completed_incident(incident_id: String) -> bool:
+	return world_state.completed_incident_ids.has(
+		incident_id.strip_edges()
+	)
+
+
+func set_location_population_state(
+	location_id: String,
+	state: Dictionary
+) -> bool:
+	if not world_state.set_population_state(location_id, state):
+		return false
+
+	campaign_changed.emit(&"world_population")
+	return true
+
+
+func get_location_population_state(location_id: String) -> Dictionary:
+	return world_state.get_population_state(location_id)
 
 
 func archive_current_operator() -> bool:
@@ -561,6 +681,8 @@ func export_save_data() -> Dictionary:
 		"completed_lead_ids": _string_array_to_array(
 			completed_lead_ids
 		),
+		"lead_progress": lead_progress.duplicate(true),
+		"incident_progress": incident_progress.duplicate(true),
 		"queued_story_event_ids": _string_array_to_array(
 			queued_story_event_ids
 		),
@@ -610,6 +732,10 @@ func restore_save_data(data: Dictionary) -> PackedStringArray:
 	active_lead_ids = _read_id_array(data.get("active_lead_ids", []))
 	completed_lead_ids = _read_id_array(
 		data.get("completed_lead_ids", [])
+	)
+	lead_progress = _read_dictionary(data.get("lead_progress", {}))
+	incident_progress = _read_dictionary(
+		data.get("incident_progress", {})
 	)
 	queued_story_event_ids = _read_id_array(
 		data.get("queued_story_event_ids", [])
@@ -703,7 +829,42 @@ func validate_save_data(data: Dictionary) -> PackedStringArray:
 	):
 		errors.append("StoryEvent step state requires an active event ID.")
 
+	if version >= 5:
+		_validate_progress_dictionary(
+			errors,
+			data.get("lead_progress", {}),
+			"lead_progress"
+		)
+		_validate_progress_dictionary(
+			errors,
+			data.get("incident_progress", {}),
+			"incident_progress"
+		)
+
 	return errors
+
+
+func _validate_progress_dictionary(
+	errors: PackedStringArray,
+	value: Variant,
+	field_name: String
+) -> void:
+	if not value is Dictionary:
+		errors.append("%s must be a dictionary." % field_name)
+		return
+
+	for raw_key: Variant in (value as Dictionary).keys():
+		var clean_id: String = str(raw_key).strip_edges()
+		var entry: Variant = (value as Dictionary).get(raw_key)
+
+		if clean_id.is_empty():
+			errors.append("%s contains an empty ID." % field_name)
+
+		if not entry is Dictionary:
+			errors.append(
+				"%s entry '%s' must be a dictionary."
+				% [field_name, clean_id]
+			)
 
 
 func _add_unique_id(

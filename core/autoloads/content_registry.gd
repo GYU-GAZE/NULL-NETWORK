@@ -178,12 +178,19 @@ func get_story_event_catalog() -> StoryEventCatalog:
 	return catalog.story_event_catalog
 
 
-func get_lead(lead_id: String) -> Resource:
-	return resolve(CATEGORY_LEADS, lead_id)
+func get_lead(lead_id: String) -> LeadData:
+	return resolve(CATEGORY_LEADS, lead_id) as LeadData
 
 
-func get_incident(incident_id: String) -> Resource:
-	return resolve(CATEGORY_INCIDENTS, incident_id)
+func get_lead_catalog() -> LeadCatalog:
+	if catalog == null:
+		return null
+
+	return catalog.lead_catalog
+
+
+func get_incident(incident_id: String) -> IncidentData:
+	return resolve(CATEGORY_INCIDENTS, incident_id) as IncidentData
 
 
 func _build_indexes(new_catalog: GameContentCatalog) -> Dictionary:

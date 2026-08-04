@@ -4,20 +4,28 @@
 [ext_resource type="Resource" uid="uid://cdxjje47qsri2" path="res://data/content/combat/1v1.tres" id="2_a5olv"]
 [ext_resource type="Script" uid="uid://so6qxui71jiq" path="res://data/templates/spawn_table.gd" id="2_ycvl3"]
 [ext_resource type="Resource" uid="uid://i24s2c766jts" path="res://data/content/combat/3v1.tres" id="3_6mr0l"]
+[ext_resource type="Resource" path="res://data/content/activities/fight_rattildus.tres" id="4_activity"]
 
 [sub_resource type="Resource" id="Resource_ye60b"]
 script = ExtResource("1_nt00n")
+spawn_id = "akihabara.rattildus.1v1"
+display_name = "Rattildus.exe"
 encounter = ExtResource("2_a5olv")
+activity = ExtResource("4_activity")
 weight = 70
 metadata/_custom_type_script = "uid://dwrqagfrtf3or"
 
 [sub_resource type="Resource" id="Resource_4ae75"]
 script = ExtResource("1_nt00n")
+spawn_id = "akihabara.rattildus.3v1"
+display_name = "Rattildus Swarm"
 encounter = ExtResource("3_6mr0l")
+activity = ExtResource("4_activity")
 weight = 30
 metadata/_custom_type_script = "uid://dwrqagfrtf3or"
 
 [resource]
 script = ExtResource("2_ycvl3")
+table_id = "spawn.akihabara.default"
 entries = Array[ExtResource("1_nt00n")]([SubResource("Resource_ye60b"), SubResource("Resource_4ae75")])
 metadata/_custom_type_script = "uid://so6qxui71jiq"

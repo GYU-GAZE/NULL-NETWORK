@@ -193,6 +193,17 @@ jobs:
             tests/combat/combat_campaign_resolution_test.tscn \
             2>&1 | tee godot-combat-campaign-resolution-test.log
 
+      - name: Run Lead, Incident and population test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless \
+            --path . \
+            --quit-after 180 \
+            tests/leads/lead_incident_population_test.tscn \
+            2>&1 | tee godot-lead-incident-population-test.log
+
       - name: Run save manager test
         shell: bash
         run: |
@@ -245,6 +256,7 @@ jobs:
             godot-operator-test.log \
             godot-apk-progression-test.log \
             godot-combat-campaign-resolution-test.log \
+            godot-lead-incident-population-test.log \
             godot-save-test.log \
             godot-save-runtime-test.log \
             godot-combat-layout-test.log \
@@ -335,6 +347,14 @@ jobs:
 
           grep -q "COMBAT_CAMPAIGN_RESOLUTION_TEST: PASS" godot-combat-campaign-resolution-test.log
 
+          if grep -E "LEAD_INCIDENT_POPULATION_TEST: " godot-lead-incident-population-test.log \
+            | grep -v "LEAD_INCIDENT_POPULATION_TEST: PASS"; then
+            echo "The Lead, Incident and population test reported an error."
+            exit 1
+          fi
+
+          grep -q "LEAD_INCIDENT_POPULATION_TEST: PASS" godot-lead-incident-population-test.log
+
           if grep -E "SAVE_MANAGER_TEST: " godot-save-test.log \
             | grep -v "SAVE_MANAGER_TEST: PASS"; then
             echo "The save manager test reported an error."
@@ -377,6 +397,7 @@ jobs:
             godot-operator-test.log
             godot-apk-progression-test.log
             godot-combat-campaign-resolution-test.log
+            godot-lead-incident-population-test.log
             godot-save-test.log
             godot-save-runtime-test.log
             godot-combat-layout-test.log

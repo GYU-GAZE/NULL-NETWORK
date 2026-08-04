@@ -537,6 +537,10 @@ func _get_thread_status_text(thread: ForumThread) -> String:
 
 
 func _on_post_link_clicked(url: String) -> void:
+	if LeadIncidentManager.try_handle_forum_url(url, current_thread_id):
+		_refresh_thread_list()
+		return
+
 	browser_navigation_requested.emit(url)
 
 

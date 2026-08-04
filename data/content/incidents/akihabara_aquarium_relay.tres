@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="IncidentData" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://data/templates/incidents/incident_data.gd" id="1_incident"]
+[ext_resource type="Script" path="res://data/templates/incidents/incident_stage_data.gd" id="2_stage"]
+[ext_resource type="Script" path="res://data/templates/incidents/incident_resolution_branch_data.gd" id="3_branch"]
+[ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="4_effect"]
+[ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="5_flag"]
+[ext_resource type="Resource" path="res://data/content/activities/investigate_aquarium_relay.tres" id="6_activity"]
+[ext_resource type="Resource" path="res://data/content/dialogues/akihabara_aquarium_relay.tres" id="7_dialogue"]
+[ext_resource type="Resource" path="res://data/content/combat/1v1.tres" id="8_encounter"]
+
+[sub_resource type="Resource" id="Stage_trace"]
+script = ExtResource("2_stage")
+stage_id = "trace_relay"
+title = "Trace the relay"
+dialogue = ExtResource("7_dialogue")
+encounter = ExtResource("8_encounter")
+
+[sub_resource type="Resource" id="Effect_resolved"]
+script = ExtResource("5_flag")
+effect_id = "incident.akihabara_aquarium_relay.mark_resolved"
+flag_name = "incident.akihabara_aquarium_relay.resolved"
+value = true
+
+[sub_resource type="Resource" id="Branch_victory"]
+script = ExtResource("3_branch")
+outcome = 0
+effects = Array[ExtResource("4_effect")]([SubResource("Effect_resolved")])
+completes_incident = true
+completes_lead = true
+
+[sub_resource type="Resource" id="Branch_defeat"]
+script = ExtResource("3_branch")
+outcome = 1
+completes_incident = false
+completes_lead = false
+
+[sub_resource type="Resource" id="Branch_escape"]
+script = ExtResource("3_branch")
+outcome = 2
+completes_incident = false
+completes_lead = false
+
+[resource]
+script = ExtResource("1_incident")
+incident_id = "akihabara_aquarium_relay"
+title = "Aquarium Relay"
+description = "A distorted Aquarium signal is being repeated from a hidden Akihabara relay."
+location_id = "akihabara"
+activity_definition = ExtResource("6_activity")
+dialogue = ExtResource("7_dialogue")
+encounter = ExtResource("8_encounter")
+initial_stage_id = "trace_relay"
+stages = Array[ExtResource("2_stage")]([SubResource("Stage_trace")])
+resolution_branches = Array[ExtResource("3_branch")]([SubResource("Branch_victory"), SubResource("Branch_defeat"), SubResource("Branch_escape")])
