@@ -44,6 +44,12 @@ func setup(
 		resize_enabled
 	)
 
+	# WindowBase.setup() historically set the overlay to IGNORE. The
+	# ResizeBorder now uses _has_point() to capture only its actual edge,
+	# so it must remain active after setup for every direction, including
+	# the lower edge covered visually by app content.
+	resize_border.mouse_filter = Control.MOUSE_FILTER_STOP
+
 	# O mínimo configurado no AppResource é o breakpoint 2x -> 1x.
 	scale_switch_size = KubuOSMetrics.snap_vector(Vector2(
 		max(1.0, minimum_size.x),
@@ -161,6 +167,7 @@ func _sync_resize_border_hit_area() -> void:
 
 	if is_instance_valid(resize_border):
 		resize_border.border_size = resolved_border_size
+		resize_border.mouse_filter = Control.MOUSE_FILTER_STOP
 
 
 func _get_internal_visual_size() -> Vector2:
