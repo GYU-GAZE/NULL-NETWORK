@@ -96,6 +96,7 @@ func _render_current_node() -> void:
 	dialogue_text.text = node.text
 	_render_portraits(node)
 	_render_choices()
+	_set_input_enabled(true)
 
 
 func _render_portraits(node: DialogueNodeData) -> void:
