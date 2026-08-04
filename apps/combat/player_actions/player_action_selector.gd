@@ -41,11 +41,11 @@ func setup(
 ) -> void:
 	# New contract: PlayerActionData, slot index, available targets.
 	if primary is PlayerActionData:
-		var targets: Array = (
-			tertiary as Array
-			if tertiary is Array
-			else []
-		)
+		var targets: Array = []
+
+		if tertiary is Array:
+			targets = tertiary
+
 		_setup_target_choice(
 			primary as PlayerActionData,
 			int(secondary),
