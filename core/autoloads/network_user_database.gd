@@ -21,9 +21,6 @@ func _ready() -> void:
 	if not CampaignState.campaign_reset.is_connected(_on_campaign_reset):
 		CampaignState.campaign_reset.connect(_on_campaign_reset)
 
-	if not SaveManager.campaign_loaded.is_connected(_on_campaign_loaded):
-		SaveManager.campaign_loaded.connect(_on_campaign_loaded)
-
 	reload_users()
 
 
@@ -75,10 +72,7 @@ func _load_users_from_folder(folder_path: String) -> void:
 func _try_load_user(path: String) -> void:
 	var resource: Resource = ResourceLoader.load(path)
 
-	if resource == null:
-		return
-
-	if not resource is NetworkUserData:
+	if resource == null or not resource is NetworkUserData:
 		return
 
 	var user: NetworkUserData = resource as NetworkUserData
@@ -137,7 +131,9 @@ func _sync_runtime_player_user(emit_change: bool = true) -> void:
 		+ "Occupation: %s\n"
 		+ "Physical server: TOKYO, JAPAN"
 	) % _get_player_occupation_label()
-	player_user.signature_bbcode = "Temporary runtime profile synchronized from CampaignState."
+	player_user.signature_bbcode = (
+		"Temporary runtime profile synchronized from CampaignState."
+	)
 
 	if not CampaignState.partner.is_empty():
 		player_user.level = CampaignState.partner.level
@@ -210,26 +206,17 @@ func _rebuild_resolved_friend_links() -> void:
 	resolved_friends_by_id.clear()
 
 	for user in users:
-		if user == null:
-			continue
-
-		if user.user_id.is_empty():
+		if user == null or user.user_id.is_empty():
 			continue
 
 		resolved_friends_by_id[user.user_id] = []
 
 	for user in users:
-		if user == null:
-			continue
-
-		if user.user_id.is_empty():
+		if user == null or user.user_id.is_empty():
 			continue
 
 		for friend in user.friend_users:
-			if friend == null:
-				continue
-
-			if friend.user_id.is_empty():
+			if friend == null or friend.user_id.is_empty():
 				continue
 
 			_add_resolved_friend(user, friend)
@@ -252,10 +239,7 @@ func _add_resolved_friend(user: NetworkUserData, friend: NetworkUserData) -> voi
 	var friend_list: Array = resolved_friends_by_id[user.user_id]
 
 	for existing_friend in friend_list:
-		if existing_friend == null:
-			continue
-
-		if existing_friend.user_id == friend.user_id:
+		if existing_friend != null and existing_friend.user_id == friend.user_id:
 			return
 
 	friend_list.append(friend)
@@ -296,10 +280,8 @@ func get_resolved_friends_for_user_id(user_id: String) -> Array[NetworkUserData]
 	var result: Array[NetworkUserData] = []
 
 	for friend in friend_list:
-		if friend == null:
-			continue
-
-		result.append(friend)
+		if friend != null:
+			result.append(friend)
 
 	return result
 
@@ -308,13 +290,8 @@ func are_users_friends(user_a: NetworkUserData, user_b: NetworkUserData) -> bool
 	if user_a == null or user_b == null:
 		return false
 
-	var friends: Array[NetworkUserData] = get_resolved_friends_for_user(user_a)
-
-	for friend in friends:
-		if friend == null:
-			continue
-
-		if friend.user_id == user_b.user_id:
+	for friend in get_resolved_friends_for_user(user_a):
+		if friend != null and friend.user_id == user_b.user_id:
 			return true
 
 	return false
@@ -324,13 +301,8 @@ func get_ranked_users() -> Array[NetworkUserData]:
 	var result: Array[NetworkUserData] = []
 
 	for user in users:
-		if user == null:
-			continue
-
-		if user.global_rank <= 0:
-			continue
-
-		result.append(user)
+		if user != null and user.global_rank > 0:
+			result.append(user)
 
 	result.sort_custom(_sort_by_global_rank)
 	return result
@@ -377,11 +349,4 @@ func _on_campaign_changed(section: StringName) -> void:
 
 
 func _on_campaign_reset() -> void:
-	_sync_runtime_player_user()
-
-
-func _on_campaign_loaded(
-	_campaign_id: String,
-	_recovered_from_backup: bool
-) -> void:
 	_sync_runtime_player_user()
