@@ -7,11 +7,12 @@ class_name DiscoverLocationEffectData
 
 func _apply_effect(_context: GameEffectContext) -> bool:
 	var clean_id: String = location_id.strip_edges()
+	var location: MapLocation = ContentRegistry.get_location(clean_id)
 
-	if ContentRegistry.get_location(clean_id) == null:
+	if location == null:
 		return false
 
-	CampaignState.discover_location(clean_id)
+	NavigatorLocationStateResolver.discover(location)
 	return true
 
 
