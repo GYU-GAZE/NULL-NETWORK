@@ -357,12 +357,13 @@ func _on_player_action_dropped(
 		slot_index,
 		targets
 	)
+
+	# The selector overlays the inventory panel instead of opening to its
+	# right. This keeps 3v1 and future multi-target encounters inside the
+	# clipped combat viewport at both pixel densities.
 	player_action_selector.position = (
 		module_swap_ui.position
-		+ Vector2(
-			module_swap_ui.size.x + 8.0,
-			0.0
-		)
+		+ Vector2(10.0, 10.0)
 	)
 
 
