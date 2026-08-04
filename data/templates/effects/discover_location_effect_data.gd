@@ -22,7 +22,8 @@ func _validate_effect() -> PackedStringArray:
 
 	if clean_id.is_empty():
 		errors.append("location_id cannot be empty.")
-	elif ContentRegistry.get_location(clean_id) == null:
+	elif ContentRegistry.catalog != null \
+		and ContentRegistry.get_location(clean_id) == null:
 		errors.append("location_id '%s' is not registered." % clean_id)
 
 	return errors
