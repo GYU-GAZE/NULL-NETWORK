@@ -2,7 +2,14 @@ extends Node
 class_name AdaptiveBrowserPageLayout
 
 
+const DEFAULT_SITE_THEME: Theme = preload(
+	"res://data/assets/themes/browser_site_theme.tres"
+)
+
+
 @export var page_path: NodePath = NodePath("..")
+@export var apply_site_theme: bool = true
+@export var site_theme: Theme = DEFAULT_SITE_THEME
 
 
 func _ready() -> void:
@@ -34,3 +41,6 @@ func _apply_adaptive_layout() -> void:
 	page.custom_minimum_size = Vector2.ZERO
 	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	page.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+	if apply_site_theme and site_theme != null:
+		page.theme = site_theme
