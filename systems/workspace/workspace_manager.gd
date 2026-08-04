@@ -11,6 +11,8 @@ signal active_workspace_changed(
 var _active_app: AppResource
 var _active_workspace_instance: Control
 var _layout_refresh_queued: bool = false
+var _workspace_focus_restore_queued: bool = false
+var _focused_window_app_id: String = ""
 
 
 func _ready() -> void:
@@ -28,6 +30,13 @@ func _connect_global_signals() -> void:
 	):
 		GlobalSignals.request_activate_workspace.connect(
 			_on_request_activate_workspace
+		)
+
+	if not GlobalSignals.app_focused.is_connected(
+		_on_window_app_focused
+	):
+		GlobalSignals.app_focused.connect(
+			_on_window_app_focused
 		)
 
 
@@ -49,6 +58,7 @@ func activate_workspace(app: AppResource) -> void:
 		return
 
 	var requested_app_id: String = app.app_id.strip_edges()
+	_focused_window_app_id = ""
 
 	if (
 		_active_app != null
@@ -197,6 +207,7 @@ func _configure_workspace_control(
 
 func _clear_active_workspace() -> void:
 	_active_app = null
+	_workspace_focus_restore_queued = false
 
 	if is_instance_valid(_active_workspace_instance):
 		active_workspace_container.remove_child(
@@ -205,6 +216,45 @@ func _clear_active_workspace() -> void:
 		_active_workspace_instance.queue_free()
 
 	_active_workspace_instance = null
+
+
+func _on_window_app_focused(app_id: String) -> void:
+	_focused_window_app_id = app_id.strip_edges()
+
+	if not _focused_window_app_id.is_empty():
+		return
+
+	_queue_workspace_focus_restore()
+
+
+func _queue_workspace_focus_restore() -> void:
+	if _workspace_focus_restore_queued:
+		return
+
+	_workspace_focus_restore_queued = true
+	call_deferred("_restore_active_workspace_focus")
+
+
+func _restore_active_workspace_focus() -> void:
+	_workspace_focus_restore_queued = false
+
+	if not _focused_window_app_id.is_empty():
+		return
+
+	if not has_active_workspace():
+		return
+
+	var workspace_id: String = get_active_workspace_id()
+	var workspace_instance: Control = get_active_workspace_instance()
+
+	if workspace_id.is_empty() or workspace_instance == null:
+		return
+
+	GlobalSignals.workspace_activated.emit(workspace_id)
+	active_workspace_changed.emit(
+		workspace_id,
+		workspace_instance
+	)
 
 
 func _on_metrics_changed() -> void:
