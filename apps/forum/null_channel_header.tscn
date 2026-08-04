@@ -114,6 +114,13 @@ text = "Ranking"
 script = ExtResource("3_tcew5")
 target_url = "null.net/playerrankings"
 
+[node name="ProfileBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox"]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+text = "My Profile"
+disabled = true
+
 [node name="AlertsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1984097093]
 unique_name_in_owner = true
 layout_mode = 2
