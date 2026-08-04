@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/register/operator_creation.gd" id="1_page"]
+[ext_resource type="Script" path="res://apps/browser/layout/adaptive_browser_page_layout.gd" id="2_adaptive"]
 
 [node name="OperatorCreation" type="PanelContainer"]
 anchors_preset = 15
@@ -8,6 +9,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+clip_contents = true
 script = ExtResource("1_page")
 gender_ids = PackedStringArray("male", "female", "other")
 gender_labels = PackedStringArray("M", "F", "Other")
@@ -24,17 +26,22 @@ lower_layer_ids = PackedStringArray("lower_01", "lower_02", "lower_03")
 hat_ids = PackedStringArray("hat_01", "hat_02", "hat_03")
 facial_accessory_ids = PackedStringArray("facial_accessory_01", "facial_accessory_02", "facial_accessory_03")
 
+[node name="AdaptiveBrowserLayout" type="Node" parent="."]
+script = ExtResource("2_adaptive")
+
 [node name="MasterScroll" type="ScrollContainer" parent="."]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
 [node name="PageMargin" type="MarginContainer" parent="MasterScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 48
-theme_override_constants/margin_top = 28
-theme_override_constants/margin_right = 48
-theme_override_constants/margin_bottom = 36
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 24
 
 [node name="Page" type="VBoxContainer" parent="MasterScroll/PageMargin"]
 layout_mode = 2
@@ -43,7 +50,7 @@ theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="MasterScroll/PageMargin/Page"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 24
 text = "OPERATOR REGISTRATION"
 horizontal_alignment = 1
 
@@ -66,10 +73,13 @@ text = "IDENTITY"
 [node name="IdentityGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/Form"]
 layout_mode = 2
 columns = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
 
 [node name="FirstNameLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 layout_mode = 2
 text = "First name"
+
 [node name="FirstNameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -79,6 +89,7 @@ max_length = 32
 [node name="LastNameLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 layout_mode = 2
 text = "Last name"
+
 [node name="LastNameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -88,6 +99,7 @@ max_length = 32
 [node name="NicknameLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 layout_mode = 2
 text = "IRL nickname"
+
 [node name="NicknameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -97,6 +109,7 @@ max_length = 32
 [node name="UsernameLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 layout_mode = 2
 text = "NULL NETWORK username"
+
 [node name="UsernameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -106,6 +119,7 @@ max_length = 24
 [node name="ServerLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 layout_mode = 2
 text = "Physical server"
+
 [node name="ServerOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -114,6 +128,7 @@ size_flags_horizontal = 3
 [node name="OccupationLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 layout_mode = 2
 text = "Occupation"
+
 [node name="OccupationOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -122,6 +137,7 @@ size_flags_horizontal = 3
 [node name="GenderLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 layout_mode = 2
 text = "Gender"
+
 [node name="GenderOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -130,6 +146,7 @@ size_flags_horizontal = 3
 [node name="PronounsLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 layout_mode = 2
 text = "Pronouns"
+
 [node name="PronounOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -138,6 +155,7 @@ size_flags_horizontal = 3
 [node name="AvatarLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 layout_mode = 2
 text = "Forum avatar"
+
 [node name="AvatarOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -155,18 +173,23 @@ text = "APPEARANCE"
 
 [node name="AppearanceGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/Form"]
 layout_mode = 2
-columns = 4
+columns = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
 
 [node name="BodyLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 layout_mode = 2
 text = "Body"
+
 [node name="BodyOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+
 [node name="FaceLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 layout_mode = 2
 text = "Face"
+
 [node name="FaceOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -175,13 +198,16 @@ size_flags_horizontal = 3
 [node name="EyesLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 layout_mode = 2
 text = "Eyes"
+
 [node name="EyeOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+
 [node name="OuterLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 layout_mode = 2
 text = "Outer"
+
 [node name="OuterOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -190,13 +216,16 @@ size_flags_horizontal = 3
 [node name="MiddleLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 layout_mode = 2
 text = "Middle"
+
 [node name="MiddleOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+
 [node name="LowerLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 layout_mode = 2
 text = "Lower"
+
 [node name="LowerOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -205,13 +234,16 @@ size_flags_horizontal = 3
 [node name="HatLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 layout_mode = 2
 text = "Hat"
+
 [node name="HatOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+
 [node name="AccessoryLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 layout_mode = 2
 text = "Face accessory"
+
 [node name="AccessoryOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -224,38 +256,51 @@ text = "INITIAL TENDENCIES"
 
 [node name="TendencyGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/Form"]
 layout_mode = 2
-columns = 4
+columns = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
 
 [node name="ValourLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
 layout_mode = 2
 text = "VALOUR"
+
 [node name="ValourSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 max_value = 15.0
 value = 4.0
+
 [node name="LogicLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
 layout_mode = 2
 text = "LOGIC"
+
 [node name="LogicSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 max_value = 15.0
 value = 4.0
+
 [node name="SyncLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
 layout_mode = 2
 text = "SYNC"
+
 [node name="SyncSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 max_value = 15.0
 value = 4.0
+
 [node name="SelfLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
 layout_mode = 2
 text = "SELF"
+
 [node name="SelfSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 max_value = 15.0
 value = 3.0
 
