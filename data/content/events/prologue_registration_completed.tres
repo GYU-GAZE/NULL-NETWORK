@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StoryEventData" load_steps=16 format=3]
+[gd_resource type="Resource" script_class="StoryEventData" load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://data/templates/events/story_event_data.gd" id="1_event"]
 [ext_resource type="Script" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
@@ -44,6 +44,12 @@ script = ExtResource("7_location")
 effect_id = "integration.showcase.discover_akihabara"
 location_id = "akihabara"
 
+[sub_resource type="Resource" id="Effect_special_choice"]
+script = ExtResource("5_flag")
+effect_id = "integration.showcase.unlock_special_dialogue_choice"
+flag_name = "dialogue.phase7.special_unlocked"
+value = true
+
 [sub_resource type="Resource" id="Effect_account_ready"]
 script = ExtResource("5_flag")
 effect_id = "integration.showcase.mark_account_ready"
@@ -63,5 +69,5 @@ priority = 900
 trigger = SubResource("Trigger_operator_registered")
 repeat_policy = 0
 steps = Array[ExtResource("3_step")]([SubResource("Step_notification")])
-completion_effects = Array[ExtResource("4_effect")]([SubResource("Effect_forum_account"), SubResource("Effect_select_novire"), SubResource("Effect_discover_akihabara"), SubResource("Effect_account_ready"), SubResource("Effect_bootstrap_complete")])
+completion_effects = Array[ExtResource("4_effect")]([SubResource("Effect_forum_account"), SubResource("Effect_select_novire"), SubResource("Effect_discover_akihabara"), SubResource("Effect_special_choice"), SubResource("Effect_account_ready"), SubResource("Effect_bootstrap_complete")])
 interruption_policy = 1
