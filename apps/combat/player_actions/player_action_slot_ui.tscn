@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/combat/player_actions/player_action_slot_ui.gd" id="1_slot"]
+
+[node name="PlayerActionSlotUI" type="PanelContainer"]
+custom_minimum_size = Vector2(120, 40)
+script = ExtResource("1_slot")
+
+[node name="Row" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ActionIcon" type="TextureRect" parent="Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ActionName" type="Label" parent="Row"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "EMPTY ACTION"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
