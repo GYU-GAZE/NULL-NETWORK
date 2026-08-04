@@ -1,0 +1,84 @@
+[gd_resource type="Resource" script_class="StoryEventData" load_steps=20 format=3]
+
+[ext_resource type="Script" path="res://data/templates/events/story_event_data.gd" id="1_event"]
+[ext_resource type="Script" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
+[ext_resource type="Script" path="res://data/templates/events/story_event_step_data.gd" id="3_step"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_rule_data.gd" id="4_rule"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_set_data.gd" id="5_set"]
+[ext_resource type="Script" path="res://data/templates/conditions/flag_condition_data.gd" id="6_flag_condition"]
+[ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="7_effect"]
+[ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="8_flag_effect"]
+[ext_resource type="Script" path="res://data/templates/effects/select_starter_effect_data.gd" id="9_starter"]
+[ext_resource type="Script" path="res://data/templates/effects/discover_location_effect_data.gd" id="10_location"]
+
+[sub_resource type="Resource" id="Trigger_campaign_loaded"]
+script = ExtResource("2_trigger")
+trigger_type = 1
+
+[sub_resource type="Resource" id="Condition_registered"]
+script = ExtResource("6_flag_condition")
+flag_name = "operator.registered"
+expected_value = true
+
+[sub_resource type="Resource" id="Condition_not_bootstrapped"]
+script = ExtResource("6_flag_condition")
+flag_name = "integration.showcase.bootstrap_complete"
+expected_value = false
+
+[sub_resource type="Resource" id="Conditions_resume"]
+script = ExtResource("5_set")
+match_mode = 0
+rules = Array[ExtResource("4_rule")]([SubResource("Condition_registered"), SubResource("Condition_not_bootstrapped")])
+
+[sub_resource type="Resource" id="Step_notification"]
+script = ExtResource("3_step")
+step_id = "resume_showcase_notification"
+step_type = 1
+title = "SYSTEMS SHOWCASE RECOVERED"
+message = "Missing integration content was attached to this existing campaign."
+source_app_id = "browser"
+notification_type = 0
+notification_priority = 1
+
+[sub_resource type="Resource" id="Effect_forum_account"]
+script = ExtResource("8_flag_effect")
+effect_id = "integration.resume.ensure_forum_account"
+flag_name = "forum.account_created"
+value = true
+
+[sub_resource type="Resource" id="Effect_select_novire"]
+script = ExtResource("9_starter")
+effect_id = "integration.resume.ensure_novire"
+starter_apk_id = "novire_init"
+nickname = "NOVIRE"
+personality_roll = 0
+address_term_roll = 0
+skip_if_partner_exists = true
+
+[sub_resource type="Resource" id="Effect_discover_akihabara"]
+script = ExtResource("10_location")
+effect_id = "integration.resume.discover_akihabara"
+location_id = "akihabara"
+
+[sub_resource type="Resource" id="Effect_account_ready"]
+script = ExtResource("8_flag_effect")
+effect_id = "integration.resume.mark_account_ready"
+flag_name = "story.prologue.account_ready"
+value = true
+
+[sub_resource type="Resource" id="Effect_bootstrap_complete"]
+script = ExtResource("8_flag_effect")
+effect_id = "integration.resume.mark_bootstrap_complete"
+flag_name = "integration.showcase.bootstrap_complete"
+value = true
+
+[resource]
+script = ExtResource("1_event")
+event_id = "integration.showcase.resume"
+priority = 950
+conditions = SubResource("Conditions_resume")
+trigger = SubResource("Trigger_campaign_loaded")
+repeat_policy = 0
+steps = Array[ExtResource("3_step")]([SubResource("Step_notification")])
+completion_effects = Array[ExtResource("7_effect")]([SubResource("Effect_forum_account"), SubResource("Effect_select_novire"), SubResource("Effect_discover_akihabara"), SubResource("Effect_account_ready"), SubResource("Effect_bootstrap_complete")])
+interruption_policy = 1
