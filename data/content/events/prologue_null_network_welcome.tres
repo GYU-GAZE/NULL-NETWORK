@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StoryEventData" load_steps=22 format=3]
+[gd_resource type="Resource" script_class="StoryEventData" load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://data/templates/events/story_event_data.gd" id="1_event"]
 [ext_resource type="Script" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
@@ -49,9 +49,9 @@ alert_animation = 1
 script = ExtResource("3_step")
 step_id = "show_welcome_notification"
 step_type = 1
-title = "NEW NETWORK ACCESS"
-message = "NULL NETWORK is now available through Kubu Browser."
-source_app_id = "browser"
+title = "NAVIGATOR INSTALLED"
+message = "Navigator is now available from the KubuOS dock. The systems field-test thread contains an explicit dialogue test link."
+source_app_id = "navigator"
 notification_type = 0
 notification_priority = 1
 
@@ -60,19 +60,6 @@ script = ExtResource("3_step")
 step_id = "install_navigator"
 step_type = 7
 app_id = "navigator"
-
-[sub_resource type="Resource" id="Step_open_navigator"]
-script = ExtResource("3_step")
-step_id = "open_navigator"
-step_type = 2
-app_id = "navigator"
-
-[sub_resource type="Resource" id="Step_start_dialogue"]
-script = ExtResource("3_step")
-step_id = "start_welcome_dialogue"
-step_type = 4
-completion_mode = 1
-dialogue_id = "dialogue.prologue.null_network_welcome"
 
 [sub_resource type="Resource" id="Effect_mark_sequence_applied"]
 script = ExtResource("8_set_flag")
@@ -99,6 +86,6 @@ priority = 100
 conditions = SubResource("Conditions_root")
 trigger = SubResource("Trigger_account_ready")
 repeat_policy = 0
-steps = Array[ExtResource("3_step")]([SubResource("Step_open_browser"), SubResource("Step_navigate_browser"), SubResource("Step_show_alert"), SubResource("Step_show_notification"), SubResource("Step_install_navigator"), SubResource("Step_open_navigator"), SubResource("Step_start_dialogue"), SubResource("Step_apply_effects")])
+steps = Array[ExtResource("3_step")]([SubResource("Step_open_browser"), SubResource("Step_navigate_browser"), SubResource("Step_show_alert"), SubResource("Step_show_notification"), SubResource("Step_install_navigator"), SubResource("Step_apply_effects")])
 completion_effects = Array[ExtResource("7_effect")]([SubResource("Effect_mark_complete")])
 interruption_policy = 0
