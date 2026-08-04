@@ -32,7 +32,8 @@ func _validate_effect() -> PackedStringArray:
 
 	if clean_apk_id.is_empty():
 		errors.append("starter_apk_id cannot be empty.")
-	elif ContentRegistry.get_apk(clean_apk_id) == null:
+	elif ContentRegistry.catalog != null \
+		and ContentRegistry.get_apk(clean_apk_id) == null:
 		errors.append("starter_apk_id '%s' is not registered." % clean_apk_id)
 
 	return errors
