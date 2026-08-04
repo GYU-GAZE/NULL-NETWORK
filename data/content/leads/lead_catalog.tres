@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="LeadCatalog" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/templates/leads/lead_catalog.gd" id="1_catalog"]
+[ext_resource type="Script" path="res://data/templates/leads/lead_data.gd" id="2_lead_type"]
+[ext_resource type="Resource" path="res://data/content/leads/aquarium_signal_lead.tres" id="3_aquarium"]
+
+[resource]
+script = ExtResource("1_catalog")
+leads = Array[ExtResource("2_lead_type")]([ExtResource("3_aquarium")])

@@ -16,6 +16,32 @@ class_name LocalAreaExeActor
 
 
 var _resolved: bool = false
+var population_actor_id: String = ""
+
+
+func configure_population_actor(
+	new_actor_id: String,
+	spawn_entry: SpawnEntry
+) -> bool:
+	if spawn_entry == null or spawn_entry.encounter == null:
+		return false
+
+	population_actor_id = new_actor_id.strip_edges()
+	encounter = spawn_entry.encounter
+	persistence_scope = PersistenceScope.WORLD_POPULATION
+
+	var data := LocalAreaInteractionData.new()
+	data.interaction_id = population_actor_id
+	data.display_name = (
+		spawn_entry.display_name.strip_edges()
+		if not spawn_entry.display_name.strip_edges().is_empty()
+		else spawn_entry.get_display_id()
+	)
+	data.kind = LocalAreaInteractionData.InteractionKind.ENCOUNTER
+	data.prompt_verb = "FIGHT"
+	data.activity = spawn_entry.activity
+	interaction_data = data
+	return not population_actor_id.is_empty()
 
 
 func can_interact() -> bool:
@@ -56,6 +82,7 @@ func apply_persistent_state(state: Dictionary) -> void:
 
 
 func _set_resolved(value: bool) -> void:
+	var changed: bool = _resolved != value
 	_resolved = value
 	visible = not _resolved
 	set_available(not _resolved)
@@ -65,3 +92,6 @@ func _set_resolved(value: bool) -> void:
 			"disabled",
 			_resolved
 		)
+
+	if changed:
+		notify_persistent_state_changed()

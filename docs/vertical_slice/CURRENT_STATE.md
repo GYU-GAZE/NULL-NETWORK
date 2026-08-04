@@ -13,9 +13,9 @@
 ## Stable baseline
 
 - Base branch: `main`
-- Last audited stable commit before the current change: `6c1af9fec831034a6c0f3ce31031fedf13943d5c`
-- Last completed system: Phase 10 Player Actions, campaign combat resolution and combat-only evolution
-- Last validated workflow: Godot Project Validation run `#261`
+- Last audited stable commit before the current change: `acfe954d2b150ed1b1c267b005fdd6b333f4594d`
+- Last completed system: Phase 11 Leads, Incidents and condition-driven Local Area population
+- Last validated workflow: Godot Project Validation run `#266`
 - Activity marker: `ACTIVITY_MANAGER_TEST: PASS`
 - Campaign marker: `CAMPAIGN_STATE_TEST: PASS`
 - Save marker: `SAVE_MANAGER_TEST: PASS`
@@ -27,25 +27,38 @@
 - Operator marker: `OPERATOR_CREATION_TEST: PASS`
 - APK progression marker: `APK_PROGRESSION_TEST: PASS`
 - Combat campaign resolution marker: `COMBAT_CAMPAIGN_RESOLUTION_TEST: PASS`
+- Lead/Incident/population marker: `LEAD_INCIDENT_POPULATION_TEST: PASS`
 - Runtime marker: `COMBAT_RUNTIME_TEST: PASS`
 - Layout marker: `COMBAT_LAYOUT_TEST: PASS`
 
 ## Current system
 
-- Roadmap phase: **Phase 11 — Leads, Incidents and Local Area population**
-- Status: Phase 10 is complete and validated. Combat now enters from persistent PartnerState, executes Modules and Player Actions in one Timeline, resolves campaign rewards once and can evolve at stable cycle boundaries.
-- Architectural objective: connect forum/community discoveries to reusable Leads, Incidents and condition-driven Local Area populations without hardcoded Aquarium paths.
+- Roadmap phase: **Phase 12 — NPCs, Social and minimal party**
+- Status: Phase 11 is complete and validated. Forum links now activate persistent Leads, Navigator projects their badges, Local Areas restore deterministic populations and paid Incidents own dialogue, combat and resolution under one Activity transaction.
+- Architectural objective: implement the first persistent human connection through reusable NPC/Social Resources, one authoritative SocialState and a temporary objective-owned party member.
 
 ## Next exact task
 
-Begin Phase 11 in this order:
+Begin Phase 12 in this order:
 
-1. Audit existing forum link actions, Navigator badges, `MapLocation.spawn_table`, Local Area interactables and the reserved Lead/Incident catalog categories.
-2. Create typed `LeadData`, `LeadStageData`, `LeadCatalog`, `IncidentData` and `IncidentStageData` Resources with stable IDs, conditions, expiration and Effects.
-3. Make CampaignState's existing active/completed Lead IDs the authoritative mutable progression, with stage state added as plain ID/value data only when required by the Resources.
-4. Implement `LocalAreaSpawnPoint` and `LocalAreaPopulationController` against each MapLocation's existing SpawnTable, restoring resolved actors instead of rerolling them.
-5. Connect one forum link to one Lead, badge, paid Incident, dialogue, combat resolution and forum reaction through the shared services.
-6. Complete `VS-120`, including save/restart at a stable Lead or Incident boundary.
+1. Audit `NetworkUserData`, CampaignState's reserved Social section, forum users, combat slot sources and existing affinity Effects before defining new ownership.
+2. Create typed `NPCData`, routine, personality and catalog Resources that reference `NetworkUserData` instead of duplicating forum identity.
+3. Create typed chat profile, conversation, message, choice and social-interaction Resources; keep mutable contact/history/unread/affinity/party values in SocialState only.
+4. Implement the cataloged Social app with contact ordering, persisted history and one time-costed meaningful interaction.
+5. Add the final-form `PARTY_MEMBER` combat source and objective-owned join/leave lifecycle without copying a permanent NPC loadout into the save.
+6. Complete `VS-130` with online/offline routine, DM-created Lead, affinity change, temporary party combat and save/restart.
+
+## Phase 11 Leads, Incidents and population checkpoint
+
+- `LeadData`, `LeadStageData` and `LeadCatalog` own immutable source, routing, conditions, expiration, stages, Effects and Navigator badges; CampaignState schema 5 stores only active/completed IDs and plain stage progress.
+- `IncidentData`, `IncidentStageData` and typed resolution branches compose Activity, dialogue, encounter and outcome Effects without area-specific code.
+- `LeadIncidentManager` is the sole progression authority. Forum uses `lead://<stable_id>` intents; Navigator and Local Area consume service results instead of referencing Forum nodes.
+- A paid Incident owns one Activity transaction. Its included dialogue and combat add no second time cost, and resolution completes the transaction only after the typed combat result is applied.
+- `SpawnTable` filters conditional entries and performs deterministic weighted rolls. `LocalAreaPopulationController` keys generations by campaign, location, day and period, persists descriptors and restores resolved actors instead of rerolling.
+- `LocalAreaSpawnPoint` separates common encounters, Incidents, NPCs and Data Centers while common and narrative actors share the existing interaction pipeline.
+- Active Leads project temporary Navigator badges; completing the Lead removes only that projection and restores any static location badge.
+- The Aquarium-signal integration thread routes through Akihabara to prove the reusable pipeline without authoring the final Phase 16 Aquarium area early.
+- `VS-120` proves forum activation, Lead/stage persistence, badge, deterministic population across restart, paid Incident, dialogue, combat boundary, typed victory branch and condition-driven forum reaction.
 
 ## Phase 10 combat completion checkpoint
 
@@ -175,7 +188,7 @@ Begin Phase 11 in this order:
 - Only NOVIRE has an authored starter integration Resource; the other four Prologue starter choices remain final content work.
 - Social and Encyclopedia have reserved plain state sections, but their typed domain models belong to Phases 12 and 13.
 - Only the NOVIRE VALOUR evolution branch and Rattildus campaign reward profile are authored integration content; the remaining branches and EXE families belong to later content work.
-- Lead/Incident Resources and condition-driven Local Area population do not exist yet; this is the active Phase 11 task.
+- NPC/Social Resources, persistent chat history and the `PARTY_MEMBER` combat source do not exist yet; this is the active Phase 12 task.
 - No current content uses `allow_cross_day`; the behavior is covered by preview tests for future events.
 
 These are planned in their listed roadmap phases and must not be pulled forward into unrelated changes.
@@ -196,6 +209,7 @@ godot --headless --path . tests/dialogue/dialogue_system_test.tscn
 godot --headless --path . tests/operator/operator_creation_test.tscn
 godot --headless --path . tests/progression/apk_progression_test.tscn
 godot --headless --path . tests/combat/combat_campaign_resolution_test.tscn
+godot --headless --path . tests/leads/lead_incident_population_test.tscn
 godot --headless --path . tests/save/save_manager_test.tscn
 godot --headless --path . tests/save/save_runtime_integration_test.tscn
 godot --headless --path . tests/combat/combat_runtime_test.tscn

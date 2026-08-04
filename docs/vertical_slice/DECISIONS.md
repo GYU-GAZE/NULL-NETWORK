@@ -28,6 +28,9 @@ This log records canonical decisions that implementation must preserve. Change a
 | DVS-022 | Ordinary defeat in Phase 10 is recoverable; definitive Partner Loss, TURD/LOST and Operator Loss belong to Phase 14. | Combat may persist zero HP and a defeat result, but it must not advance the irreversible loss lifecycle early. | Roadmap Phases 10 and 14 |
 | DVS-023 | SCAN and PURGE extract only active Modules; PURIFY grants only Installed Passives; Species Signatures and other intrinsic traits are not extractable. | Reward profiles separate active and purification pools and ContentRegistry validates their Module kinds. | GDD: Player Actions and Module taxonomy |
 | DVS-024 | Evolution occurs only during combat at declared stable windows and preserves level, EXP, individual identity and HP ratio. | Branches separate Core Requirements from alternative Catalysts; CombatManager rebuilds the partner snapshot after acceptance. | GDD: Evolution; Roadmap Phase 10 |
+| DVS-025 | Lead and Incident Resources are immutable content; CampaignState stores only active/completed IDs and plain progress values. | `LeadIncidentManager` is the sole progression authority, and Forum/Navigator communicate through stable intents and signals rather than cross-app node references. | GDD: Leads and Incidents; Roadmap Phase 11 |
+| DVS-026 | A Local Area population generation is stable for one campaign, location, day and period. | `SpawnTable` rolls deterministically and WorldState persists actor descriptors/resolution; reopening or restarting cannot reroll the same generation. | GDD: Map Location and SpawnTable; Roadmap Phase 11 |
+| DVS-027 | A paid Incident owns its dialogue and included combat under one Activity transaction. | Time is charged once at confirmation; encounter resolution completes or returns the Incident to READY without adding another cost. | GDD: Action Costs and Incidents; DVS-005/DVS-006; Roadmap Phase 11 |
 
 ## Change protocol
 

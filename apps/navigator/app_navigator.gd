@@ -21,7 +21,7 @@ enum PendingActivityKind {
 }
 
 
-const SESSION_STATE_VERSION: int = 4
+const SESSION_STATE_VERSION: int = 5
 const APP_ID: String = "navigator"
 
 
@@ -51,6 +51,7 @@ var _current_mode: NavigatorMode = NavigatorMode.WORLD_MAP
 var _current_location_id: String = ""
 var _is_app_active: bool = false
 var _pending_exe_actor: LocalAreaExeActor
+var _pending_incident_id: String = ""
 var _pending_activity_requests: Dictionary = {}
 var _active_combat_transaction_id: String = ""
 var _active_combat_activity_id: String = ""
@@ -90,6 +91,7 @@ func import_save_data(data: Dictionary) -> void:
 func reset_save_data() -> void:
 	_pending_activity_requests.clear()
 	_pending_exe_actor = null
+	_pending_incident_id = ""
 	_active_combat_transaction_id = ""
 	_active_combat_activity_id = ""
 	_current_location_id = ""
@@ -198,6 +200,13 @@ func _connect_signals() -> void:
 		_on_dialogue_completed
 	):
 		DialogueManager.dialogue_completed.connect(_on_dialogue_completed)
+
+	if not LeadIncidentManager.incident_encounter_requested.is_connected(
+		_on_incident_encounter_requested
+	):
+		LeadIncidentManager.incident_encounter_requested.connect(
+			_on_incident_encounter_requested
+		)
 
 
 func _set_mode(mode: NavigatorMode) -> void:
@@ -326,6 +335,7 @@ func get_app_session_state() -> Dictionary:
 			local_area_view.get_current_runtime_state()
 		),
 		"pending_exe_interaction_id": pending_exe_id,
+		"pending_incident_id": _pending_incident_id,
 		"activity_transaction_id": _active_combat_transaction_id,
 		"activity_id": _active_combat_activity_id
 	}
@@ -448,7 +458,8 @@ func restore_app_session_state(
 			),
 			saved_position,
 			has_saved_position,
-			saved_runtime_state
+			saved_runtime_state,
+			saved_location
 		)
 	)
 
@@ -480,6 +491,9 @@ func restore_app_session_state(
 			local_area_view.find_interactable_by_id(pending_exe_id)
 			as LocalAreaExeActor
 		)
+		_pending_incident_id = str(
+			state.get("pending_incident_id", "")
+		).strip_edges()
 		var activity_context := CombatManager.get_session_activity_context()
 		_active_combat_transaction_id = str(activity_context.get(
 			"activity_transaction_id",
@@ -613,6 +627,20 @@ func _on_local_area_interaction_requested(
 
 			DialogueManager.start_dialogue(data.dialogue.get_display_id())
 
+		LocalAreaInteractionData.InteractionKind.CUSTOM:
+			var incident_actor := target as LocalAreaIncidentActor
+
+			if incident_actor == null:
+				push_warning(
+					"NavigatorApp: custom interaction '%s' has no handler."
+					% data.get_display_id()
+				)
+				return
+
+			LeadIncidentManager.request_incident(
+				incident_actor.incident_id
+			)
+
 		_:
 			push_warning(
 				"NavigatorApp: interaction kind %d for '%s' "
@@ -680,7 +708,11 @@ func _enter_location(
 	var opened_successfully: bool = (
 		local_area_view.open_area(
 			location.local_area,
-			location.local_area.default_entry_id
+			location.local_area.default_entry_id,
+			Vector2.ZERO,
+			false,
+			{},
+			location
 		)
 	)
 
@@ -725,6 +757,43 @@ func _start_exe_encounter(
 		transaction_id,
 		"Combat encounter failed to start.",
 		activity_id
+	)
+	_set_mode(NavigatorMode.LOCAL_AREA)
+
+
+func _start_incident_encounter(
+	incident_id: String,
+	encounter: CombatEncounter,
+	transaction_id: String,
+	activity_id: String
+) -> void:
+	if encounter == null:
+		LeadIncidentManager.resolve_incident(
+			incident_id,
+			CombatResult.create(CombatResult.Outcome.CANCELLED)
+		)
+		return
+
+	_pending_exe_actor = null
+	_pending_incident_id = incident_id.strip_edges()
+	_active_combat_transaction_id = transaction_id.strip_edges()
+	_active_combat_activity_id = activity_id.strip_edges()
+	_set_mode(NavigatorMode.ENCOUNTER)
+
+	if combat_app.start_encounter(encounter):
+		CombatManager.set_session_activity_context(
+			_active_combat_transaction_id,
+			_active_combat_activity_id
+		)
+		return
+
+	var failed_incident_id: String = _pending_incident_id
+	_pending_incident_id = ""
+	_active_combat_transaction_id = ""
+	_active_combat_activity_id = ""
+	LeadIncidentManager.resolve_incident(
+		failed_incident_id,
+		CombatResult.create(CombatResult.Outcome.CANCELLED)
 	)
 	_set_mode(NavigatorMode.LOCAL_AREA)
 
@@ -840,6 +909,17 @@ func _on_activity_cancelled(
 func _on_combat_finished(
 	result: CombatResult
 ) -> void:
+	if not _pending_incident_id.is_empty():
+		var incident_id: String = _pending_incident_id
+		_pending_incident_id = ""
+		_pending_exe_actor = null
+		_set_mode(NavigatorMode.LOCAL_AREA)
+		LeadIncidentManager.resolve_incident(incident_id, result)
+		_active_combat_transaction_id = ""
+		_active_combat_activity_id = ""
+		local_area_view.refresh_population()
+		return
+
 	var resolved_actor: LocalAreaExeActor = (
 		_pending_exe_actor
 	)
@@ -858,6 +938,21 @@ func _on_combat_finished(
 
 	_active_combat_transaction_id = ""
 	_active_combat_activity_id = ""
+	local_area_view.refresh_population()
+
+
+func _on_incident_encounter_requested(
+	incident_id: String,
+	encounter: CombatEncounter,
+	transaction_id: String,
+	activity_id: String
+) -> void:
+	_start_incident_encounter(
+		incident_id,
+		encounter,
+		transaction_id,
+		activity_id
+	)
 
 
 func _on_local_area_back_requested() -> void:

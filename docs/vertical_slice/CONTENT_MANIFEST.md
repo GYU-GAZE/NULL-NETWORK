@@ -22,6 +22,8 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Global UI text catalog | 1 | EXISTS | 4 | Interface text only; narrative stays in narrative Resources |
 | StoryEvent integration gate | 1 | EXISTS | 6 | `story.prologue.null_network_welcome` proves orchestration and persistence; it does not replace the final Phase 15 Prologue sequence |
 | Dialogue integration gate | 1 | EXISTS | 7 | `dialogue.prologue.null_network_welcome` proves six portraits, conditions, Effects, paid choice and persistence; final narrative dialogue remains Phase 15/16 content |
+| Lead/Incident integration gate | 1 | EXISTS | 11 | `aquarium_signal` and `akihabara_aquarium_relay` prove Forum → Lead → badge → paid Incident → dialogue/combat → reaction without hardcoding the final Aquarium area |
+| Local Area population integration gate | 1 | EXISTS | 11 | Akihabara uses typed SpawnPoints and its SpawnTable for deterministic common/Incident actors restored by campaign/location/day/period |
 
 ## Prologue
 
@@ -62,8 +64,8 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Boot update alert | 1 | MISSING | 6/16 | Announces micro-update |
 | Changelog | 1 | MISSING | 16 | Technical note with cryptic clue |
 | New forum threads | 3–5 | MISSING | 16 | Data miners and community response |
-| Initial Lead | 1 | MISSING | 11/16 | Connects forum to exploration |
-| Area/spawn change | 1 | MISSING | 11/16 | Proves world reaction |
+| Initial Lead | 1 | PARTIAL | 11/16 | Phase 11 integration Lead connects Forum to Akihabara; final Monday micro-update Lead remains narrative content |
+| Area/spawn change | 1 | PARTIAL | 11/16 | Deterministic population and Lead-driven Incident spawning are validated; final Monday change remains content |
 | Calendar entry | 1 | MISSING | 13/16 | Exposes known weekly event |
 
 ## Tuesday through Friday

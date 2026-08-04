@@ -3,12 +3,25 @@ class_name LocalAreaInteractable
 
 
 signal interaction_requested(interactable: LocalAreaInteractable)
+signal persistent_state_changed(
+	interactable: LocalAreaInteractable,
+	state: Dictionary
+)
+
+
+enum PersistenceScope {
+	LOCAL_AREA_SESSION,
+	WORLD_POPULATION
+}
 
 
 @export var interaction_data: LocalAreaInteractionData
 @export_range(-100, 100, 1)
 var interaction_priority: int = 0
 @export var available: bool = true
+@export var persistence_scope: PersistenceScope = (
+	PersistenceScope.LOCAL_AREA_SESSION
+)
 
 
 func can_interact() -> bool:
@@ -52,3 +65,7 @@ func get_persistent_state() -> Dictionary:
 
 func apply_persistent_state(state: Dictionary) -> void:
 	set_available(bool(state.get("available", available)))
+
+
+func notify_persistent_state_changed() -> void:
+	persistent_state_changed.emit(self, get_persistent_state())

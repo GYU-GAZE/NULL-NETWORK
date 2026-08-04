@@ -18,9 +18,13 @@ signal interaction_requested(
 
 @onready var entry_points_root: Node = %EntryPoints
 @onready var player: LocalAreaPlayerController = %Player
+@onready var population_controller: LocalAreaPopulationController = (
+	get_node_or_null("%PopulationController") as LocalAreaPopulationController
+)
 
 
 var area_data: LocalAreaData
+var map_location: MapLocation
 var active_entry_id: String = ""
 
 
@@ -51,7 +55,8 @@ func setup_local_area(
 	entry_id: String = "",
 	restored_player_position: Vector2 = Vector2.ZERO,
 	has_restored_player_position: bool = false,
-	restored_runtime_state: Dictionary = {}
+	restored_runtime_state: Dictionary = {},
+	location: MapLocation = null
 ) -> bool:
 	if data == null:
 		push_error(
@@ -74,6 +79,7 @@ func setup_local_area(
 		return false
 
 	area_data = data
+	map_location = location
 
 	var resolved_entry_id: String = entry_id.strip_edges()
 
@@ -107,6 +113,11 @@ func setup_local_area(
 		)
 
 	player.configure_camera_bounds(area_bounds)
+
+	if population_controller != null and map_location != null:
+		if not population_controller.populate(map_location):
+			return false
+
 	apply_runtime_state(restored_runtime_state)
 	player.set_input_enabled(false)
 
@@ -137,7 +148,14 @@ func get_interact_action() -> StringName:
 func get_runtime_state() -> Dictionary:
 	var interactable_states: Dictionary = {}
 
+	if population_controller != null:
+		population_controller.sync_population_state()
+
 	for interactable in _get_interactables():
+		if interactable.persistence_scope \
+			== LocalAreaInteractable.PersistenceScope.WORLD_POPULATION:
+			continue
+
 		var interaction_id: String = (
 			interactable.get_interaction_id()
 		)
@@ -191,6 +209,10 @@ func apply_runtime_state(state: Dictionary) -> void:
 	)
 
 	for interactable in _get_interactables():
+		if interactable.persistence_scope \
+			== LocalAreaInteractable.PersistenceScope.WORLD_POPULATION:
+			continue
+
 		var interaction_id: String = (
 			interactable.get_interaction_id()
 		)
@@ -208,6 +230,11 @@ func apply_runtime_state(state: Dictionary) -> void:
 		interactable.apply_persistent_state(
 			raw_state as Dictionary
 		)
+
+
+func refresh_population() -> void:
+	if population_controller != null and map_location != null:
+		population_controller.populate(map_location)
 
 
 func _get_interactables() -> Array[LocalAreaInteractable]:

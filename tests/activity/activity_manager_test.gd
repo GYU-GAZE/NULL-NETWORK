@@ -474,12 +474,11 @@ func _test_navigator_travel_and_voluntary_combat() -> void:
 	var exe_actor: LocalAreaExeActor
 
 	if area_instance != null:
-		exe_actor = (
-			area_instance.get_node_or_null(
-				"Interactables/TestEXE"
-			)
-			as LocalAreaExeActor
-		)
+		for candidate: Node in area_instance.find_children("*", "", true, false):
+			exe_actor = candidate as LocalAreaExeActor
+
+			if exe_actor != null:
+				break
 
 	_check(
 		exe_actor != null

@@ -129,10 +129,17 @@ func _run_test() -> void:
 		"player_position": {"x": 222.0, "y": 144.0},
 		"local_area_runtime_state": {}
 	})
-	var exe_actor := (
-		navigator.local_area_view.find_interactable_by_id("akihabara_test_exe")
-		as LocalAreaExeActor
+	var exe_actor: LocalAreaExeActor
+	var area_instance: NavigatorLocalAreaScene = (
+		navigator.local_area_view.get_current_area_instance()
 	)
+
+	if area_instance != null:
+		for candidate: Node in area_instance.find_children("*", "", true, false):
+			exe_actor = candidate as LocalAreaExeActor
+
+			if exe_actor != null:
+				break
 	_check(exe_actor != null, "Rattildus EXE was not restored in Akihabara.")
 
 	if exe_actor == null:

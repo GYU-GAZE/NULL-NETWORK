@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://apps/navigator/local_area/actors/local_area_incident_actor.gd" id="1_actor"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_interaction"]
+radius = 28.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 12.0
+
+[node name="LocalAreaIncidentActor" type="Area2D"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_actor")
+
+[node name="SignalRing" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -16, 12, -12, 16, 0, 12, 12, 0, 16, -12, 12, -16, 0, -12, -12)
+color = Color(0.2, 0.95, 1, 1)
+
+[node name="Core" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -7, 7, 0, 0, 7, -7, 0)
+color = Color(1, 0.25, 0.7, 1)
+
+[node name="InteractionShape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_interaction")
+
+[node name="PhysicalBody" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="BodyCollision" type="CollisionShape2D" parent="PhysicalBody"]
+shape = SubResource("CircleShape2D_body")

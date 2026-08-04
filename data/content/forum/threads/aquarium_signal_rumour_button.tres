@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ThreadButtonData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/templates/thread_button_data.gd" id="1_button"]
+[ext_resource type="Script" path="res://data/templates/forum_thread.gd" id="2_thread"]
+[ext_resource type="Script" path="res://data/templates/forum_post.gd" id="3_post"]
+
+[sub_resource type="Resource" id="Post_signal"]
+script = ExtResource("3_post")
+post_id = "1"
+time_label_override = "JUST NOW"
+is_op = true
+release_day = 1
+text_content = "Anyone else seeing the corrupted Aquarium clip? The packet route keeps bouncing through Akihabara. [url=lead://aquarium_signal]FOLLOW SIGNAL[/url]"
+
+[sub_resource type="Resource" id="Thread_signal"]
+script = ExtResource("2_thread")
+thread_id = "aquarium_signal_rumour"
+thread_title = "AQUARIUM CLIP ROUTED THROUGH AKIHABARA?"
+thread_category = 1
+thread_tags = Array[String](["rumour", "aquarium", "signal"])
+popularity_score = 80
+thread_preview = "The corrupted Aquarium clip contains a live relay route."
+posts = Array[ExtResource("3_post")]([SubResource("Post_signal")])
+
+[resource]
+script = ExtResource("1_button")
+thread_ref = SubResource("Thread_signal")
+release_day = 1
+release_period = 0
+release_action_block = 0

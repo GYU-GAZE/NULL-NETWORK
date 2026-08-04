@@ -44,6 +44,7 @@ AppSessionStore="*uid://23edeehx54i1"
 SaveManager="*res://core/autoloads/save_manager.gd"
 StoryEventManager="*res://core/autoloads/story_event_manager.gd"
 DialogueManager="*res://core/autoloads/dialogue_manager.gd"
+LeadIncidentManager="*res://core/autoloads/lead_incident_manager.gd"
 
 [display]
 
