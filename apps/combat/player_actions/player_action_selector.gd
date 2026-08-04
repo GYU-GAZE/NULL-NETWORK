@@ -7,6 +7,14 @@ signal target_selected(
 	action_id: String,
 	target_uid: int
 )
+
+# Compatibility signal retained while CombatApp remains the reusable base
+# presentation class. The concrete drag-action UI does not emit it.
+signal action_assignment_requested(
+	slot_index: int,
+	action_id: String,
+	target_uid: int
+)
 signal close_requested
 
 
@@ -27,6 +35,43 @@ func _ready() -> void:
 
 
 func setup(
+	primary: Variant,
+	secondary: Variant,
+	tertiary: Variant = null
+) -> void:
+	# New contract: PlayerActionData, slot index, available targets.
+	if primary is PlayerActionData:
+		var targets: Array = (
+			tertiary as Array
+			if tertiary is Array
+			else []
+		)
+		_setup_target_choice(
+			primary as PlayerActionData,
+			int(secondary),
+			targets
+		)
+		return
+
+	# Legacy two-dropdown setup is intentionally retired. Keeping the
+	# flexible entry point lets the reusable CombatApp base compile while
+	# the concrete scene routes all input through drag-and-drop.
+	hide()
+
+
+func show_feedback(
+	message: String,
+	is_error: bool = false
+) -> void:
+	description_label.text = message
+	description_label.modulate = (
+		Color.CRIMSON
+		if is_error
+		else Color.LIME_GREEN
+	)
+
+
+func _setup_target_choice(
 	action: PlayerActionData,
 	slot_index: int,
 	targets: Array
@@ -34,6 +79,7 @@ func setup(
 	_action = action
 	_slot_index = slot_index
 	target_options.clear()
+	description_label.modulate = Color.WHITE
 
 	if action == null:
 		hide()
