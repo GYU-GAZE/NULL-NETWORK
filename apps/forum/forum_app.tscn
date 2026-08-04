@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://bsmlmh5xi4r03" path="res://apps/forum/forum_alert_card.tscn" id="4_jseev"]
 [ext_resource type="PackedScene" uid="uid://bpbbjyyqep1sg" path="res://apps/forum/null_channel_header.tscn" id="5_chltv"]
 [ext_resource type="PackedScene" uid="uid://v0ask2g51gcm" path="res://apps/forum/forum_thread_row_ui.tscn" id="5_jseev"]
+[ext_resource type="Script" path="res://apps/browser/layout/adaptive_browser_page_layout.gd" id="6_adaptive"]
 
 [node name="ForumApp" type="PanelContainer" unique_id=1643493238]
 anchors_preset = 15
@@ -19,9 +20,15 @@ post_ui_scene = ExtResource("4_2d478")
 thread_row_scene = ExtResource("5_jseev")
 alert_card_scene = ExtResource("4_jseev")
 
+[node name="AdaptiveBrowserLayout" type="Node" parent="."]
+script = ExtResource("6_adaptive")
+apply_site_theme = false
+
 [node name="MasterScroll" type="ScrollContainer" parent="." unique_id=1604201622]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
 [node name="PageVBox" type="VBoxContainer" parent="MasterScroll" unique_id=24340731]
@@ -36,6 +43,7 @@ layout_mode = 2
 
 [node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=1833793142]
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
@@ -45,6 +53,7 @@ theme_override_constants/margin_bottom = 12
 [node name="ThreadListPage" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=1195254683]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="ThreadTypeTabsPanel" type="PanelContainer" parent="MasterScroll/PageVBox/ContentArea/ThreadListPage" unique_id=1912109280]
 layout_mode = 2
