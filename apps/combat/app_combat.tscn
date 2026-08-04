@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://c7acibtxdt54a"]
 
-[ext_resource type="Script" uid="uid://d8jvy70iy3nu" path="res://apps/combat/app_combat.gd" id="1_combat"]
+[ext_resource type="Script" path="res://apps/combat/app_combat_drag_actions.gd" id="1_combat"]
 [ext_resource type="PackedScene" path="res://apps/combat/player_actions/player_action_selector.tscn" id="2_actions"]
 [ext_resource type="PackedScene" path="res://apps/combat/resolution/combat_resolution_panel.tscn" id="3_resolution"]
 [ext_resource type="PackedScene" path="res://apps/navigator/evolution/evolution_overlay.tscn" id="4_evolution"]
@@ -43,43 +43,43 @@ alignment = 1
 
 [node name="MenuBox" type="GridContainer" parent="ContentMargin/BattleBox/CenterHBox" unique_id=1979134545]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 0)
+custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 theme_override_constants/h_separation = 2
 theme_override_constants/v_separation = 2
-columns = 2
+columns = 1
 
 [node name="ChangeModulesBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=124703014]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(160, 24)
 layout_mode = 2
 tooltip_text = "Change Modules"
-text = "MODULES"
-clip_text = true
+text = "INVENTORY"
+clip_text = false
 
 [node name="PlayerActionsBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(160, 24)
 layout_mode = 2
 tooltip_text = "Assign Player Actions"
-text = "ACTIONS"
-clip_text = true
+text = "PLAYER ACTIONS"
+clip_text = false
 
 [node name="ExecuteBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=1608989675]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(160, 24)
 layout_mode = 2
 tooltip_text = "Execute Cycle"
-text = "EXECUTE"
-clip_text = true
+text = "EXECUTE CYCLE"
+clip_text = false
 
 [node name="RunAwayBtn" type="Button" parent="ContentMargin/BattleBox/CenterHBox/MenuBox" unique_id=1774351517]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(160, 24)
 layout_mode = 2
 tooltip_text = "Run Away"
-text = "RUN"
-clip_text = true
+text = "RUN AWAY"
+clip_text = false
 
 [node name="TimelineScroll" type="ScrollContainer" parent="ContentMargin/BattleBox/CenterHBox"]
 unique_name_in_owner = true
@@ -135,14 +135,15 @@ mouse_filter = 2
 unique_name_in_owner = true
 visible = false
 z_index = 100
-custom_minimum_size = Vector2(220, 0)
+custom_minimum_size = Vector2(280, 0)
 layout_mode = 0
 size_flags_horizontal = 0
 mouse_filter = 2
 
 [node name="Title" type="Label" parent="OverlayLayer/ModuleSwapUI" unique_id=1947466132]
 layout_mode = 2
-text = "INVENTORY"
+text = "INVENTORY // DRAG MODULES TO SLOTS"
+autowrap_mode = 2
 
 [node name="ListsHBox" type="HBoxContainer" parent="OverlayLayer/ModuleSwapUI" unique_id=22812275]
 layout_mode = 2
