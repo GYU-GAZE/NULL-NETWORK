@@ -37,6 +37,10 @@ func _run_meta_action(meta_text: String) -> void:
 		_run_navigation(meta_text.trim_prefix("nav:"))
 		return
 
+	if meta_text.begins_with("dialogue:"):
+		_run_dialogue(meta_text.trim_prefix("dialogue:"))
+		return
+
 	if meta_text.begins_with("flag:"):
 		_run_flag_set(meta_text.trim_prefix("flag:"))
 		return
@@ -79,6 +83,21 @@ func _run_navigation(url: String) -> void:
 		return
 
 	browser_navigation_requested.emit(clean_url)
+
+
+func _run_dialogue(dialogue_id: String) -> void:
+	var clean_dialogue_id: String = dialogue_id.strip_edges()
+
+	if clean_dialogue_id.is_empty():
+		return
+
+	if DialogueManager.start_dialogue(clean_dialogue_id):
+		return
+
+	UniversalNotifications.push(
+		"DIALOGUE UNAVAILABLE",
+		"The requested dialogue could not be started."
+	)
 
 
 func _run_flag_set(payload: String) -> void:
