@@ -1,14 +1,29 @@
 extends Node
 
+
+signal player_user_changed(player_user: NetworkUserData)
+
+
 const USERS_FOLDER: String = "res://data/content/users"
+const PLAYER_PLACEHOLDER_AVATAR: Texture2D = preload("res://icon.svg")
 
 var users: Array[NetworkUserData] = []
 var users_by_id: Dictionary = {}
 var users_by_lower_id: Dictionary = {}
 var resolved_friends_by_id: Dictionary = {}
+var _runtime_player_user: NetworkUserData
 
 
 func _ready() -> void:
+	if not CampaignState.campaign_changed.is_connected(_on_campaign_changed):
+		CampaignState.campaign_changed.connect(_on_campaign_changed)
+
+	if not CampaignState.campaign_reset.is_connected(_on_campaign_reset):
+		CampaignState.campaign_reset.connect(_on_campaign_reset)
+
+	if not SaveManager.campaign_loaded.is_connected(_on_campaign_loaded):
+		SaveManager.campaign_loaded.connect(_on_campaign_loaded)
+
 	reload_users()
 
 
@@ -17,8 +32,10 @@ func reload_users() -> void:
 	users_by_id.clear()
 	users_by_lower_id.clear()
 	resolved_friends_by_id.clear()
+	_runtime_player_user = null
 
 	_load_users_from_folder(USERS_FOLDER)
+	_sync_runtime_player_user(false)
 	_sort_users()
 	_rebuild_resolved_friend_links()
 
@@ -76,6 +93,103 @@ func _try_load_user(path: String) -> void:
 		users_by_lower_id[user.user_id.to_lower()] = user
 
 	users.append(user)
+
+
+func _sync_runtime_player_user(emit_change: bool = true) -> void:
+	_remove_runtime_player_user()
+
+	if not CampaignState.has_campaign() or CampaignState.operator.is_empty():
+		if emit_change:
+			player_user_changed.emit(null)
+		return
+
+	var profile: OperatorProfileData = CampaignState.operator.profile
+	var clean_user_id: String = profile.username.strip_edges()
+
+	if clean_user_id.is_empty():
+		if emit_change:
+			player_user_changed.emit(null)
+		return
+
+	var player_user := NetworkUserData.new()
+	player_user.user_id = clean_user_id
+	player_user.display_name = clean_user_id
+	player_user.avatar = PLAYER_PLACEHOLDER_AVATAR
+	player_user.title = "New Operator"
+	player_user.rank_label = "Unranked"
+	player_user.location = _get_player_location_label()
+	player_user.role = NetworkUserData.UserRole.USER
+	player_user.joined_label = "Campaign day %d" % TimeManager.days_passed
+	player_user.last_seen_label = "Online"
+	player_user.status_message = (
+		"Registered as %s" % profile.nickname.strip_edges()
+		if not profile.nickname.strip_edges().is_empty()
+		else "Newly registered Operator"
+	)
+	player_user.global_rank = 999
+	player_user.level = 1
+	player_user.partner_apk_name = "???"
+	player_user.server_name = "TOKYO, JAPAN"
+	player_user.is_player = true
+	player_user.is_known_to_player = true
+	player_user.bio_bbcode = (
+		"[b]Campaign Operator[/b]\n"
+		+ "Occupation: %s\n"
+		+ "Physical server: TOKYO, JAPAN"
+	) % _get_player_occupation_label()
+	player_user.signature_bbcode = "Temporary runtime profile synchronized from CampaignState."
+
+	if not CampaignState.partner.is_empty():
+		player_user.level = CampaignState.partner.level
+		var apk: APKData = ContentRegistry.get_apk(CampaignState.partner.apk_id)
+		player_user.partner_apk_name = (
+			apk.display_name
+			if apk != null
+			else CampaignState.partner.apk_id
+		)
+
+	_runtime_player_user = player_user
+	users.append(player_user)
+	users_by_id[player_user.user_id] = player_user
+	users_by_lower_id[player_user.user_id.to_lower()] = player_user
+	_sort_users()
+	_rebuild_resolved_friend_links()
+
+	if emit_change:
+		player_user_changed.emit(player_user)
+
+
+func _remove_runtime_player_user() -> void:
+	if _runtime_player_user == null:
+		return
+
+	users.erase(_runtime_player_user)
+	users_by_id.erase(_runtime_player_user.user_id)
+	users_by_lower_id.erase(_runtime_player_user.user_id.to_lower())
+	resolved_friends_by_id.erase(_runtime_player_user.user_id)
+	_runtime_player_user = null
+
+
+func _get_player_location_label() -> String:
+	var location: MapLocation = ContentRegistry.get_location(
+		CampaignState.current_location_id
+	)
+
+	if location != null:
+		return location.location_name
+
+	return "TOKYO, JAPAN"
+
+
+func _get_player_occupation_label() -> String:
+	var occupation: OccupationData = ContentRegistry.get_occupation(
+		CampaignState.operator.occupation_id
+	)
+
+	if occupation != null:
+		return occupation.get_display_name()
+
+	return CampaignState.operator.occupation_id
 
 
 func _sort_users() -> void:
@@ -233,6 +347,9 @@ func get_top_ranked_users(limit: int = 50) -> Array[NetworkUserData]:
 
 
 func get_player_user() -> NetworkUserData:
+	if _runtime_player_user != null:
+		return _runtime_player_user
+
 	for user in users:
 		if user != null and user.is_player:
 			return user
@@ -247,3 +364,24 @@ func is_player_in_top(limit: int = 50) -> bool:
 		return false
 
 	return player_user.global_rank > 0 and player_user.global_rank <= limit
+
+
+func _on_campaign_changed(section: StringName) -> void:
+	if section in [
+		&"operator",
+		&"partner",
+		&"current_location",
+		&"campaign"
+	]:
+		_sync_runtime_player_user()
+
+
+func _on_campaign_reset() -> void:
+	_sync_runtime_player_user()
+
+
+func _on_campaign_loaded(
+	_campaign_id: String,
+	_recovered_from_backup: bool
+) -> void:
+	_sync_runtime_player_user()
