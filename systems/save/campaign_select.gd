@@ -22,6 +22,7 @@ signal campaign_create_requested(
 @onready var error_label: Label = %ErrorLabel
 @onready var new_campaign_panel: NewCampaignPanel = %NewCampaignPanel
 @onready var modal_shade: ColorRect = %ModalShade
+@onready var modal_center: CenterContainer = $ModalCenter
 
 var _campaigns: Array[Dictionary] = []
 var _checkpoints: Array[Dictionary] = []
@@ -35,6 +36,7 @@ func _ready() -> void:
 	new_campaign_panel.create_requested.connect(_on_create_requested)
 	new_campaign_panel.cancelled.connect(_close_new_campaign)
 	modal_shade.hide()
+	modal_center.hide()
 	refresh_campaigns()
 
 
@@ -179,11 +181,15 @@ func _on_create_requested(
 
 
 func _open_new_campaign() -> void:
+	show_error("")
 	modal_shade.show()
+	modal_center.show()
 	new_campaign_panel.open()
 
 
 func _close_new_campaign() -> void:
+	new_campaign_panel.hide()
+	modal_center.hide()
 	modal_shade.hide()
 
 
