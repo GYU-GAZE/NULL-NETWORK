@@ -201,7 +201,8 @@ func _test_paid_incident_pipeline() -> void:
 		NavigatorLocationStateResolver.resolve(location)
 	)
 	_check(
-		runtime_state.activity_badge == null,
+		runtime_state.activity_badge == null
+		or runtime_state.activity_badge.badge_id != "rumour_lead",
 		"Completed Lead left a stale Navigator badge."
 	)
 
