@@ -4,10 +4,8 @@ extends "res://apps/combat/combat_manager.gd"
 ## System-level policy boundary for combat outcomes that affect the campaign.
 ##
 ## The inherited combat runtime owns turn execution and the tactical grid.
-## This layer owns two campaign rules that must not depend on combat UI:
-## - a mutual knockout is a defeat, never a victory;
-## - until the definitive Partner Loss lifecycle exists, a resolved defeat
-##   restores the registered partner to the minimum recoverable HP.
+## This layer owns campaign-facing combat policies and resolves reusable
+## catalog APK participants through the same progression rules as partners.
 
 const RECOVERABLE_PARTNER_MIN_HP: int = 1
 
@@ -28,6 +26,21 @@ func resolve_encounter(
 ) -> PackedStringArray:
 	_prepare_recoverable_partner_snapshot(outcome)
 	return super.resolve_encounter(outcome)
+
+
+func _resolve_slot_loadout(
+	slot_data: CombatSlotData
+) -> CharacterLoadout:
+	if slot_data != null \
+		and slot_data.participant_source \
+		== CombatSlotData.ParticipantSource.CATALOG_APK:
+		return APKCombatLoadoutFactory.create_loadout(
+			slot_data.apk_id,
+			slot_data.apk_level,
+			slot_data.apk_integrity_state
+		)
+
+	return super._resolve_slot_loadout(slot_data)
 
 
 func _emit_terminal_outcome() -> void:
