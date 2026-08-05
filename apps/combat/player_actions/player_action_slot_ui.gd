@@ -5,7 +5,15 @@ class_name PlayerActionSlotUI
 signal tooltip_requested(text: String)
 signal tooltip_hidden
 signal assignment_requested(slot_index: int, action: PlayerActionData)
+signal module_assignment_requested(slot_index: int, module: ModuleData)
 signal clear_requested(slot_index: int)
+
+
+enum ContentKind {
+	EMPTY,
+	MODULE,
+	PLAYER_ACTION
+}
 
 
 @export var ui_style: CombatUIStyleData = preload(
@@ -19,8 +27,10 @@ signal clear_requested(slot_index: int)
 
 var slot_index: int = -1
 var current_action: PlayerActionData
+var current_module: ModuleData
 var target_uid: int = -1
 var is_assigned_slot: bool = false
+var content_kind: ContentKind = ContentKind.EMPTY
 
 
 func _ready() -> void:
@@ -36,7 +46,26 @@ func setup(
 	assigned_target_uid: int = -1,
 	style: CombatUIStyleData = null
 ) -> void:
+	setup_effective_slot(
+		action,
+		null,
+		index,
+		assigned_slot,
+		assigned_target_uid,
+		style
+	)
+
+
+func setup_effective_slot(
+	action: PlayerActionData,
+	module: ModuleData,
+	index: int,
+	assigned_slot: bool,
+	assigned_target_uid: int = -1,
+	style: CombatUIStyleData = null
+) -> void:
 	current_action = action
+	current_module = module
 	slot_index = index
 	is_assigned_slot = assigned_slot
 	target_uid = assigned_target_uid
@@ -45,16 +74,39 @@ func setup(
 		ui_style = style
 
 	_apply_style()
-	label.text = (
-		action.display_name
-		if action != null
-		else "EMPTY ACTION"
+	_refresh_content()
+
+
+func setup_player_action_inventory(
+	action: PlayerActionData,
+	style: CombatUIStyleData = null
+) -> void:
+	setup_effective_slot(
+		action,
+		null,
+		-1,
+		false,
+		-1,
+		style
 	)
-	icon_rect.texture = (
-		action.icon
-		if action != null
-		else null
-	)
+
+
+func _refresh_content() -> void:
+	if current_action != null:
+		content_kind = ContentKind.PLAYER_ACTION
+		label.text = current_action.display_name
+		icon_rect.texture = current_action.icon
+		return
+
+	if current_module != null:
+		content_kind = ContentKind.MODULE
+		label.text = current_module.module_name
+		icon_rect.texture = current_module.module_icon
+		return
+
+	content_kind = ContentKind.EMPTY
+	label.text = "EMPTY SLOT"
+	icon_rect.texture = null
 
 
 func _apply_style() -> void:
@@ -79,11 +131,29 @@ func _apply_style() -> void:
 
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
-	if current_action == null:
-		return null
+	match content_kind:
+		ContentKind.PLAYER_ACTION:
+			_set_drag_preview(current_action.display_name)
+			return {
+				"payload_kind": &"player_action",
+				"source_slot": self,
+				"player_action": current_action
+			}
 
+		ContentKind.MODULE:
+			_set_drag_preview(current_module.module_name)
+			return {
+				"payload_kind": &"module",
+				"source_slot": self,
+				"module": current_module
+			}
+
+	return null
+
+
+func _set_drag_preview(display_text: String) -> void:
 	var preview := Label.new()
-	preview.text = " %s " % current_action.display_name
+	preview.text = " %s " % display_text
 
 	if ui_style != null:
 		ui_style.apply_font(
@@ -93,21 +163,24 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 		)
 
 	set_drag_preview(preview)
-	return {
-		"payload_kind": &"player_action",
-		"source_slot": self,
-		"player_action": current_action
-	}
 
 
 func _can_drop_data(
 	_at_position: Vector2,
 	data: Variant
 ) -> bool:
+	if data is not Dictionary:
+		return false
+
+	if is_assigned_slot:
+		return (
+			data.get("player_action") is PlayerActionData
+			or data.get("module") is ModuleData
+		)
+
 	return (
-		data is Dictionary
-		and data.get("payload_kind", &"") == &"player_action"
-		and data.get("player_action") is PlayerActionData
+		data.get("player_action") is PlayerActionData
+		and data.get("source_slot") is PlayerActionSlotUI
 	)
 
 
@@ -115,17 +188,24 @@ func _drop_data(
 	_at_position: Vector2,
 	data: Variant
 ) -> void:
-	var action := data.get("player_action") as PlayerActionData
+	if is_assigned_slot:
+		var action := data.get("player_action") as PlayerActionData
+
+		if action != null:
+			assignment_requested.emit(slot_index, action)
+			return
+
+		var module := data.get("module") as ModuleData
+
+		if module != null:
+			module_assignment_requested.emit(slot_index, module)
+		return
+
 	var source := data.get("source_slot") as PlayerActionSlotUI
 
-	if action == null:
-		return
-
-	if is_assigned_slot:
-		assignment_requested.emit(slot_index, action)
-		return
-
-	if source != null and source.is_assigned_slot:
+	if source != null \
+		and source.is_assigned_slot \
+		and source.current_action != null:
 		clear_requested.emit(source.slot_index)
 
 
@@ -145,15 +225,19 @@ func _on_gui_input(event: InputEvent) -> void:
 
 
 func _on_hover_in() -> void:
-	if current_action == null:
-		return
+	match content_kind:
+		ContentKind.PLAYER_ACTION:
+			tooltip_requested.emit(
+				CombatManager.get_player_action_tooltip(
+					current_action,
+					target_uid
+				)
+			)
 
-	tooltip_requested.emit(
-		CombatManager.get_player_action_tooltip(
-			current_action,
-			target_uid
-		)
-	)
+		ContentKind.MODULE:
+			tooltip_requested.emit(
+				CombatManager.get_module_tooltip(current_module)
+			)
 
 
 func _on_hover_out() -> void:
