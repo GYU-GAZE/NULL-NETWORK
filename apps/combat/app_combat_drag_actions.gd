@@ -11,6 +11,9 @@ enum LoadoutPanelMode {
 const PLAYER_ACTION_SLOT_SCENE: PackedScene = preload(
 	"res://apps/combat/player_actions/player_action_slot_ui.tscn"
 )
+const MODULE_ACTION_SLOT_SCENE: PackedScene = preload(
+	"res://apps/combat/module_slot_ui.tscn"
+)
 
 
 @onready var loadout_title: Label = (
@@ -190,7 +193,7 @@ func _toggle_loadout_panel(mode: LoadoutPanelMode) -> void:
 	loadout_title.text = (
 		"INVENTORY // DRAG MODULES TO SLOTS"
 		if mode == LoadoutPanelMode.MODULES
-		else "PLAYER ACTIONS // DRAG ACTIONS TO SLOTS"
+		else "ACTION LOADOUT // MODULES OR PLAYER ACTIONS"
 	)
 
 	player_action_selector.hide()
@@ -216,10 +219,16 @@ func _populate_player_action_slots() -> void:
 		"player_action_assignments",
 		[]
 	)
+	var modules: Array = player.get("modules", [])
 
 	for index: int in range(4):
 		var action: PlayerActionData
 		var target_uid: int = -1
+		var module: ModuleData = (
+			modules[index] as ModuleData
+			if index < modules.size()
+			else null
+		)
 
 		if index < assignments.size() \
 			and assignments[index] is Dictionary:
@@ -238,8 +247,12 @@ func _populate_player_action_slots() -> void:
 		if slot == null:
 			continue
 
-		slot.setup(
+		# The slot shows the effective action that will enter the Timeline.
+		# A Player Action overrides the Module visually, while the underlying
+		# Module remains available in the repertoire for immediate restoration.
+		slot.setup_effective_slot(
 			action,
+			module,
 			index,
 			true,
 			target_uid,
@@ -249,23 +262,60 @@ func _populate_player_action_slots() -> void:
 
 func _populate_player_action_inventory() -> void:
 	_clear_container(inventory_list)
+	_append_inventory_section("OPERATOR ACTIONS")
 
 	for action: PlayerActionData in (
 		CombatManager.get_player_actions()
 	):
-		var slot := _create_player_action_slot(
+		var action_slot := _create_player_action_slot(
 			inventory_list
 		)
 
-		if slot == null:
+		if action_slot == null:
 			continue
 
-		slot.setup(
+		action_slot.setup_player_action_inventory(
 			action,
+			ui_style
+		)
+
+	_append_inventory_section("APK REPERTOIRE")
+	var player_loadout: CharacterLoadout = _get_player_loadout()
+
+	if player_loadout == null:
+		return
+
+	for module: ModuleData in player_loadout.module_pool:
+		var module_slot := (
+			MODULE_ACTION_SLOT_SCENE.instantiate()
+			as ModuleSlotUI
+		)
+
+		if module_slot == null:
+			continue
+
+		inventory_list.add_child(module_slot)
+		_connect_module_slot(module_slot)
+		module_slot.setup(
+			module,
 			-1,
 			false,
-			-1,
 			ui_style
+		)
+
+
+func _append_inventory_section(text: String) -> void:
+	var section_label := Label.new()
+	section_label.text = text
+	section_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	section_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	inventory_list.add_child(section_label)
+
+	if ui_style != null:
+		ui_style.apply_font(
+			section_label,
+			ui_style.interface_font,
+			ui_style.interface_font_size
 		)
 
 
@@ -289,6 +339,9 @@ func _create_player_action_slot(
 	slot.tooltip_hidden.connect(hide_tooltip)
 	slot.assignment_requested.connect(
 		_on_player_action_dropped
+	)
+	slot.module_assignment_requested.connect(
+		_on_module_dropped_into_action_slot
 	)
 	slot.clear_requested.connect(
 		_on_player_action_clear_requested
@@ -367,6 +420,32 @@ func _on_player_action_dropped(
 	)
 
 
+func _on_module_dropped_into_action_slot(
+	slot_index: int,
+	module: ModuleData
+) -> void:
+	if module == null:
+		return
+
+	if not CombatManager.set_player_module(
+		slot_index,
+		module
+	):
+		_show_player_action_feedback(
+			"Could not assign %s to SLOT %d."
+			% [module.module_name, slot_index + 1],
+			true
+		)
+		return
+
+	_show_player_action_feedback(
+		"SLOT %d RESTORED TO %s"
+		% [slot_index + 1, module.module_name],
+		false
+	)
+	refresh_module_ui()
+
+
 func _on_player_action_target_selected(
 	slot_index: int,
 	action_id: String,
@@ -416,7 +495,7 @@ func _on_player_action_clear_requested(
 		return
 
 	_show_player_action_feedback(
-		"SLOT %d CLEARED"
+		"SLOT %d RETURNED TO APK MODULE"
 		% (slot_index + 1),
 		false
 	)
