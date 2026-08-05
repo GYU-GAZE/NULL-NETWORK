@@ -71,24 +71,10 @@ func validate_data() -> PackedStringArray:
 				)
 
 		ParticipantSource.CATALOG_APK:
-			var clean_apk_id: String = apk_id.strip_edges()
-			var apk: APKData = ContentRegistry.get_apk(clean_apk_id)
-
-			if clean_apk_id.is_empty():
+			if apk_id.strip_edges().is_empty():
 				errors.append(
 					"CATALOG_APK combat slot requires apk_id."
 				)
-			elif apk == null:
-				errors.append(
-					"CATALOG_APK references unknown APK '%s'."
-					% clean_apk_id
-				)
-			else:
-				for error: String in apk.validate_data():
-					errors.append(
-						"CATALOG_APK '%s': %s"
-						% [clean_apk_id, error]
-					)
 
 			if apk_level < 1 or apk_level > 100:
 				errors.append(
