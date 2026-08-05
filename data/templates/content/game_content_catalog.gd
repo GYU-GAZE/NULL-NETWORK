@@ -124,12 +124,19 @@ func validate_data() -> PackedStringArray:
 		for error: String in occupation.validate_data():
 			errors.append("Occupation %d: %s" % [index, error])
 
+	var known_apk_ids: Dictionary = {}
+
 	for index: int in range(apks.size()):
 		var apk: APKData = apks[index]
 
 		if apk == null:
 			errors.append("APK %d is null." % index)
 			continue
+
+		var apk_id: String = apk.apk_id.strip_edges()
+
+		if not apk_id.is_empty():
+			known_apk_ids[apk_id] = true
 
 		for error: String in apk.validate_data():
 			errors.append("APK %d: %s" % [index, error])
@@ -154,7 +161,37 @@ func validate_data() -> PackedStringArray:
 		for error: String in encounter.validate_data():
 			errors.append("Combat encounter %d: %s" % [index, error])
 
+		_validate_encounter_apk_references(
+			errors,
+			encounter,
+			known_apk_ids
+		)
+
 	return errors
+
+
+func _validate_encounter_apk_references(
+	errors: PackedStringArray,
+	encounter: CombatEncounter,
+	known_apk_ids: Dictionary
+) -> void:
+	var slots: Array[CombatSlotData] = []
+	slots.append_array(encounter.ally_slots)
+	slots.append_array(encounter.enemy_slots)
+
+	for slot: CombatSlotData in slots:
+		if slot == null \
+			or slot.participant_source \
+			!= CombatSlotData.ParticipantSource.CATALOG_APK:
+			continue
+
+		var apk_id: String = slot.apk_id.strip_edges()
+
+		if not known_apk_ids.has(apk_id):
+			errors.append(
+				"Combat encounter '%s' references unknown catalog APK '%s'."
+				% [encounter.encounter_id, apk_id]
+			)
 
 
 func _create_group(
