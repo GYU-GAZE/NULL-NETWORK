@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="CombatEncounter" load_steps=8 format=3 uid="uid://cdxjje47qsri2"]
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=7 format=3 uid="uid://cdxjje47qsri2"]
 
 [ext_resource type="Script" path="res://data/templates/combat_encounter.gd" id="1_encounter"]
 [ext_resource type="Script" path="res://data/templates/combat_slot_data.gd" id="2_slot"]
-[ext_resource type="Resource" path="res://data/content/combat/loadouts/enemy_rattus.tres" id="4_enemy"]
 [ext_resource type="Resource" path="res://data/content/combat/rewards/rattildus_reward.tres" id="5_reward"]
 [ext_resource type="Resource" path="res://data/content/combat/resolutions/default_exe_resolution.tres" id="6_resolution"]
 
@@ -13,7 +12,9 @@ participant_source = 1
 [sub_resource type="Resource" id="Slot_enemy"]
 script = ExtResource("2_slot")
 slot_index = 1
-character = ExtResource("4_enemy")
+participant_source = 3
+apk_id = "rattildus_init"
+apk_level = 1
 reward_profile = ExtResource("5_reward")
 
 [resource]
