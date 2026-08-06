@@ -13,7 +13,7 @@ permissions:
 jobs:
   validate-social-foundation:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
 
     steps:
       - name: Checkout repository
@@ -92,6 +92,17 @@ jobs:
             2>&1 | tee godot-social-app-test.log
           grep -q "SOCIAL_APP_TEST: PASS" godot-social-app-test.log
 
+      - name: Run friend-party combat test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 120 \
+            tests/social/friend_party_combat_test.tscn \
+            2>&1 | tee godot-friend-party-combat-test.log
+          grep -q "FRIEND_PARTY_COMBAT_TEST: PASS" \
+            godot-friend-party-combat-test.log
+
       - name: Reject script and resource errors
         shell: bash
         run: |
@@ -100,6 +111,7 @@ jobs:
             godot-social-foundation-test.log \
             godot-social-conversation-test.log \
             godot-social-app-test.log \
+            godot-friend-party-combat-test.log \
             > godot-social-validation.log
           if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|Parse Error" godot-social-validation.log; then
             exit 1
@@ -115,5 +127,6 @@ jobs:
             godot-social-foundation-test.log
             godot-social-conversation-test.log
             godot-social-app-test.log
+            godot-friend-party-combat-test.log
             godot-social-validation.log
           if-no-files-found: ignore
