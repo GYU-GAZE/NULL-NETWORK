@@ -25,6 +25,7 @@ amount = 2
 [resource]
 script = ExtResource("1_resolution")
 resolution_id = "resolution.default_exe"
+partner_loss_policy = 2
 player_actions = Array[ExtResource("3_action_type")]([ExtResource("4_scan"), ExtResource("5_purge"), ExtResource("6_purify"), ExtResource("7_tame")])
 combat_style_rule = SubResource("Style_default")
 escape_attempt_tendency_gains = Array[ExtResource("8_gain")]([SubResource("Gain_escape_self")])
