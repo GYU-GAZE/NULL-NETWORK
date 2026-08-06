@@ -64,7 +64,9 @@ static func resolve_after_combat(
 		"money": CampaignState.money,
 		"inventory": CampaignState.inventory.to_save_data(),
 		"known_module_ids": Array(CampaignState.known_module_ids),
-		"encyclopedia_state": CampaignState.encyclopedia_state.duplicate(true)
+		"encyclopedia_state": CampaignState.encyclopedia_state.duplicate(true),
+		"game_state": GameState.export_save_data(),
+		"app_sessions": AppSessionStore.export_save_data()
 	}
 	legacy_site.metadata = {
 		"save_mode": int(CampaignState.save_mode),
@@ -171,6 +173,7 @@ static func _clear_operator_scoped_state() -> void:
 	CampaignState.money = 0
 	CampaignState.inventory = InventoryStateData.new()
 	CampaignState.known_module_ids.clear()
+	CampaignState.installed_app_ids.clear()
 	CampaignState.active_lead_ids.clear()
 	CampaignState.lead_progress.clear()
 	CampaignState.incident_progress.clear()
@@ -181,6 +184,8 @@ static func _clear_operator_scoped_state() -> void:
 	CampaignState.active_story_event_waiting = false
 	CampaignState.social_state.clear()
 	CampaignState.encyclopedia_state.clear()
+	GameState.reset_save_data()
+	AppSessionStore.reset_save_data()
 
 
 static func _build_legacy_site_id(
