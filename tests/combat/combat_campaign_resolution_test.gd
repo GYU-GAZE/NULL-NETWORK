@@ -31,6 +31,9 @@ func _run_test() -> void:
 	)
 	_check(create_errors.is_empty(), "Phase 10 campaign creation failed: %s" % create_errors)
 	CampaignState.campaign_phase = CampaignState.CampaignPhase.MAIN_CAMPAIGN
+	CampaignState.operator.operator_id = "phase10_operator"
+	CampaignState.operator.display_name = "Phase 10 Operator"
+	CampaignState.operator.occupation_id = "neet"
 
 	_test_normal_victory_and_style()
 	_test_scan()
@@ -40,7 +43,7 @@ func _run_test() -> void:
 	_test_tame(true)
 	_test_evolution()
 	_test_escape()
-	_test_recoverable_defeat()
+	_test_partner_loss()
 	_test_save_between_cycles()
 	_finish_test()
 
@@ -295,7 +298,7 @@ func _test_escape() -> void:
 	CombatManager.finalize_resolved_encounter()
 
 
-func _test_recoverable_defeat() -> void:
+func _test_partner_loss() -> void:
 	_prepare_partner(1)
 	var actors: Dictionary = _load_quiet_encounter()
 	var player: Dictionary = actors.get("player", {})
@@ -308,17 +311,21 @@ func _test_recoverable_defeat() -> void:
 	_check(
 		CombatManager.is_awaiting_resolution()
 		and CombatManager.get_pending_outcome() == CombatResult.Outcome.DEFEAT,
-		"Zero HP did not reach the recoverable defeat boundary."
+		"Zero HP did not reach the definitive defeat boundary."
 	)
 	var errors: PackedStringArray = CombatManager.resolve_encounter(
 		CombatResult.Outcome.DEFEAT
 	)
-	_check(errors.is_empty(), "Defeat resolution failed: %s" % errors)
+	var metadata: Dictionary = CombatManager.get_result_metadata()
+	_check(errors.is_empty(), "Partner Loss resolution failed: %s" % errors)
 	_check(
-		CampaignState.partner.apk_id == "novire_init"
-		and CampaignState.partner.integrity_state == PartnerStateData.IntegrityState.REGISTERED
+		bool(metadata.get("partner_lost", false))
+		and str(metadata.get("lost_apk_id", "")) == "novire_init"
+		and CampaignState.partner.apk_id == "turd_init"
+		and CampaignState.partner.integrity_state == PartnerStateData.IntegrityState.TURD
+		and PartnerContinuityService.get_lost_partner_history().size() == 1
 		and CampaignState.campaign_phase == CampaignState.CampaignPhase.MAIN_CAMPAIGN,
-		"Defeat incorrectly activated the Phase 14 loss lifecycle."
+		"Definitive defeat did not archive NOVIRE and assign TURD."
 	)
 	CombatManager.finalize_resolved_encounter()
 
@@ -376,6 +383,7 @@ func _prepare_partner(level: int) -> void:
 	CampaignState.known_module_ids.clear()
 	CampaignState.encyclopedia_state.clear()
 	CampaignState.tendencies.reset()
+	CampaignState.operator.partner_continuity.reset()
 	var partner: PartnerStateData = APKProgressionService.create_partner_state(
 		"novire_init",
 		"Novi",
