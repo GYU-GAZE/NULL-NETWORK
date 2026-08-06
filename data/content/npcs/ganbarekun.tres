@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="NPCData" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="NPCData" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://data/templates/npcs/npc_data.gd" id="1_npc"]
 [ext_resource type="Script" path="res://data/templates/npcs/npc_routine_entry_data.gd" id="2_routine"]
 [ext_resource type="Resource" path="res://data/content/users/GANBAREkun.tres" id="3_user"]
 [ext_resource type="Resource" path="res://data/content/npcs/personalities/ganbare_heroic.tres" id="4_personality"]
+[ext_resource type="Resource" path="res://data/content/combat/loadouts/ganbarekun_party_partner.tres" id="5_party_loadout"]
 
 [sub_resource type="Resource" id="Routine_online"]
 script = ExtResource("2_routine")
@@ -24,3 +25,5 @@ personality = ExtResource("4_personality")
 default_location_id = "akihabara"
 routines = Array[ExtResource("2_routine")]([SubResource("Routine_online")])
 tags = PackedStringArray("ranking", "forum", "integration")
+can_join_party = true
+party_loadout = ExtResource("5_party_loadout")
