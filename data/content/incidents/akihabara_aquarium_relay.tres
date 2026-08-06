@@ -7,7 +7,7 @@
 [ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="5_flag"]
 [ext_resource type="Resource" path="res://data/content/activities/investigate_aquarium_relay.tres" id="6_activity"]
 [ext_resource type="Resource" path="res://data/content/dialogues/akihabara_aquarium_relay.tres" id="7_dialogue"]
-[ext_resource type="Resource" path="res://data/content/combat/ganbarekun_party_2v1.tres" id="8_encounter"]
+[ext_resource type="Resource" path="res://data/content/combat/1v1.tres" id="8_encounter"]
 [ext_resource type="Script" path="res://data/templates/effects/set_party_membership_effect_data.gd" id="9_party"]
 
 [sub_resource type="Resource" id="Stage_trace"]
