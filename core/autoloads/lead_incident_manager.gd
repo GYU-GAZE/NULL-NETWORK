@@ -21,12 +21,15 @@ const LEAD_URL_PREFIX: String = "lead://"
 const STATUS_READY: String = "ready"
 const STATUS_DIALOGUE: String = "dialogue"
 const STATUS_ENCOUNTER: String = "encounter"
+const LEGACY_REPAIR_SOURCE_ID: String = "legacy.phase12.social"
 
 var _pending_incident_requests: Dictionary = {}
+var _is_repairing_active_leads: bool = false
 
 
 func _ready() -> void:
 	_connect_signals()
+	call_deferred("_repair_active_lead_progress")
 
 
 func _connect_signals() -> void:
@@ -49,6 +52,16 @@ func _connect_signals() -> void:
 		_on_dialogue_completed
 	):
 		DialogueManager.dialogue_completed.connect(_on_dialogue_completed)
+
+	if not CampaignState.campaign_created.is_connected(
+		_on_campaign_created
+	):
+		CampaignState.campaign_created.connect(_on_campaign_created)
+
+	if not CampaignState.campaign_changed.is_connected(
+		_on_campaign_changed
+	):
+		CampaignState.campaign_changed.connect(_on_campaign_changed)
 
 	if not CampaignState.campaign_reset.is_connected(_on_campaign_reset):
 		CampaignState.campaign_reset.connect(_on_campaign_reset)
@@ -82,7 +95,11 @@ func activate_lead(lead_id: String, source_id: String = "") -> bool:
 		return false
 
 	if CampaignState.active_lead_ids.has(clean_id):
-		return true
+		return _ensure_active_lead_progress(
+			lead,
+			source_id,
+			true
+		)
 
 	var context := _create_context(
 		clean_id,
@@ -105,27 +122,23 @@ func activate_lead(lead_id: String, source_id: String = "") -> bool:
 	if not CampaignState.activate_lead(clean_id):
 		return false
 
-	CampaignState.set_lead_progress(clean_id, {
+	if not CampaignState.set_lead_progress(clean_id, {
 		"stage_id": initial_stage.get_display_id(),
 		"source_id": source_id.strip_edges(),
 		"activated_action_index": TimeManager.get_total_action_index()
-	})
+	}):
+		CampaignState.remove_active_lead(clean_id)
+		return false
 
-	if lead.discover_location_on_activation:
-		CampaignState.discover_location(lead.location_id)
-		var location: MapLocation = ContentRegistry.get_location(
-			lead.location_id
-		)
-
-		if location != null:
-			NavigatorLocationStateResolver.discover(location)
-
+	_discover_lead_location(lead)
 	lead_activated.emit(clean_id)
+	lead_stage_changed.emit(clean_id, initial_stage.get_display_id())
 	lead_state_changed.emit(clean_id)
 	return true
 
 
 func get_active_leads_for_location(location_id: String) -> Array[LeadData]:
+	_repair_active_lead_progress()
 	var result: Array[LeadData] = []
 	var clean_location_id: String = location_id.strip_edges()
 
@@ -161,7 +174,9 @@ func get_navigator_badge(location_id: String) -> NavigatorMarkerBadge:
 func get_available_incidents_for_location(
 	location_id: String
 ) -> Array[IncidentData]:
+	_repair_active_lead_progress()
 	var result: Array[IncidentData] = []
+	var added_incident_ids: Dictionary = {}
 
 	for lead: LeadData in get_active_leads_for_location(location_id):
 		var progress: Dictionary = CampaignState.get_lead_progress(
@@ -179,7 +194,8 @@ func get_available_incidents_for_location(
 		)
 
 		if incident == null \
-			or CampaignState.has_completed_incident(incident.get_display_id()):
+			or CampaignState.has_completed_incident(incident.get_display_id()) \
+			or added_incident_ids.has(incident.get_display_id()):
 			continue
 
 		var context := _create_context(
@@ -191,11 +207,13 @@ func get_available_incidents_for_location(
 
 		if incident.can_start(context):
 			result.append(incident)
+			added_incident_ids[incident.get_display_id()] = true
 
 	return result
 
 
 func find_lead_for_incident(incident_id: String) -> LeadData:
+	_repair_active_lead_progress()
 	var clean_incident_id: String = incident_id.strip_edges()
 
 	for lead_id: String in CampaignState.active_lead_ids:
@@ -496,5 +514,126 @@ func _create_context(
 	)
 
 
+func _ensure_active_lead_progress(
+	lead: LeadData,
+	source_id: String,
+	request_checkpoint: bool
+) -> bool:
+	if lead == null \
+		or not CampaignState.active_lead_ids.has(lead.get_display_id()):
+		return false
+
+	var progress: Dictionary = CampaignState.get_lead_progress(
+		lead.get_display_id()
+	)
+	var stage_id: String = str(progress.get("stage_id", "")).strip_edges()
+
+	if lead.get_stage(stage_id) != null:
+		return true
+
+	var initial_stage: LeadStageData = lead.get_initial_stage()
+
+	if initial_stage == null:
+		return false
+
+	var resolved_source_id: String = source_id.strip_edges()
+
+	if resolved_source_id.is_empty():
+		resolved_source_id = str(progress.get("source_id", "")).strip_edges()
+
+	if resolved_source_id.is_empty():
+		resolved_source_id = LEGACY_REPAIR_SOURCE_ID
+
+	var repaired_progress: Dictionary = progress.duplicate(true)
+	repaired_progress["stage_id"] = initial_stage.get_display_id()
+	repaired_progress["source_id"] = resolved_source_id
+
+	if not repaired_progress.has("activated_action_index"):
+		repaired_progress["activated_action_index"] = (
+			TimeManager.get_total_action_index()
+		)
+
+	if not CampaignState.set_lead_progress(
+		lead.get_display_id(),
+		repaired_progress
+	):
+		return false
+
+	_discover_lead_location(lead)
+	lead_stage_changed.emit(
+		lead.get_display_id(),
+		initial_stage.get_display_id()
+	)
+	lead_state_changed.emit(lead.get_display_id())
+
+	if request_checkpoint:
+		SaveManager.request_checkpoint(
+			&"leads.repair_active_progress",
+			false
+		)
+
+	return true
+
+
+func _repair_active_lead_progress() -> void:
+	if _is_repairing_active_leads or not CampaignState.has_campaign():
+		return
+
+	_is_repairing_active_leads = true
+	var repaired_any: bool = false
+
+	for lead_id: String in CampaignState.active_lead_ids:
+		var lead: LeadData = ContentRegistry.get_lead(lead_id)
+
+		if lead == null:
+			continue
+
+		var progress: Dictionary = CampaignState.get_lead_progress(lead_id)
+		var stage_id: String = str(progress.get("stage_id", "")).strip_edges()
+
+		if lead.get_stage(stage_id) != null:
+			continue
+
+		if _ensure_active_lead_progress(
+			lead,
+			LEGACY_REPAIR_SOURCE_ID,
+			false
+		):
+			repaired_any = true
+
+	_is_repairing_active_leads = false
+
+	if repaired_any:
+		SaveManager.request_checkpoint(
+			&"leads.repair_active_progress",
+			false
+		)
+
+
+func _discover_lead_location(lead: LeadData) -> void:
+	if lead == null or not lead.discover_location_on_activation:
+		return
+
+	CampaignState.discover_location(lead.location_id)
+	var location: MapLocation = ContentRegistry.get_location(
+		lead.location_id
+	)
+
+	if location != null:
+		NavigatorLocationStateResolver.discover(location)
+
+
+func _on_campaign_created(_campaign_id: String) -> void:
+	call_deferred("_repair_active_lead_progress")
+
+
+func _on_campaign_changed(section: StringName) -> void:
+	if section not in [&"campaign", &"leads"]:
+		return
+
+	call_deferred("_repair_active_lead_progress")
+
+
 func _on_campaign_reset() -> void:
 	_pending_incident_requests.clear()
+	_is_repairing_active_leads = false
