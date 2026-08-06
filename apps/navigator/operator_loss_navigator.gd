@@ -5,8 +5,10 @@ const SUCCESSION_REGISTRATION_URL: String = "null.net/register"
 
 
 func _on_combat_finished(result: CombatResult) -> void:
-	if result == null \
-		or not bool(result.metadata.get("operator_lost", false)):
+	if result == null:
+		return
+
+	if not bool(result.metadata.get("operator_lost", false)):
 		super._on_combat_finished(result)
 		return
 
