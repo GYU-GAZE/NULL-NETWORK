@@ -1,0 +1,191 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://apps/browser/sites/null_network/starter_selection/starter_selection.gd" id="1_page"]
+[ext_resource type="Script" path="res://apps/browser/layout/adaptive_browser_page_layout.gd" id="2_adaptive"]
+
+[node name="StarterSelection" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+clip_contents = true
+script = ExtResource("1_page")
+
+[node name="AdaptiveBrowserLayout" type="Node" parent="."]
+script = ExtResource("2_adaptive")
+
+[node name="MasterScroll" type="ScrollContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="PageMargin" type="MarginContainer" parent="MasterScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 24
+
+[node name="Page" type="VBoxContainer" parent="MasterScroll/PageMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="MasterScroll/PageMargin/Page"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "PARTNER SYNCHRONIZATION"
+horizontal_alignment = 1
+
+[node name="Intro" type="Label" parent="MasterScroll/PageMargin/Page"]
+layout_mode = 2
+text = "Choose the APK that will be permanently linked to this successor account. The previous Operator and destroyed partners cannot be restored."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="StateLabel" type="Label" parent="MasterScroll/PageMargin/Page"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "CHECKING CAMPAIGN STATE..."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="MainSplit" type="HSplitContainer" parent="MasterScroll/PageMargin/Page"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+split_offset = 210
+
+[node name="IndexPanel" type="PanelContainer" parent="MasterScroll/PageMargin/Page/MainSplit"]
+custom_minimum_size = Vector2(200, 430)
+layout_mode = 2
+
+[node name="IndexMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/MainSplit/IndexPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="IndexContent" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/MainSplit/IndexPanel/IndexMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="IndexTitle" type="Label" parent="MasterScroll/PageMargin/Page/MainSplit/IndexPanel/IndexMargin/IndexContent"]
+layout_mode = 2
+text = "AVAILABLE STARTERS"
+
+[node name="StarterList" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/MainSplit/IndexPanel/IndexMargin/IndexContent"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="DetailPanel" type="PanelContainer" parent="MasterScroll/PageMargin/Page/MainSplit"]
+custom_minimum_size = Vector2(430, 430)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DetailMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="DetailContent" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Portrait" type="TextureRect" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 4
+expand_mode = 3
+stretch_mode = 5
+
+[node name="PartnerName" type="Label" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "NO STARTER SELECTED"
+horizontal_alignment = 1
+
+[node name="PartnerMeta" type="Label" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "—"
+horizontal_alignment = 1
+
+[node name="PartnerSummary" type="Label" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Select a starter to inspect its starting configuration."
+autowrap_mode = 2
+
+[node name="Separator" type="HSeparator" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+layout_mode = 2
+
+[node name="NicknameLabel" type="Label" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+layout_mode = 2
+text = "Partner nickname"
+
+[node name="NicknameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+max_length = 32
+
+[node name="PersonalityLabel" type="Label" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+layout_mode = 2
+text = "Personality"
+
+[node name="PersonalityOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PersonalityDescription" type="Label" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="AddressLabel" type="Label" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+layout_mode = 2
+text = "How your partner addresses you"
+
+[node name="AddressOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddressPreview" type="Label" parent="MasterScroll/PageMargin/Page/MainSplit/DetailPanel/DetailMargin/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="ErrorLabel" type="Label" parent="MasterScroll/PageMargin/Page"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.35, 1)
+autowrap_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="MasterScroll/PageMargin/Page"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="ConfirmButton" type="Button" parent="MasterScroll/PageMargin/Page/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "SYNCHRONIZE PARTNER"
+
+[node name="OpenNavigatorButton" type="Button" parent="MasterScroll/PageMargin/Page/Actions"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "OPEN NAVIGATOR"
