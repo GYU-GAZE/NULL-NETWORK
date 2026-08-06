@@ -30,6 +30,10 @@ func _run_test() -> void:
 		"Browser was not installed from installed_by_default."
 	)
 	_check(
+		CampaignState.has_installed_app("social"),
+		"Social was not installed from installed_by_default."
+	)
+	_check(
 		not CampaignState.has_installed_app("navigator"),
 		"Navigator was installed before its unlock effect."
 	)
@@ -51,8 +55,9 @@ func _run_test() -> void:
 		return
 
 	_check(
-		first_dock.get_visible_app_ids() == PackedStringArray(["browser"]),
-		"Dock did not project only the installed default Browser."
+		first_dock.get_visible_app_ids()
+		== PackedStringArray(["browser", "social"]),
+		"Dock did not project the installed default Browser and Social apps."
 	)
 
 	var context := GameEffectContext.create("test.phase5.starter_selected")
@@ -64,7 +69,7 @@ func _run_test() -> void:
 
 	_check(
 		first_dock.get_visible_app_ids()
-		== PackedStringArray(["browser", "navigator"]),
+		== PackedStringArray(["browser", "navigator", "social"]),
 		"Dock did not add Navigator live in catalog order."
 	)
 	_check(
@@ -101,6 +106,16 @@ func _run_test() -> void:
 		"Repeated Browser activation created more than one window instance."
 	)
 
+	var social: AppResource = ContentRegistry.get_app("social")
+	GlobalSignals.request_open_app.emit(social)
+	GlobalSignals.request_open_app.emit(social)
+	await _wait_frames(3)
+	_check(
+		first_windows.open_windows.size() == 2
+		and first_windows.open_windows.has("social"),
+		"Repeated Social activation created more than one window instance."
+	)
+
 	_check(
 		SaveManager.save_checkpoint(&"phase5.app_installed", true),
 		"Could not save the installed app state."
@@ -122,7 +137,7 @@ func _run_test() -> void:
 	if second_dock != null:
 		_check(
 			second_dock.get_visible_app_ids()
-			== PackedStringArray(["browser", "navigator"]),
+			== PackedStringArray(["browser", "navigator", "social"]),
 			"Save/load did not preserve installed apps in Dock order."
 		)
 
