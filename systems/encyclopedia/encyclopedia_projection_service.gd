@@ -80,7 +80,7 @@ static func build_entry_snapshot(entry_id: String) -> Dictionary:
 		"subtitle": entry.subtitle.strip_edges() if entry != null else "",
 		"summary": entry.summary.strip_edges() if entry != null else "",
 		"sort_order": entry.sort_order if entry != null else 100000,
-		"texture": entry.get_primary_texture() if entry != null else null,
+		"texture": _resolve_entry_texture(entry, apk),
 		"subject": _build_subject_snapshot(apk),
 		"milestones": _build_milestones(record),
 		"sections": _build_sections(entry, record),
@@ -99,6 +99,28 @@ static func build_entry_snapshot(entry_id: String) -> Dictionary:
 		"first_seen_action_index": record.first_seen_action_index,
 		"last_updated_action_index": record.last_updated_action_index
 	}
+
+
+static func _resolve_entry_texture(
+	entry: EncyclopediaEntryData,
+	apk: APKData
+) -> Texture2D:
+	if entry != null and entry.get_primary_texture() != null:
+		return entry.get_primary_texture()
+
+	if apk == null:
+		return null
+
+	if not apk.portraits.is_empty():
+		return apk.portraits[0]
+
+	if apk.combat_icon != null:
+		return apk.combat_icon
+
+	if not apk.sprites.is_empty():
+		return apk.sprites[0]
+
+	return null
 
 
 static func _build_subject_snapshot(apk: APKData) -> Dictionary:
