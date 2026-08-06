@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="AppResource" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://data/templates/app_resource.gd" id="1_app"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="2_icon"]
+[ext_resource type="PackedScene" path="res://apps/profile/app_operator_profile.tscn" id="3_scene"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_set_data.gd" id="4_set"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_rule_data.gd" id="5_rule"]
+[ext_resource type="Script" path="res://data/templates/conditions/partner_condition_data.gd" id="6_partner"]
+[ext_resource type="Script" path="res://data/templates/kubu_notification_data.gd" id="7_notification"]
+
+[sub_resource type="Resource" id="Partner_required"]
+script = ExtResource("6_partner")
+requirement = 0
+
+[sub_resource type="Resource" id="Conditions_has_partner"]
+script = ExtResource("4_set")
+rules = Array[ExtResource("5_rule")]([SubResource("Partner_required")])
+
+[sub_resource type="Resource" id="Notification_installed"]
+script = ExtResource("7_notification")
+notification_id = "app.profile.installed"
+title = "PROFILE INSTALLED"
+message = "Operator and registered partner data are now available."
+source_app_id = "profile"
+notification_type = 6
+
+[resource]
+script = ExtResource("1_app")
+app_id = "profile"
+app_name = "Profile"
+app_icon = ExtResource("2_icon")
+app_scene = ExtResource("3_scene")
+auto_install_when_unlocked = true
+unlock_conditions = SubResource("Conditions_has_partner")
+sort_order = 25
+notification_data = SubResource("Notification_installed")
+default_window_size = Vector2(720, 600)
+min_window_size = Vector2(460, 320)
+can_resize = true
