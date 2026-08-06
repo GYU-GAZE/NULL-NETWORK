@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ChatProfileData" format=3]
+
+[ext_resource type="Script" path="res://data/templates/social/chat_profile_data.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+profile_id = "chat.ganbarekun"
+npc_id = "ganbarekun"
+subtitle = "TOP #2 // HERO ONLINE"
+pinned = true
+sort_order = 10
