@@ -49,7 +49,6 @@
 [ext_resource type="Resource" path="res://data/content/dialogues/akihabara_aquarium_relay.tres" id="49_aquarium_dialogue"]
 [ext_resource type="Resource" path="res://data/content/npcs/npc_catalog.tres" id="50_npc_catalog"]
 [ext_resource type="Resource" path="res://data/content/social/social_content_catalog.tres" id="51_social_catalog"]
-[ext_resource type="Resource" path="res://data/content/combat/ganbarekun_party_2v1.tres" id="52_party_encounter"]
 [ext_resource type="Resource" path="res://data/content/combat/loadouts/ganbarekun_party_partner.tres" id="53_party_loadout"]
 
 [resource]
@@ -57,7 +56,7 @@ script = ExtResource("1_catalog")
 apks = Array[ExtResource("38_apk_type")]([ExtResource("39_novire"), ExtResource("44_rattildus"), ExtResource("45_novire_valour")])
 modules = Array[ExtResource("2_module_type")]([ExtResource("3_basic_attack"), ExtResource("4_basic_defense"), ExtResource("5_basic_dodge"), ExtResource("6_basic_heal"), ExtResource("7_dummy_turret"), ExtResource("8_heavy_attack"), ExtResource("9_idle"), ExtResource("10_new_attack"), ExtResource("42_rattildus_signature"), ExtResource("43_rattildus_guard")])
 items = Array[ExtResource("40_item_type")]([ExtResource("41_healing_patch")])
-combat_encounters = Array[ExtResource("24_encounter_type")]([ExtResource("16_encounter_1v1"), ExtResource("17_encounter_3v1"), ExtResource("52_party_encounter")])
+combat_encounters = Array[ExtResource("24_encounter_type")]([ExtResource("16_encounter_1v1"), ExtResource("17_encounter_3v1")])
 character_loadouts = Array[ExtResource("25_loadout_type")]([ExtResource("18_player_loadout"), ExtResource("19_rattus_loadout"), ExtResource("53_party_loadout")])
 status_effects = Array[ExtResource("26_status_type")]([ExtResource("20_barrier"), ExtResource("21_dodge_up"), ExtResource("22_unstability")])
 dummies = Array[ExtResource("27_dummy_type")]([ExtResource("23_turret")])
