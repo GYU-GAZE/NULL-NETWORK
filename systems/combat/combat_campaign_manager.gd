@@ -83,15 +83,18 @@ func _inject_active_party_members(
 			break
 
 		var npc: NPCData = SocialService.get_npc(npc_id)
+		var loadout: CharacterLoadout = (
+			SocialService.create_party_partner_combat_loadout(npc_id)
+		)
 
 		if npc == null \
 			or not SocialService.is_friend(npc_id) \
 			or not npc.can_join_party \
-			or npc.party_loadout == null:
+			or loadout == null:
 			continue
 
 		var character_id: String = str(
-			npc.party_loadout.character_id
+			loadout.character_id
 		).strip_edges()
 
 		if loaded_character_ids.has(character_id):
@@ -102,9 +105,6 @@ func _inject_active_party_members(
 		if free_slot < 0:
 			break
 
-		var loadout := (
-			npc.party_loadout.duplicate(true) as CharacterLoadout
-		)
 		var actor: Dictionary = _create_combatant(
 			loadout,
 			true,
@@ -142,16 +142,9 @@ func _resolve_slot_loadout(
 			)
 
 		CombatSlotData.ParticipantSource.PARTY_MEMBER:
-			var npc: NPCData = SocialService.get_npc(
+			return SocialService.create_party_partner_combat_loadout(
 				slot_data.party_member_id
 			)
-
-			if npc == null \
-				or not SocialService.is_party_member(npc.get_display_id()) \
-				or npc.party_loadout == null:
-				return null
-
-			return npc.party_loadout.duplicate(true) as CharacterLoadout
 
 	return super._resolve_slot_loadout(slot_data)
 
@@ -163,13 +156,27 @@ func _deserialize_actor(data: Dictionary) -> Dictionary:
 		!= CombatSlotData.ParticipantSource.PARTY_MEMBER:
 		return actor
 
-	var character_id: String = str(
-		data.get("character_id", "")
+	var npc_id: String = str(
+		data.get("party_member_id", "")
 	).strip_edges()
-	var npc: NPCData = _find_party_npc_by_character_id(character_id)
+	var npc: NPCData = SocialService.get_npc(npc_id)
 
-	if npc != null and npc.party_loadout != null:
-		actor["icon"] = npc.party_loadout.combat_icon
+	if npc == null:
+		var character_id: String = str(
+			data.get("character_id", "")
+		).strip_edges()
+		npc = _find_party_npc_by_character_id(character_id)
+
+	if npc != null:
+		var loadout: CharacterLoadout = (
+			SocialService.create_party_partner_combat_loadout(
+				npc.get_display_id()
+			)
+		)
+
+		if loadout != null:
+			actor["icon"] = loadout.combat_icon
+
 		actor["party_member_id"] = npc.get_display_id()
 
 	return actor
@@ -239,6 +246,10 @@ func _prepare_recoverable_partner_snapshot(
 	if float(actor.get("hp", 0.0)) > 0.0:
 		return
 
+	# Phase 10 still keeps the Operator partner recoverable until the Phase 14
+	# loss lifecycle lands. Preserve the actual defeat marker so EXP splitting
+	# never rewards a partner that reached 0 HP before this compatibility repair.
+	actor["defeated_in_combat"] = true
 	var maximum_hp: int = maxi(
 		RECOVERABLE_PARTNER_MIN_HP,
 		roundi(float(actor.get("max_hp", 1.0)))
