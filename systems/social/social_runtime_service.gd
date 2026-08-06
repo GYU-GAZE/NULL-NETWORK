@@ -6,9 +6,13 @@ signal friendship_changed(npc_id: String, is_friend: bool)
 
 ## Concrete campaign runtime for the Social domain.
 ##
-## SocialStateData is serialized inside CampaignState. This runtime extends it
-## with the player's authoritative friend list and requests shared checkpoints
-## after every successful Social mutation.
+## World discovery and friendship are deliberately distinct:
+## - known contact: the Operator has identified the NPC;
+## - friend: the NPC is present in the Social friend list and may chat/party.
+##
+## The legacy SocialService.has_contact() contract is narrowed here to mean a
+## usable Social contact, therefore a friend. World systems can query
+## has_known_contact() when friendship is not required.
 
 func _ready() -> void:
 	_state = FriendListSocialStateData.new()
@@ -72,6 +76,15 @@ func is_friend(npc_id: String) -> bool:
 	return state != null and state.is_friend(npc_id)
 
 
+func has_contact(npc_id: String) -> bool:
+	# Social contacts are exactly the player's friends.
+	return is_friend(npc_id)
+
+
+func has_known_contact(npc_id: String) -> bool:
+	return _state.has_contact(npc_id)
+
+
 func get_friend_ids() -> PackedStringArray:
 	var state: FriendListSocialStateData = _get_friend_state()
 	return state.get_friend_ids() if state != null else PackedStringArray()
@@ -90,7 +103,6 @@ func get_friends() -> Array[NPCData]:
 
 
 func get_contacts() -> Array[NPCData]:
-	# The Social application's contact list is the player's friend list.
 	return get_friends()
 
 
