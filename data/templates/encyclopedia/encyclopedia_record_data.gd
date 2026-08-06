@@ -74,7 +74,8 @@ func merge_observation(
 		return false
 
 	var changed: bool = false
-	var saw_seen: bool = _read_any_bool(
+	var was_seen: bool = seen
+	var explicit_encounter: bool = _read_any_bool(
 		data,
 		PackedStringArray(["seen", "encountered", "discovered"])
 	)
@@ -84,14 +85,25 @@ func merge_observation(
 	var saw_purified: bool = bool(data.get("purified", false))
 	var saw_tamed: bool = bool(data.get("tamed", false))
 	var saw_lost: bool = bool(data.get("lost", false))
+	var confirms_subject: bool = (
+		explicit_encounter
+		or saw_scanned
+		or saw_defeated
+		or saw_purged
+		or saw_purified
+		or saw_tamed
+		or saw_lost
+	)
 
-	if saw_scanned or saw_defeated or saw_purged \
-		or saw_purified or saw_tamed or saw_lost:
-		saw_seen = true
+	if confirms_subject:
+		changed = _set_flag(&"seen") or changed
 
-	if saw_seen:
+	# Only explicit encounter observations increase encounter_count. A milestone
+	# recorded later by another system must not pretend that another battle or
+	# sighting occurred. The first non-encounter milestone still establishes one
+	# confirmed sighting for legacy and event-authored data.
+	if explicit_encounter or (confirms_subject and not was_seen):
 		encounter_count += 1
-		_set_flag(&"seen")
 		changed = true
 
 	if saw_scanned:
