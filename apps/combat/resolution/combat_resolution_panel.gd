@@ -42,6 +42,15 @@ func show_result(outcome: CombatResult.Outcome, metadata: Dictionary) -> void:
 	confirm_choice_button.hide()
 	continue_button.show()
 	continue_button.disabled = false
+
+	if bool(metadata.get("operator_lost", false)):
+		_show_operator_loss(metadata)
+		return
+
+	if bool(metadata.get("partner_lost", false)):
+		_show_partner_loss(metadata)
+		return
+
 	title_label.text = CombatResult.Outcome.keys()[outcome]
 	var lines := PackedStringArray()
 	lines.append("EXP +%d" % int(metadata.get("experience", 0)))
@@ -64,6 +73,51 @@ func show_result(outcome: CombatResult.Outcome, metadata: Dictionary) -> void:
 	if not tamed_id.is_empty():
 		lines.append("NEW PARTNER: %s" % tamed_id)
 
+	summary_label.text = "\n".join(lines)
+
+
+func _show_partner_loss(metadata: Dictionary) -> void:
+	title_label.text = "PARTNER LOSS"
+	var lost_apk_id: String = str(
+		metadata.get("lost_apk_id", "UNKNOWN")
+	).strip_edges()
+	var lines := PackedStringArray([
+		"%s WAS PERMANENTLY LOST." % lost_apk_id.to_upper()
+	])
+
+	if bool(metadata.get("turd_assigned", false)):
+		lines.append("TURD HAS BEEN ASSIGNED AS EMERGENCY CONTAINMENT.")
+
+	var infestation: int = int(metadata.get("infestation_increase", 0))
+
+	if infestation > 0:
+		lines.append("LOCAL INFESTATION +%d" % infestation)
+
+	summary_label.text = "\n".join(lines)
+
+
+func _show_operator_loss(metadata: Dictionary) -> void:
+	title_label.text = "OPERATOR LOSS"
+	var operator_id: String = str(
+		metadata.get("archived_operator_id", "UNKNOWN")
+	).strip_edges()
+	var legacy_site_id: String = str(
+		metadata.get("legacy_site_id", "")
+	).strip_edges()
+	var lines := PackedStringArray([
+		"OPERATOR %s HAS BEEN ARCHIVED." % operator_id.to_upper(),
+		"THE COUNTDOWN AND WORLD STATE WILL CONTINUE."
+	])
+
+	if not legacy_site_id.is_empty():
+		lines.append("LEGACY SITE CREATED: %s" % legacy_site_id)
+
+	var infestation: int = int(metadata.get("infestation_increase", 0))
+
+	if infestation > 0:
+		lines.append("LOCAL INFESTATION +%d" % infestation)
+
+	lines.append("REGISTER A NEW OPERATOR TO CONTINUE.")
 	summary_label.text = "\n".join(lines)
 
 
