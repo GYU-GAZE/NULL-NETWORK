@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SocialInteractionData" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="SocialInteractionData" load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://data/templates/social/social_interaction_data.gd" id="1_interaction"]
 [ext_resource type="Resource" path="res://data/content/activities/social/ganbarekun_strategy_chat.tres" id="2_activity"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="4_effect"]
 [ext_resource type="Script" path="res://data/templates/effects/modify_affinity_effect_data.gd" id="5_affinity"]
 [ext_resource type="Script" path="res://data/templates/effects/add_lead_effect_data.gd" id="6_lead"]
+[ext_resource type="Script" path="res://data/templates/effects/set_party_membership_effect_data.gd" id="7_party"]
 
 [sub_resource type="Resource" id="Effect_affinity"]
 script = ExtResource("5_affinity")
@@ -20,10 +21,19 @@ script = ExtResource("6_lead")
 effect_id = "social.ganbarekun.field_test.lead"
 lead_id = "integration_field_test"
 
+[sub_resource type="Resource" id="Effect_party_join"]
+script = ExtResource("7_party")
+effect_id = "social.ganbarekun.field_test.party_join"
+npc_id = "ganbarekun"
+use_context_target_when_empty = false
+owner_id = "lead.integration_field_test"
+use_context_source_when_owner_empty = false
+operation = 0
+
 [sub_resource type="Resource" id="Result_bundle"]
 script = ExtResource("3_bundle")
 bundle_id = "social.ganbarekun.field_test.result"
-effects = Array[ExtResource("4_effect")]([SubResource("Effect_affinity"), SubResource("Effect_lead")])
+effects = Array[ExtResource("4_effect")]([SubResource("Effect_affinity"), SubResource("Effect_lead"), SubResource("Effect_party_join")])
 
 [resource]
 script = ExtResource("1_interaction")
