@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="SocialGameContentCatalog" format=3]
+[gd_resource type="Resource" script_class="EncyclopediaGameContentCatalog" format=3]
 
-[ext_resource type="Script" path="res://data/templates/content/social_game_content_catalog.gd" id="1_catalog"]
+[ext_resource type="Script" path="res://data/templates/content/encyclopedia_game_content_catalog.gd" id="1_catalog"]
 [ext_resource type="Script" path="res://data/templates/module_data.gd" id="2_module_type"]
 [ext_resource type="Resource" path="res://data/content/combat/modules/basic_attack.tres" id="3_basic_attack"]
 [ext_resource type="Resource" path="res://data/content/combat/modules/basic_defense.tres" id="4_basic_defense"]
@@ -50,6 +50,7 @@
 [ext_resource type="Resource" path="res://data/content/npcs/npc_catalog.tres" id="50_npc_catalog"]
 [ext_resource type="Resource" path="res://data/content/social/social_content_catalog.tres" id="51_social_catalog"]
 [ext_resource type="Resource" path="res://data/content/combat/loadouts/ganbarekun_party_partner.tres" id="53_party_loadout"]
+[ext_resource type="Resource" path="res://data/content/encyclopedia/encyclopedia_catalog.tres" id="54_encyclopedia_catalog"]
 
 [resource]
 script = ExtResource("1_catalog")
@@ -65,6 +66,7 @@ app_catalog = ExtResource("11_app_catalog")
 locations = Array[ExtResource("14_location_type")]([ExtResource("15_akihabara"), ExtResource("35_residential"), ExtResource("36_high_school"), ExtResource("37_corporate")])
 npc_catalog = ExtResource("50_npc_catalog")
 social_catalog = ExtResource("51_social_catalog")
+encyclopedia_catalog = ExtResource("54_encyclopedia_catalog")
 dialogues = Array[ExtResource("30_dialogue_type")]([ExtResource("29_welcome_dialogue"), ExtResource("49_aquarium_dialogue")])
 story_event_catalog = ExtResource("28_story_events")
 lead_catalog = ExtResource("46_lead_catalog")
