@@ -23,6 +23,10 @@ enum FormType {
 @export var form_id: String = ""
 @export var form_type: FormType = FormType.INIT
 
+@export_category("Starter Selection")
+@export var selectable_as_starter: bool = false
+@export_range(0, 100000, 1) var starter_sort_order: int = 0
+
 @export_category("Presentation")
 @export var sprites: Array[Texture2D] = []
 @export var portraits: Array[Texture2D] = []
@@ -61,6 +65,9 @@ func validate_data() -> PackedStringArray:
 
 	if form_id.strip_edges().is_empty():
 		errors.append("APK '%s' has no form_id." % apk_id)
+
+	if selectable_as_starter and form_type != FormType.INIT:
+		errors.append("Selectable starter APK '%s' must use its INIT form." % apk_id)
 
 	if level_100_stats == null:
 		errors.append("APK '%s' has no level-100 growth profile." % apk_id)
