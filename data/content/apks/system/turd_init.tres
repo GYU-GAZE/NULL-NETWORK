@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="APKData" load_steps=11 format=3]
+[gd_resource type="Resource" script_class="APKData" load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://data/templates/apk/apk_data.gd" id="1_apk"]
 [ext_resource type="Script" path="res://data/templates/apk/apk_growth_profile_data.gd" id="2_growth"]
