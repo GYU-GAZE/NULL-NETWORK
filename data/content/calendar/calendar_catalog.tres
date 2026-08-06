@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CalendarCatalog" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/templates/calendar/calendar_catalog.gd" id="1_catalog"]
+[ext_resource type="Resource" path="res://data/content/calendar/events/update_1_0.tres" id="2_update"]
+
+[resource]
+script = ExtResource("1_catalog")
+events = Array[ExtResource("2_update")]([ExtResource("2_update")])
