@@ -10,30 +10,52 @@ static func resolve_after_combat(
 	_outcome: CombatResult.Outcome,
 	encounter_id: String
 ) -> Dictionary:
-	var errors := PackedStringArray()
-	var metadata: Dictionary = {
-		"partner_lost": false,
-		"lost_apk_id": "",
-		"turd_assigned": false,
-		"operator_loss_required": false,
-		"infestation_increase": 0,
-		"irreversible": false
-	}
-
 	if not CampaignState.has_campaign() \
 		or CampaignState.partner == null \
 		or CampaignState.partner.is_empty() \
 		or CampaignState.partner.current_hp > 0:
-		return {"errors": errors, "metadata": metadata}
+		return _empty_result()
 
 	if PartnerContinuityService.is_turd_active():
-		metadata["operator_loss_required"] = true
-		metadata["irreversible"] = true
-		return {"errors": errors, "metadata": metadata}
+	var operator_loss_result: Dictionary = _empty_result()
+	var operator_loss_metadata: Dictionary = (
+		operator_loss_result.get("metadata", {}) as Dictionary
+	)
+	operator_loss_metadata["operator_loss_required"] = true
+	operator_loss_metadata["irreversible"] = true
+	return operator_loss_result
 
-	var lost_apk_id: String = CampaignState.partner.apk_id
+	return resolve_captured_primary_loss(
+		CampaignState.partner.duplicate_state(),
+		true,
+		encounter_id
+	)
+
+
+static func resolve_captured_primary_loss(
+	lost_partner: PartnerStateData,
+	activate_fallback: bool,
+	encounter_id: String
+) -> Dictionary:
+	var result: Dictionary = _empty_result()
+	var errors: PackedStringArray = result.get(
+		"errors",
+		PackedStringArray()
+	)
+	var metadata: Dictionary = result.get("metadata", {}) as Dictionary
+
+	if not CampaignState.has_campaign() \
+		or lost_partner == null \
+		or lost_partner.is_empty() \
+		or lost_partner.current_hp > 0 \
+		or lost_partner.integrity_state == PartnerStateData.IntegrityState.TURD:
+		return result
+
+	var lost_apk_id: String = lost_partner.apk_id
 	var loss_record: Dictionary = (
-		PartnerContinuityService.resolve_primary_partner_loss(
+		PartnerContinuityService.resolve_primary_partner_loss_from_snapshot(
+			lost_partner,
+			activate_fallback,
 			"combat_hp_zero",
 			CampaignState.current_location_id,
 			TimeManager.days_passed,
@@ -44,11 +66,14 @@ static func resolve_after_combat(
 
 	if loss_record.is_empty():
 		errors.append("Could not archive the defeated primary partner.")
-		return {"errors": errors, "metadata": metadata}
+		return result
 
 	metadata["partner_lost"] = true
 	metadata["lost_apk_id"] = lost_apk_id
-	metadata["turd_assigned"] = PartnerContinuityService.is_turd_active()
+	metadata["turd_assigned"] = (
+		PartnerContinuityService.is_turd_active()
+		or PartnerContinuityService.has_turd_reserve()
+	)
 	metadata["irreversible"] = true
 
 	var location_id: String = CampaignState.current_location_id.strip_edges()
@@ -71,7 +96,21 @@ static func resolve_after_combat(
 			TimeManager.get_total_action_index()
 		]
 	)
-	return {"errors": errors, "metadata": metadata}
+	return result
+
+
+static func _empty_result() -> Dictionary:
+	return {
+		"errors": PackedStringArray(),
+		"metadata": {
+			"partner_lost": false,
+			"lost_apk_id": "",
+			"turd_assigned": false,
+			"operator_loss_required": false,
+			"infestation_increase": 0,
+			"irreversible": false
+		}
+	}
 
 
 static func _mark_apk_lost_in_encyclopedia(
