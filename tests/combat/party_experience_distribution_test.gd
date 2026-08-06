@@ -36,13 +36,13 @@ func _test_even_split_ignores_dummy() -> void:
 	if player.is_empty() or party.is_empty() or enemy.is_empty():
 		return
 
-	var reward := enemy.get("reward_profile") as CombatRewardData
-	var reward_copy := reward.duplicate(true) as CombatRewardData
+	var reward: CombatRewardData = enemy.get("reward_profile") as CombatRewardData
+	var reward_copy: CombatRewardData = reward.duplicate(true) as CombatRewardData
 	reward_copy.base_experience = 21
 	enemy["reward_profile"] = reward_copy
 	enemy["hp"] = 0.0
 	enemy["defeated"] = true
-	var dummy := {
+	var dummy: Dictionary = {
 		"uid": 9999,
 		"character_id": "temporary_dummy",
 		"source_kind": CombatSlotData.ParticipantSource.FIXED_LOADOUT,
@@ -72,6 +72,10 @@ func _test_even_split_ignores_dummy() -> void:
 		CombatTendencyLog.new(),
 		allies
 	)
+	var result_errors: PackedStringArray = result.get(
+		"errors",
+		PackedStringArray()
+	)
 	var metadata: Dictionary = result.get("metadata", {})
 	var distribution: Array = metadata.get("experience_distribution", [])
 	var party_state: NPCPartyPartnerStateData = (
@@ -79,9 +83,8 @@ func _test_even_split_ignores_dummy() -> void:
 	)
 
 	_check(
-		(result.get("errors", PackedStringArray()) as PackedStringArray).is_empty(),
-		"Living party EXP split failed: %s"
-		% result.get("errors", PackedStringArray())
+		result_errors.is_empty(),
+		"Living party EXP split failed: %s" % result_errors
 	)
 	_check(
 		int(metadata.get("experience", 0)) == 21
@@ -140,14 +143,19 @@ func _test_dead_party_partner_is_lost() -> void:
 		CombatTendencyLog.new(),
 		allies
 	)
+	var result_errors: PackedStringArray = result.get(
+		"errors",
+		PackedStringArray()
+	)
 	var metadata: Dictionary = result.get("metadata", {})
+	var lost_ids: Array = metadata.get("lost_party_member_ids", [])
 	var party_state: NPCPartyPartnerStateData = (
 		SocialService.get_party_partner_state(NPC_ID)
 	)
 
 	_check(
-		(result.get("errors", PackedStringArray()) as PackedStringArray).is_empty(),
-		"Permanent party partner loss resolution failed."
+		result_errors.is_empty(),
+		"Permanent party partner loss resolution failed: %s" % result_errors
 	)
 	_check(
 		CampaignState.partner.current_exp == 20
@@ -167,7 +175,7 @@ func _test_dead_party_partner_is_lost() -> void:
 		"A permanently lost NPC partner was added to the party again."
 	)
 	_check(
-		(metadata.get("lost_party_member_ids", []) as Array).has(NPC_ID),
+		lost_ids.has(NPC_ID),
 		"Combat metadata did not report the lost party partner."
 	)
 
@@ -203,13 +211,17 @@ func _test_defeated_player_receives_no_exp() -> void:
 		CombatTendencyLog.new(),
 		allies
 	)
+	var result_errors: PackedStringArray = result.get(
+		"errors",
+		PackedStringArray()
+	)
 	var party_state: NPCPartyPartnerStateData = (
 		SocialService.get_party_partner_state(NPC_ID)
 	)
 
 	_check(
-		(result.get("errors", PackedStringArray()) as PackedStringArray).is_empty(),
-		"Defeated-player EXP distribution failed."
+		result_errors.is_empty(),
+		"Defeated-player EXP distribution failed: %s" % result_errors
 	)
 	_check(
 		CampaignState.partner.current_exp == 0
@@ -266,9 +278,9 @@ func _prepare_party_encounter(campaign_id: String) -> Dictionary:
 		return {}
 
 	return {
-		"player": player as Dictionary,
-		"party": party as Dictionary,
-		"enemy": enemy as Dictionary
+		"player": player,
+		"party": party,
+		"enemy": enemy
 	}
 
 
