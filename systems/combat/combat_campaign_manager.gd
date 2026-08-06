@@ -7,7 +7,7 @@ extends "res://apps/combat/combat_manager.gd"
 ## This layer owns campaign-facing combat policies and resolves reusable
 ## catalog APK and Social party participants.
 
-const RECOVERABLE_PARTNER_MIN_HP: int = 1
+const RECOVERABLE_TURD_MIN_HP: int = 1
 
 
 func _ready() -> void:
@@ -18,7 +18,7 @@ func _ready() -> void:
 			_on_campaign_state_changed
 		)
 
-	call_deferred("_repair_loaded_recoverable_partner")
+	call_deferred("_repair_loaded_recoverable_turd")
 
 
 func resolve_encounter(
@@ -41,7 +41,11 @@ func resolve_encounter(
 		errors.append("Combat outcome does not match the pending terminal state.")
 		return errors
 
-	_prepare_recoverable_partner_snapshot(outcome)
+	var defeated_primary_snapshot: PartnerStateData = (
+		_capture_defeated_primary_snapshot()
+	)
+	_prepare_recoverable_turd_snapshot(outcome)
+	var active_turd_snapshot: PartnerStateData = _capture_active_turd_snapshot()
 	var player: Variant = _get_player_resolution_actor()
 
 	if player is not Dictionary:
@@ -63,13 +67,49 @@ func resolve_encounter(
 		return errors
 
 	_resolution_metadata = result.get("metadata", {}).duplicate(true)
+	var tamed_apk_id: String = str(
+		_resolution_metadata.get("tamed_apk_id", "")
+	).strip_edges()
+
+	if not tamed_apk_id.is_empty() and active_turd_snapshot != null:
+		if not PartnerContinuityService.stash_turd_snapshot(
+			active_turd_snapshot
+		):
+			errors.append("TAME could not preserve the active TURD state.")
+
+	if defeated_primary_snapshot != null:
+		var loss_result: Dictionary = (
+			PartnerLossService.resolve_captured_primary_loss(
+				defeated_primary_snapshot,
+				tamed_apk_id.is_empty(),
+				_current_encounter.encounter_id
+			)
+		)
+		errors.append_array(
+			loss_result.get("errors", PackedStringArray())
+		)
+		var loss_metadata: Dictionary = loss_result.get(
+			"metadata",
+			{}
+		) as Dictionary
+
+		for raw_key: Variant in loss_metadata:
+			_resolution_metadata[str(raw_key)] = loss_metadata[raw_key]
+
+	if not errors.is_empty():
+		return errors
+
 	_resolution_applied = true
 	_partner_state_committed = true
 	_awaiting_resolution = false
 	_pending_outcome = outcome
+	var irreversible: bool = (
+		not tamed_apk_id.is_empty()
+		or bool(_resolution_metadata.get("irreversible", false))
+	)
 	SaveManager.request_checkpoint(
 		StringName("combat_resolved.%s" % _current_encounter.encounter_id),
-		not str(_resolution_metadata.get("tamed_apk_id", "")).is_empty()
+		irreversible
 	)
 	combat_resolution_applied.emit(
 		outcome,
@@ -329,10 +369,90 @@ func _emit_terminal_outcome() -> void:
 		combat_victory.emit()
 
 
-func _prepare_recoverable_partner_snapshot(
+func _capture_defeated_primary_snapshot() -> PartnerStateData:
+	if PartnerContinuityService.is_turd_active() \
+		or CampaignState.partner == null \
+		or CampaignState.partner.is_empty():
+		return null
+
+	var player_actor: Variant = _get_player_resolution_actor()
+
+	if player_actor is not Dictionary:
+		return null
+
+	var actor: Dictionary = player_actor as Dictionary
+
+	if int(actor.get("source_kind", -1)) \
+		!= CombatSlotData.ParticipantSource.PLAYER_PARTNER \
+		or float(actor.get("hp", 0.0)) > 0.0:
+		return null
+
+	var snapshot: PartnerStateData = CampaignState.partner.duplicate_state()
+	_apply_actor_runtime_to_snapshot(snapshot, actor)
+	snapshot.current_hp = 0
+	return snapshot
+
+
+func _capture_active_turd_snapshot() -> PartnerStateData:
+	if not PartnerContinuityService.is_turd_active():
+		return null
+
+	var snapshot: PartnerStateData = CampaignState.partner.duplicate_state()
+	var player_actor: Variant = _get_player_resolution_actor()
+
+	if player_actor is Dictionary:
+		_apply_actor_runtime_to_snapshot(
+			snapshot,
+			player_actor as Dictionary
+		)
+
+	return snapshot
+
+
+func _apply_actor_runtime_to_snapshot(
+	snapshot: PartnerStateData,
+	actor: Dictionary
+) -> void:
+	if snapshot == null:
+		return
+
+	var stats: Dictionary = APKProgressionService.calculate_partner_stats(
+		snapshot
+	)
+	snapshot.current_hp = clampi(
+		roundi(float(actor.get("hp", snapshot.current_hp))),
+		0,
+		int(stats.get("max_hp", 1))
+	)
+	snapshot.current_stability = clampi(
+		roundi(float(actor.get(
+			"stability",
+			snapshot.current_stability
+	))),
+		0,
+		PartnerStateData.MAX_STABILITY
+	)
+	var module_ids := PackedStringArray()
+
+	for raw_module: Variant in actor.get("modules", []):
+		var module := raw_module as ModuleData
+		module_ids.append(str(module.module_id) if module != null else "")
+
+	if module_ids.size() != PartnerStateData.ACTIVE_SLOT_COUNT \
+		or module_ids.has(""):
+		return
+
+	for module_id: String in module_ids:
+		if not snapshot.known_active_module_ids.has(module_id):
+			return
+
+	snapshot.active_module_ids = module_ids
+
+
+func _prepare_recoverable_turd_snapshot(
 	outcome: CombatResult.Outcome
 ) -> void:
-	if not _uses_recoverable_partner_policy(outcome):
+	if not _uses_recoverable_turd_policy(outcome):
 		return
 
 	var player_actor: Variant = _get_player_resolution_actor()
@@ -343,27 +463,25 @@ func _prepare_recoverable_partner_snapshot(
 	var actor: Dictionary = player_actor as Dictionary
 
 	if int(actor.get("source_kind", -1)) \
-		!= CombatSlotData.ParticipantSource.PLAYER_PARTNER:
+		!= CombatSlotData.ParticipantSource.PLAYER_PARTNER \
+		or float(actor.get("hp", 0.0)) > 0.0:
 		return
 
-	if float(actor.get("hp", 0.0)) > 0.0:
-		return
-
-	# Phase 10 still keeps the Operator partner recoverable until the Phase 14
-	# loss lifecycle lands. Preserve the actual defeat marker so EXP splitting
-	# never rewards a partner that reached 0 HP before this compatibility repair.
+	# Operator Loss is implemented in the next Phase 14 subphase. Until then,
+	# only TURD retains the old one-HP compatibility policy. Primary partners
+	# now resolve permanent Partner Loss normally.
 	actor["defeated_in_combat"] = true
 	var maximum_hp: int = maxi(
-		RECOVERABLE_PARTNER_MIN_HP,
+		RECOVERABLE_TURD_MIN_HP,
 		roundi(float(actor.get("max_hp", 1.0)))
 	)
 	actor["hp"] = float(mini(
-		RECOVERABLE_PARTNER_MIN_HP,
+		RECOVERABLE_TURD_MIN_HP,
 		maximum_hp
 	))
 
 
-func _uses_recoverable_partner_policy(
+func _uses_recoverable_turd_policy(
 	outcome: CombatResult.Outcome
 ) -> bool:
 	if outcome not in [
@@ -373,25 +491,25 @@ func _uses_recoverable_partner_policy(
 	]:
 		return false
 
-	return CampaignState.campaign_phase not in [
-		CampaignState.CampaignPhase.NO_CAMPAIGN,
-		CampaignState.CampaignPhase.OPERATOR_LOSS
-	]
+	return (
+		PartnerContinuityService.is_turd_active()
+		and CampaignState.campaign_phase not in [
+			CampaignState.CampaignPhase.NO_CAMPAIGN,
+			CampaignState.CampaignPhase.OPERATOR_LOSS
+		]
+	)
 
 
 func _on_campaign_state_changed(section: StringName) -> void:
 	if section != &"campaign":
 		return
 
-	call_deferred("_repair_loaded_recoverable_partner")
+	call_deferred("_repair_loaded_recoverable_turd")
 
 
-func _repair_loaded_recoverable_partner() -> void:
-	if not CampaignState.has_campaign():
-		return
-
-	if CampaignState.partner == null \
-		or CampaignState.partner.is_empty() \
+func _repair_loaded_recoverable_turd() -> void:
+	if not CampaignState.has_campaign() \
+		or not PartnerContinuityService.is_turd_active() \
 		or CampaignState.partner.current_hp > 0:
 		return
 
@@ -405,15 +523,15 @@ func _repair_loaded_recoverable_partner() -> void:
 		CampaignState.partner
 	)
 	var maximum_hp: int = maxi(
-		RECOVERABLE_PARTNER_MIN_HP,
+		RECOVERABLE_TURD_MIN_HP,
 		int(stats.get("max_hp", 1))
 	)
 	CampaignState.partner.current_hp = mini(
-		RECOVERABLE_PARTNER_MIN_HP,
+		RECOVERABLE_TURD_MIN_HP,
 		maximum_hp
 	)
 	CampaignState.notify_partner_changed()
 	SaveManager.request_checkpoint(
-		&"combat.repair_recoverable_partner_hp",
+		&"combat.repair_recoverable_turd_hp",
 		false
 	)
