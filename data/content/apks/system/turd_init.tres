@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="APKData" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://data/templates/apk/apk_data.gd" id="1_apk"]
+[ext_resource type="Script" path="res://data/templates/apk/apk_growth_profile_data.gd" id="2_growth"]
+[ext_resource type="Script" path="res://data/templates/apk/apk_personality_data.gd" id="3_personality"]
+[ext_resource type="Script" path="res://data/templates/apk/address_term_data.gd" id="4_address"]
+[ext_resource type="Script" path="res://data/templates/module_data.gd" id="5_module"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_attack.tres" id="6_attack"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_defense.tres" id="7_defense"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_dodge.tres" id="8_dodge"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_heal.tres" id="9_heal"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="10_icon"]
+
+[sub_resource type="Resource" id="Growth_turd"]
+script = ExtResource("2_growth")
+hp = 100
+atk = 10
+def = 10
+matk = 10
+mdef = 10
+
+[sub_resource type="Resource" id="Personality_containment"]
+script = ExtResource("3_personality")
+personality_id = "containment"
+display_name = "Containment"
+description = "A minimal emergency process that prioritizes keeping the Operator synchronized."
+
+[sub_resource type="Resource" id="Address_operator"]
+script = ExtResource("4_address")
+address_term_id = "operator"
+literal_text = "Operator"
+
+[resource]
+script = ExtResource("1_apk")
+apk_id = "turd_init"
+display_name = "TURD"
+species_line_id = "turd"
+form_id = "turd.init"
+form_type = 0
+sprites = Array[Texture2D]([ExtResource("10_icon")])
+portraits = Array[Texture2D]([ExtResource("10_icon")])
+combat_icon = ExtResource("10_icon")
+level_100_stats = SubResource("Growth_turd")
+stability_recovery = 5
+dodge_chance = 0.0
+crit_chance = 0.0
+available_personalities = Array[ExtResource("3_personality")]([SubResource("Personality_containment")])
+available_address_terms = Array[ExtResource("4_address")]([SubResource("Address_operator")])
+default_active_modules = Array[ExtResource("5_module")]([ExtResource("6_attack"), ExtResource("7_defense"), ExtResource("8_dodge"), ExtResource("9_heal")])
