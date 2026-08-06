@@ -1,0 +1,106 @@
+name: Operator Loss Succession Validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-operator-loss-succession:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare CI-only asset placeholders
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp project.godot /tmp/project.godot.original
+
+          while IFS= read -r -d '' import_file; do
+            source_file="${import_file%.import}"
+
+            if [ ! -f "$source_file" ]; then
+              extension="${source_file##*.}"
+
+              case "$extension" in
+                png)
+                  printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4////fwAJ+wP9KobjigAAAABJRU5ErkJggg==' \
+                    | base64 --decode > "$source_file"
+                  ;;
+                ttf)
+                  cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf "$source_file"
+                  ;;
+                *)
+                  echo "Unsupported missing asset type: $source_file"
+                  exit 1
+                  ;;
+              esac
+            fi
+
+            rm -f "$import_file"
+          done < <(find data -type f -name '*.import' -print0)
+
+          sed -i '/^theme\/custom=/d' project.godot
+
+      - name: Download Godot 4.6.3
+        run: |
+          curl --fail --location --retry 3 \
+            --output godot.zip \
+            https://godot-releases.nbg1.your-objectstorage.com/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip
+          unzip -q godot.zip
+          chmod +x Godot_v4.6.3-stable_linux.x86_64
+
+      - name: Import project
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --editor --path . --import --verbose \
+            2>&1 | tee godot-operator-loss-import.log
+
+      - name: Run Operator Loss succession test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 240 \
+            tests/commitment/operator_loss_succession_test.tscn \
+            2>&1 | tee godot-operator-loss-test.log
+          grep -q "OPERATOR_LOSS_SUCCESSION_TEST: PASS" \
+            godot-operator-loss-test.log
+
+      - name: Reject script and resource errors
+        shell: bash
+        run: |
+          cat \
+            godot-operator-loss-import.log \
+            godot-operator-loss-test.log \
+            > godot-operator-loss-validation.log
+
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|Parse Error" godot-operator-loss-validation.log; then
+            exit 1
+          fi
+
+      - name: Restore project settings
+        if: always()
+        run: cp /tmp/project.godot.original project.godot
+
+      - name: Upload Operator Loss validation log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: operator-loss-succession-validation-log
+          path: |
+            godot-operator-loss-import.log
+            godot-operator-loss-test.log
+            godot-operator-loss-validation.log
+          if-no-files-found: ignore
