@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CharacterLoadout" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://data/templates/character_loadout.gd" id="1_loadout"]
+[ext_resource type="Script" path="res://data/templates/module_data.gd" id="2_module"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="3_icon"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_attack.tres" id="4_attack"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_defense.tres" id="5_defense"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_heal.tres" id="6_heal"]
+[ext_resource type="Resource" path="res://data/content/combat/modules/basic_dodge.tres" id="7_dodge"]
+
+[resource]
+script = ExtResource("1_loadout")
+character_id = &"ganbarekun_party_partner_integration"
+char_name = "GANBAREkun PARTNER"
+combat_icon = ExtResource("3_icon")
+level = 1
+apk_type = "INIT"
+max_hp = 2
+max_stability = 100
+stability_recovery = 20
+base_atk = 2
+base_def = 2
+base_matk = 2
+base_mdef = 2
+dodge_chance = 0.05
+crit_chance = 0.05
+equipped_modules = Array[ExtResource("2_module")]([ExtResource("4_attack"), ExtResource("5_defense"), ExtResource("6_heal"), ExtResource("7_dodge")])
+module_pool = Array[ExtResource("2_module")]([ExtResource("4_attack"), ExtResource("5_defense"), ExtResource("6_heal"), ExtResource("7_dodge")])
