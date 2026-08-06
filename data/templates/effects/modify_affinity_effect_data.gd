@@ -16,7 +16,7 @@ enum Operation {
 func _apply_effect(context: GameEffectContext) -> bool:
 	var resolved_id: String = _resolve_npc_id(context)
 
-	if resolved_id.is_empty() or SocialService.get_npc(resolved_id) == null:
+	if resolved_id.is_empty():
 		return false
 
 	match operation:
