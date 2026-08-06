@@ -15,36 +15,35 @@
 - Base branch: `main`
 - Roadmap phase: **Phase 14 — Commitment, Partner Loss, TURD and Operator Loss**
 - Current subphase: **14.2 Operator Loss and Operator succession**
-- Phase 12: Social, party participation, shared EXP and NPC-partner loss implemented.
-- Phase 13.1 Profile: implemented and manually confirmed.
-- Phase 13.2 Encyclopedia: typed foundation implemented; final behavior/UX deferred.
-- Phase 13.3 Calendar: implemented and manually confirmed functional; final calendar UX deferred.
-- Phase 14.1 Partner Loss/TURD: implemented and manually confirmed by the project owner.
-- Phase 14.2 Operator Loss/succession: implementation and automated gate authored; runtime/CI validation pending.
-- Latest implementation head before this documentation checkpoint: `ab86fb9c59b3c6f798c8580c44c10aa959561dab`
+- Phase 14.1 Partner Loss/TURD: manually confirmed by the project owner.
+- Phase 14.2 implementation: complete and awaiting runtime/CI validation.
+- Profile and Calendar are functional greyboxes; their final UX is deferred.
+- Encyclopedia has a typed foundation, but its behavior and UX are deferred for redesign.
 
-The campaign now supports the complete irreversible loss chain:
+The current irreversible loss chain is:
 
 ```text
 primary partner reaches 0 HP in a definitive encounter
 → Partner Loss
-→ defeated partner archived as LOST
+→ partner archived as LOST
 → TURD assigned automatically
 → TAME may establish a replacement partner
-→ the same TURD remains preserved in reserve
-→ replacement loss restores the same TURD
+→ the same TURD remains in reserve
+→ replacement loss restores that TURD
 → TURD reaches 0 HP
 → Operator Loss
 → Operator and TURD archived
-→ persistent Legacy Site created at the loss location
-→ successor Operator registration
-→ successor starter selection
+→ broken KubuOS Handtop becomes a Legacy Site at the loss location
+→ Browser opens successor registration
+→ registration opens the data-driven starter-selection page
+→ successor selects a cataloged starter
+→ Navigator installs
 → campaign continues on the same day and in the same world
 ```
 
-## Canonical Phase 14 ownership
+## State ownership after Operator Loss
 
-### Operator-owned state — reset on Operator Loss
+### Reset because it belonged to the lost Operator or destroyed device
 
 ```text
 Operator identity and appearance;
@@ -53,94 +52,81 @@ tendencies;
 money and inventory;
 known Modules;
 active Leads and active Incident progress;
-Social/Friend List/affinity;
+Social, Friend List and affinity;
 Encyclopedia knowledge;
 forum read/watch state;
 browser history and pins;
-app session state;
-installed-app state.
+app sessions and installed-app state.
 ```
 
-### Campaign/world-owned state — preserved
+### Preserved because it belongs to the campaign or world
 
 ```text
-TimeManager day, DAY/NIGHT and action block;
-Update countdown;
+campaign ID and save mode;
+TimeManager day, DAY/NIGHT, action block and Update countdown;
 world flags and numbers;
 location infestation;
 persistent world objects;
-completed Leads and Incidents;
-completed StoryEvents;
+completed Leads, Incidents and StoryEvents;
 discovered locations;
 Operator archive history;
 Legacy Sites.
 ```
 
-### Destroyed-device data
-
-Before the old Operator state is cleared, the Legacy Site seals:
-
-```text
-money;
-typed inventory;
-known Module IDs;
-Encyclopedia state;
-forum/browser log state;
-app session state.
-```
-
-This data is not granted automatically to the successor. Legacy Recovery is a separate irreversible activity.
+Before clearing the old device, the Legacy Site seals money, typed inventory, known Module IDs, Encyclopedia data, forum/browser logs and app sessions. None of it is granted automatically to the successor.
 
 ## Next exact task
 
-### First: validate Phase 14.2
+### Validate Phase 14.2
 
 Run:
 
 ```text
-Godot --headless --path . tests/commitment/operator_loss_succession_test.tscn
+tests/commitment/operator_loss_succession_test.tscn
+tests/commitment/starter_selection_page_test.tscn
 ```
 
-Confirm:
+Expected markers:
 
 ```text
-ordinary EXE resolution uses definitive loss policy;
-primary Partner Loss still assigns TURD;
+OPERATOR_LOSS_SUCCESSION_TEST: PASS
+STARTER_SELECTION_PAGE_TEST: PASS
+```
+
+The gates confirm:
+
+```text
 TURD at 0 HP resolves Operator Loss through CombatManager;
 Operator and destroyed TURD are archived once;
-current day, period and block remain unchanged;
-world flags, completed Incident/Lead and infestation remain;
-Operator Loss adds its authored infestation increase;
-old relationships, tendencies, inventory, Modules, Encyclopedia and device sessions are cleared;
-a typed Legacy Site is stored in WorldState.persistent_objects;
-the broken KubuOS Handtop appears in the loss Local Area;
-registration creates a successor without resetting the campaign;
-starter selection reinstalls Navigator and returns to MAIN_CAMPAIGN;
-save/reload preserves the successor, archived Operator, Legacy Site and world.
+day, period, block and countdown do not reset;
+world progression and authored infestation remain;
+old personal/device state does not leak to the successor;
+a typed Legacy Site persists and appears in the loss Local Area;
+null.net/register redirects successor registration to null.net/select-starter;
+the selection page lists only APKData marked selectable_as_starter;
+selecting a starter reinstalls Navigator and returns to MAIN_CAMPAIGN;
+save/reload preserves the successor, archive, Legacy Site and world.
 ```
 
-### Regression
-
-Run:
+Regression:
 
 ```text
-Godot --headless --path . tests/commitment/partner_loss_turd_continuity_test.tscn
-Godot --headless --path . tests/combat/combat_campaign_resolution_test.tscn
-Godot --headless --path . tests/campaign/campaign_state_test.tscn
-Godot --headless --path . tests/save/save_manager_test.tscn
+tests/commitment/partner_loss_turd_continuity_test.tscn
+tests/combat/combat_campaign_resolution_test.tscn
+tests/campaign/campaign_state_test.tscn
+tests/save/save_manager_test.tscn
 ```
 
-### Then: implement Phase 14.3 — Legacy Recovery
+After validation, implement **Phase 14.3 — Legacy Recovery**:
 
 ```text
 successor finds a Legacy Site
-→ inspect sealed recoverable data
-→ preview exactly what can be restored
-→ confirm an irreversible recovery activity
-→ restore material/log data through typed services
-→ mark the Legacy Site recovered
-→ never restore dead APK/TURD, relationships, affinity, ranking, reputation, tendencies or identity
-→ save/reload preserves the recovered boundary
+→ inspect a typed recovery preview
+→ confirm one irreversible recovery Activity
+→ restore only authored material/log data
+→ mark the site recovered
+→ never restore dead APK/TURD, relationships, affinity, tendencies, ranking, reputation or identity
+→ save/reload preserves the boundary
 ```
 
 ## Active files
@@ -159,7 +145,7 @@ systems/commitment/operator_succession_service.gd
 systems/commitment/apk_succession_progression_service.gd
 ```
 
-### Combat policy
+### Combat policy and presentation
 
 ```text
 data/templates/combat/combat_resolution_data.gd
@@ -170,7 +156,7 @@ systems/combat/combat_resolution_service.gd
 apps/combat/resolution/combat_resolution_panel.gd
 ```
 
-### Navigator and Legacy Site projection
+### Legacy Site and Navigator handoff
 
 ```text
 apps/navigator/operator_loss_navigator.gd
@@ -182,6 +168,22 @@ apps/navigator/local_area/spawning/legacy_aware_population_controller.gd
 data/content/navigator/areas/akihabara/akihabara_local_area.tscn
 ```
 
+### Successor registration and starter selection
+
+```text
+data/templates/apk/apk_data.gd
+data/content/apks/starters/novire_init.tres
+apps/browser/sites/null_network/register/operator_succession_registration.gd
+apps/browser/sites/null_network/register/operator_succession_registration.tscn
+apps/browser/sites/null_network/starter_selection/starter_selection.gd
+apps/browser/sites/null_network/starter_selection/starter_selection.tscn
+data/content/sites/null network/nnwregister.tres
+data/content/sites/null network/nnwstarterselection.tres
+core/autoloads/simulated_dns.tscn
+```
+
+`APKData.selectable_as_starter` and `starter_sort_order` are the data authority. The page contains no list of NOVIRE, VOCALYTE, WIZIP, TROJAW or PABUBU IDs. Currently only NOVIRE has a complete integration Resource and is therefore the only selectable entry.
+
 ### Runtime registration
 
 ```text
@@ -192,116 +194,29 @@ project.godot
 
 ```text
 tests/commitment/partner_loss_turd_continuity_test.gd
-tests/commitment/partner_loss_turd_continuity_test.tscn
 tests/commitment/operator_loss_succession_test.gd
-tests/commitment/operator_loss_succession_test.tscn
+tests/commitment/starter_selection_page_test.gd
 .github/workflows/partner-loss-turd-validate.yml
 .github/workflows/operator-loss-succession-validate.yml
+.github/workflows/starter-selection-validate.yml
 ```
 
-## Phase 14.1 checkpoint — Partner Loss and persistent TURD
+## Architecture checkpoint
 
-`CampaignState.partner` remains the active combat authority. `OperatorStateData.partner_continuity` owns only the inactive TURD reserve and permanent lost-partner history.
-
-TURD moves rather than copies:
-
-```text
-active TURD
-→ TAME
-→ complete TURD PartnerState moves to reserve
-→ replacement partner active
-→ replacement Partner Loss
-→ exact reserved TURD returns
-```
-
-Level, EXP, HP, Stability, affinity, allocations, known Modules, equipped Modules, personality and address term remain intact.
-
-## Phase 14.2 checkpoint — Operator Loss and succession
-
-### Combat boundary
-
-`OperatorLossCombatManager` extends the existing campaign combat manager. It removes the temporary one-HP TURD repair while preserving the tactical runtime, party integration, save snapshots and ordinary Partner Loss code.
-
-`CombatResolutionData` authors:
-
-```text
-partner_loss_policy;
-partner_loss_infestation_increase;
-operator_loss_infestation_increase.
-```
-
-The default EXE resolution is definitive at zero HP, adds `+1` infestation for Partner Loss and `+3` for Operator Loss.
-
-### Operator archive
-
-`OperatorLossService` creates one archive record containing:
-
-```text
-old Operator save data;
-destroyed TURD save data;
-loss day/action/location/encounter;
-Legacy Site ID.
-```
-
-No new top-level save section was introduced. Existing `CampaignState.operator_history` and `WorldStateData.persistent_objects` remain the authorities.
-
-### Successor lifecycle
-
-```text
-OPERATOR_LOSS
-→ OperatorService registers successor
-→ OPERATOR_CREATION
-→ APKProgressionService selects starter
-→ Navigator installed
-→ MAIN_CAMPAIGN
-```
-
-The Prologue registration path remains unchanged because succession-specific behavior activates only when the campaign is already in `OPERATOR_LOSS`/`OPERATOR_CREATION` with archived history.
-
-### Legacy Site presentation
-
-The Legacy Site is a typed world object projected by a reusable population-controller extension. Akihabara currently contains the integration spawn point. Final art and recovery UI remain Phase 14.3 work.
-
-## Prior phase checkpoints
-
-### Phase 12
-
-NPC identity, Friend List, Social conversations, objective-owned party membership, party combat injection, shared EXP and permanent NPC-partner loss are implemented.
-
-### Phase 13
-
-- Profile is a read-only projection of Operator and partner state.
-- Encyclopedia has a typed confirmed-knowledge foundation but requires redesign.
-- Calendar is a read-only projection of time, occupation and known events; its current UX requires redesign.
-
-## Required validation
-
-### Phase 14.1
-
-```text
-Godot --headless --path . tests/commitment/partner_loss_turd_continuity_test.tscn
-```
-
-Manual runtime confirmation: TURD assignment and continuity work.
-
-### Phase 14.2
-
-```text
-Godot --headless --path . tests/commitment/operator_loss_succession_test.tscn
-```
-
-Dedicated workflow:
-
-```text
-.github/workflows/operator-loss-succession-validate.yml
-```
+- `CampaignState.partner` remains the sole active combat-partner authority.
+- `PartnerContinuityStateData` stores only inactive TURD state and permanent lost-partner history.
+- `operator_history` archives Operators and destroyed TURDs.
+- `WorldStateData.persistent_objects` owns Legacy Sites.
+- `CombatResolutionData` authors recoverable/definitive loss policy and infestation consequences.
+- Successor-specific behavior is added through subclasses registered as autoloads; initial campaign registration remains compatible.
+- Starter eligibility belongs to `APKData`; the Browser page is a generic projection of the APK catalog.
+- No new parallel save section was created.
 
 ## Known gaps
 
-- Legacy Recovery is not implemented yet; the broken handtop currently supports inspection only.
-- The exact final TURD balance and final assets are not authored. Current values are integration content.
-- Akihabara is the integration location with a Legacy Site spawn point; final location layouts need their own authored LEGACY_SITE points where appropriate.
-- Operator Loss presentation is functional but greybox; final death transition, device-failure effects and registration handoff need a UX/art pass.
-- Profile, Encyclopedia and Calendar require later UX/art passes.
-- Only NOVIRE has a complete starter integration Resource.
-- No local Godot executable or observable GitHub Actions result is available in this tool environment; Phase 14.2 remains `READY`, not `PASS`.
+- Legacy Recovery is not implemented; the broken handtop currently supports inspection only.
+- Final TURD balance and assets are not authored.
+- Akihabara is the integration location with a Legacy Site spawn point; final areas require authored Legacy Site placement.
+- Operator Loss, Legacy Site and starter-selection visuals are functional greyboxes requiring later UX/art passes.
+- Only NOVIRE has a complete selectable starter Resource.
+- No local Godot executable or observable GitHub Actions result is available in this tool environment. Phase 14.2 remains `READY`, not `PASS`.
