@@ -2,6 +2,12 @@ extends "res://apps/social/app_social.gd"
 class_name SocialRuntimeApp
 
 
+func _ready() -> void:
+	super._ready()
+	contacts_title.text = "FRIENDS"
+	contact_search.placeholder_text = "SEARCH FRIENDS"
+
+
 func _synchronize_unlocked_conversations() -> void:
 	SocialInboxProjectionService.synchronize_available_conversations()
 
@@ -16,7 +22,8 @@ func _get_primary_conversation(profile_id: String) -> ChatConversationData:
 		var conversation := resource as ChatConversationData
 
 		if conversation == null \
-			or conversation.get_profile_id() != clean_profile_id:
+			or conversation.get_profile_id() != clean_profile_id \
+			or not SocialService.is_friend(conversation.get_npc_id()):
 			continue
 
 		var context: Dictionary = GameEffectContext.create(
