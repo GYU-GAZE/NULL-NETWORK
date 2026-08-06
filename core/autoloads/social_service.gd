@@ -75,30 +75,24 @@ func get_affinity(npc_id: String) -> int:
 
 
 func set_affinity(npc_id: String, value: int) -> int:
-	var npc: NPCData = get_npc(npc_id)
+	var clean_id: String = npc_id.strip_edges()
 
-	if npc == null or not CampaignState.has_campaign():
+	if clean_id.is_empty() or not CampaignState.has_campaign():
 		return 0
 
-	var result: int = _state.set_affinity(
-		npc.get_display_id(),
-		value
-	)
-	_commit(npc.get_display_id())
+	var result: int = _state.set_affinity(clean_id, value)
+	_commit(clean_id)
 	return result
 
 
 func modify_affinity(npc_id: String, amount: int) -> int:
-	var npc: NPCData = get_npc(npc_id)
+	var clean_id: String = npc_id.strip_edges()
 
-	if npc == null or not CampaignState.has_campaign():
+	if clean_id.is_empty() or not CampaignState.has_campaign():
 		return 0
 
-	var result: int = _state.modify_affinity(
-		npc.get_display_id(),
-		amount
-	)
-	_commit(npc.get_display_id())
+	var result: int = _state.modify_affinity(clean_id, amount)
+	_commit(clean_id)
 	return result
 
 
