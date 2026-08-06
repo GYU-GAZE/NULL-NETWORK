@@ -6,7 +6,8 @@ enum SpawnKind {
 	COMMON_ENCOUNTER,
 	INCIDENT,
 	NPC,
-	DATA_CENTER
+	DATA_CENTER,
+	LEGACY_SITE
 }
 
 @export var spawn_point_id: String = ""
