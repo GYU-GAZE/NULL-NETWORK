@@ -187,6 +187,10 @@ func add_party_member(
 	return super.add_party_member(npc_id, owner_id)
 
 
+func get_party_membership(npc_id: String) -> Dictionary:
+	return _state.get_party_membership(npc_id)
+
+
 func get_state_snapshot() -> SocialStateData:
 	var snapshot := FriendListSocialStateData.new()
 	snapshot.load_save_data(_state.to_save_data())
