@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CalendarEventData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/calendar/calendar_event_data.gd" id="1_event"]
+
+[resource]
+script = ExtResource("1_event")
+event_id = "calendar.update_1_0"
+title = "NULL NETWORK UPDATE 1.0"
+description = "The announced server update and current campaign deadline."
+event_kind = 0
+priority = 500
+schedule_mode = 2
+all_day = true
+source_id = "update.1.0"
