@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WebsitePage" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/templates/website_page.gd" id="1_page"]
+[ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/starter_selection/starter_selection.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_page")
+url = "null.net/select-starter"
+page_title = "NULL NETWORK — Partner Synchronization"
+site_scene = ExtResource("2_scene")
+canvas_size = Vector2(860, 720)
