@@ -23,7 +23,11 @@ func _ready() -> void:
 func _run_test() -> void:
 	_test_root = "user://null_network/tests/operator_loss_%d" % Time.get_ticks_usec()
 	SaveManager.configure_storage_root(_test_root)
-	ContentRegistry.reset_to_default_catalog()
+	var catalog_errors: PackedStringArray = ContentRegistry.reset_to_default_catalog()
+	_check(
+		catalog_errors.is_empty(),
+		"Default catalog rejected Operator Loss content: %s" % catalog_errors
+	)
 	CampaignState.reset_campaign()
 	TimeManager.reset_save_data()
 	CombatManager.reset_encounter()
@@ -107,11 +111,19 @@ func _run_test() -> void:
 		}
 	}
 	CampaignState.campaign_changed.emit(&"encyclopedia")
+	GameState.mark_thread_as_read("aquarium_rumour")
+	GameState.register_browser_visit(
+		"null.net/archive",
+		"Old Operator Archive"
+	)
+	AppSessionStore.save_app_state("browser", {
+		"active_tab": 2,
+		"tabs": ["null.net/archive"]
+	})
 
 	var preserved_day: int = TimeManager.days_passed
 	var preserved_period: int = int(TimeManager.current_period)
 	var preserved_block: int = TimeManager.current_action_block
-	var preserved_world: Dictionary = CampaignState.world_state.to_save_data()
 
 	var combat_errors: PackedStringArray = _resolve_definitive_turd_defeat()
 	_check(
@@ -145,6 +157,13 @@ func _run_test() -> void:
 		"Operator-scoped progression was not cleared for succession."
 	)
 	_check(
+		not CampaignState.installed_app_ids.has("navigator")
+		and not GameState.has_read_thread("aquarium_rumour")
+		and GameState.get_recent_browser_sites().is_empty()
+		and AppSessionStore.get_app_state("browser").is_empty(),
+		"The destroyed Kubutop session leaked directly into the successor device."
+	)
+	_check(
 		TimeManager.days_passed == preserved_day
 		and int(TimeManager.current_period) == preserved_period
 		and TimeManager.current_action_block == preserved_block,
@@ -153,8 +172,7 @@ func _run_test() -> void:
 	_check(
 		CampaignState.world_state.get_flag("world_survives_operator_loss")
 		and CampaignState.has_completed_incident("akihabara_aquarium_relay")
-		and CampaignState.completed_lead_ids.has("aquarium_signal")
-		and CampaignState.installed_app_ids.has("navigator"),
+		and CampaignState.completed_lead_ids.has("aquarium_signal"),
 		"Operator Loss erased campaign/world progression that belongs to the network."
 	)
 	_check(
@@ -180,6 +198,18 @@ func _run_test() -> void:
 			"known_module_ids",
 			[]
 		) as Array
+		var recovered_game_state: Dictionary = legacy_site.recoverable_data.get(
+			"game_state",
+			{}
+		) as Dictionary
+		var recovered_sessions: Dictionary = legacy_site.recoverable_data.get(
+			"app_sessions",
+			{}
+		) as Dictionary
+		var recovered_app_states: Dictionary = recovered_sessions.get(
+			"app_states",
+			{}
+		) as Dictionary
 		_check(
 			legacy_site.operator_id == "first_operator"
 			and legacy_site.location_id == "akihabara"
@@ -192,8 +222,12 @@ func _run_test() -> void:
 					"encyclopedia_state",
 					{}
 				) as Dictionary
-			).is_empty(),
-			"Legacy Site did not seal the recoverable material data."
+			).is_empty()
+			and not (
+				recovered_game_state.get("browser_site_history", []) as Array
+			).is_empty()
+			and recovered_app_states.has("browser"),
+			"Legacy Site did not seal the recoverable material and log data."
 		)
 
 	_check(
@@ -220,19 +254,19 @@ func _run_test() -> void:
 	)
 	_check(
 		TimeManager.days_passed == preserved_day
-		and CampaignState.world_state.to_save_data() == preserved_world.merged(
-			{
-				"location_infestation": CampaignState.world_state.location_infestation.duplicate(true),
-				"persistent_objects": CampaignState.world_state.persistent_objects.duplicate(true)
-			},
-			true
-		),
+		and int(TimeManager.current_period) == preserved_period
+		and TimeManager.current_action_block == preserved_block
+		and CampaignState.world_state.get_flag("world_survives_operator_loss")
+		and CampaignState.has_completed_incident("akihabara_aquarium_relay")
+		and CampaignState.world_state.get_infestation("akihabara") == 4
+		and OperatorLossService.get_legacy_site(legacy_site_id) != null,
 		"Successor registration reset the campaign clock or world."
 	)
 	_check(
 		CampaignState.get_affinity("ganbarekun") == 0
 		and not CampaignState.known_module_ids.has("heavy_attack")
-		and CampaignState.inventory.get_item_count("healing_patch") == 0,
+		and CampaignState.inventory.get_item_count("healing_patch") == 0
+		and GameState.get_recent_browser_sites().is_empty(),
 		"The successor inherited personal or material progress before Legacy Recovery."
 	)
 
@@ -253,6 +287,7 @@ func _run_test() -> void:
 		CampaignState.campaign_phase == CampaignState.CampaignPhase.MAIN_CAMPAIGN
 		and CampaignState.partner.apk_id == "novire_init"
 		and CampaignState.operator_history.size() == 1
+		and CampaignState.installed_app_ids.has("navigator")
 		and OperatorLossService.get_legacy_site(legacy_site_id) != null,
 		"Starter selection did not complete succession in the same campaign."
 	)
@@ -280,7 +315,8 @@ func _run_test() -> void:
 		and CampaignState.world_state.get_infestation("akihabara") == 4
 		and OperatorLossService.get_legacy_site(legacy_site_id) != null
 		and CampaignState.get_affinity("ganbarekun") == 0
-		and not CampaignState.known_module_ids.has("heavy_attack"),
+		and not CampaignState.known_module_ids.has("heavy_attack")
+		and CampaignState.installed_app_ids.has("navigator"),
 		"Save/reload did not preserve the successor/world separation."
 	)
 
