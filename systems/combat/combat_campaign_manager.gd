@@ -42,7 +42,7 @@ func resolve_encounter(
 		return errors
 
 	var defeated_primary_snapshot: PartnerStateData = (
-		_capture_defeated_primary_snapshot()
+		_capture_defeated_primary_snapshot(outcome)
 	)
 	_prepare_recoverable_turd_snapshot(outcome)
 	var active_turd_snapshot: PartnerStateData = _capture_active_turd_snapshot()
@@ -369,10 +369,14 @@ func _emit_terminal_outcome() -> void:
 		combat_victory.emit()
 
 
-func _capture_defeated_primary_snapshot() -> PartnerStateData:
+func _capture_defeated_primary_snapshot(
+	outcome: CombatResult.Outcome
+) -> PartnerStateData:
 	if PartnerContinuityService.is_turd_active() \
 		or CampaignState.partner == null \
-		or CampaignState.partner.is_empty():
+		or CampaignState.partner.is_empty() \
+		or _current_encounter == null \
+		or _current_encounter.resolution == null:
 		return null
 
 	var player_actor: Variant = _get_player_resolution_actor()
@@ -381,10 +385,14 @@ func _capture_defeated_primary_snapshot() -> PartnerStateData:
 		return null
 
 	var actor: Dictionary = player_actor as Dictionary
+	var actor_hp: float = float(actor.get("hp", 0.0))
 
 	if int(actor.get("source_kind", -1)) \
 		!= CombatSlotData.ParticipantSource.PLAYER_PARTNER \
-		or float(actor.get("hp", 0.0)) > 0.0:
+		or not _current_encounter.resolution.should_resolve_partner_loss(
+			outcome,
+			actor_hp
+		):
 		return null
 
 	var snapshot: PartnerStateData = CampaignState.partner.duplicate_state()
