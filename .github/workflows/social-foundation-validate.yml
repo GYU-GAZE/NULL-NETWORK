@@ -67,13 +67,29 @@ jobs:
           ./Godot_v4.6.3-stable_linux.x86_64 \
             --headless --path . --quit-after 60 \
             tests/social/npc_social_foundation_test.tscn \
-            2>&1 | tee godot-social-test.log
-          grep -q "NPC_SOCIAL_FOUNDATION_TEST: PASS" godot-social-test.log
+            2>&1 | tee godot-social-foundation-test.log
+          grep -q "NPC_SOCIAL_FOUNDATION_TEST: PASS" \
+            godot-social-foundation-test.log
+
+      - name: Run social conversation engine test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 90 \
+            tests/social/social_conversation_engine_test.tscn \
+            2>&1 | tee godot-social-conversation-test.log
+          grep -q "SOCIAL_CONVERSATION_ENGINE_TEST: PASS" \
+            godot-social-conversation-test.log
 
       - name: Reject script and resource errors
         shell: bash
         run: |
-          cat godot-social-import.log godot-social-test.log > godot-social-validation.log
+          cat \
+            godot-social-import.log \
+            godot-social-foundation-test.log \
+            godot-social-conversation-test.log \
+            > godot-social-validation.log
           if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|Parse Error" godot-social-validation.log; then
             exit 1
           fi
@@ -85,6 +101,7 @@ jobs:
           name: social-foundation-validation-log
           path: |
             godot-social-import.log
-            godot-social-test.log
+            godot-social-foundation-test.log
+            godot-social-conversation-test.log
             godot-social-validation.log
           if-no-files-found: ignore
