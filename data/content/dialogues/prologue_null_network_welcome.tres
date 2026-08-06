@@ -194,7 +194,7 @@ script = ExtResource("4_choice")
 choice_id = "special"
 text = "[SPECIAL] Reply using the hidden handshake."
 conditions = SubResource("Conditions_special")
-effects = Array[ExtResource("9_effect")]([SubResource("Effect_special_flag")])
+effects = Array[Ext_resource("9_effect")]([SubResource("Effect_special_flag")])
 tendency_changes = Array[int]([0, 1, 1, 0])
 next_node_id = "outro"
 
@@ -202,7 +202,7 @@ next_node_id = "outro"
 script = ExtResource("3_node")
 node_id = "intro"
 speaker_id = "player"
-text = "Six profiles resolve around the encrypted channel."
+text = "Connection established.\nOperator signature accepted.\nNavigator channel mounted.\nSix encrypted profiles resolved.\nNo route is marked as safe.\nThe network is listening."
 portrait_states = Array[ExtResource("5_portrait_state")]([SubResource("Portrait_left_1"), SubResource("Portrait_left_2"), SubResource("Portrait_left_3"), SubResource("Portrait_right_1"), SubResource("Portrait_right_2"), SubResource("Portrait_right_3")])
 effects_on_enter = Array[ExtResource("9_effect")]([SubResource("Effect_intro_counter")])
 next_node_id = "decision"
@@ -211,7 +211,7 @@ next_node_id = "decision"
 script = ExtResource("3_node")
 node_id = "decision"
 speaker_id = "tenya"
-text = "The channel recognizes you. How do you answer?"
+text = "The channel recognizes your registration signature.\nThe handshake remains incomplete.\nSix profiles are watching the same route.\nYour first response will be logged.\nThe network will remember the pattern.\nHow do you answer?"
 portrait_states = Array[ExtResource("5_portrait_state")]([SubResource("Portrait_left_1"), SubResource("Portrait_left_2"), SubResource("Portrait_left_3"), SubResource("Portrait_right_1"), SubResource("Portrait_right_2"), SubResource("Portrait_right_3")])
 choices = Array[ExtResource("4_choice")]([SubResource("Choice_logic_paid"), SubResource("Choice_valour"), SubResource("Choice_sync"), SubResource("Choice_self"), SubResource("Choice_special")])
 
