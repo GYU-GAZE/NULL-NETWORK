@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ActivityDefinitionData" format=3]
+
+[ext_resource type="Script" path="res://data/templates/activity/activity_definition_data.gd" id="1_activity"]
+
+[resource]
+script = ExtResource("1_activity")
+activity_id = "social.ganbarekun.field_test_tip"
+display_name = "Discuss the Akihabara relay"
+description = "Spend one action block comparing Akihabara signal reports with GANBAREkun."
+action_cost = 1
+allow_cross_period = true
+allow_cross_day = false
+requires_confirmation = true
+confirmation_message = "Spend 1 action block discussing the Akihabara relay with GANBAREkun?"
