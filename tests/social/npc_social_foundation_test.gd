@@ -20,10 +20,21 @@ func _run_test() -> void:
 			npc.get_display_name() == "GANBAREkun",
 			"NPC identity did not use NetworkUserData."
 		)
-		var routine := npc.get_active_routine(1, 0)
+		var online_routine := npc.get_active_routine(1, 0)
 		_check(
-			routine != null and routine.location_id == "akihabara",
-			"NPC routine did not resolve Akihabara."
+			online_routine != null \
+			and online_routine.location_id == "akihabara" \
+			and online_routine.presence_state \
+			== NPCRoutineEntryData.PresenceState.ONLINE,
+			"NPC DAY routine did not resolve online in Akihabara."
+		)
+		var offline_routine := npc.get_active_routine(1, 12)
+		_check(
+			offline_routine != null \
+			and not offline_routine.physically_present \
+			and offline_routine.presence_state \
+			== NPCRoutineEntryData.PresenceState.OFFLINE,
+			"NPC NIGHT routine did not resolve offline."
 		)
 
 	CampaignState.reset_campaign()
