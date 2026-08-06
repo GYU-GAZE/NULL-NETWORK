@@ -53,10 +53,28 @@ func _render_selected_conversation() -> void:
 		)
 	)
 
-	if conversation == null \
-		or not SocialService.is_party_member(
-			conversation.get_npc_id()
-		):
+	if conversation == null:
 		return
 
-	presence_label.text = "%s // IN PARTY" % presence_label.text
+	var npc_id: String = conversation.get_npc_id()
+	var partner_state: NPCPartyPartnerStateData = (
+		SocialService.get_party_partner_state(npc_id)
+	)
+
+	if partner_state == null:
+		return
+
+	if partner_state.lost:
+		presence_label.text = "%s // PARTNER LOST" % presence_label.text
+		return
+
+	var party_status: String = (
+		" // IN PARTY"
+		if SocialService.is_party_member(npc_id)
+		else ""
+	)
+	presence_label.text = "%s%s // APK LV.%d" % [
+		presence_label.text,
+		party_status,
+		partner_state.level
+	]
