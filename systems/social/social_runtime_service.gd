@@ -157,9 +157,10 @@ func get_available_chat_choices(
 	var conversation: ChatConversationData = get_chat_conversation(
 		conversation_id
 	)
+	var empty_result: Array[ChatChoiceData] = []
 
 	if conversation == null or not is_friend(conversation.get_npc_id()):
-		return []
+		return empty_result
 
 	return super.get_available_chat_choices(conversation_id)
 
@@ -172,6 +173,12 @@ func add_party_member(
 		return false
 
 	return super.add_party_member(npc_id, owner_id)
+
+
+func get_state_snapshot() -> SocialStateData:
+	var snapshot := FriendListSocialStateData.new()
+	snapshot.load_save_data(_state.to_save_data())
+	return snapshot
 
 
 func _commit(npc_id: String) -> void:
