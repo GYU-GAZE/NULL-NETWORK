@@ -194,7 +194,7 @@ script = ExtResource("4_choice")
 choice_id = "special"
 text = "[SPECIAL] Reply using the hidden handshake."
 conditions = SubResource("Conditions_special")
-effects = Array[Ext_resource("9_effect")]([SubResource("Effect_special_flag")])
+effects = Array[ExtResource("9_effect")]([SubResource("Effect_special_flag")])
 tendency_changes = Array[int]([0, 1, 1, 0])
 next_node_id = "outro"
 
