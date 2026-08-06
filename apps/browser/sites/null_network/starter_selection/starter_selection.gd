@@ -165,8 +165,7 @@ func _rebuild_starter_list() -> void:
 		button.toggle_mode = true
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(
-			func() -> void:
-				select_starter_entry(apk.apk_id)
+			_on_starter_button_pressed.bind(apk.apk_id)
 		)
 		starter_list.add_child(button)
 		_starter_buttons[apk.apk_id] = button
@@ -275,6 +274,10 @@ func _populate_address_terms(apk: APKData) -> void:
 		address_option.select(0)
 
 	_update_address_preview(apk)
+
+
+func _on_starter_button_pressed(apk_id: String) -> void:
+	select_starter_entry(apk_id)
 
 
 func _on_personality_selected(_index: int) -> void:
