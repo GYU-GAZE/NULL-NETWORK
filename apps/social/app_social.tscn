@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://apps/social/app_social.gd" id="1_app"]
+[ext_resource type="Script" path="res://apps/social/app_social_runtime.gd" id="1_app"]
 
 [node name="SocialApp" type="PanelContainer"]
 clip_contents = true
