@@ -37,7 +37,15 @@ func is_available() -> bool:
 		ParticipantSource.PLAYER_PARTNER:
 			return not CampaignState.partner.is_empty()
 		ParticipantSource.PARTY_MEMBER:
-			return false
+			var clean_party_member_id: String = party_member_id.strip_edges()
+			var npc: NPCData = ContentRegistry.get_npc(clean_party_member_id)
+			return (
+				not clean_party_member_id.is_empty()
+				and npc != null
+				and npc.can_join_party
+				and npc.party_loadout != null
+				and SocialService.is_party_member(clean_party_member_id)
+			)
 		ParticipantSource.CATALOG_APK:
 			return ContentRegistry.get_apk(
 				apk_id.strip_edges()
@@ -68,6 +76,10 @@ func validate_data() -> PackedStringArray:
 			if party_member_id.strip_edges().is_empty():
 				errors.append(
 					"PARTY_MEMBER combat slot requires party_member_id."
+				)
+			elif slot_index == 0:
+				errors.append(
+					"PARTY_MEMBER cannot replace the PLAYER_PARTNER in allied slot 0."
 				)
 
 		ParticipantSource.CATALOG_APK:
