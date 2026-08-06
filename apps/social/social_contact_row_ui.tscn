@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://apps/social/social_contact_row_ui.gd" id="1_row"]
 
 [node name="SocialContactRowUI" type="Button"]
-custom_minimum_size = Vector2(0, 58)
+custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
 toggle_mode = true
 text = ""
