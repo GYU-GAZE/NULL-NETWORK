@@ -37,7 +37,26 @@ func _run_test() -> void:
 	)
 	_check(
 		SocialService.discover_contact("ganbarekun"),
-		"Valid contact was not discovered."
+		"Valid NPC was not discovered."
+	)
+	_check(
+		SocialService.has_known_contact("ganbarekun"),
+		"Discovered NPC was not recorded as known."
+	)
+	_check(
+		not SocialService.has_contact("ganbarekun")
+		and not SocialService.is_friend("ganbarekun"),
+		"World discovery incorrectly added the NPC to the friend list."
+	)
+	_check(
+		SocialService.add_friend("ganbarekun"),
+		"Known NPC could not be added to the friend list."
+	)
+	_check(
+		SocialService.has_contact("ganbarekun")
+		and SocialService.is_friend("ganbarekun")
+		and SocialService.get_contacts().size() == 1,
+		"Social contacts did not mirror the friend list."
 	)
 	_check(
 		SocialService.modify_affinity("ganbarekun", 3) == 3,
@@ -67,10 +86,11 @@ func _run_test() -> void:
 	var restore_errors := CampaignState.restore_save_data(exported)
 	_check(restore_errors.is_empty(), "Social state round-trip failed.")
 	_check(
-		SocialService.has_contact("ganbarekun")
+		SocialService.has_known_contact("ganbarekun")
+		and SocialService.is_friend("ganbarekun")
 		and SocialService.get_affinity("ganbarekun") == 3
 		and SocialService.get_conversation_history("dm.ganbarekun").size() == 1,
-		"Social data did not survive restore."
+		"Social and friend-list data did not survive restore."
 	)
 
 	_finish_test()
