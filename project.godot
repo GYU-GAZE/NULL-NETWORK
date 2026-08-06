@@ -3,8 +3,6 @@
 ; since the parameters here are not all obvious.
 ;
 ; Format:
-;   [section] ; section goes between []
-;   param=value
 
 config_version=5
 
@@ -25,6 +23,7 @@ GlobalSignals="*res://core/autoloads/global_signals.gd"
 TimeManager="*res://core/autoloads/time_manager.gd"
 CampaignState="*res://core/autoloads/campaign_state.gd"
 ContentRegistry="*res://core/autoloads/content_registry.gd"
+EncyclopediaService="*res://systems/encyclopedia/encyclopedia_service.gd"
 AppInstallationManager="*res://core/autoloads/app_installation_manager.gd"
 ActivityManager="*res://core/autoloads/activity_manager.gd"
 OperatorService="*res://core/autoloads/operator_service.gd"
