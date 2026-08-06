@@ -30,6 +30,9 @@ enum ScheduleMode {
 
 @export_category("Schedule")
 @export var schedule_mode: ScheduleMode = ScheduleMode.ABSOLUTE_GAME_DAY
+## Absolute target day. UPDATE_COUNTDOWN also uses this as its stable deadline
+## once TimeManager.days_until_update reaches zero, preventing the event from
+## moving forward one day forever after the deadline.
 @export_range(1, 9999, 1, "or_greater") var game_day: int = 1
 ## Sunday = 0, Monday = 1, ..., Saturday = 6.
 @export var weekday_indices: PackedInt32Array = PackedInt32Array()
@@ -84,9 +87,13 @@ func get_occurrence_game_days(
 				result.append(game_day)
 
 		ScheduleMode.UPDATE_COUNTDOWN:
-			var update_day: int = (
-				TimeManager.days_passed + TimeManager.days_until_update
-			)
+			var update_day: int = game_day
+
+			if TimeManager.days_until_update > 0:
+				update_day = (
+					TimeManager.days_passed
+					+ TimeManager.days_until_update
+				)
 
 			if update_day >= first_day and update_day <= last_day:
 				result.append(update_day)
@@ -161,14 +168,12 @@ func validate_data() -> PackedStringArray:
 		errors.append("title cannot be empty.")
 
 	match schedule_mode:
-		ScheduleMode.ABSOLUTE_GAME_DAY:
+		ScheduleMode.ABSOLUTE_GAME_DAY, ScheduleMode.UPDATE_COUNTDOWN:
 			if game_day < 1:
 				errors.append("game_day must be at least 1.")
 		ScheduleMode.WEEKLY:
 			if weekday_indices.is_empty():
 				errors.append("WEEKLY events require weekday_indices.")
-		ScheduleMode.UPDATE_COUNTDOWN:
-			pass
 		_:
 			errors.append("schedule_mode is invalid.")
 
