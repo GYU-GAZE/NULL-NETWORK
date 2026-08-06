@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AppCatalog" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="AppCatalog" load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://data/templates/apps/app_catalog.gd" id="1_catalog"]
 [ext_resource type="Script" path="res://data/templates/app_resource.gd" id="2_app_type"]
@@ -6,8 +6,9 @@
 [ext_resource type="Resource" path="res://data/content/apps/app_navigator.tres" id="4_navigator"]
 [ext_resource type="Resource" path="res://data/content/apps/app_profile.tres" id="5_profile"]
 [ext_resource type="Resource" path="res://data/content/apps/app_encyclopedia.tres" id="6_encyclopedia"]
-[ext_resource type="Resource" path="res://data/content/apps/app_social.tres" id="7_social"]
+[ext_resource type="Resource" path="res://data/content/apps/app_calendar.tres" id="7_calendar"]
+[ext_resource type="Resource" path="res://data/content/apps/app_social.tres" id="8_social"]
 
 [resource]
 script = ExtResource("1_catalog")
-apps = Array[ExtResource("2_app_type")]([ExtResource("3_browser"), ExtResource("4_navigator"), ExtResource("5_profile"), ExtResource("6_encyclopedia"), ExtResource("7_social")])
+apps = Array[ExtResource("2_app_type")]([ExtResource("3_browser"), ExtResource("4_navigator"), ExtResource("5_profile"), ExtResource("6_encyclopedia"), ExtResource("7_calendar"), ExtResource("8_social")])
