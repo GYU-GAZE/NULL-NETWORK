@@ -2,7 +2,19 @@ extends Resource
 class_name CombatResolutionData
 
 
+enum PartnerLossPolicy {
+	RECOVERABLE,
+	DEFINITIVE_ON_DEFEAT,
+	DEFINITIVE_AT_ZERO_HP
+}
+
 @export var resolution_id: String = ""
+@export_category("Commitment")
+## RECOVERABLE keeps the partner at zero HP for another system to recover.
+## DEFINITIVE_ON_DEFEAT resolves Partner Loss only when the encounter ends in defeat.
+## DEFINITIVE_AT_ZERO_HP resolves Partner Loss whenever the partner reached zero,
+## including mutual collapse or a victory completed by surviving party members.
+@export var partner_loss_policy: PartnerLossPolicy = PartnerLossPolicy.RECOVERABLE
 @export var player_actions: Array[PlayerActionData] = []
 @export var combat_style_rule: CombatStyleRuleData
 @export var escape_attempt_tendency_gains: Array[CombatTendencyGainData] = []
@@ -21,12 +33,34 @@ func get_player_action(action_id: String) -> PlayerActionData:
 	return null
 
 
+func should_resolve_partner_loss(
+	outcome: CombatResult.Outcome,
+	partner_hp: float
+) -> bool:
+	if partner_hp > 0.0:
+		return false
+
+	match partner_loss_policy:
+		PartnerLossPolicy.RECOVERABLE:
+			return false
+		PartnerLossPolicy.DEFINITIVE_ON_DEFEAT:
+			return outcome == CombatResult.Outcome.DEFEAT
+		PartnerLossPolicy.DEFINITIVE_AT_ZERO_HP:
+			return true
+
+	return false
+
+
 func validate_data() -> PackedStringArray:
 	var errors := PackedStringArray()
 	var action_ids := PackedStringArray()
 
 	if resolution_id.strip_edges().is_empty():
 		errors.append("CombatResolutionData has an empty resolution_id.")
+
+	if partner_loss_policy < PartnerLossPolicy.RECOVERABLE \
+		or partner_loss_policy > PartnerLossPolicy.DEFINITIVE_AT_ZERO_HP:
+		errors.append("Combat resolution has an invalid Partner Loss policy.")
 
 	if combat_style_rule == null:
 		errors.append("Combat resolution '%s' has no Combat Style rule." % resolution_id)
