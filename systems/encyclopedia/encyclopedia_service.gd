@@ -33,11 +33,13 @@ func get_entry(entry_id: String) -> EncyclopediaEntryData:
 
 
 func get_record(entry_id: String) -> EncyclopediaRecordData:
+	_ensure_state_current()
 	var record: EncyclopediaRecordData = _state.get_record(entry_id)
 	return record.duplicate_state() if record != null else null
 
 
 func get_discovered_entry_ids() -> PackedStringArray:
+	_ensure_state_current()
 	var result := PackedStringArray()
 
 	for record: EncyclopediaRecordData in _state.get_discovered_records():
@@ -47,6 +49,7 @@ func get_discovered_entry_ids() -> PackedStringArray:
 
 
 func get_discovered_records() -> Array[EncyclopediaRecordData]:
+	_ensure_state_current()
 	var result: Array[EncyclopediaRecordData] = []
 
 	for record: EncyclopediaRecordData in _state.get_discovered_records():
@@ -56,6 +59,7 @@ func get_discovered_records() -> Array[EncyclopediaRecordData]:
 
 
 func has_any_entry() -> bool:
+	_ensure_state_current()
 	return CampaignState.has_campaign() and _state.has_any_entry()
 
 
@@ -64,6 +68,7 @@ func has_entry(entry_id: String) -> bool:
 
 
 func has_milestone(entry_id: String, milestone: String) -> bool:
+	_ensure_state_current()
 	return (
 		CampaignState.has_campaign()
 		and _state.has_milestone(entry_id, milestone)
@@ -81,6 +86,7 @@ func record_observation(
 	if not CampaignState.has_campaign() or clean_id.is_empty():
 		return false
 
+	_ensure_state_current()
 	var resolved_action_index: int = (
 		TimeManager.get_total_action_index()
 		if action_index < 0
@@ -120,11 +126,22 @@ func mark_lost(
 
 
 func get_state_snapshot() -> Dictionary:
+	_ensure_state_current()
 	return _state.to_save_data()
 
 
 func synchronize_campaign_state() -> void:
 	_reload_from_campaign(true)
+
+
+func _ensure_state_current() -> void:
+	if _reloading_state \
+		or _writing_campaign_state \
+		or not CampaignState.has_campaign():
+		return
+
+	if _state.to_save_data() != CampaignState.encyclopedia_state:
+		_reload_from_campaign(false)
 
 
 func _commit(entry_id: String, emit_domain_signal: bool = true) -> void:
