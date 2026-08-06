@@ -1,6 +1,6 @@
 ; Engine configuration file.
 ; It's best edited using the editor UI and not directly,
-; since the parameters that go here are not all obvious.
+; since the parameters here are not all obvious.
 ;
 ; Format:
 ;   [section] ; section goes between []
@@ -45,7 +45,7 @@ SaveManager="*res://core/autoloads/save_manager.gd"
 SocialService="*res://systems/social/social_runtime_service.gd"
 StoryEventManager="*res://core/autoloads/story_event_manager.gd"
 DialogueManager="*res://core/autoloads/dialogue_manager.gd"
-LeadIncidentManager="*res://core/autoloads/lead_incident_manager.gd"
+LeadIncidentManager="*res://systems/leads/lead_incident_runtime_manager.gd"
 
 [display]
 
