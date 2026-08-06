@@ -80,8 +80,8 @@ func grant_experience(amount: int) -> Dictionary:
 	if amount <= 0 or not is_alive() or level >= MAX_LEVEL:
 		return result
 
+	var previous_exp: int = current_exp
 	current_exp += amount
-	result["granted"] = amount
 
 	while level < MAX_LEVEL:
 		var next_level: int = level + 1
@@ -94,6 +94,7 @@ func grant_experience(amount: int) -> Dictionary:
 	if level >= MAX_LEVEL:
 		current_exp = APKProgressionService.get_total_exp_for_level(MAX_LEVEL)
 
+	result["granted"] = maxi(0, current_exp - previous_exp)
 	result["new_level"] = level
 	return result
 
