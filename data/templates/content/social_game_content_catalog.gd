@@ -133,7 +133,48 @@ func validate_data() -> PackedStringArray:
 				% [interaction.get_display_id(), interaction.get_npc_id()]
 			)
 
-		_validate_social_effect_references(errors, interaction, known_npc_ids)
+		_validate_effect_references(
+			errors,
+			interaction.effects.effects if interaction.effects != null else [],
+			"Social interaction '%s'" % interaction.get_display_id(),
+			known_npc_ids
+		)
+
+	for encounter: CombatEncounter in combat_encounters:
+		if encounter != null:
+			_validate_party_slots(errors, encounter, known_npc_ids)
+
+	for incident: IncidentData in incidents:
+		if incident == null:
+			continue
+
+		_validate_effect_references(
+			errors,
+			incident.effects,
+			"Incident '%s'" % incident.get_display_id(),
+			known_npc_ids
+		)
+
+		for stage: IncidentStageData in incident.stages:
+			if stage != null:
+				_validate_effect_references(
+					errors,
+					stage.effects,
+					"Incident '%s' stage '%s'" % [
+						incident.get_display_id(),
+						stage.get_display_id()
+					],
+					known_npc_ids
+				)
+
+		for branch: IncidentResolutionBranchData in incident.resolution_branches:
+			if branch != null:
+				_validate_effect_references(
+					errors,
+					branch.effects,
+					"Incident '%s' resolution" % incident.get_display_id(),
+					known_npc_ids
+				)
 
 	return errors
 
@@ -179,32 +220,100 @@ func _validate_npc_references(
 			)
 
 
-func _validate_social_effect_references(
+func _validate_party_slots(
 	errors: PackedStringArray,
-	interaction: SocialInteractionData,
+	encounter: CombatEncounter,
 	known_npc_ids: Dictionary
 ) -> void:
-	if interaction.effects == null:
-		return
+	var slots: Array[CombatSlotData] = []
+	slots.append_array(encounter.ally_slots)
+	slots.append_array(encounter.enemy_slots)
 
-	for effect: GameEffectData in interaction.effects.effects:
+	for slot: CombatSlotData in slots:
+		if slot == null \
+			or slot.participant_source \
+			!= CombatSlotData.ParticipantSource.PARTY_MEMBER:
+			continue
+
+		var npc_id: String = slot.party_member_id.strip_edges()
+
+		if not known_npc_ids.has(npc_id):
+			errors.append(
+				"Combat encounter '%s' references unknown party NPC '%s'."
+				% [encounter.encounter_id, npc_id]
+			)
+			continue
+
+		var npc: NPCData = npc_catalog.get_npc(npc_id)
+
+		if npc == null or not npc.can_join_party or npc.party_loadout == null:
+			errors.append(
+				"Combat encounter '%s' party NPC '%s' has no valid party loadout."
+				% [encounter.encounter_id, npc_id]
+			)
+
+
+func _validate_effect_references(
+	errors: PackedStringArray,
+	effects: Array,
+	owner_label: String,
+	known_npc_ids: Dictionary
+) -> void:
+	for effect_value: Variant in effects:
+		var effect := effect_value as GameEffectData
+
+		if effect == null:
+			continue
+
 		if effect is AddLeadEffectData:
 			var lead_effect := effect as AddLeadEffectData
 			var lead_id: String = lead_effect.lead_id.strip_edges()
 
 			if lead_catalog == null or lead_catalog.get_lead(lead_id) == null:
 				errors.append(
-					"Social interaction '%s' references unknown Lead '%s'."
-					% [interaction.get_display_id(), lead_id]
+					"%s references unknown Lead '%s'."
+					% [owner_label, lead_id]
 				)
 
 		elif effect is ModifyAffinityEffectData:
-			var affinity_effect := effect as ModifyAffinityEffectData
-			var target_npc_id: String = affinity_effect.npc_id.strip_edges()
+			_validate_npc_effect_reference(
+				errors,
+				owner_label,
+				"affinity",
+				(effect as ModifyAffinityEffectData).npc_id,
+				known_npc_ids
+			)
 
-			if not target_npc_id.is_empty() \
-				and not known_npc_ids.has(target_npc_id):
-				errors.append(
-					"Social interaction '%s' affinity effect references unknown NPC '%s'."
-					% [interaction.get_display_id(), target_npc_id]
-				)
+		elif effect is SetFriendshipEffectData:
+			_validate_npc_effect_reference(
+				errors,
+				owner_label,
+				"friendship",
+				(effect as SetFriendshipEffectData).npc_id,
+				known_npc_ids
+			)
+
+		elif effect is SetPartyMembershipEffectData:
+			_validate_npc_effect_reference(
+				errors,
+				owner_label,
+				"party membership",
+				(effect as SetPartyMembershipEffectData).npc_id,
+				known_npc_ids
+			)
+
+
+func _validate_npc_effect_reference(
+	errors: PackedStringArray,
+	owner_label: String,
+	effect_label: String,
+	npc_id_value: String,
+	known_npc_ids: Dictionary
+) -> void:
+	var npc_id: String = npc_id_value.strip_edges()
+
+	if not npc_id.is_empty() and not known_npc_ids.has(npc_id):
+		errors.append(
+			"%s %s effect references unknown NPC '%s'."
+			% [owner_label, effect_label, npc_id]
+		)
