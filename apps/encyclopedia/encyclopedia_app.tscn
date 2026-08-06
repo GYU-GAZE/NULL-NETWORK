@@ -1,0 +1,234 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/encyclopedia/encyclopedia_app.gd" id="1_app"]
+
+[node name="EncyclopediaApp" type="PanelContainer"]
+clip_contents = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 18
+script = ExtResource("1_app")
+
+[node name="RootMargin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="MainSplit" type="HSplitContainer" parent="RootMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+split_offset = 220
+
+[node name="IndexPanel" type="PanelContainer" parent="RootMargin/MainSplit"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="IndexMargin" type="MarginContainer" parent="RootMargin/MainSplit/IndexPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="IndexVBox" type="VBoxContainer" parent="RootMargin/MainSplit/IndexPanel/IndexMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="IndexTitle" type="Label" parent="RootMargin/MainSplit/IndexPanel/IndexMargin/IndexVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 21
+text = "ENCYCLOPEDIA"
+
+[node name="SearchInput" type="LineEdit" parent="RootMargin/MainSplit/IndexPanel/IndexMargin/IndexVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "SEARCH CONFIRMED DATA"
+clear_button_enabled = true
+
+[node name="KindFilter" type="OptionButton" parent="RootMargin/MainSplit/IndexPanel/IndexMargin/IndexVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ResultCount" type="Label" parent="RootMargin/MainSplit/IndexPanel/IndexMargin/IndexVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0 CONFIRMED"
+
+[node name="IndexSeparator" type="HSeparator" parent="RootMargin/MainSplit/IndexPanel/IndexMargin/IndexVBox"]
+layout_mode = 2
+
+[node name="EntryScroll" type="ScrollContainer" parent="RootMargin/MainSplit/IndexPanel/IndexMargin/IndexVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="EntryList" type="VBoxContainer" parent="RootMargin/MainSplit/IndexPanel/IndexMargin/IndexVBox/EntryScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="DetailPanel" type="PanelContainer" parent="RootMargin/MainSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DetailMargin" type="MarginContainer" parent="RootMargin/MainSplit/DetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 6
+
+[node name="DetailScroll" type="ScrollContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="DetailVBox" type="VBoxContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="EmptyDetail" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "NO CONFIRMED RECORDS\n\nDirect observation, SCAN and combat results populate this database."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="EntryHeader" type="HBoxContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox"]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="EntryTexture" type="TextureRect" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/EntryHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(112, 112)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HeaderText" type="VBoxContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/EntryHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 1
+
+[node name="EntryName" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/EntryHeader/HeaderText"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "UNKNOWN"
+
+[node name="EntrySubtitle" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/EntryHeader/HeaderText"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+autowrap_mode = 2
+
+[node name="EntryKind" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/EntryHeader/HeaderText"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "UNKNOWN"
+
+[node name="SubjectLabel" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/EntryHeader/HeaderText"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SUBJECT —"
+autowrap_mode = 2
+
+[node name="MilestoneList" type="HFlowContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 3
+
+[node name="SummarySeparator" type="HSeparator" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox"]
+layout_mode = 2
+
+[node name="SummaryTitle" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox"]
+layout_mode = 2
+text = "CONFIRMED SUMMARY"
+
+[node name="SummaryLabel" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+autowrap_mode = 2
+
+[node name="ObservationLabel" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ENCOUNTERS 0"
+autowrap_mode = 2
+
+[node name="SectionSeparator" type="HSeparator" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox"]
+layout_mode = 2
+
+[node name="SectionList" type="VBoxContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ReferencesSeparator" type="HSeparator" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox"]
+layout_mode = 2
+
+[node name="ReferencesGrid" type="GridContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox"]
+layout_mode = 2
+columns = 3
+
+[node name="ModulesPanel" type="PanelContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/ReferencesGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ModulesVBox" type="VBoxContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/ReferencesGrid/ModulesPanel"]
+layout_mode = 2
+
+[node name="ModulesTitle" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/ReferencesGrid/ModulesPanel/ModulesVBox"]
+layout_mode = 2
+text = "KNOWN MODULES"
+
+[node name="ModuleList" type="VBoxContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/ReferencesGrid/ModulesPanel/ModulesVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LocationsPanel" type="PanelContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/ReferencesGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LocationsVBox" type="VBoxContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/ReferencesGrid/LocationsPanel"]
+layout_mode = 2
+
+[node name="LocationsTitle" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/ReferencesGrid/LocationsPanel/LocationsVBox"]
+layout_mode = 2
+text = "KNOWN LOCATIONS"
+
+[node name="LocationList" type="VBoxContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/ReferencesGrid/LocationsPanel/LocationsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="EvolutionsPanel" type="PanelContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/ReferencesGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EvolutionsVBox" type="VBoxContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/ReferencesGrid/EvolutionsPanel"]
+layout_mode = 2
+
+[node name="EvolutionsTitle" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/ReferencesGrid/EvolutionsPanel/EvolutionsVBox"]
+layout_mode = 2
+text = "KNOWN EVOLUTIONS"
+
+[node name="EvolutionList" type="VBoxContainer" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/ReferencesGrid/EvolutionsPanel/EvolutionsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
