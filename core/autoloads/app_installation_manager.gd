@@ -87,7 +87,11 @@ func install_app(
 
 
 func _queue_installation_synchronization() -> void:
-	if _synchronization_queued or _is_synchronizing:
+	if _is_synchronizing:
+		_synchronization_queued = true
+		return
+
+	if _synchronization_queued:
 		return
 
 	_synchronization_queued = true
@@ -95,9 +99,13 @@ func _queue_installation_synchronization() -> void:
 
 
 func _synchronize_installations() -> void:
+	if _is_synchronizing:
+		_synchronization_queued = true
+		return
+
 	_synchronization_queued = false
 
-	if _is_synchronizing or not CampaignState.has_campaign():
+	if not CampaignState.has_campaign():
 		return
 
 	var catalog: AppCatalog = ContentRegistry.get_app_catalog()
@@ -130,6 +138,9 @@ func _synchronize_installations() -> void:
 			install_app(app.app_id, context, true, true)
 
 	_is_synchronizing = false
+
+	if _synchronization_queued:
+		call_deferred("_synchronize_installations")
 
 
 func _push_installation_notification(app: AppResource) -> void:
