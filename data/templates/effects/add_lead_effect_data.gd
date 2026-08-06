@@ -5,14 +5,18 @@ class_name AddLeadEffectData
 @export var lead_id: String = ""
 
 
-func _apply_effect(_context: GameEffectContext) -> bool:
+func _apply_effect(context: GameEffectContext) -> bool:
 	var clean_id: String = lead_id.strip_edges()
 
 	if ContentRegistry.get_lead(clean_id) == null:
 		return false
 
-	CampaignState.activate_lead(clean_id)
-	return true
+	var source_id: String = ""
+
+	if context != null:
+		source_id = context.source_id.strip_edges()
+
+	return LeadIncidentManager.activate_lead(clean_id, source_id)
 
 
 func _validate_effect() -> PackedStringArray:
