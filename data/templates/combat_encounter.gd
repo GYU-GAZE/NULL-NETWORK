@@ -9,6 +9,11 @@ class_name CombatEncounter
 @export var ally_slots: Array[CombatSlotData] = []
 @export var enemy_slots: Array[CombatSlotData] = []
 
+@export_category("Active Party")
+## Number of active Social party members automatically inserted into empty
+## allied slots. Set to 0 for solo-only or explicitly scripted encounters.
+@export_range(0, 3, 1) var active_party_slots: int = 3
+
 @export_category("Escape")
 @export var can_escape: bool = true
 @export_range(0.0, 1.0, 0.01) var base_escape_chance: float = 0.25
