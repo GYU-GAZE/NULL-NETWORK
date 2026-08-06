@@ -14,109 +14,178 @@
 
 - Base branch: `main`
 - Roadmap phase: **Phase 14 — Commitment, Partner Loss, TURD and Operator Loss**
-- Current subphase: **14.1 Partner Loss and persistent TURD continuity**
-- Phase 12: implemented; party participation and shared EXP were manually confirmed.
+- Current subphase: **14.2 Operator Loss and Operator succession**
+- Phase 12: Social, party participation, shared EXP and NPC-partner loss implemented.
 - Phase 13.1 Profile: implemented and manually confirmed.
-- Phase 13.2 Encyclopedia: typed foundation implemented; final behavior and UX deferred by project-owner decision.
-- Phase 13.3 Calendar: implemented and manually confirmed functional; final calendar-like UX deferred.
-- Phase 14.1: implementation authored; runtime/CI validation pending.
-- Latest implementation head before this documentation checkpoint: `5f075d3a9301bb6f05a6ea35c48df5e2fca68844`
+- Phase 13.2 Encyclopedia: typed foundation implemented; final behavior/UX deferred.
+- Phase 13.3 Calendar: implemented and manually confirmed functional; final calendar UX deferred.
+- Phase 14.1 Partner Loss/TURD: implemented and manually confirmed by the project owner.
+- Phase 14.2 Operator Loss/succession: implementation and automated gate authored; runtime/CI validation pending.
+- Latest implementation head before this documentation checkpoint: `ab86fb9c59b3c6f798c8580c44c10aa959561dab`
 
-The campaign loop now reaches the first permanent Operator-partner consequence:
+The campaign now supports the complete irreversible loss chain:
 
 ```text
 primary partner reaches 0 HP in a definitive encounter
 → Partner Loss
-→ defeated partner is archived as LOST
-→ location infestation increases
-→ TURD is assigned automatically
-→ campaign continues
+→ defeated partner archived as LOST
+→ TURD assigned automatically
+→ TAME may establish a replacement partner
+→ the same TURD remains preserved in reserve
+→ replacement loss restores the same TURD
+→ TURD reaches 0 HP
+→ Operator Loss
+→ Operator and TURD archived
+→ persistent Legacy Site created at the loss location
+→ successor Operator registration
+→ successor starter selection
+→ campaign continues on the same day and in the same world
 ```
 
-TURD continuity is Operator-owned:
+## Canonical Phase 14 ownership
+
+### Operator-owned state — reset on Operator Loss
 
 ```text
-TURD active
-→ TURD gains levels, affinity, allocation and equipped Modules
-→ TAME establishes a new primary partner
-→ TURD moves into the inactive reserve without resetting
-→ new primary partner is later lost
-→ the same TURD returns with the same state
+Operator identity and appearance;
+active partner and TURD continuity;
+tendencies;
+money and inventory;
+known Modules;
+active Leads and active Incident progress;
+Social/Friend List/affinity;
+Encyclopedia knowledge;
+forum read/watch state;
+browser history and pins;
+app session state;
+installed-app state.
 ```
 
-## Canonical Phase 14 decisions
+### Campaign/world-owned state — preserved
 
-- TURD is never obtained through TAME.
-- TURD is assigned automatically after the first Partner Loss.
-- Each Operator owns one persistent TURD state.
-- TAME while TURD is active changes only the active primary partner; TURD is preserved in reserve.
-- Losing a replacement primary partner restores the same TURD.
-- TURD reaching 0 HP leads to Operator Loss. The full Operator Loss transition is the next subphase.
-- Days, countdown and world state do not reset during Operator Loss.
+```text
+TimeManager day, DAY/NIGHT and action block;
+Update countdown;
+world flags and numbers;
+location infestation;
+persistent world objects;
+completed Leads and Incidents;
+completed StoryEvents;
+discovered locations;
+Operator archive history;
+Legacy Sites.
+```
+
+### Destroyed-device data
+
+Before the old Operator state is cleared, the Legacy Site seals:
+
+```text
+money;
+typed inventory;
+known Module IDs;
+Encyclopedia state;
+forum/browser log state;
+app session state.
+```
+
+This data is not granted automatically to the successor. Legacy Recovery is a separate irreversible activity.
 
 ## Next exact task
 
-### First: validate Phase 14.1
+### First: validate Phase 14.2
+
+Run:
+
+```text
+Godot --headless --path . tests/commitment/operator_loss_succession_test.tscn
+```
+
+Confirm:
+
+```text
+ordinary EXE resolution uses definitive loss policy;
+primary Partner Loss still assigns TURD;
+TURD at 0 HP resolves Operator Loss through CombatManager;
+Operator and destroyed TURD are archived once;
+current day, period and block remain unchanged;
+world flags, completed Incident/Lead and infestation remain;
+Operator Loss adds its authored infestation increase;
+old relationships, tendencies, inventory, Modules, Encyclopedia and device sessions are cleared;
+a typed Legacy Site is stored in WorldState.persistent_objects;
+the broken KubuOS Handtop appears in the loss Local Area;
+registration creates a successor without resetting the campaign;
+starter selection reinstalls Navigator and returns to MAIN_CAMPAIGN;
+save/reload preserves the successor, archived Operator, Legacy Site and world.
+```
+
+### Regression
 
 Run:
 
 ```text
 Godot --headless --path . tests/commitment/partner_loss_turd_continuity_test.tscn
 Godot --headless --path . tests/combat/combat_campaign_resolution_test.tscn
+Godot --headless --path . tests/campaign/campaign_state_test.tscn
+Godot --headless --path . tests/save/save_manager_test.tscn
 ```
 
-Confirm:
+### Then: implement Phase 14.3 — Legacy Recovery
 
 ```text
-TURD resolves from ContentRegistry;
-ordinary EXE combat uses a data-driven definitive Partner Loss policy;
-NOVIRE at 0 HP is archived and replaced automatically by TURD;
-TURD progression and equipped Modules persist through TAME;
-a later primary Partner Loss restores the same TURD;
-lost-partner history and infestation survive save/reload;
-TURD at 0 HP reports the Operator Loss boundary.
-```
-
-### Then: implement Phase 14.2 — Operator Loss
-
-```text
-TURD reaches 0 HP
-→ archive current Operator and TURD
-→ set CampaignPhase.OPERATOR_LOSS
-→ preserve TimeManager and WorldState
-→ create a persistent Legacy Site record at the loss location
-→ return to Operator creation
-→ register a new Operator inside the same campaign
-→ reset identity-owned state only
-→ keep days, countdown, infestation and world consequences
+successor finds a Legacy Site
+→ inspect sealed recoverable data
+→ preview exactly what can be restored
+→ confirm an irreversible recovery activity
+→ restore material/log data through typed services
+→ mark the Legacy Site recovered
+→ never restore dead APK/TURD, relationships, affinity, ranking, reputation, tendencies or identity
+→ save/reload preserves the recovered boundary
 ```
 
 ## Active files
 
-### Commitment state and rules
+### Persistent loss and succession
 
 ```text
 data/templates/apk/partner_continuity_state_data.gd
+data/templates/commitment/legacy_site_state_data.gd
 data/templates/campaign/operator_state_data.gd
 systems/commitment/turd_partner_factory.gd
 systems/commitment/partner_continuity_service.gd
 systems/commitment/partner_loss_service.gd
+systems/commitment/operator_loss_service.gd
+systems/commitment/operator_succession_service.gd
+systems/commitment/apk_succession_progression_service.gd
 ```
 
-### Combat integration
+### Combat policy
 
 ```text
 data/templates/combat/combat_resolution_data.gd
 data/content/combat/resolutions/default_exe_resolution.tres
 systems/combat/combat_campaign_manager.gd
+systems/commitment/operator_loss_combat_manager.gd
 systems/combat/combat_resolution_service.gd
+apps/combat/resolution/combat_resolution_panel.gd
 ```
 
-### TURD content and registry
+### Navigator and Legacy Site projection
 
 ```text
-data/content/apks/system/turd_init.tres
-data/content/game_content_catalog.tres
+apps/navigator/operator_loss_navigator.gd
+apps/navigator/app_navigator.tscn
+apps/navigator/local_area/actors/local_area_legacy_site_actor.gd
+apps/navigator/local_area/actors/local_area_legacy_site_actor.tscn
+apps/navigator/local_area/spawning/local_area_spawn_point.gd
+apps/navigator/local_area/spawning/legacy_aware_population_controller.gd
+data/content/navigator/areas/akihabara/akihabara_local_area.tscn
+```
+
+### Runtime registration
+
+```text
+project.godot
 ```
 
 ### Validation
@@ -124,63 +193,74 @@ data/content/game_content_catalog.tres
 ```text
 tests/commitment/partner_loss_turd_continuity_test.gd
 tests/commitment/partner_loss_turd_continuity_test.tscn
-tests/combat/combat_campaign_resolution_test.gd
+tests/commitment/operator_loss_succession_test.gd
+tests/commitment/operator_loss_succession_test.tscn
 .github/workflows/partner-loss-turd-validate.yml
-.github/workflows/godot-validate.yml
+.github/workflows/operator-loss-succession-validate.yml
 ```
 
-## Phase 14.1 architecture
+## Phase 14.1 checkpoint — Partner Loss and persistent TURD
 
-### Active partner authority
+`CampaignState.partner` remains the active combat authority. `OperatorStateData.partner_continuity` owns only the inactive TURD reserve and permanent lost-partner history.
 
-`CampaignState.partner` remains the single active partner used by Profile, progression and combat. Existing systems do not need a parallel active-partner API.
-
-### Operator-owned continuity
-
-`OperatorStateData.partner_continuity` owns:
+TURD moves rather than copies:
 
 ```text
-turd_reserve
-lost_partner_history
+active TURD
+→ TAME
+→ complete TURD PartnerState moves to reserve
+→ replacement partner active
+→ replacement Partner Loss
+→ exact reserved TURD returns
 ```
 
-The reserve contains a complete `PartnerStateData`, including:
+Level, EXP, HP, Stability, affinity, allocations, known Modules, equipped Modules, personality and address term remain intact.
+
+## Phase 14.2 checkpoint — Operator Loss and succession
+
+### Combat boundary
+
+`OperatorLossCombatManager` extends the existing campaign combat manager. It removes the temporary one-HP TURD repair while preserving the tactical runtime, party integration, save snapshots and ordinary Partner Loss code.
+
+`CombatResolutionData` authors:
 
 ```text
-APK ID and integrity;
-nickname and personality;
-level and current EXP;
-HP and Stability;
-affinity;
-allocation points and allocated stats;
-known and equipped active Modules;
-secondary passive Module.
+partner_loss_policy;
+partner_loss_infestation_increase;
+operator_loss_infestation_increase.
 ```
 
-The save still stores only JSON-safe dictionaries and stable IDs. Legacy Operator saves without `partner_continuity` load with an empty continuity state.
+The default EXE resolution is definitive at zero HP, adds `+1` infestation for Partner Loss and `+3` for Operator Loss.
 
-### Data-driven loss policy
+### Operator archive
 
-`CombatResolutionData.partner_loss_policy` supports:
+`OperatorLossService` creates one archive record containing:
 
 ```text
-RECOVERABLE
-DEFINITIVE_ON_DEFEAT
-DEFINITIVE_AT_ZERO_HP
+old Operator save data;
+destroyed TURD save data;
+loss day/action/location/encounter;
+Legacy Site ID.
 ```
 
-The ordinary EXE resolution is authored as `DEFINITIVE_AT_ZERO_HP`. Special tutorial, narrative or protected encounters may use a recoverable policy without combat-manager hardcode.
+No new top-level save section was introduced. Existing `CampaignState.operator_history` and `WorldStateData.persistent_objects` remain the authorities.
 
-### Irreversible consequences
-
-Partner Loss and TAME request irreversible checkpoints. Partner Loss also:
+### Successor lifecycle
 
 ```text
-archives the lost PartnerState;
-increases current-location infestation by one;
-marks the matching Encyclopedia entry LOST when one exists;
-emits partner/operator/world state changes for projections.
+OPERATOR_LOSS
+→ OperatorService registers successor
+→ OPERATOR_CREATION
+→ APKProgressionService selects starter
+→ Navigator installed
+→ MAIN_CAMPAIGN
 ```
+
+The Prologue registration path remains unchanged because succession-specific behavior activates only when the campaign is already in `OPERATOR_LOSS`/`OPERATOR_CREATION` with archived history.
+
+### Legacy Site presentation
+
+The Legacy Site is a typed world object projected by a reusable population-controller extension. Akihabara currently contains the integration spawn point. Final art and recovery UI remain Phase 14.3 work.
 
 ## Prior phase checkpoints
 
@@ -202,26 +282,26 @@ NPC identity, Friend List, Social conversations, objective-owned party membershi
 Godot --headless --path . tests/commitment/partner_loss_turd_continuity_test.tscn
 ```
 
+Manual runtime confirmation: TURD assignment and continuity work.
+
+### Phase 14.2
+
+```text
+Godot --headless --path . tests/commitment/operator_loss_succession_test.tscn
+```
+
 Dedicated workflow:
 
 ```text
-.github/workflows/partner-loss-turd-validate.yml
-```
-
-### Regression gate
-
-```text
-Godot --headless --path . tests/combat/combat_campaign_resolution_test.tscn
-Godot --headless --path . tests/campaign/campaign_state_test.tscn
-Godot --headless --path . tests/save/save_manager_test.tscn
-Godot --headless --path . tests/profile/operator_profile_app_test.tscn
+.github/workflows/operator-loss-succession-validate.yml
 ```
 
 ## Known gaps
 
-- Operator Loss is not implemented yet. Active TURD temporarily retains the one-HP compatibility repair until Phase 14.2 replaces it with the definitive transition.
-- Legacy Site state and world spawning are not implemented yet.
-- The exact final TURD balance and final assets are not authored. Current stats and visuals are integration values constrained only by the GDD requirement that TURD be extremely weak and use basic Modules.
+- Legacy Recovery is not implemented yet; the broken handtop currently supports inspection only.
+- The exact final TURD balance and final assets are not authored. Current values are integration content.
+- Akihabara is the integration location with a Legacy Site spawn point; final location layouts need their own authored LEGACY_SITE points where appropriate.
+- Operator Loss presentation is functional but greybox; final death transition, device-failure effects and registration handoff need a UX/art pass.
 - Profile, Encyclopedia and Calendar require later UX/art passes.
 - Only NOVIRE has a complete starter integration Resource.
-- No local Godot executable or observable GitHub Actions status is available in this tool environment; Phase 14.1 remains `READY`, not `PASS`.
+- No local Godot executable or observable GitHub Actions result is available in this tool environment; Phase 14.2 remains `READY`, not `PASS`.
