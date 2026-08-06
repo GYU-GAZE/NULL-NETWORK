@@ -15,6 +15,8 @@ enum PartnerLossPolicy {
 ## DEFINITIVE_AT_ZERO_HP resolves Partner Loss whenever the partner reached zero,
 ## including mutual collapse or a victory completed by surviving party members.
 @export var partner_loss_policy: PartnerLossPolicy = PartnerLossPolicy.RECOVERABLE
+@export_range(0, 100, 1) var partner_loss_infestation_increase: int = 1
+@export_range(0, 100, 1) var operator_loss_infestation_increase: int = 3
 @export var player_actions: Array[PlayerActionData] = []
 @export var combat_style_rule: CombatStyleRuleData
 @export var escape_attempt_tendency_gains: Array[CombatTendencyGainData] = []
@@ -61,6 +63,14 @@ func validate_data() -> PackedStringArray:
 	if partner_loss_policy < PartnerLossPolicy.RECOVERABLE \
 		or partner_loss_policy > PartnerLossPolicy.DEFINITIVE_AT_ZERO_HP:
 		errors.append("Combat resolution has an invalid Partner Loss policy.")
+
+	if partner_loss_infestation_increase < 0:
+		errors.append("Partner Loss infestation increase cannot be negative.")
+
+	if operator_loss_infestation_increase < partner_loss_infestation_increase:
+		errors.append(
+			"Operator Loss infestation increase cannot be lower than Partner Loss."
+		)
 
 	if combat_style_rule == null:
 		errors.append("Combat resolution '%s' has no Combat Style rule." % resolution_id)
