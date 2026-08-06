@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="CombatEncounter" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://data/templates/combat_encounter.gd" id="1_encounter"]
+[ext_resource type="Script" path="res://data/templates/combat_slot_data.gd" id="2_slot"]
+[ext_resource type="Resource" path="res://data/content/combat/rewards/rattildus_reward.tres" id="3_reward"]
+[ext_resource type="Resource" path="res://data/content/combat/resolutions/default_exe_resolution.tres" id="4_resolution"]
+
+[sub_resource type="Resource" id="Slot_player"]
+script = ExtResource("2_slot")
+participant_source = 1
+
+[sub_resource type="Resource" id="Slot_ganbarekun"]
+script = ExtResource("2_slot")
+slot_index = 1
+participant_source = 2
+party_member_id = "ganbarekun"
+
+[sub_resource type="Resource" id="Slot_enemy"]
+script = ExtResource("2_slot")
+slot_index = 1
+participant_source = 3
+apk_id = "rattildus_init"
+apk_level = 1
+reward_profile = ExtResource("3_reward")
+
+[resource]
+script = ExtResource("1_encounter")
+encounter_id = "akihabara_rattildus_ganbarekun_2v1"
+encounter_name = "Akihabara Relay // GANBAREkun Party"
+ally_slots = Array[ExtResource("2_slot")]([SubResource("Slot_player"), SubResource("Slot_ganbarekun")])
+enemy_slots = Array[ExtResource("2_slot")]([SubResource("Slot_enemy")])
+base_escape_chance = 0.25
+resolution = ExtResource("4_resolution")
