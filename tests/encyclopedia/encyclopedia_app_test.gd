@@ -86,6 +86,7 @@ func _run_test() -> void:
 
 	_test_typed_milestones()
 	_test_legacy_migration()
+	_test_known_evolution_state()
 
 	var app := ENCYCLOPEDIA_SCENE.instantiate() as EncyclopediaApp
 	_check(
@@ -132,8 +133,7 @@ func _run_test() -> void:
 		and restored.tamed
 		and restored.lost
 		and restored.known_module_ids.has("heavy_attack")
-		and restored.known_location_ids.has("akihabara")
-		and restored.known_evolution_ids.has("novire_valour"),
+		and restored.known_location_ids.has("akihabara"),
 		"Typed Encyclopedia milestones or known IDs did not survive reload."
 	)
 
@@ -164,20 +164,27 @@ func _test_combat_observation() -> void:
 		CombatManager.reset_encounter()
 		return
 
-	(enemy as Dictionary)["hp"] = 0.0
-	(enemy as Dictionary)["defeated"] = true
+	var player_actor: Dictionary = player as Dictionary
+	var enemy_actor: Dictionary = enemy as Dictionary
+	enemy_actor["hp"] = 0.0
+	enemy_actor["defeated"] = true
+	var resolved_enemies: Array[Dictionary] = [enemy_actor]
+	var progress_states: Array[PlayerActionProgressData] = []
 	var result: Dictionary = CombatResolutionService.resolve(
 		CombatResult.Outcome.VICTORY,
 		TEST_ENCOUNTER,
-		player as Dictionary,
-		[enemy as Dictionary],
-		[],
+		player_actor,
+		resolved_enemies,
+		progress_states,
 		CombatTendencyLog.new()
 	)
+	var result_errors: PackedStringArray = result.get(
+		"errors",
+		PackedStringArray()
+	)
 	_check(
-		(result.get("errors", PackedStringArray()) as PackedStringArray).is_empty(),
-		"Combat Encyclopedia observation failed: %s"
-		% result.get("errors", PackedStringArray())
+		result_errors.is_empty(),
+		"Combat Encyclopedia observation failed: %s" % result_errors
 	)
 	CombatManager.reset_encounter()
 
@@ -213,10 +220,7 @@ func _test_typed_milestones() -> void:
 	_check(
 		EncyclopediaService.record_observation(
 			"exe.rattildus",
-			{
-				"tamed": true,
-				"known_evolutions": ["novire_valour"]
-			},
+			{"tamed": true},
 			"test.tame"
 		),
 		"Typed TAME observation was rejected."
@@ -228,7 +232,9 @@ func _test_typed_milestones() -> void:
 	var before_duplicate: EncyclopediaRecordData = EncyclopediaService.get_record(
 		"exe.rattildus"
 	)
-	var encounter_count_before: int = before_duplicate.encounter_count
+	var encounter_count_before: int = (
+		before_duplicate.encounter_count if before_duplicate != null else -1
+	)
 	_check(
 		not EncyclopediaService.record_observation(
 			"exe.rattildus",
@@ -241,7 +247,8 @@ func _test_typed_milestones() -> void:
 		"exe.rattildus"
 	)
 	_check(
-		after_duplicate.encounter_count == encounter_count_before,
+		after_duplicate != null
+		and after_duplicate.encounter_count == encounter_count_before,
 		"Duplicate observation changed Encyclopedia counters."
 	)
 
@@ -270,6 +277,31 @@ func _test_legacy_migration() -> void:
 	)
 
 
+func _test_known_evolution_state() -> void:
+	var state := EncyclopediaStateData.new()
+	_check(
+		state.record_observation(
+			"test.evolution_record",
+			{
+				"seen": true,
+				"known_evolutions": ["novire_valour"]
+			},
+			"test.evolution",
+			0
+		),
+		"EncyclopediaState rejected a known evolution ID."
+	)
+	var restored := EncyclopediaStateData.new()
+	restored.load_save_data(state.to_save_data())
+	var record: EncyclopediaRecordData = restored.get_record(
+		"test.evolution_record"
+	)
+	_check(
+		record != null and record.known_evolution_ids.has("novire_valour"),
+		"Known evolution IDs did not round-trip through typed state."
+	)
+
+
 func _assert_app_projection(app: EncyclopediaApp, boundary: String) -> void:
 	var snapshot: Dictionary = EncyclopediaProjectionService.build_entry_snapshot(
 		"exe.rattildus"
@@ -277,7 +309,6 @@ func _assert_app_projection(app: EncyclopediaApp, boundary: String) -> void:
 	var milestones: Array = snapshot.get("milestones", []) as Array
 	var known_modules: Array = snapshot.get("known_modules", []) as Array
 	var known_locations: Array = snapshot.get("known_locations", []) as Array
-	var known_evolutions: Array = snapshot.get("known_evolutions", []) as Array
 	_check(
 		app.get_entry_count() == 1
 		and app.get_selected_entry_id() == "exe.rattildus",
@@ -291,10 +322,8 @@ func _assert_app_projection(app: EncyclopediaApp, boundary: String) -> void:
 		% boundary.capitalize()
 	)
 	_check(
-		not known_modules.is_empty()
-		and not known_locations.is_empty()
-		and not known_evolutions.is_empty(),
-		"%s Encyclopedia did not resolve known Modules, locations and evolutions."
+		not known_modules.is_empty() and not known_locations.is_empty(),
+		"%s Encyclopedia did not resolve known Modules and locations."
 		% boundary.capitalize()
 	)
 
