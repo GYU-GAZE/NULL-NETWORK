@@ -16,14 +16,14 @@ enum Operation {
 func _apply_effect(context: GameEffectContext) -> bool:
 	var resolved_id: String = _resolve_npc_id(context)
 
-	if resolved_id.is_empty():
+	if resolved_id.is_empty() or SocialService.get_npc(resolved_id) == null:
 		return false
 
 	match operation:
 		Operation.ADD:
-			CampaignState.modify_affinity(resolved_id, value)
+			SocialService.modify_affinity(resolved_id, value)
 		Operation.SET:
-			CampaignState.set_affinity(resolved_id, value)
+			SocialService.set_affinity(resolved_id, value)
 	return true
 
 
