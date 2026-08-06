@@ -18,7 +18,7 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Player Actions | 4 | EXISTS | 10 | SCAN, PURGE, PURIFY and TAME are typed Timeline Resources with persistent progress |
 | Combat resolution integration gate | 1 | EXISTS | 10 | Rattildus proves normal rewards, active/passive extraction, both TAME integrity paths, Encyclopedia, Combat Style and idempotence |
 | Combat evolution integration branch | 1 | EXISTS | 10 | NOVIRE VALOUR proves Core Requirements, alternative Catalysts, end-of-cycle prompt and snapshot rebuild |
-| Core apps | 6 | PARTIAL | 5/13 | Browser, Navigator, Social and Profile exist; Encyclopedia and Calendar remain Phase 13 work |
+| Core apps | 6 | PARTIAL | 5/13 | Browser, Navigator, Social, Profile and Encyclopedia exist; Calendar remains Phase 13 work |
 | Global UI text catalog | 1 | EXISTS | 4 | Interface text only; narrative stays in narrative Resources |
 | StoryEvent integration gate | 1 | EXISTS | 6 | `story.prologue.null_network_welcome` proves orchestration and persistence; it does not replace the final Phase 15 Prologue sequence |
 | Dialogue integration gate | 1 | EXISTS | 7 | `dialogue.prologue.null_network_welcome` proves six portraits, conditions, Effects, paid choice and persistence; final narrative dialogue remains Phase 15/16 content |
@@ -28,6 +28,8 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Party integration gate | 1 | EXISTS | 12 | Ganbarekun owns a persistent NPC-partner state, enters ordinary encounters, shares EXP, ignores Dummy shares and supports objective-owned departure/permanent APK loss |
 | Profile integration gate | 1 | EXISTS | 13 | Condition-driven installation projects Operator, tendencies, partner, EXP, stats, Modules, affinity and inventory through `ProfileProjectionService` |
 | Extensible partner stage | 1 | EXISTS | 13 | Greybox `SubViewportContainer` separates stage backdrop, floor, shadow, partner sprite and overlays for future room/animation work |
+| Encyclopedia integration entry | 1 | EXISTS | 13 | `exe.rattildus` proves cataloged confirmed data, seven independent milestones, known Modules/locations/evolutions, legacy migration and save persistence |
+| Calendar integration entry | 1 | MISSING | 13/16 | Must expose one known weekly event through typed Calendar Resources |
 
 ## Prologue
 
@@ -77,7 +79,7 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Day | Required content | State | Dependencies |
 |---|---|---|---|
 | Tuesday | Aquarium Rumour thread; DM; available NPC; simple investigation; tendency choice | PARTIAL | Systems exist; final authored Week One content remains |
-| Wednesday | Help thread; second EXE; SCAN opportunity; Encyclopedia data; partner reaction | MISSING | 7, 9, 10, 13 |
+| Wednesday | Help thread; second EXE; SCAN opportunity; Encyclopedia data; partner reaction | PARTIAL | Typed Encyclopedia architecture exists; final thread, EXE and reaction remain |
 | Thursday | Guide thread; Lead advance; preparation/reward choice; party opportunity | PARTIAL | Party system exists; final Lead/content remains |
 | Friday | Counter change; light glitches; replies in old threads; spawn change; suspicious moderation; short mandatory event | MISSING | 6, 11, 16 |
 
