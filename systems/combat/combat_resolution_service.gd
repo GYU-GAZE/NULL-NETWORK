@@ -78,9 +78,10 @@ static func resolve(
 		)
 
 	for entry: Dictionary in plan.get("encyclopedia_entries", []):
-		CampaignState.record_encyclopedia_entry(
+		EncyclopediaService.record_observation(
 			str(entry.get("entry_id", "")),
-			entry.get("data", {}) as Dictionary
+			entry.get("data", {}) as Dictionary,
+			str(entry.get("observation_id", ""))
 		)
 
 	for gain: Dictionary in plan.get("tendency_gains", []):
@@ -212,16 +213,46 @@ static func _build_plan(
 				})
 
 		if not reward.encyclopedia_entry_id.strip_edges().is_empty():
+			var enemy_uid: int = int(enemy.get("uid", -1))
+			var known_modules: PackedStringArray = _known_modules_for_enemy(
+				encounter,
+				enemy,
+				progress_states,
+				reward
+			)
+			var known_locations := PackedStringArray()
+
+			if not CampaignState.current_location_id.strip_edges().is_empty():
+				known_locations.append(CampaignState.current_location_id)
+
 			entries.append({
 				"entry_id": reward.encyclopedia_entry_id,
+				"observation_id": "combat.%s.%d.%d" % [
+					encounter.encounter_id,
+					enemy_uid,
+					TimeManager.get_total_action_index()
+				],
 				"data": {
+					"seen": true,
 					"encountered": true,
 					"defeated": bool(enemy.get("defeated", false)),
 					"scanned": _is_completed(
 						progress_states,
 						"scan",
-						int(enemy.get("uid", -1))
-					)
+						enemy_uid
+					),
+					"purged": bool(enemy.get("purged", false)),
+					"purified": bool(enemy.get("purified", false)),
+					"tamed": bool(enemy.get("tamed", false)),
+					"lost": false,
+					"known_modules": Array(known_modules),
+					"known_locations": Array(known_locations),
+					"known_evolutions": [],
+					"metadata": {
+						"encounter_id": encounter.encounter_id,
+						"outcome": int(outcome),
+						"target_uid": enemy_uid
+					}
 				}
 			})
 
@@ -580,6 +611,48 @@ static func _effects_for_outcome(
 			return resolution.escape_effects
 
 	return []
+
+
+static func _known_modules_for_enemy(
+	encounter: CombatEncounter,
+	enemy: Dictionary,
+	states: Array[PlayerActionProgressData],
+	reward: CombatRewardData
+) -> PackedStringArray:
+	var result := PackedStringArray()
+	var target_uid: int = int(enemy.get("uid", -1))
+
+	for state: PlayerActionProgressData in states:
+		if state == null \
+			or not state.completed \
+			or state.target_uid != target_uid:
+			continue
+
+		var action: PlayerActionData = encounter.resolution.get_player_action(
+			state.action_id
+		)
+
+		if action == null:
+			continue
+
+		if action.action_kind == PlayerActionData.ActionKind.SCAN:
+			_add_unique(result, state.selected_reward_id)
+
+	if bool(enemy.get("purged", false)):
+		_add_unique(
+			result,
+			_deterministic_module(
+				reward.active_module_ids,
+				encounter.encounter_id,
+				target_uid
+			)
+		)
+
+	if bool(enemy.get("purified", false)):
+		for module_id: String in reward.purification_passive_module_ids:
+			_add_unique(result, module_id)
+
+	return result
 
 
 static func _find_enemy(
