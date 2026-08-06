@@ -12,7 +12,7 @@ class_name OperatorProfileApp
 @onready var tendency_list: VBoxContainer = %TendencyList
 
 @onready var partner_panel: PanelContainer = %PartnerPanel
-@onready var partner_portrait: TextureRect = %PartnerPortrait
+@onready var partner_stage: ProfilePartnerStage = %PartnerStage
 @onready var partner_name: Label = %PartnerName
 @onready var partner_species: Label = %PartnerSpecies
 @onready var partner_form: Label = %PartnerForm
@@ -132,6 +132,7 @@ func _render_no_campaign() -> void:
 	occupation_label.text = "OCCUPATION —"
 	rank_label.text = "RANK —"
 	server_label.text = "SERVER —"
+	partner_stage.present({})
 	partner_panel.visible = false
 	money_label.text = "¥0"
 	_add_empty_label(tendency_list, "NO TENDENCY DATA")
@@ -196,12 +197,12 @@ func _render_tendencies(entries: Array) -> void:
 
 
 func _render_partner(data: Dictionary) -> void:
+	partner_stage.present(data)
 	partner_panel.visible = not data.is_empty()
 
 	if data.is_empty():
 		return
 
-	partner_portrait.texture = data.get("portrait") as Texture2D
 	partner_name.text = str(data.get("nickname", "PARTNER"))
 	partner_species.text = str(data.get("species_name", "UNKNOWN APK"))
 	partner_form.text = "%s // %s" % [
