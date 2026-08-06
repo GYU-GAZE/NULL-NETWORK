@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://apps/profile/app_operator_profile.gd" id="1_app"]
+[ext_resource type="PackedScene" path="res://apps/profile/partner_stage/profile_partner_stage.tscn" id="2_stage"]
 
 [node name="OperatorProfileApp" type="PanelContainer"]
 clip_contents = true
@@ -138,12 +139,9 @@ text = "REGISTERED PARTNER"
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="PartnerPortrait" type="TextureRect" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader"]
+[node name="PartnerStage" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader" instance=ExtResource("2_stage")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(112, 112)
 layout_mode = 2
-expand_mode = 1
-stretch_mode = 5
 
 [node name="PartnerIdentityVBox" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader"]
 layout_mode = 2
