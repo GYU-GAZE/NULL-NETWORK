@@ -118,9 +118,11 @@ func mark_lost(
 	entry_id: String,
 	observation_id: String = ""
 ) -> bool:
+	# Loss confirms the subject, but it is not a new sighting or encounter by
+	# itself. EncyclopediaRecordData infers SEEN from the LOST milestone.
 	return record_observation(
 		entry_id,
-		{"seen": true, "lost": true},
+		{"lost": true},
 		observation_id
 	)
 
