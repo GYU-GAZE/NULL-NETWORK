@@ -1,0 +1,73 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/social/social_contact_row_ui.gd" id="1_row"]
+
+[node name="SocialContactRowUI" type="Button"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+toggle_mode = true
+text = ""
+script = ExtResource("1_row")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 3
+
+[node name="Row" type="HBoxContainer" parent="Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="Avatar" type="TextureRect" parent="Margin/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Texts" type="VBoxContainer" parent="Margin/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="DisplayName" type="Label" parent="Margin/Row/Texts"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+text = "CONTACT"
+text_overrun_behavior = 3
+
+[node name="Subtitle" type="Label" parent="Margin/Row/Texts"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+text = ""
+text_overrun_behavior = 3
+
+[node name="Presence" type="Label" parent="Margin/Row/Texts"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+text = "OFFLINE"
+text_overrun_behavior = 3
+
+[node name="Unread" type="Label" parent="Margin/Row"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
