@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="SocialInteractionData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://data/templates/social/social_interaction_data.gd" id="1_interaction"]
+[ext_resource type="Resource" path="res://data/content/activities/social/ganbarekun_strategy_chat.tres" id="2_activity"]
+[ext_resource type="Script" path="res://data/templates/effects/conditional_effect_bundle_data.gd" id="3_bundle"]
+[ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="4_effect"]
+[ext_resource type="Script" path="res://data/templates/effects/modify_affinity_effect_data.gd" id="5_affinity"]
+[ext_resource type="Script" path="res://data/templates/effects/add_lead_effect_data.gd" id="6_lead"]
+
+[sub_resource type="Resource" id="Effect_affinity"]
+script = ExtResource("5_affinity")
+effect_id = "social.ganbarekun.field_test.affinity"
+npc_id = "ganbarekun"
+use_context_target_when_empty = false
+operation = 0
+value = 2
+
+[sub_resource type="Resource" id="Effect_lead"]
+script = ExtResource("6_lead")
+effect_id = "social.ganbarekun.field_test.lead"
+lead_id = "integration_field_test"
+
+[sub_resource type="Resource" id="Result_bundle"]
+script = ExtResource("3_bundle")
+bundle_id = "social.ganbarekun.field_test.result"
+effects = Array[ExtResource("4_effect")]([SubResource("Effect_affinity"), SubResource("Effect_lead")])
+
+[resource]
+script = ExtResource("1_interaction")
+interaction_id = "social.ganbarekun.field_test_tip"
+conversation_id = "dm.ganbarekun"
+npc_id = "ganbarekun"
+repeat_policy = 0
+max_executions = 1
+requires_contact = true
+activity = ExtResource("2_activity")
+player_message_id = "ganbare.operator.ask_field_test"
+response_message_ids = PackedStringArray("ganbare.response.field_test")
+effects = SubResource("Result_bundle")
