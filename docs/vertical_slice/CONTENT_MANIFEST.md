@@ -16,9 +16,9 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Initial district | 1 | PARTIAL | 11 | Akihabara test area exists; canonical Prologue starting area remains content work |
 | Tutorial EXE | 1 | PARTIAL | 15 | Rattildus integration encounter has a reward profile and campaign resolution; final tutorial placement/narrative remains |
 | Player Actions | 4 | EXISTS | 10 | SCAN, PURGE, PURIFY and TAME are typed Timeline Resources with persistent progress |
-| Combat resolution integration gate | 1 | EXISTS | 10 | Rattildus proves normal rewards, active/passive extraction, both TAME integrity paths, Encyclopedia, Combat Style and idempotence |
+| Combat resolution integration gate | 1 | EXISTS | 10/14 | Rattildus proves rewards, extraction, TAME, Encyclopedia, Combat Style, idempotence and definitive Partner Loss |
 | Combat evolution integration branch | 1 | EXISTS | 10 | NOVIRE VALOUR proves Core Requirements, alternative Catalysts, end-of-cycle prompt and snapshot rebuild |
-| Core apps | 6 | PARTIAL | 5/13 | Browser, Navigator, Social, Profile and Encyclopedia exist; Calendar remains Phase 13 work |
+| Core apps | 6 | EXISTS | 5/13 | Browser, Navigator, Social, Profile, Encyclopedia and Calendar are registered; Profile/Encyclopedia/Calendar still need final UX passes |
 | Global UI text catalog | 1 | EXISTS | 4 | Interface text only; narrative stays in narrative Resources |
 | StoryEvent integration gate | 1 | EXISTS | 6 | `story.prologue.null_network_welcome` proves orchestration and persistence; it does not replace the final Phase 15 Prologue sequence |
 | Dialogue integration gate | 1 | EXISTS | 7 | `dialogue.prologue.null_network_welcome` proves six portraits, conditions, Effects, paid choice and persistence; final narrative dialogue remains Phase 15/16 content |
@@ -29,7 +29,12 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Profile integration gate | 1 | EXISTS | 13 | Condition-driven installation projects Operator, tendencies, partner, EXP, stats, Modules, affinity and inventory through `ProfileProjectionService` |
 | Extensible partner stage | 1 | EXISTS | 13 | Greybox `SubViewportContainer` separates stage backdrop, floor, shadow, partner sprite and overlays for future room/animation work |
 | Encyclopedia integration entry | 1 | EXISTS | 13 | `exe.rattildus` proves cataloged confirmed data, seven independent milestones, known Modules/locations/evolutions, legacy migration and save persistence |
-| Calendar integration entry | 1 | MISSING | 13/16 | Must expose one known weekly event through typed Calendar Resources |
+| Calendar integration entry | 1 | EXISTS | 13 | `calendar.update_1_0` proves typed countdown scheduling; occupation, Lead and Incident events are projected from their authorities |
+| TURD fallback APK | 1 | EXISTS | 14 | `turd_init` is cataloged as the automatic emergency partner; current stats, basic Modules and visuals are integration values pending final balance/art |
+| Partner continuity state | 1 per Operator | EXISTS | 14 | Operator-owned `PartnerContinuityStateData` stores inactive TURD and permanent lost-partner history without duplicating active partner state |
+| Partner Loss integration gate | 1 | EXISTS | 14 | Definitive zero HP archives the primary APK, increases infestation, assigns/restores the same TURD and persists through save/reload |
+| Operator Loss integration gate | 1 | MISSING | 14 | Must archive Operator/TURD, preserve world time and return to Operator creation inside the same campaign |
+| Legacy Site representation | 1 | MISSING | 14 | Must expose the lost Operator location and recoverable remains/modules through data-driven world state |
 
 ## Prologue
 
@@ -61,7 +66,7 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | `null.net/download` | Website page | MISSING | 15 | Installs app through effect |
 | `WELCOME, NEW PLAYERS` | Forum thread | MISSING | 15 | Teaches through existing NPC posts |
 | starter introduction | Dialogue | MISSING | 7/15 | First partner conversation |
-| tutorial encounter | CombatEncounter | PARTIAL | 15 | Player slot, Player Actions and centralized rewards are functional; final Prologue trigger and content remain |
+| tutorial encounter | CombatEncounter | PARTIAL | 15 | Player slot, Player Actions, centralized rewards and data-driven loss policy are functional; final Prologue trigger/content remain |
 
 ## Day One / Monday micro-update
 
@@ -72,7 +77,7 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | New forum threads | 3–5 | MISSING | 16 | Data miners and community response |
 | Initial Lead | 1 | PARTIAL | 11/16 | Phase 11 integration Lead connects Forum to Akihabara; final Monday micro-update Lead remains narrative content |
 | Area/spawn change | 1 | PARTIAL | 11/16 | Deterministic population and Lead-driven Incident spawning are validated; final Monday change remains content |
-| Calendar entry | 1 | MISSING | 13/16 | Exposes known weekly event |
+| Calendar entry | 1 | PARTIAL | 13/16 | Calendar system and Update 1.0 entry exist; final known Week One event remains narrative content |
 
 ## Tuesday through Friday
 
