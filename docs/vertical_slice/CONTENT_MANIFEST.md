@@ -9,7 +9,7 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Content | Minimum slice quantity | State | Blocking phase | Notes |
 |---|---:|---|---:|---|
 | Occupations | 3 | EXISTS | 8 | NEET, High School Student and Salaryperson are cataloged Resources with economy, starting location and schedules |
-| Starter APKs | 5 | PARTIAL | 9/15 | NOVIRE integration Resource exists with canonical stats; VOCALYTE, WIZIP, TROJAW and PAZUZU remain Prologue content; greybox art allowed |
+| Starter APKs | 5 | PARTIAL | 9/15 | NOVIRE integration Resource exists with canonical stats; VOCALYTE, WIZIP, TROJAW and PABUBU remain Prologue content; greybox art allowed |
 | Initial partner personalities | At least 1 valid result per starter | PARTIAL | 9/15 | NOVIRE exposes Optimistic, Brave and Wise through controlled selection; remaining starters need authored pools |
 | APK progression integration gate | 1 | EXISTS | 9 | NOVIRE proves individuality, address term, Modules, level reward, combat snapshot, allocation and persistence |
 | Typed item integration gate | 1 | EXISTS | 9 | `healing_patch` proves catalog resolution and JSON-safe inventory entries; item use belongs to later gameplay content |
@@ -18,12 +18,16 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Player Actions | 4 | EXISTS | 10 | SCAN, PURGE, PURIFY and TAME are typed Timeline Resources with persistent progress |
 | Combat resolution integration gate | 1 | EXISTS | 10 | Rattildus proves normal rewards, active/passive extraction, both TAME integrity paths, Encyclopedia, Combat Style and idempotence |
 | Combat evolution integration branch | 1 | EXISTS | 10 | NOVIRE VALOUR proves Core Requirements, alternative Catalysts, end-of-cycle prompt and snapshot rebuild |
-| Core apps | 6 | PARTIAL | 5/13 | Browser and Navigator exist; Profile, Encyclopedia, Social and Calendar do not |
+| Core apps | 6 | PARTIAL | 5/13 | Browser, Navigator, Social and Profile exist; Encyclopedia and Calendar remain Phase 13 work |
 | Global UI text catalog | 1 | EXISTS | 4 | Interface text only; narrative stays in narrative Resources |
 | StoryEvent integration gate | 1 | EXISTS | 6 | `story.prologue.null_network_welcome` proves orchestration and persistence; it does not replace the final Phase 15 Prologue sequence |
 | Dialogue integration gate | 1 | EXISTS | 7 | `dialogue.prologue.null_network_welcome` proves six portraits, conditions, Effects, paid choice and persistence; final narrative dialogue remains Phase 15/16 content |
 | Lead/Incident integration gate | 1 | EXISTS | 11 | `aquarium_signal` and `akihabara_aquarium_relay` prove Forum → Lead → badge → paid Incident → dialogue/combat → reaction without hardcoding the final Aquarium area |
 | Local Area population integration gate | 1 | EXISTS | 11 | Akihabara uses typed SpawnPoints and its SpawnTable for deterministic common/Incident actors restored by campaign/location/day/period |
+| NPC/Social integration gate | 1 | EXISTS | 12 | Ganbarekun references `NetworkUserData`, alternates online/offline, becomes a friend, delivers persistent DM content, changes affinity and creates a Lead |
+| Party integration gate | 1 | EXISTS | 12 | Ganbarekun owns a persistent NPC-partner state, enters ordinary encounters, shares EXP, ignores Dummy shares and supports objective-owned departure/permanent APK loss |
+| Profile integration gate | 1 | EXISTS | 13 | Condition-driven installation projects Operator, tendencies, partner, EXP, stats, Modules, affinity and inventory through `ProfileProjectionService` |
+| Extensible partner stage | 1 | EXISTS | 13 | Greybox `SubViewportContainer` separates stage backdrop, floor, shadow, partner sprite and overlays for future room/animation work |
 
 ## Prologue
 
@@ -72,9 +76,9 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 
 | Day | Required content | State | Dependencies |
 |---|---|---|---|
-| Tuesday | Aquarium Rumour thread; DM; available NPC; simple investigation; tendency choice | MISSING | 4, 6, 7, 11, 12 |
+| Tuesday | Aquarium Rumour thread; DM; available NPC; simple investigation; tendency choice | PARTIAL | Systems exist; final authored Week One content remains |
 | Wednesday | Help thread; second EXE; SCAN opportunity; Encyclopedia data; partner reaction | MISSING | 7, 9, 10, 13 |
-| Thursday | Guide thread; Lead advance; preparation/reward choice; party opportunity | MISSING | 4, 11, 12 |
+| Thursday | Guide thread; Lead advance; preparation/reward choice; party opportunity | PARTIAL | Party system exists; final Lead/content remains |
 | Friday | Counter change; light glitches; replies in old threads; spawn change; suspicious moderation; short mandatory event | MISSING | 6, 11, 16 |
 
 Canonical clue progression from the GDD:
@@ -94,7 +98,7 @@ Canonical clue progression from the GDD:
 | Subareas | 2–3 | MISSING | 11/16 | Data-driven transitions |
 | Common EXEs | 2 | MISSING | 9/11/16 | Spawn table content |
 | Anomalous encounter | 1 | MISSING | 11/16 | Distinct authored encounter using the final combat pipeline |
-| Involved NPC | 1 | MISSING | 12/16 | Social and/or party link |
+| Involved NPC | 1 | PARTIAL | 12/16 | Reusable NPC/Social/party architecture exists; final Aquarium NPC authorship remains |
 | Dialogue sequence | 1 | MISSING | 7/16 | Supports choices and persistence |
 | Boss | 1 | MISSING | 16 | Uses final combat pipeline |
 | Hardware/UI mechanic | 1 | MISSING | 16 | Authored only after systemic dependencies |
