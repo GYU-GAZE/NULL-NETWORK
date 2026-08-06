@@ -16,14 +16,14 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Initial district | 1 | PARTIAL | 11 | Akihabara test area exists; canonical Prologue starting area remains content work |
 | Tutorial EXE | 1 | PARTIAL | 15 | Rattildus integration encounter has a reward profile and campaign resolution; final tutorial placement/narrative remains |
 | Player Actions | 4 | EXISTS | 10 | SCAN, PURGE, PURIFY and TAME are typed Timeline Resources with persistent progress |
-| Combat resolution integration gate | 1 | EXISTS | 10/14 | Rattildus proves rewards, extraction, TAME, Encyclopedia, Combat Style, idempotence and definitive Partner Loss |
+| Combat resolution integration gate | 1 | EXISTS | 10/14 | Rattildus proves rewards, extraction, TAME, Encyclopedia, Combat Style, idempotence and definitive Partner/Operator Loss |
 | Combat evolution integration branch | 1 | EXISTS | 10 | NOVIRE VALOUR proves Core Requirements, alternative Catalysts, end-of-cycle prompt and snapshot rebuild |
 | Core apps | 6 | EXISTS | 5/13 | Browser, Navigator, Social, Profile, Encyclopedia and Calendar are registered; Profile/Encyclopedia/Calendar still need final UX passes |
 | Global UI text catalog | 1 | EXISTS | 4 | Interface text only; narrative stays in narrative Resources |
 | StoryEvent integration gate | 1 | EXISTS | 6 | `story.prologue.null_network_welcome` proves orchestration and persistence; it does not replace the final Phase 15 Prologue sequence |
 | Dialogue integration gate | 1 | EXISTS | 7 | `dialogue.prologue.null_network_welcome` proves six portraits, conditions, Effects, paid choice and persistence; final narrative dialogue remains Phase 15/16 content |
 | Lead/Incident integration gate | 1 | EXISTS | 11 | `aquarium_signal` and `akihabara_aquarium_relay` prove Forum → Lead → badge → paid Incident → dialogue/combat → reaction without hardcoding the final Aquarium area |
-| Local Area population integration gate | 1 | EXISTS | 11 | Akihabara uses typed SpawnPoints and its SpawnTable for deterministic common/Incident actors restored by campaign/location/day/period |
+| Local Area population integration gate | 1 | EXISTS | 11/14 | Akihabara projects deterministic common/Incident actors and persistent Legacy Sites through typed SpawnPoints |
 | NPC/Social integration gate | 1 | EXISTS | 12 | Ganbarekun references `NetworkUserData`, alternates online/offline, becomes a friend, delivers persistent DM content, changes affinity and creates a Lead |
 | Party integration gate | 1 | EXISTS | 12 | Ganbarekun owns a persistent NPC-partner state, enters ordinary encounters, shares EXP, ignores Dummy shares and supports objective-owned departure/permanent APK loss |
 | Profile integration gate | 1 | EXISTS | 13 | Condition-driven installation projects Operator, tendencies, partner, EXP, stats, Modules, affinity and inventory through `ProfileProjectionService` |
@@ -32,9 +32,10 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | Calendar integration entry | 1 | EXISTS | 13 | `calendar.update_1_0` proves typed countdown scheduling; occupation, Lead and Incident events are projected from their authorities |
 | TURD fallback APK | 1 | EXISTS | 14 | `turd_init` is cataloged as the automatic emergency partner; current stats, basic Modules and visuals are integration values pending final balance/art |
 | Partner continuity state | 1 per Operator | EXISTS | 14 | Operator-owned `PartnerContinuityStateData` stores inactive TURD and permanent lost-partner history without duplicating active partner state |
-| Partner Loss integration gate | 1 | EXISTS | 14 | Definitive zero HP archives the primary APK, increases infestation, assigns/restores the same TURD and persists through save/reload |
-| Operator Loss integration gate | 1 | MISSING | 14 | Must archive Operator/TURD, preserve world time and return to Operator creation inside the same campaign |
-| Legacy Site representation | 1 | MISSING | 14 | Must expose the lost Operator location and recoverable remains/modules through data-driven world state |
+| Partner Loss integration gate | 1 | EXISTS | 14.1 | Definitive zero HP archives the primary APK, increases infestation, assigns/restores the same TURD and persists through save/reload |
+| Operator Loss integration gate | 1 | EXISTS | 14.2 | Destroyed TURD archives Operator/TURD, preserves time/world, clears identity/device state and supports successor registration in the same campaign |
+| Legacy Site representation | 1 | EXISTS | 14.2 | Typed broken-handtop world object stores the loss location and sealed material/log data; Akihabara provides the integration spawn point |
+| Legacy Recovery integration gate | 1 | MISSING | 14.3 | Must preview and restore only allowed material/log data once, marking the Legacy Site recovered without restoring identity or dead APKs |
 
 ## Prologue
 
@@ -61,7 +62,7 @@ States: `EXISTS`, `PARTIAL`, `MISSING`, `BLOCKED`.
 | `null.net/introduction` | Website page | MISSING | 15 | Explains game fiction |
 | `null.net/get-started` | Website page | MISSING | 15 | Guides registration and install |
 | `null.net/rankings` | Website page | PARTIAL | 15 | Uses existing ranking/user data |
-| `null.net/register` | Website page | EXISTS | 8/15 | Hosts service-owned Operator creation with appearance, occupation and exact 15-point allocation |
+| `null.net/register` | Website page | EXISTS | 8/15 | Hosts service-owned Operator creation with appearance, occupation and exact 15-point allocation; also accepts successor registration after Operator Loss |
 | `null.net/forums` | Website page | PARTIAL | 15 | Existing forum system becomes condition-gated |
 | `null.net/download` | Website page | MISSING | 15 | Installs app through effect |
 | `WELCOME, NEW PLAYERS` | Forum thread | MISSING | 15 | Teaches through existing NPC posts |
