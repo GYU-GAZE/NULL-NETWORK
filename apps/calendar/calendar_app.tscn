@@ -110,7 +110,7 @@ layout_mode = 2
 
 [node name="WeekTitle" type="Label" parent="OuterMargin/MainLayout/MainSplit/WeekPanel/WeekMargin/WeekVBox"]
 layout_mode = 2
-text = "NEXT 7 DAYS"
+text = "UPCOMING 8 DAYS"
 
 [node name="DayScroll" type="ScrollContainer" parent="OuterMargin/MainLayout/MainSplit/WeekPanel/WeekMargin/WeekVBox"]
 layout_mode = 2
