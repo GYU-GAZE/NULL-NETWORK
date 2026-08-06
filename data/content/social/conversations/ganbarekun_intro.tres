@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="ChatConversationData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://data/templates/social/chat_conversation_data.gd" id="1_conversation"]
+[ext_resource type="Script" path="res://data/templates/social/chat_message_data.gd" id="2_message"]
+[ext_resource type="Script" path="res://data/templates/social/chat_choice_data.gd" id="3_choice"]
+
+[sub_resource type="Resource" id="Message_intro"]
+script = ExtResource("2_message")
+message_id = "ganbare.intro.001"
+sender_kind = 0
+text_bbcode = "You made it into NULL NETWORK! Keep your eyes on Akihabara. Something there has been repeating the same relay pattern."
+unread_when_delivered = true
+
+[sub_resource type="Resource" id="Message_operator_field_test"]
+script = ExtResource("2_message")
+message_id = "ganbare.operator.ask_field_test"
+sender_kind = 1
+text_bbcode = "What do you know about the Akihabara relay?"
+
+[sub_resource type="Resource" id="Message_response_field_test"]
+script = ExtResource("2_message")
+message_id = "ganbare.response.field_test"
+sender_kind = 0
+text_bbcode = "Enough to know it is worth checking in person. I marked the relay route on your Navigator. Do not let a suspicious signal scare you off!"
+
+[sub_resource type="Resource" id="Choice_field_test"]
+script = ExtResource("3_choice")
+choice_id = "ask_about_field_test"
+interaction_id = "social.ganbarekun.field_test_tip"
+display_text = "Ask about the Akihabara relay."
+sort_order = 10
+
+[resource]
+script = ExtResource("1_conversation")
+conversation_id = "dm.ganbarekun"
+profile_id = "chat.ganbarekun"
+npc_id = "ganbarekun"
+title = "GANBAREkun"
+initial_message_ids = PackedStringArray("ganbare.intro.001")
+messages = Array[ExtResource("2_message")]([SubResource("Message_intro"), SubResource("Message_operator_field_test"), SubResource("Message_response_field_test")])
+choices = Array[ExtResource("3_choice")]([SubResource("Choice_field_test")])
