@@ -8,7 +8,7 @@
 script = ExtResource("2_message")
 message_id = "ganbare.intro.001"
 sender_kind = 0
-text_bbcode = "You made it into NULL NETWORK! Keep your eyes on Akihabara. Something there has been repeating the same relay pattern."
+text_bbcode = "You made it into NULL NETWORK! I added you to my friend list. Keep your eyes on Akihabara. Something there has been repeating the same relay pattern."
 unread_when_delivered = true
 
 [sub_resource type="Resource" id="Message_operator_field_test"]
@@ -21,7 +21,7 @@ text_bbcode = "What do you know about the Akihabara relay?"
 script = ExtResource("2_message")
 message_id = "ganbare.response.field_test"
 sender_kind = 0
-text_bbcode = "Enough to know it is worth checking in person. I marked the relay route on your Navigator. Do not let a suspicious signal scare you off!"
+text_bbcode = "Enough to know it is worth checking in person. I marked the relay route on your Navigator and joined your party for this Lead. Do not let a suspicious signal scare you off!"
 
 [sub_resource type="Resource" id="Choice_field_test"]
 script = ExtResource("3_choice")
@@ -36,6 +36,7 @@ conversation_id = "dm.ganbarekun"
 profile_id = "chat.ganbarekun"
 npc_id = "ganbarekun"
 title = "GANBAREkun"
+auto_add_friend_on_unlock = true
 initial_message_ids = PackedStringArray("ganbare.intro.001")
 messages = Array[ExtResource("2_message")]([SubResource("Message_intro"), SubResource("Message_operator_field_test"), SubResource("Message_response_field_test")])
 choices = Array[ExtResource("3_choice")]([SubResource("Choice_field_test")])
