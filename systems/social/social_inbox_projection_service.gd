@@ -4,9 +4,9 @@ class_name SocialInboxProjectionService
 
 ## Projects newly unlocked immutable chat content into the persistent inbox.
 ##
-## This service deliberately does not open conversations. Delivery and read
-## state are separate operations, so opening the Social App cannot mark every
-## contact as read before the player actually selects that conversation.
+## The Social App is a friend-list messenger. A conversation may either require
+## an existing friendship or explicitly establish one when its content unlocks.
+## Delivery and read state remain separate operations.
 
 static func synchronize_available_conversations() -> int:
 	if not CampaignState.has_campaign():
@@ -27,12 +27,13 @@ static func synchronize_available_conversations() -> int:
 		if not conversation.is_unlocked(context):
 			continue
 
-		if not SocialService.has_contact(conversation.get_npc_id()) \
-			and not SocialService.discover_contact(
-				conversation.get_npc_id(),
-				context
-			):
-			continue
+		if not SocialService.is_friend(conversation.get_npc_id()):
+			if not conversation.auto_add_friend_on_unlock \
+				or not SocialService.add_friend(
+					conversation.get_npc_id(),
+					context
+				):
+				continue
 
 		for message_id: String in conversation.initial_message_ids:
 			var message: ChatMessageData = conversation.get_message(message_id)
