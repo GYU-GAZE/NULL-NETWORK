@@ -23,6 +23,12 @@ func configure_population_actor(
 	data.kind = LocalAreaInteractionData.InteractionKind.CUSTOM
 	data.prompt_verb = "INVESTIGATE"
 	interaction_data = data
+
+	var incident_label := get_node_or_null("IncidentTitle") as Label
+
+	if incident_label != null:
+		incident_label.text = incident.title.to_upper()
+
 	return not incident_id.is_empty()
 
 
