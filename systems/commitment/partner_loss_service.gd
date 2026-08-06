@@ -17,13 +17,13 @@ static func resolve_after_combat(
 		return _empty_result()
 
 	if PartnerContinuityService.is_turd_active():
-	var operator_loss_result: Dictionary = _empty_result()
-	var operator_loss_metadata: Dictionary = (
-		operator_loss_result.get("metadata", {}) as Dictionary
-	)
-	operator_loss_metadata["operator_loss_required"] = true
-	operator_loss_metadata["irreversible"] = true
-	return operator_loss_result
+		var operator_loss_result: Dictionary = _empty_result()
+		var operator_loss_metadata: Dictionary = (
+			operator_loss_result.get("metadata", {}) as Dictionary
+		)
+		operator_loss_metadata["operator_loss_required"] = true
+		operator_loss_metadata["irreversible"] = true
+		return operator_loss_result
 
 	return resolve_captured_primary_loss(
 		CampaignState.partner.duplicate_state(),
