@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="AppResource" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://data/templates/app_resource.gd" id="1_app"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="2_icon"]
+[ext_resource type="PackedScene" path="res://apps/encyclopedia/encyclopedia_app.tscn" id="3_scene"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_set_data.gd" id="4_set"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_rule_data.gd" id="5_rule"]
+[ext_resource type="Script" path="res://data/templates/conditions/encyclopedia_condition_data.gd" id="6_encyclopedia"]
+[ext_resource type="Script" path="res://data/templates/kubu_notification_data.gd" id="7_notification"]
+
+[sub_resource type="Resource" id="Entry_required"]
+script = ExtResource("6_encyclopedia")
+requirement = 0
+
+[sub_resource type="Resource" id="Conditions_has_entry"]
+script = ExtResource("4_set")
+rules = Array[ExtResource("5_rule")]([SubResource("Entry_required")])
+
+[sub_resource type="Resource" id="Notification_installed"]
+script = ExtResource("7_notification")
+notification_id = "app.encyclopedia.installed"
+title = "ENCYCLOPEDIA INSTALLED"
+message = "Confirmed network entities are now indexed."
+source_app_id = "encyclopedia"
+notification_type = 6
+
+[resource]
+script = ExtResource("1_app")
+app_id = "encyclopedia"
+app_name = "Encyclopedia"
+app_icon = ExtResource("2_icon")
+app_scene = ExtResource("3_scene")
+auto_install_when_unlocked = true
+unlock_conditions = SubResource("Conditions_has_entry")
+sort_order = 27
+notification_data = SubResource("Notification_installed")
+default_window_size = Vector2(820, 560)
+min_window_size = Vector2(560, 340)
+can_resize = true
