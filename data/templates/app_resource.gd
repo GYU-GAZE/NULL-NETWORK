@@ -20,6 +20,10 @@ enum PresentationMode {
 
 @export_category("Installation")
 @export var installed_by_default: bool = false
+## Installs the app as soon as unlock_conditions becomes true. This keeps
+## progression-driven app delivery in data instead of coupling domain systems
+## such as APK progression or Encyclopedia to the desktop.
+@export var auto_install_when_unlocked: bool = false
 @export var unlock_conditions: ConditionSetData
 @export_range(0, 100000, 1) var sort_order: int = 0
 @export var installation_effects: Array[GameEffectData] = []
@@ -63,6 +67,11 @@ func validate_data() -> PackedStringArray:
 
 	if app_scene == null:
 		errors.append("app_scene cannot be null.")
+
+	if auto_install_when_unlocked and unlock_conditions == null:
+		errors.append(
+			"auto_install_when_unlocked requires unlock_conditions."
+		)
 
 	if unlock_conditions != null:
 		for error: String in unlock_conditions.validate_data():
