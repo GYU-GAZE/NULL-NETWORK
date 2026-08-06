@@ -1,0 +1,175 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/calendar/calendar_app.gd" id="1_script"]
+
+[node name="CalendarApp" type="PanelContainer"]
+custom_minimum_size = Vector2(560, 340)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="OuterMargin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="MainLayout" type="VBoxContainer" parent="OuterMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="PanelContainer" parent="OuterMargin/MainLayout"]
+layout_mode = 2
+
+[node name="HeaderMargin" type="MarginContainer" parent="OuterMargin/MainLayout/Header"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="HeaderVBox" type="VBoxContainer" parent="OuterMargin/MainLayout/Header/HeaderMargin"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="OuterMargin/MainLayout/Header/HeaderMargin/HeaderVBox"]
+layout_mode = 2
+text = "CALENDAR // CAMPAIGN SCHEDULE"
+
+[node name="TimeRow" type="HBoxContainer" parent="OuterMargin/MainLayout/Header/HeaderMargin/HeaderVBox"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="CurrentDateLabel" type="Label" parent="OuterMargin/MainLayout/Header/HeaderMargin/HeaderVBox/TimeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "--- // -- --- ----"
+size_flags_horizontal = 3
+
+[node name="CurrentPeriodLabel" type="Label" parent="OuterMargin/MainLayout/Header/HeaderMargin/HeaderVBox/TimeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "DAY // 6 AM"
+
+[node name="CurrentBlockLabel" type="Label" parent="OuterMargin/MainLayout/Header/HeaderMargin/HeaderVBox/TimeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "BLOCK 00 / 11"
+
+[node name="AvailableBlocksLabel" type="Label" parent="OuterMargin/MainLayout/Header/HeaderMargin/HeaderVBox/TimeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "12 BLOCKS LEFT IN DAY"
+
+[node name="CountdownPanel" type="PanelContainer" parent="OuterMargin/MainLayout"]
+layout_mode = 2
+
+[node name="CountdownMargin" type="MarginContainer" parent="OuterMargin/MainLayout/CountdownPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 7
+
+[node name="CountdownRow" type="HBoxContainer" parent="OuterMargin/MainLayout/CountdownPanel/CountdownMargin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="UpdateCountdownLabel" type="Label" parent="OuterMargin/MainLayout/CountdownPanel/CountdownMargin/CountdownRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "UPDATE 1.0 // D-7"
+
+[node name="NextEventLabel" type="Label" parent="OuterMargin/MainLayout/CountdownPanel/CountdownMargin/CountdownRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "NEXT // NO KNOWN EVENT"
+
+[node name="MainSplit" type="HSplitContainer" parent="OuterMargin/MainLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 205
+
+[node name="WeekPanel" type="PanelContainer" parent="OuterMargin/MainLayout/MainSplit"]
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 2
+
+[node name="WeekMargin" type="MarginContainer" parent="OuterMargin/MainLayout/MainSplit/WeekPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="WeekVBox" type="VBoxContainer" parent="OuterMargin/MainLayout/MainSplit/WeekPanel/WeekMargin"]
+layout_mode = 2
+
+[node name="WeekTitle" type="Label" parent="OuterMargin/MainLayout/MainSplit/WeekPanel/WeekMargin/WeekVBox"]
+layout_mode = 2
+text = "NEXT 7 DAYS"
+
+[node name="DayScroll" type="ScrollContainer" parent="OuterMargin/MainLayout/MainSplit/WeekPanel/WeekMargin/WeekVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="DayButtonList" type="VBoxContainer" parent="OuterMargin/MainLayout/MainSplit/WeekPanel/WeekMargin/WeekVBox/DayScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DayPanel" type="PanelContainer" parent="OuterMargin/MainLayout/MainSplit"]
+layout_mode = 2
+
+[node name="DayMargin" type="MarginContainer" parent="OuterMargin/MainLayout/MainSplit/DayPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="DayVBox" type="VBoxContainer" parent="OuterMargin/MainLayout/MainSplit/DayPanel/DayMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SelectedDayLabel" type="Label" parent="OuterMargin/MainLayout/MainSplit/DayPanel/DayMargin/DayVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NO DAY SELECTED"
+
+[node name="OccupationLabel" type="Label" parent="OuterMargin/MainLayout/MainSplit/DayPanel/DayMargin/DayVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ROUTINE // NO OCCUPATION"
+
+[node name="SelectedDaySummary" type="Label" parent="OuterMargin/MainLayout/MainSplit/DayPanel/DayMargin/DayVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "24 FREE BLOCKS REMAINING // 0 OCCUPIED BLOCKS"
+
+[node name="Separator" type="HSeparator" parent="OuterMargin/MainLayout/MainSplit/DayPanel/DayMargin/DayVBox"]
+layout_mode = 2
+
+[node name="EventsTitle" type="Label" parent="OuterMargin/MainLayout/MainSplit/DayPanel/DayMargin/DayVBox"]
+layout_mode = 2
+text = "KNOWN EVENTS"
+
+[node name="EmptyEventsLabel" type="Label" parent="OuterMargin/MainLayout/MainSplit/DayPanel/DayMargin/DayVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NO KNOWN EVENTS FOR THIS DAY"
+
+[node name="EventScroll" type="ScrollContainer" parent="OuterMargin/MainLayout/MainSplit/DayPanel/DayMargin/DayVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="EventList" type="VBoxContainer" parent="OuterMargin/MainLayout/MainSplit/DayPanel/DayMargin/DayVBox/EventScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
