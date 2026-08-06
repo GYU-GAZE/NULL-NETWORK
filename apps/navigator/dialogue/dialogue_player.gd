@@ -4,14 +4,25 @@ class_name DialoguePlayer
 
 const NAVIGATOR_APP_ID: String = "navigator"
 const ADVANCE_ACTION: StringName = &"local_area_interact"
-const CHOICE_BUTTON_HEIGHT: float = 18.0
-const CHOICE_FONT_SIZE: int = 11
+
+const DIALOGUE_FONT_SIZE: int = 19
+const CHOICE_BUTTON_HEIGHT: float = 21.0
+const MULTI_COLUMN_CHOICE_THRESHOLD: int = 4
+const MULTI_COLUMN_CHOICE_COUNT: int = 2
+const CHOICE_HORIZONTAL_MARGIN: float = 2.0
+
+const CHOICE_NORMAL_COLOR: Color = Color(0.067, 0.145, 0.235, 1.0)
+const CHOICE_HOVER_COLOR: Color = Color(0.094, 0.224, 0.353, 1.0)
+const CHOICE_PRESSED_COLOR: Color = Color(0.035, 0.118, 0.212, 1.0)
+const CHOICE_DISABLED_COLOR: Color = Color(0.035, 0.067, 0.11, 1.0)
+const CHOICE_BORDER_COLOR: Color = Color(0.216, 0.443, 0.667, 1.0)
+const CHOICE_HIGHLIGHT_BORDER_COLOR: Color = Color(0.392, 0.718, 1.0, 1.0)
 
 
 @onready var dimmer: ColorRect = %Dimmer
 @onready var speaker_label: Label = %SpeakerLabel
 @onready var dialogue_text: RichTextLabel = %DialogueText
-@onready var choice_container: VBoxContainer = %ChoiceContainer
+@onready var choice_container: GridContainer = %ChoiceContainer
 
 
 var _left_slots: Array[TextureRect] = []
@@ -126,6 +137,10 @@ func get_rendered_choice_ids() -> PackedStringArray:
 	return _rendered_choice_ids.duplicate()
 
 
+func get_choice_column_count() -> int:
+	return choice_container.columns
+
+
 func is_text_scroll_visible() -> bool:
 	var scrollbar: VScrollBar = dialogue_text.get_v_scroll_bar()
 	return scrollbar != null and scrollbar.visible
@@ -200,6 +215,12 @@ func _render_choices() -> void:
 		DialogueManager.get_available_choices()
 	)
 
+	choice_container.columns = (
+		MULTI_COLUMN_CHOICE_COUNT
+		if choices.size() >= MULTI_COLUMN_CHOICE_THRESHOLD
+		else 1
+	)
+
 	for choice: DialogueChoiceData in choices:
 		var button := Button.new()
 		button.text = choice.text
@@ -207,10 +228,13 @@ func _render_choices() -> void:
 			0.0,
 			CHOICE_BUTTON_HEIGHT
 		)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.clip_text = true
 		button.add_theme_font_size_override(
 			"font_size",
-			CHOICE_FONT_SIZE
+			DIALOGUE_FONT_SIZE
 		)
+		_apply_compact_choice_styles(button)
 		button.pressed.connect(
 			_on_choice_pressed.bind(
 				choice.get_display_id()
@@ -223,6 +247,62 @@ func _render_choices() -> void:
 
 	choice_container.visible = not choices.is_empty()
 	call_deferred("_reset_text_scroll")
+
+
+func _apply_compact_choice_styles(button: Button) -> void:
+	button.add_theme_stylebox_override(
+		"normal",
+		_create_choice_style(
+			CHOICE_NORMAL_COLOR,
+			CHOICE_BORDER_COLOR
+		)
+	)
+	button.add_theme_stylebox_override(
+		"hover",
+		_create_choice_style(
+			CHOICE_HOVER_COLOR,
+			CHOICE_HIGHLIGHT_BORDER_COLOR
+		)
+	)
+	button.add_theme_stylebox_override(
+		"pressed",
+		_create_choice_style(
+			CHOICE_PRESSED_COLOR,
+			CHOICE_HIGHLIGHT_BORDER_COLOR
+		)
+	)
+	button.add_theme_stylebox_override(
+		"focus",
+		_create_choice_style(
+			Color(0.0, 0.0, 0.0, 0.0),
+			CHOICE_HIGHLIGHT_BORDER_COLOR
+		)
+	)
+	button.add_theme_stylebox_override(
+		"disabled",
+		_create_choice_style(
+			CHOICE_DISABLED_COLOR,
+			CHOICE_BORDER_COLOR
+		)
+	)
+
+
+func _create_choice_style(
+	background_color: Color,
+	border_color: Color
+) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.content_margin_left = CHOICE_HORIZONTAL_MARGIN
+	style.content_margin_top = 0.0
+	style.content_margin_right = CHOICE_HORIZONTAL_MARGIN
+	style.content_margin_bottom = 0.0
+	style.bg_color = background_color
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.border_color = border_color
+	return style
 
 
 func _reset_text_scroll() -> void:
