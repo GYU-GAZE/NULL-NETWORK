@@ -6,6 +6,7 @@ const PARTY_OWNER_ID: String = "lead.integration_field_test"
 const STANDARD_ENCOUNTER_ID: String = "akihabara_rattildus_1v1"
 const LEAD_ID: String = "integration_field_test"
 const INCIDENT_ID: String = "akihabara_aquarium_relay"
+const LOCATION_ID: String = "akihabara"
 
 var _failures := PackedStringArray()
 var _interaction_completed: bool = false
@@ -111,7 +112,7 @@ func _run_test() -> void:
 
 	var available_incidents: Array[IncidentData] = (
 		LeadIncidentManager.get_available_incidents_for_location(
-			"akihabara"
+			LOCATION_ID
 		)
 	)
 	_check(
@@ -182,7 +183,7 @@ func _run_test() -> void:
 	var effect_context := GameEffectContext.create(
 		"incident.akihabara_aquarium_relay.resolution",
 		"ganbarekun",
-		"akihabara"
+		LOCATION_ID
 	)
 	var victory_branch: IncidentResolutionBranchData = (
 		incident.get_resolution_branch(
@@ -223,7 +224,7 @@ func _run_test() -> void:
 		"Legacy Social contacts were not migrated into the friend list."
 	)
 
-	_test_legacy_missing_lead_progress_repair()
+	await _test_legacy_missing_lead_progress_repair()
 	_finish_test()
 
 
@@ -239,7 +240,7 @@ func _test_legacy_missing_lead_progress_repair() -> void:
 
 	var incidents: Array[IncidentData] = (
 		LeadIncidentManager.get_available_incidents_for_location(
-			"akihabara"
+			LOCATION_ID
 		)
 	)
 	var repaired_progress: Dictionary = CampaignState.get_lead_progress(
@@ -255,6 +256,51 @@ func _test_legacy_missing_lead_progress_repair() -> void:
 		"Legacy repaired Lead still did not expose the relay Incident."
 	)
 
+	var location: MapLocation = ContentRegistry.get_location(LOCATION_ID)
+	var area: NavigatorLocalAreaScene
+
+	if location != null \
+		and location.local_area != null \
+		and location.local_area.area_scene != null:
+		area = location.local_area.area_scene.instantiate() as NavigatorLocalAreaScene
+
+	_check(area != null, "Akihabara Local Area could not be instantiated.")
+
+	if area == null:
+		return
+
+	add_child(area)
+	await _wait_frames(2)
+	_check(
+		area.setup_local_area(
+			location.local_area,
+			location.local_area.default_entry_id,
+			Vector2.ZERO,
+			false,
+			{},
+			location
+		),
+		"Akihabara Local Area rejected the repaired Lead state."
+	)
+	await _wait_frames(2)
+
+	var population_state: Dictionary = (
+		area.population_controller.get_population_state()
+	)
+	_check(
+		_has_population_content(population_state, INCIDENT_ID),
+		"Repaired Lead did not project the relay into population state."
+	)
+	_check(
+		area.population_controller.get_population_actor(
+			"akihabara.incident.%s.0" % INCIDENT_ID
+		) != null,
+		"Relay descriptor existed but no visible Incident actor was created."
+	)
+
+	area.queue_free()
+	await _wait_frames(3)
+
 
 func _has_incident(
 	incidents: Array[IncidentData],
@@ -265,6 +311,24 @@ func _has_incident(
 			return true
 
 	return false
+
+
+func _has_population_content(
+	state: Dictionary,
+	content_id: String
+) -> bool:
+	for raw_actor: Variant in state.get("actors", []):
+		if raw_actor is Dictionary \
+			and str(raw_actor.get("content_id", "")) == content_id \
+			and not bool(raw_actor.get("resolved", false)):
+			return true
+
+	return false
+
+
+func _wait_frames(count: int) -> void:
+	for _index: int in range(count):
+		await get_tree().process_frame
 
 
 func _on_activity_confirmation_requested(
