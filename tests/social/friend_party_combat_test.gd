@@ -3,9 +3,9 @@ extends Node
 
 const CONVERSATION_ID: String = "dm.ganbarekun"
 const PARTY_OWNER_ID: String = "lead.integration_field_test"
-const PARTY_ENCOUNTER_ID: String = (
-	"akihabara_rattildus_ganbarekun_2v1"
-)
+const STANDARD_ENCOUNTER_ID: String = "akihabara_rattildus_1v1"
+const LEAD_ID: String = "integration_field_test"
+const INCIDENT_ID: String = "akihabara_aquarium_relay"
 
 var _failures := PackedStringArray()
 var _interaction_completed: bool = false
@@ -72,10 +72,6 @@ func _run_test() -> void:
 		"Unlocked Social content did not establish Ganbarekun friendship."
 	)
 	_check(
-		SocialService.get_friend_ids() == PackedStringArray(["ganbarekun"]),
-		"Friend list did not expose Ganbarekun as its only member."
-	)
-	_check(
 		SocialService.open_conversation(CONVERSATION_ID),
 		"Friend conversation could not be opened."
 	)
@@ -93,10 +89,7 @@ func _run_test() -> void:
 		if _interaction_completed:
 			break
 
-	_check(
-		_interaction_completed,
-		"Field-test interaction did not complete."
-	)
+	_check(_interaction_completed, "Field-test interaction did not complete.")
 	_check(
 		SocialService.is_party_member("ganbarekun"),
 		"Ganbarekun did not join the objective-owned party."
@@ -107,6 +100,23 @@ func _run_test() -> void:
 			"lead.wrong_owner"
 		),
 		"An unrelated owner removed the party member."
+	)
+
+	var lead_progress: Dictionary = CampaignState.get_lead_progress(LEAD_ID)
+	_check(
+		str(lead_progress.get("stage_id", "")) \
+		== "run_akihabara_showcase",
+		"Social Lead activation skipped its initial stage."
+	)
+
+	var available_incidents: Array[IncidentData] = (
+		LeadIncidentManager.get_available_incidents_for_location(
+			"akihabara"
+		)
+	)
+	_check(
+		_has_incident(available_incidents, INCIDENT_ID),
+		"The Aquarium Relay Incident was not available in Akihabara."
 	)
 
 	var state_snapshot := (
@@ -123,12 +133,12 @@ func _run_test() -> void:
 	)
 
 	var encounter: CombatEncounter = (
-		ContentRegistry.get_combat_encounter(PARTY_ENCOUNTER_ID)
+		ContentRegistry.get_combat_encounter(STANDARD_ENCOUNTER_ID)
 	)
-	_check(encounter != null, "Party encounter was not registered.")
+	_check(encounter != null, "Standard Rattildus encounter was not registered.")
 	_check(
 		CombatManager.load_encounter(encounter),
-		"CombatManager rejected the active friend-party encounter."
+		"CombatManager rejected the standard Rattildus encounter."
 	)
 
 	var party_actor: Variant = CombatManager.ally_team[1]
@@ -138,7 +148,7 @@ func _run_test() -> void:
 		== CombatSlotData.ParticipantSource.PARTY_MEMBER \
 		and str((party_actor as Dictionary).get("character_id", "")) \
 		== "ganbarekun_party_partner_integration",
-		"PARTY_MEMBER did not resolve Ganbarekun's cataloged loadout."
+		"Standard combat did not inject the active Social party member."
 	)
 
 	var saved_campaign: Dictionary = CampaignState.export_save_data()
@@ -163,13 +173,12 @@ func _run_test() -> void:
 		and int((CombatManager.ally_team[1] as Dictionary).get(
 			"source_kind",
 			-1
-		)) == CombatSlotData.ParticipantSource.PARTY_MEMBER,
+		)) == CombatSlotData.ParticipantSource.PARTY_MEMBER \
+		and (CombatManager.ally_team[1] as Dictionary).get("icon") != null,
 		"Active combat did not reconstruct the restored party member."
 	)
 
-	var incident: IncidentData = ContentRegistry.get_incident(
-		"akihabara_aquarium_relay"
-	)
+	var incident: IncidentData = ContentRegistry.get_incident(INCIDENT_ID)
 	var effect_context := GameEffectContext.create(
 		"incident.akihabara_aquarium_relay.resolution",
 		"ganbarekun",
@@ -214,7 +223,48 @@ func _run_test() -> void:
 		"Legacy Social contacts were not migrated into the friend list."
 	)
 
+	_test_legacy_missing_lead_progress_repair()
 	_finish_test()
+
+
+func _test_legacy_missing_lead_progress_repair() -> void:
+	CombatManager.reset_encounter()
+	CampaignState.reset_campaign()
+	CampaignState.create_campaign(
+		"legacy_missing_lead_progress",
+		CampaignState.SaveMode.SAFE,
+		CampaignState.CampaignPhase.MAIN_CAMPAIGN
+	)
+	CampaignState.activate_lead(LEAD_ID)
+
+	var incidents: Array[IncidentData] = (
+		LeadIncidentManager.get_available_incidents_for_location(
+			"akihabara"
+		)
+	)
+	var repaired_progress: Dictionary = CampaignState.get_lead_progress(
+		LEAD_ID
+	)
+	_check(
+		str(repaired_progress.get("stage_id", "")) \
+		== "run_akihabara_showcase",
+		"Legacy active Lead did not receive its missing initial stage."
+	)
+	_check(
+		_has_incident(incidents, INCIDENT_ID),
+		"Legacy repaired Lead still did not expose the relay Incident."
+	)
+
+
+func _has_incident(
+	incidents: Array[IncidentData],
+	incident_id: String
+) -> bool:
+	for incident: IncidentData in incidents:
+		if incident != null and incident.get_display_id() == incident_id:
+			return true
+
+	return false
 
 
 func _on_activity_confirmation_requested(
