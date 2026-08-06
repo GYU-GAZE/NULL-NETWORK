@@ -2,26 +2,29 @@ extends Control
 class_name DialoguePlayer
 
 
+const NAVIGATOR_APP_ID: String = "navigator"
+const ADVANCE_ACTION: StringName = &"local_area_interact"
+const CHOICE_BUTTON_HEIGHT: float = 18.0
+const CHOICE_FONT_SIZE: int = 11
+
+
 @onready var dimmer: ColorRect = %Dimmer
 @onready var speaker_label: Label = %SpeakerLabel
 @onready var dialogue_text: RichTextLabel = %DialogueText
 @onready var choice_container: VBoxContainer = %ChoiceContainer
-@onready var advance_button: Button = %AdvanceButton
+
 
 var _left_slots: Array[TextureRect] = []
 var _right_slots: Array[TextureRect] = []
 var _rendered_choice_ids: PackedStringArray = PackedStringArray()
+var _input_enabled: bool = false
+var _workspace_active: bool = false
+var _focused_window_app_id: String = ""
 
 
 func _ready() -> void:
 	_left_slots = [%Left1, %Left2, %Left3]
 	_right_slots = [%Right1, %Right2, %Right3]
-	advance_button.text = GlobalTextCatalog.get_default_text(
-		GlobalTextCatalog.TextCategory.BUTTONS,
-		"advance",
-		"ADVANCE"
-	)
-	advance_button.pressed.connect(_on_advance_pressed)
 	_connect_signals()
 
 	if DialogueManager.is_dialogue_active():
@@ -31,14 +34,26 @@ func _ready() -> void:
 
 
 func _connect_signals() -> void:
-	if not DialogueManager.dialogue_started.is_connected(_on_dialogue_started):
-		DialogueManager.dialogue_started.connect(_on_dialogue_started)
+	if not DialogueManager.dialogue_started.is_connected(
+		_on_dialogue_started
+	):
+		DialogueManager.dialogue_started.connect(
+			_on_dialogue_started
+		)
 
-	if not DialogueManager.dialogue_resumed.is_connected(_on_dialogue_resumed):
-		DialogueManager.dialogue_resumed.connect(_on_dialogue_resumed)
+	if not DialogueManager.dialogue_resumed.is_connected(
+		_on_dialogue_resumed
+	):
+		DialogueManager.dialogue_resumed.connect(
+			_on_dialogue_resumed
+		)
 
-	if not DialogueManager.node_changed.is_connected(_on_node_changed):
-		DialogueManager.node_changed.connect(_on_node_changed)
+	if not DialogueManager.node_changed.is_connected(
+		_on_node_changed
+	):
+		DialogueManager.node_changed.connect(
+			_on_node_changed
+		)
 
 	if not DialogueManager.choice_resolution_started.is_connected(
 		_on_choice_resolution_started
@@ -54,19 +69,47 @@ func _connect_signals() -> void:
 			_on_choice_resolution_cancelled
 		)
 
-	if not DialogueManager.dialogue_completed.is_connected(_on_dialogue_closed):
-		DialogueManager.dialogue_completed.connect(_on_dialogue_closed)
+	if not DialogueManager.dialogue_completed.is_connected(
+		_on_dialogue_closed
+	):
+		DialogueManager.dialogue_completed.connect(
+			_on_dialogue_closed
+		)
 
-	if not DialogueManager.dialogue_failed.is_connected(_on_dialogue_failed):
-		DialogueManager.dialogue_failed.connect(_on_dialogue_failed)
+	if not DialogueManager.dialogue_failed.is_connected(
+		_on_dialogue_failed
+	):
+		DialogueManager.dialogue_failed.connect(
+			_on_dialogue_failed
+		)
 
-	if not GameState.flag_changed.is_connected(_on_condition_state_changed):
-		GameState.flag_changed.connect(_on_condition_state_changed)
+	if not GameState.flag_changed.is_connected(
+		_on_condition_state_changed
+	):
+		GameState.flag_changed.connect(
+			_on_condition_state_changed
+		)
 
 	if not CampaignState.campaign_changed.is_connected(
 		_on_campaign_state_changed
 	):
-		CampaignState.campaign_changed.connect(_on_campaign_state_changed)
+		CampaignState.campaign_changed.connect(
+			_on_campaign_state_changed
+		)
+
+	if not GlobalSignals.app_focused.is_connected(
+		_on_window_app_focused
+	):
+		GlobalSignals.app_focused.connect(
+			_on_window_app_focused
+		)
+
+	if not GlobalSignals.workspace_activated.is_connected(
+		_on_workspace_activated
+	):
+		GlobalSignals.workspace_activated.connect(
+			_on_workspace_activated
+		)
 
 
 func get_visible_portrait_count() -> int:
@@ -83,6 +126,18 @@ func get_rendered_choice_ids() -> PackedStringArray:
 	return _rendered_choice_ids.duplicate()
 
 
+func is_text_scroll_visible() -> bool:
+	var scrollbar: VScrollBar = dialogue_text.get_v_scroll_bar()
+	return scrollbar != null and scrollbar.visible
+
+
+func try_advance_from_navigator_input() -> bool:
+	if not _can_advance_from_navigator_input():
+		return false
+
+	return DialogueManager.advance()
+
+
 func _render_current_node() -> void:
 	var node: DialogueNodeData = DialogueManager.get_current_node_data()
 	var speaker: DialogueSpeakerData = DialogueManager.get_current_speaker()
@@ -97,6 +152,7 @@ func _render_current_node() -> void:
 	_render_portraits(node)
 	_render_choices()
 	_set_input_enabled(true)
+	call_deferred("_reset_text_scroll")
 
 
 func _render_portraits(node: DialogueNodeData) -> void:
@@ -136,50 +192,135 @@ func _clear_portrait_slots() -> void:
 
 func _render_choices() -> void:
 	for child: Node in choice_container.get_children():
+		choice_container.remove_child(child)
 		child.queue_free()
 
 	_rendered_choice_ids.clear()
-	var choices: Array[DialogueChoiceData] = DialogueManager.get_available_choices()
+	var choices: Array[DialogueChoiceData] = (
+		DialogueManager.get_available_choices()
+	)
 
 	for choice: DialogueChoiceData in choices:
 		var button := Button.new()
 		button.text = choice.text
-		button.custom_minimum_size = Vector2(0.0, 30.0)
+		button.custom_minimum_size = Vector2(
+			0.0,
+			CHOICE_BUTTON_HEIGHT
+		)
+		button.add_theme_font_size_override(
+			"font_size",
+			CHOICE_FONT_SIZE
+		)
 		button.pressed.connect(
-			_on_choice_pressed.bind(choice.get_display_id())
+			_on_choice_pressed.bind(
+				choice.get_display_id()
+			)
 		)
 		choice_container.add_child(button)
-		_rendered_choice_ids.append(choice.get_display_id())
+		_rendered_choice_ids.append(
+			choice.get_display_id()
+		)
 
 	choice_container.visible = not choices.is_empty()
-	advance_button.visible = choices.is_empty()
+	call_deferred("_reset_text_scroll")
+
+
+func _reset_text_scroll() -> void:
+	if not is_instance_valid(dialogue_text):
+		return
+
+	dialogue_text.scroll_to_line(0)
 
 
 func _set_input_enabled(enabled: bool) -> void:
-	advance_button.disabled = not enabled
+	_input_enabled = enabled
 
 	for child: Node in choice_container.get_children():
 		if child is Button:
 			(child as Button).disabled = not enabled
 
 
-func _on_advance_pressed() -> void:
-	DialogueManager.advance()
+func _can_advance_from_navigator_input() -> bool:
+	return (
+		visible
+		and _input_enabled
+		and _workspace_active
+		and (
+			_focused_window_app_id.is_empty()
+			or _focused_window_app_id == NAVIGATOR_APP_ID
+		)
+		and DialogueManager.is_dialogue_active()
+		and _rendered_choice_ids.is_empty()
+	)
+
+
+func _gui_input(event: InputEvent) -> void:
+	if event is not InputEventMouseButton:
+		return
+
+	var mouse_event := event as InputEventMouseButton
+
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT \
+		or not mouse_event.pressed:
+		return
+
+	if _is_pointer_over_text_scrollbar(
+		mouse_event.global_position
+	):
+		return
+
+	if try_advance_from_navigator_input():
+		accept_event()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed(ADVANCE_ACTION):
+		return
+
+	if event is InputEventKey \
+		and (event as InputEventKey).echo:
+		return
+
+	if try_advance_from_navigator_input():
+		get_viewport().set_input_as_handled()
+
+
+func _is_pointer_over_text_scrollbar(
+	global_position: Vector2
+) -> bool:
+	var scrollbar: VScrollBar = dialogue_text.get_v_scroll_bar()
+
+	return (
+		scrollbar != null
+		and scrollbar.visible
+		and scrollbar.get_global_rect().has_point(
+			global_position
+		)
+	)
 
 
 func _on_choice_pressed(choice_id: String) -> void:
 	DialogueManager.select_choice(choice_id)
 
 
-func _on_dialogue_started(_dialogue_id: String, _node_id: String) -> void:
+func _on_dialogue_started(
+	_dialogue_id: String,
+	_node_id: String
+) -> void:
 	_render_current_node()
 
 
-func _on_dialogue_resumed(_dialogue_id: String, _node_id: String) -> void:
+func _on_dialogue_resumed(
+	_dialogue_id: String,
+	_node_id: String
+) -> void:
 	_render_current_node()
 
 
-func _on_node_changed(_dialogue_id: String, _node_id: String) -> void:
+func _on_node_changed(
+	_dialogue_id: String,
+	_node_id: String
+) -> void:
 	_render_current_node()
 
 
@@ -201,6 +342,7 @@ func _on_choice_resolution_cancelled(
 
 
 func _on_dialogue_closed(_dialogue_id: String) -> void:
+	_set_input_enabled(false)
 	hide()
 
 
@@ -212,14 +354,30 @@ func _on_dialogue_failed(
 	if DialogueManager.is_dialogue_active():
 		_set_input_enabled(false)
 	else:
+		_set_input_enabled(false)
 		hide()
 
 
-func _on_condition_state_changed(_flag_name: String, _value: bool) -> void:
+func _on_condition_state_changed(
+	_flag_name: String,
+	_value: bool
+) -> void:
 	if DialogueManager.is_dialogue_active():
 		_render_choices()
 
 
-func _on_campaign_state_changed(_section: StringName) -> void:
+func _on_campaign_state_changed(
+	_section: StringName
+) -> void:
 	if DialogueManager.is_dialogue_active():
 		_render_choices()
+
+
+func _on_window_app_focused(app_id: String) -> void:
+	_focused_window_app_id = app_id.strip_edges()
+
+
+func _on_workspace_activated(workspace_id: String) -> void:
+	_workspace_active = (
+		workspace_id.strip_edges() == NAVIGATOR_APP_ID
+	)
