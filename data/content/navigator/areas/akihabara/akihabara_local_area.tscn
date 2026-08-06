@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" path="res://apps/navigator/local_area/player_controller_2d.tscn" id="3_player"]
 [ext_resource type="PackedScene" path="res://apps/navigator/local_area/interactions/local_area_interactable.tscn" id="4_interactable"]
 [ext_resource type="Script" path="res://apps/navigator/local_area/interactions/local_area_interaction_data.gd" id="5_interaction_data"]
-[ext_resource type="Script" path="res://apps/navigator/local_area/spawning/local_area_population_controller.gd" id="6_population"]
+[ext_resource type="Script" path="res://apps/navigator/local_area/spawning/legacy_aware_population_controller.gd" id="6_population"]
 [ext_resource type="Script" path="res://apps/navigator/local_area/spawning/local_area_spawn_point.gd" id="7_spawn_point"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_horizontal"]
@@ -141,5 +141,11 @@ position = Vector2(960, 360)
 script = ExtResource("7_spawn_point")
 spawn_point_id = "incident_a"
 spawn_kind = 1
+
+[node name="LegacyA" type="Marker2D" parent="PopulationController/SpawnPoints"]
+position = Vector2(840, 680)
+script = ExtResource("7_spawn_point")
+spawn_point_id = "legacy_a"
+spawn_kind = 4
 
 [node name="PopulationActors" type="Node2D" parent="PopulationController"]
