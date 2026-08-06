@@ -2,16 +2,6 @@ extends Resource
 class_name EncyclopediaRecordData
 
 
-const MILESTONE_KEYS: PackedStringArray = PackedStringArray([
-	"seen",
-	"scanned",
-	"defeated",
-	"purged",
-	"purified",
-	"tamed",
-	"lost"
-])
-
 var entry_id: String = ""
 var seen: bool = false
 var scanned: bool = false
