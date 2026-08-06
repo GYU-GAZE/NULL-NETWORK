@@ -174,10 +174,10 @@ func _render_tendencies(entries: Array) -> void:
 
 		var entry: Dictionary = entry_value as Dictionary
 		var row := HBoxContainer.new()
-		row.theme_override_constants.separation = 6
-		var name := Label.new()
-		name.custom_minimum_size.x = 86.0
-		name.text = str(entry.get("display_name", "—"))
+		row.add_theme_constant_override("separation", 6)
+		var tendency_name := Label.new()
+		tendency_name.custom_minimum_size.x = 86.0
+		tendency_name.text = str(entry.get("display_name", "—"))
 		var bar := ProgressBar.new()
 		bar.custom_minimum_size = Vector2(120, 18)
 		bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -189,7 +189,7 @@ func _render_tendencies(entries: Array) -> void:
 		value.custom_minimum_size.x = 48.0
 		value.text = str(int(entry.get("value", 0)))
 		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		row.add_child(name)
+		row.add_child(tendency_name)
 		row.add_child(bar)
 		row.add_child(value)
 		tendency_list.add_child(row)
@@ -199,8 +199,6 @@ func _render_partner(data: Dictionary) -> void:
 	partner_panel.visible = not data.is_empty()
 
 	if data.is_empty():
-		_add_empty_label(equipped_module_list, "NO PARTNER REGISTERED")
-		_add_empty_label(known_module_list, "NO MODULES")
 		return
 
 	partner_portrait.texture = data.get("portrait") as Texture2D
