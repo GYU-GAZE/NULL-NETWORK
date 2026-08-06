@@ -61,15 +61,28 @@ func can_unlock_contact(context: Dictionary = {}) -> bool:
 
 
 func get_active_routine(
-	weekday_index: int = TimeManager.current_weekday_index,
-	day_block: int = TimeManager.get_current_day_block_index(),
+	weekday_index: int = -1,
+	day_block: int = -1,
 	context: Dictionary = {}
 ) -> NPCRoutineEntryData:
+	var resolved_weekday: int = weekday_index
+	var resolved_day_block: int = day_block
+
+	if resolved_weekday < 0:
+		resolved_weekday = TimeManager.current_weekday_index
+
+	if resolved_day_block < 0:
+		resolved_day_block = TimeManager.get_current_day_block_index()
+
 	var selected: NPCRoutineEntryData
 
 	for routine: NPCRoutineEntryData in routines:
 		if routine == null \
-			or not routine.matches(weekday_index, day_block, context):
+			or not routine.matches(
+				resolved_weekday,
+				resolved_day_block,
+				context
+			):
 			continue
 
 		if selected == null or routine.priority > selected.priority:
@@ -80,8 +93,8 @@ func get_active_routine(
 
 func get_current_location_id(context: Dictionary = {}) -> String:
 	var routine: NPCRoutineEntryData = get_active_routine(
-		TimeManager.current_weekday_index,
-		TimeManager.get_current_day_block_index(),
+		-1,
+		-1,
 		context
 	)
 
@@ -91,19 +104,17 @@ func get_current_location_id(context: Dictionary = {}) -> String:
 	return default_location_id.strip_edges()
 
 
-func get_current_presence(
-	context: Dictionary = {}
-) -> NPCRoutineEntryData.PresenceState:
+func get_current_presence(context: Dictionary = {}) -> int:
 	var routine: NPCRoutineEntryData = get_active_routine(
-		TimeManager.current_weekday_index,
-		TimeManager.get_current_day_block_index(),
+		-1,
+		-1,
 		context
 	)
 
 	if routine == null:
 		return NPCRoutineEntryData.PresenceState.OFFLINE
 
-	return routine.presence_state
+	return int(routine.presence_state)
 
 
 func validate_data() -> PackedStringArray:
