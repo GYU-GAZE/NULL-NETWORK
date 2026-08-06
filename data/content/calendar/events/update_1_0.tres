@@ -10,5 +10,6 @@ description = "The announced server update and current campaign deadline."
 event_kind = 0
 priority = 500
 schedule_mode = 2
+game_day = 8
 all_day = true
 source_id = "update.1.0"
