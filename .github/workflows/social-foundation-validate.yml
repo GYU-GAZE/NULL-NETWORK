@@ -103,6 +103,17 @@ jobs:
           grep -q "FRIEND_PARTY_COMBAT_TEST: PASS" \
             godot-friend-party-combat-test.log
 
+      - name: Run party EXP distribution test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 120 \
+            tests/combat/party_experience_distribution_test.tscn \
+            2>&1 | tee godot-party-experience-test.log
+          grep -q "PARTY_EXPERIENCE_DISTRIBUTION_TEST: PASS" \
+            godot-party-experience-test.log
+
       - name: Reject script and resource errors
         shell: bash
         run: |
@@ -112,6 +123,7 @@ jobs:
             godot-social-conversation-test.log \
             godot-social-app-test.log \
             godot-friend-party-combat-test.log \
+            godot-party-experience-test.log \
             > godot-social-validation.log
           if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|Parse Error" godot-social-validation.log; then
             exit 1
@@ -128,5 +140,6 @@ jobs:
             godot-social-conversation-test.log
             godot-social-app-test.log
             godot-friend-party-combat-test.log
+            godot-party-experience-test.log
             godot-social-validation.log
           if-no-files-found: ignore
