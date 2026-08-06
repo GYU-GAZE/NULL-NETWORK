@@ -8,6 +8,7 @@ const CONVERSATIONS_KEY: String = "conversation_history"
 const UNREAD_KEY: String = "unread_by_conversation"
 const PRESENCE_KEY: String = "known_presence_by_npc"
 const INTERACTIONS_KEY: String = "completed_interaction_ids"
+const INTERACTION_COUNTS_KEY: String = "interaction_execution_counts"
 const PARTY_KEY: String = "party_members"
 
 
@@ -17,6 +18,7 @@ var conversation_history: Dictionary = {}
 var unread_by_conversation: Dictionary = {}
 var known_presence_by_npc: Dictionary = {}
 var completed_interaction_ids: PackedStringArray = PackedStringArray()
+var interaction_execution_counts: Dictionary = {}
 ## npc_id -> {owner_id, joined_action_index}
 var party_members: Dictionary = {}
 
@@ -28,6 +30,7 @@ func reset() -> void:
 	unread_by_conversation.clear()
 	known_presence_by_npc.clear()
 	completed_interaction_ids.clear()
+	interaction_execution_counts.clear()
 	party_members.clear()
 
 
@@ -82,8 +85,13 @@ func append_message(
 	var message_id: String = str(
 		message_data.get("message_id", "")
 	).strip_edges()
+	var entry_id: String = str(
+		message_data.get("entry_id", message_id)
+	).strip_edges()
 
-	if clean_conversation_id.is_empty() or message_id.is_empty():
+	if clean_conversation_id.is_empty() \
+		or message_id.is_empty() \
+		or entry_id.is_empty():
 		return false
 
 	var history: Array = _read_message_array(
@@ -92,11 +100,14 @@ func append_message(
 
 	for existing: Variant in history:
 		if existing is Dictionary \
-			and str((existing as Dictionary).get("message_id", "")) \
-				.strip_edges() == message_id:
+			and str((existing as Dictionary).get("entry_id", "")) \
+				.strip_edges() == entry_id:
 			return false
 
-	history.append(message_data.duplicate(true))
+	var saved_message: Dictionary = message_data.duplicate(true)
+	saved_message["message_id"] = message_id
+	saved_message["entry_id"] = entry_id
+	history.append(saved_message)
 	conversation_history[clean_conversation_id] = history
 
 	if mark_unread:
@@ -128,6 +139,19 @@ func has_message(conversation_id: String, message_id: String) -> bool:
 
 	for entry: Dictionary in get_conversation_history(conversation_id):
 		if str(entry.get("message_id", "")).strip_edges() == clean_message_id:
+			return true
+
+	return false
+
+
+func has_entry(conversation_id: String, entry_id: String) -> bool:
+	var clean_entry_id: String = entry_id.strip_edges()
+
+	if clean_entry_id.is_empty():
+		return false
+
+	for entry: Dictionary in get_conversation_history(conversation_id):
+		if str(entry.get("entry_id", "")).strip_edges() == clean_entry_id:
 			return true
 
 	return false
@@ -174,17 +198,43 @@ func get_known_presence(
 
 
 func record_interaction(interaction_id: String) -> bool:
-	var clean_id: String = interaction_id.strip_edges()
-
-	if clean_id.is_empty() or completed_interaction_ids.has(clean_id):
+	if has_completed_interaction(interaction_id):
 		return false
 
-	completed_interaction_ids.append(clean_id)
-	return true
+	return record_interaction_execution(interaction_id) == 1
+
+
+func record_interaction_execution(interaction_id: String) -> int:
+	var clean_id: String = interaction_id.strip_edges()
+
+	if clean_id.is_empty():
+		return 0
+
+	var new_count: int = get_interaction_execution_count(clean_id) + 1
+	interaction_execution_counts[clean_id] = new_count
+
+	if not completed_interaction_ids.has(clean_id):
+		completed_interaction_ids.append(clean_id)
+
+	return new_count
+
+
+func get_interaction_execution_count(interaction_id: String) -> int:
+	return maxi(
+		0,
+		int(interaction_execution_counts.get(
+			interaction_id.strip_edges(),
+			0
+		))
+	)
 
 
 func has_completed_interaction(interaction_id: String) -> bool:
-	return completed_interaction_ids.has(interaction_id.strip_edges())
+	var clean_id: String = interaction_id.strip_edges()
+	return (
+		completed_interaction_ids.has(clean_id)
+		or get_interaction_execution_count(clean_id) > 0
+	)
 
 
 func add_party_member(
@@ -262,6 +312,7 @@ func to_save_data() -> Dictionary:
 		INTERACTIONS_KEY: _string_array_to_array(
 			completed_interaction_ids
 		),
+		INTERACTION_COUNTS_KEY: interaction_execution_counts.duplicate(true),
 		PARTY_KEY: party_members.duplicate(true)
 	}
 
@@ -282,8 +333,12 @@ func load_save_data(data: Dictionary) -> void:
 	completed_interaction_ids = _read_id_array(
 		data.get(INTERACTIONS_KEY, [])
 	)
+	interaction_execution_counts = _read_non_negative_int_dictionary(
+		data.get(INTERACTION_COUNTS_KEY, {})
+	)
 	party_members = _read_party_dictionary(data.get(PARTY_KEY, {}))
 	_migrate_legacy_contact_entries(data)
+	_migrate_legacy_interaction_counts()
 
 
 func validate_save_data(data: Dictionary) -> PackedStringArray:
@@ -298,6 +353,7 @@ func validate_save_data(data: Dictionary) -> PackedStringArray:
 		CONVERSATIONS_KEY,
 		UNREAD_KEY,
 		PRESENCE_KEY,
+		INTERACTION_COUNTS_KEY,
 		PARTY_KEY
 	]:
 		if data.get(dictionary_key, {}) is not Dictionary:
@@ -362,7 +418,7 @@ func _validate_message_history(
 	conversation_id: String,
 	history: Array
 ) -> void:
-	var message_ids: Dictionary = {}
+	var entry_ids: Dictionary = {}
 
 	for index: int in range(history.size()):
 		var entry: Variant = history[index]
@@ -377,19 +433,28 @@ func _validate_message_history(
 		var message_id: String = str(
 			(entry as Dictionary).get("message_id", "")
 		).strip_edges()
+		var entry_id: String = str(
+			(entry as Dictionary).get("entry_id", message_id)
+		).strip_edges()
 
 		if message_id.is_empty():
 			errors.append(
 				"Conversation '%s' message %d requires message_id."
 				% [conversation_id, index]
 			)
-		elif message_ids.has(message_id):
+
+		if entry_id.is_empty():
 			errors.append(
-				"Conversation '%s' duplicates message_id '%s'."
-				% [conversation_id, message_id]
+				"Conversation '%s' message %d requires entry_id."
+				% [conversation_id, index]
+			)
+		elif entry_ids.has(entry_id):
+			errors.append(
+				"Conversation '%s' duplicates entry_id '%s'."
+				% [conversation_id, entry_id]
 			)
 		else:
-			message_ids[message_id] = true
+			entry_ids[entry_id] = true
 
 
 func _migrate_legacy_contact_entries(data: Dictionary) -> void:
@@ -400,6 +465,7 @@ func _migrate_legacy_contact_entries(data: Dictionary) -> void:
 		UNREAD_KEY: true,
 		PRESENCE_KEY: true,
 		INTERACTIONS_KEY: true,
+		INTERACTION_COUNTS_KEY: true,
 		PARTY_KEY: true
 	}
 
@@ -419,6 +485,12 @@ func _migrate_legacy_contact_entries(data: Dictionary) -> void:
 				npc_id,
 				int((entry as Dictionary).get("affinity", 0))
 			)
+
+
+func _migrate_legacy_interaction_counts() -> void:
+	for interaction_id: String in completed_interaction_ids:
+		if get_interaction_execution_count(interaction_id) == 0:
+			interaction_execution_counts[interaction_id] = 1
 
 
 func _read_dictionary(value: Variant) -> Dictionary:
@@ -450,8 +522,23 @@ func _read_message_array(value: Variant) -> Array:
 		return result
 
 	for entry: Variant in value:
-		if entry is Dictionary:
-			result.append((entry as Dictionary).duplicate(true))
+		if entry is not Dictionary:
+			continue
+
+		var clean_entry: Dictionary = (entry as Dictionary).duplicate(true)
+		var message_id: String = str(
+			clean_entry.get("message_id", "")
+		).strip_edges()
+		var entry_id: String = str(
+			clean_entry.get("entry_id", message_id)
+		).strip_edges()
+
+		if message_id.is_empty() or entry_id.is_empty():
+			continue
+
+		clean_entry["message_id"] = message_id
+		clean_entry["entry_id"] = entry_id
+		result.append(clean_entry)
 
 	return result
 
