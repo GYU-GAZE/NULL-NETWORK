@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="IncidentData" load_steps=11 format=3]
+[gd_resource type="Resource" script_class="IncidentData" load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://data/templates/incidents/incident_data.gd" id="1_incident"]
 [ext_resource type="Script" path="res://data/templates/incidents/incident_stage_data.gd" id="2_stage"]
@@ -7,7 +7,8 @@
 [ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="5_flag"]
 [ext_resource type="Resource" path="res://data/content/activities/investigate_aquarium_relay.tres" id="6_activity"]
 [ext_resource type="Resource" path="res://data/content/dialogues/akihabara_aquarium_relay.tres" id="7_dialogue"]
-[ext_resource type="Resource" path="res://data/content/combat/1v1.tres" id="8_encounter"]
+[ext_resource type="Resource" path="res://data/content/combat/ganbarekun_party_2v1.tres" id="8_encounter"]
+[ext_resource type="Script" path="res://data/templates/effects/set_party_membership_effect_data.gd" id="9_party"]
 
 [sub_resource type="Resource" id="Stage_trace"]
 script = ExtResource("2_stage")
@@ -22,10 +23,19 @@ effect_id = "incident.akihabara_aquarium_relay.mark_resolved"
 flag_name = "incident.akihabara_aquarium_relay.resolved"
 value = true
 
+[sub_resource type="Resource" id="Effect_party_leave"]
+script = ExtResource("9_party")
+effect_id = "incident.akihabara_aquarium_relay.party_leave"
+npc_id = "ganbarekun"
+use_context_target_when_empty = false
+owner_id = "lead.integration_field_test"
+use_context_source_when_owner_empty = false
+operation = 1
+
 [sub_resource type="Resource" id="Branch_victory"]
 script = ExtResource("3_branch")
 outcome = 0
-effects = Array[ExtResource("4_effect")]([SubResource("Effect_resolved")])
+effects = Array[ExtResource("4_effect")]([SubResource("Effect_resolved"), SubResource("Effect_party_leave")])
 completes_incident = true
 completes_lead = true
 
