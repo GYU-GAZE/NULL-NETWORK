@@ -18,6 +18,20 @@ static func has_turd_reserve() -> bool:
 	)
 
 
+static func stash_turd_snapshot(state: PartnerStateData) -> bool:
+	if CampaignState.operator.is_empty():
+		return false
+
+	var stashed: bool = CampaignState.operator.partner_continuity.stash_turd(
+		state
+	)
+
+	if stashed:
+		CampaignState.campaign_changed.emit(&"operator")
+
+	return stashed
+
+
 static func replace_partner_from_tame(
 	new_partner: PartnerStateData
 ) -> bool:
@@ -40,13 +54,9 @@ static func replace_partner_from_tame(
 	if previous_partner != null \
 		and previous_partner.integrity_state \
 		== PartnerStateData.IntegrityState.TURD:
-		if not CampaignState.operator.partner_continuity.stash_turd(
-			previous_partner
-		):
+		if not stash_turd_snapshot(previous_partner):
 			CampaignState.set_partner_state(previous_partner)
 			return false
-
-		CampaignState.campaign_changed.emit(&"operator")
 
 	return true
 
@@ -58,26 +68,58 @@ static func resolve_primary_partner_loss(
 	action_index: int,
 	encounter_id: String = ""
 ) -> Dictionary:
-	if CampaignState.operator.is_empty() \
-		or CampaignState.partner == null \
-		or CampaignState.partner.is_empty() \
-		or is_turd_active():
+	if CampaignState.partner == null \
+		or CampaignState.partner.is_empty():
 		return {}
 
-	var lost_partner: PartnerStateData = CampaignState.partner.duplicate_state()
+	return resolve_primary_partner_loss_from_snapshot(
+		CampaignState.partner.duplicate_state(),
+		true,
+		reason,
+		location_id,
+		game_day,
+		action_index,
+		encounter_id
+	)
+
+
+static func resolve_primary_partner_loss_from_snapshot(
+	lost_partner: PartnerStateData,
+	activate_fallback: bool,
+	reason: String,
+	location_id: String,
+	game_day: int,
+	action_index: int,
+	encounter_id: String = ""
+) -> Dictionary:
+	if CampaignState.operator.is_empty() \
+		or lost_partner == null \
+		or lost_partner.is_empty() \
+		or lost_partner.integrity_state == PartnerStateData.IntegrityState.TURD:
+		return {}
+
 	var continuity: PartnerContinuityStateData = (
 		CampaignState.operator.partner_continuity
 	)
-	var fallback: PartnerStateData = continuity.take_turd()
-	var used_reserve: bool = fallback != null
+	var fallback: PartnerStateData = null
+	var used_reserve: bool = false
 
-	if fallback == null:
+	if activate_fallback:
+		fallback = continuity.take_turd()
+		used_reserve = fallback != null
+
+		if fallback == null:
+			fallback = TurdPartnerFactory.create_state()
+
+		if fallback == null or not CampaignState.set_partner_state(fallback):
+			if used_reserve and fallback != null:
+				continuity.stash_turd(fallback)
+			return {}
+	elif not continuity.has_turd_reserve():
 		fallback = TurdPartnerFactory.create_state()
 
-	if fallback == null or not CampaignState.set_partner_state(fallback):
-		if used_reserve and fallback != null:
-			continuity.stash_turd(fallback)
-		return {}
+		if fallback == null or not continuity.stash_turd(fallback):
+			return {}
 
 	var record: Dictionary = continuity.archive_lost_partner(
 		lost_partner,
