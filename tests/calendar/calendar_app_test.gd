@@ -88,8 +88,8 @@ func _run_test() -> void:
 	)
 	_check(
 		app.select_game_day(8)
-		and app.get_rendered_event_count() == 1,
-		"Calendar app did not render Update 1.0 on D+7."
+		and app.get_rendered_event_count() >= 2,
+		"Calendar app did not render Update 1.0 alongside the day routine on D+7."
 	)
 
 	TimeManager.advance_action(4)
@@ -154,7 +154,11 @@ func _assert_base_projection(boundary: String) -> void:
 		snapshot.get("events", []) as Array,
 		"calendar.update_1_0"
 	)
-	var today: Dictionary = days[0] as Dictionary if not days.is_empty() else {}
+	var today: Dictionary = {}
+
+	if not days.is_empty() and days[0] is Dictionary:
+		today = days[0] as Dictionary
+
 	_check(
 		int(current.get("game_day", 0)) == 1
 		and str(current.get("weekday_name", "")) == "THU"
