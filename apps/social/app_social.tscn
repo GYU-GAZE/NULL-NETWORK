@@ -1,0 +1,181 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/social/app_social.gd" id="1_app"]
+
+[node name="SocialApp" type="PanelContainer"]
+clip_contents = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_app")
+
+[node name="RootMargin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="MainSplit" type="HSplitContainer" parent="RootMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+split_offset = 190
+
+[node name="ContactsPanel" type="PanelContainer" parent="RootMargin/MainSplit"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 2
+
+[node name="ContactsMargin" type="MarginContainer" parent="RootMargin/MainSplit/ContactsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="ContactsVBox" type="VBoxContainer" parent="RootMargin/MainSplit/ContactsPanel/ContactsMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ContactsHeader" type="HBoxContainer" parent="RootMargin/MainSplit/ContactsPanel/ContactsMargin/ContactsVBox"]
+layout_mode = 2
+
+[node name="ContactsTitle" type="Label" parent="RootMargin/MainSplit/ContactsPanel/ContactsMargin/ContactsVBox/ContactsHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CONTACTS"
+
+[node name="TotalUnread" type="Label" parent="RootMargin/MainSplit/ContactsPanel/ContactsMargin/ContactsVBox/ContactsHeader"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = ""
+
+[node name="ContactSearch" type="LineEdit" parent="RootMargin/MainSplit/ContactsPanel/ContactsMargin/ContactsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "SEARCH CONTACTS"
+clear_button_enabled = true
+
+[node name="ContactsScroll" type="ScrollContainer" parent="RootMargin/MainSplit/ContactsPanel/ContactsMargin/ContactsVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ContactList" type="VBoxContainer" parent="RootMargin/MainSplit/ContactsPanel/ContactsMargin/ContactsVBox/ContactsScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="ConversationPanel" type="PanelContainer" parent="RootMargin/MainSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ConversationMargin" type="MarginContainer" parent="RootMargin/MainSplit/ConversationPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="ConversationVBox" type="VBoxContainer" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="ConversationHeader" type="HBoxContainer" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HeaderAvatar" type="TextureRect" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox/ConversationHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HeaderText" type="VBoxContainer" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox/ConversationHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="ConversationTitle" type="Label" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox/ConversationHeader/HeaderText"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NO CONTACT SELECTED"
+text_overrun_behavior = 3
+
+[node name="ConversationSubtitle" type="Label" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox/ConversationHeader/HeaderText"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Unlock contacts through the world and network."
+autowrap_mode = 2
+
+[node name="PresenceLabel" type="Label" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox/ConversationHeader/HeaderText"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "OFFLINE"
+
+[node name="AffinityLabel" type="Label" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox/ConversationHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "AFFINITY 0"
+vertical_alignment = 1
+
+[node name="HeaderSeparator" type="HSeparator" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox"]
+layout_mode = 2
+
+[node name="MessageScroll" type="ScrollContainer" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+follow_focus = true
+
+[node name="MessageList" type="VBoxContainer" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox/MessageScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="ChoiceSection" type="VBoxContainer" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="ChoiceSeparator" type="HSeparator" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox/ChoiceSection"]
+layout_mode = 2
+
+[node name="ResponseLabel" type="Label" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox/ChoiceSection"]
+layout_mode = 2
+text = "RESPONSES"
+
+[node name="ChoicesScroll" type="ScrollContainer" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox/ChoiceSection"]
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 0
+
+[node name="ChoiceList" type="VBoxContainer" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox/ChoiceSection/ChoicesScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="StatusLabel" type="Label" parent="RootMargin/MainSplit/ConversationPanel/ConversationMargin/ConversationVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NO CONTACTS AVAILABLE"
+autowrap_mode = 2
