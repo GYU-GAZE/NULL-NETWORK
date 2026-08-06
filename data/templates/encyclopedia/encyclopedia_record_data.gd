@@ -91,31 +91,38 @@ func merge_observation(
 
 	if saw_seen:
 		encounter_count += 1
-		changed = _set_flag(&"seen") or changed
+		_set_flag(&"seen")
+		changed = true
 
 	if saw_scanned:
 		scan_count += 1
-		changed = _set_flag(&"scanned") or changed
+		_set_flag(&"scanned")
+		changed = true
 
 	if saw_defeated:
 		defeat_count += 1
-		changed = _set_flag(&"defeated") or changed
+		_set_flag(&"defeated")
+		changed = true
 
 	if saw_purged:
 		purge_count += 1
-		changed = _set_flag(&"purged") or changed
+		_set_flag(&"purged")
+		changed = true
 
 	if saw_purified:
 		purify_count += 1
-		changed = _set_flag(&"purified") or changed
+		_set_flag(&"purified")
+		changed = true
 
 	if saw_tamed:
 		tame_count += 1
-		changed = _set_flag(&"tamed") or changed
+		_set_flag(&"tamed")
+		changed = true
 
 	if saw_lost:
 		loss_count += 1
-		changed = _set_flag(&"lost") or changed
+		_set_flag(&"lost")
+		changed = true
 
 	changed = _merge_ids(
 		known_module_ids,
