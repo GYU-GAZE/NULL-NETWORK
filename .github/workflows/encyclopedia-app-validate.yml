@@ -1,0 +1,106 @@
+name: Encyclopedia App Validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-encyclopedia-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare CI-only asset placeholders
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp project.godot /tmp/project.godot.original
+
+          while IFS= read -r -d '' import_file; do
+            source_file="${import_file%.import}"
+
+            if [ ! -f "$source_file" ]; then
+              extension="${source_file##*.}"
+
+              case "$extension" in
+                png)
+                  printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4////fwAJ+wP9KobjigAAAABJRU5ErkJggg==' \
+                    | base64 --decode > "$source_file"
+                  ;;
+                ttf)
+                  cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf "$source_file"
+                  ;;
+                *)
+                  echo "Unsupported missing asset type: $source_file"
+                  exit 1
+                  ;;
+              esac
+            fi
+
+            rm -f "$import_file"
+          done < <(find data -type f -name '*.import' -print0)
+
+          sed -i '/^theme\/custom=/d' project.godot
+
+      - name: Download Godot 4.6.3
+        run: |
+          curl --fail --location --retry 3 \
+            --output godot.zip \
+            https://godot-releases.nbg1.your-objectstorage.com/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip
+          unzip -q godot.zip
+          chmod +x Godot_v4.6.3-stable_linux.x86_64
+
+      - name: Import project
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --editor --path . --import --verbose \
+            2>&1 | tee godot-encyclopedia-import.log
+
+      - name: Run Encyclopedia app test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 180 \
+            tests/encyclopedia/encyclopedia_app_test.tscn \
+            2>&1 | tee godot-encyclopedia-app-test.log
+          grep -q "ENCYCLOPEDIA_APP_TEST: PASS" \
+            godot-encyclopedia-app-test.log
+
+      - name: Reject script and resource errors
+        shell: bash
+        run: |
+          cat \
+            godot-encyclopedia-import.log \
+            godot-encyclopedia-app-test.log \
+            > godot-encyclopedia-validation.log
+
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|Parse Error" godot-encyclopedia-validation.log; then
+            exit 1
+          fi
+
+      - name: Restore project settings
+        if: always()
+        run: cp /tmp/project.godot.original project.godot
+
+      - name: Upload Encyclopedia validation log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: encyclopedia-app-validation-log
+          path: |
+            godot-encyclopedia-import.log
+            godot-encyclopedia-app-test.log
+            godot-encyclopedia-validation.log
+          if-no-files-found: ignore
