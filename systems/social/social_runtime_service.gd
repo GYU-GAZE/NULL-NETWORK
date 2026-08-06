@@ -54,7 +54,9 @@ func remove_friend(npc_id: String) -> bool:
 	var clean_id: String = npc_id.strip_edges()
 	var state: FriendListSocialStateData = _get_friend_state()
 
-	if clean_id.is_empty() or state == null:
+	if clean_id.is_empty() \
+		or state == null \
+		or not state.is_friend(clean_id):
 		return false
 
 	# Party membership is a privilege of the friendship relation. Removing a
@@ -63,9 +65,7 @@ func remove_friend(npc_id: String) -> bool:
 		state.remove_party_member(clean_id)
 		party_changed.emit(clean_id, false)
 
-	if not state.remove_friend(clean_id):
-		return false
-
+	state.remove_friend(clean_id)
 	_commit(clean_id)
 	friendship_changed.emit(clean_id, false)
 	return true
