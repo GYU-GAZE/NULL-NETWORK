@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="EncyclopediaCatalog" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/templates/encyclopedia/encyclopedia_catalog.gd" id="1_catalog"]
+[ext_resource type="Script" path="res://data/templates/encyclopedia/encyclopedia_entry_data.gd" id="2_entry_type"]
+[ext_resource type="Resource" path="res://data/content/encyclopedia/entries/exe_rattildus.tres" id="3_rattildus"]
+
+[resource]
+script = ExtResource("1_catalog")
+entries = Array[ExtResource("2_entry_type")]([ExtResource("3_rattildus")])
