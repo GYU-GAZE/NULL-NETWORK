@@ -22,6 +22,15 @@ func select_starter(
 	if not errors.is_empty() or not completes_succession:
 		return errors
 
+	if not AppInstallationManager.install_app(
+		"navigator",
+		null,
+		true,
+		true
+	):
+		errors.append("Successor starter selection could not install Navigator.")
+		return errors
+
 	CampaignState.campaign_phase = CampaignState.CampaignPhase.MAIN_CAMPAIGN
 	CampaignState.campaign_changed.emit(&"campaign")
 	SaveManager.request_checkpoint(
