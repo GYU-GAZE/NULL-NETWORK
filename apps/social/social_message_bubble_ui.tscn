@@ -1,0 +1,45 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/social/social_message_bubble_ui.gd" id="1_bubble"]
+
+[node name="SocialMessageBubbleUI" type="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+script = ExtResource("1_bubble")
+
+[node name="SpacerBefore" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Bubble" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="Content" type="VBoxContainer" parent="Bubble"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="Sender" type="Label" parent="Bubble/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SENDER"
+
+[node name="Body" type="RichTextLabel" parent="Bubble/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 2
+
+[node name="SpacerAfter" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
