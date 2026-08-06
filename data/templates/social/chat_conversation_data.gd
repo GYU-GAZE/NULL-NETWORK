@@ -10,6 +10,9 @@ class_name ChatConversationData
 
 @export_category("Availability")
 @export var unlock_conditions: ConditionSetData
+## Integration and story-triggered conversations may establish friendship when
+## they become available. Normal conversations require an existing friend.
+@export var auto_add_friend_on_unlock: bool = false
 
 @export_category("Content")
 @export var initial_message_ids: PackedStringArray = PackedStringArray()
@@ -121,7 +124,7 @@ func validate_data() -> PackedStringArray:
 			errors.append(
 				"Initial message '%s' is not present in messages."
 				% clean_id
-		)
+			)
 
 	for index: int in range(choices.size()):
 		var choice: ChatChoiceData = choices[index]
