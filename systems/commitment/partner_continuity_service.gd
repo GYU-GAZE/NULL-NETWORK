@@ -138,10 +138,10 @@ static func get_turd_state_snapshot() -> PartnerStateData:
 		return CampaignState.partner.duplicate_state()
 
 	if has_turd_reserve():
-		return (
-			CampaignState.operator.partner_continuity.turd_reserve
-			.duplicate_state()
+		var continuity: PartnerContinuityStateData = (
+			CampaignState.operator.partner_continuity
 		)
+		return continuity.turd_reserve.duplicate_state()
 
 	return null
 
