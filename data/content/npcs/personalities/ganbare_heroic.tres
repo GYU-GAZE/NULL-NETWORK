@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="NPCPersonalityData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/npcs/npc_personality_data.gd" id="1_personality"]
+
+[resource]
+script = ExtResource("1_personality")
+personality_id = "heroic_supporter"
+display_name = "Heroic Supporter"
+description = "Direct, encouraging and eager to turn uncertainty into action."
+interaction_tags = PackedStringArray("encouraging", "direct", "competitive")
