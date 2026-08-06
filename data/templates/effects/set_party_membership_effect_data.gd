@@ -21,10 +21,18 @@ func _apply_effect(context: GameEffectContext) -> bool:
 	if resolved_npc_id.is_empty():
 		return false
 
+	var membership: Dictionary = SocialService.get_party_membership(
+		resolved_npc_id
+	)
+
 	match operation:
 		Operation.JOIN:
 			if resolved_owner_id.is_empty():
 				return false
+
+			if not membership.is_empty():
+				return str(membership.get("owner_id", "")) \
+					== resolved_owner_id
 
 			return SocialService.add_party_member(
 				resolved_npc_id,
@@ -32,6 +40,16 @@ func _apply_effect(context: GameEffectContext) -> bool:
 			)
 
 		Operation.LEAVE:
+			# Cleanup Effects are replay-safe. An already absent member means the
+			# requested final state has already been reached.
+			if membership.is_empty():
+				return true
+
+			if not resolved_owner_id.is_empty() \
+				and str(membership.get("owner_id", "")) \
+				!= resolved_owner_id:
+				return false
+
 			return SocialService.remove_party_member(
 				resolved_npc_id,
 				resolved_owner_id
