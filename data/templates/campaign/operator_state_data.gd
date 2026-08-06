@@ -5,6 +5,7 @@ class_name OperatorStateData
 var operator_id: String = ""
 var profile: OperatorProfileData = OperatorProfileData.new()
 var appearance: AppearanceData = AppearanceData.new()
+var partner_continuity: PartnerContinuityStateData = PartnerContinuityStateData.new()
 var level: int = 1
 var experience: int = 0
 var registration_day: int = 1
@@ -32,6 +33,7 @@ func reset() -> void:
 	operator_id = ""
 	profile = OperatorProfileData.new()
 	appearance = AppearanceData.new()
+	partner_continuity = PartnerContinuityStateData.new()
 	level = 1
 	experience = 0
 	registration_day = 1
@@ -51,6 +53,7 @@ func to_save_data() -> Dictionary:
 		"profile": profile.to_save_data(),
 		"appearance": appearance.to_save_data(),
 		"appearance_part_ids": Array(appearance_part_ids),
+		"partner_continuity": partner_continuity.to_save_data(),
 		"level": level,
 		"experience": experience,
 		"registration_day": registration_day,
@@ -83,6 +86,11 @@ func load_save_data(data: Dictionary) -> void:
 		appearance.load_save_data({
 			"appearance_part_ids": data.get("appearance_part_ids", [])
 		})
+
+	var continuity_value: Variant = data.get("partner_continuity", {})
+
+	if continuity_value is Dictionary:
+		partner_continuity.load_save_data(continuity_value as Dictionary)
 
 	level = maxi(1, int(data.get("level", 1)))
 	experience = maxi(0, int(data.get("experience", 0)))
