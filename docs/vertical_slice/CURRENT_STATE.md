@@ -14,11 +14,12 @@
 
 - Base branch: `main`
 - Roadmap phase: **Phase 13 — Profile, Encyclopedia and Calendar**
-- Current subphase: **13.3 Calendar**
+- Current subphase: **Phase 13 integrated validation**
 - Phase 12 implementation: complete; party participation and shared EXP were manually confirmed in runtime.
 - Phase 13.1 Profile: implemented and manually confirmed in runtime.
-- Phase 13.2 Encyclopedia: implemented; automated gate is authored and awaits runtime/CI confirmation.
-- Latest implementation head before this documentation checkpoint: `0d081c077991e67efc569c7fd964d8c37cad98dd`
+- Phase 13.2 Encyclopedia: typed architecture and greybox app implemented; behavior/UX is explicitly deferred for later redesign by project-owner decision.
+- Phase 13.3 Calendar: implemented; automated gate is authored and awaits runtime/CI confirmation.
+- Latest implementation head before this documentation checkpoint: `74a9c4fb61ad3e12acfd150712ecc73c7dc62f71`
 
 The reusable campaign loop currently supports:
 
@@ -30,6 +31,7 @@ Forum or Social source
 → Dialogue
 → Combat
 → centralized rewards and Encyclopedia observation
+→ Profile and Calendar projections
 → persistent campaign reaction
 ```
 
@@ -49,60 +51,74 @@ NetworkUserData identity
 
 ## Next exact task
 
-Implement Phase 13.3 Calendar in this order:
+Validate the Calendar and then close the integrated Phase 13 gate.
 
-1. Audit `TimeManager`, occupation schedules, StoryEvents, Leads, Incidents and existing Social hangout state.
-2. Create immutable `CalendarEventData` and `CalendarCatalog` Resources.
-3. Create a read-only Calendar projection service that merges authored events with current campaign/time state.
-4. Keep known/hidden event state as stable IDs and plain values inside the existing campaign save architecture.
-5. Create the Calendar app and condition-driven app Resource.
-6. Complete the integrated Phase 13 gate: combat updates Profile and Encyclopedia; Calendar shows the next known event; all survive restart.
+### First
 
-### Create next
+Run:
+
+```text
+tests/calendar/calendar_app_test.tscn
+```
+
+Confirm:
+
+```text
+Calendar absent before Operator registration;
+occupation registration auto-installs Calendar;
+current date, weekday, DAY/NIGHT, hour and action block project correctly;
+occupation schedule is converted into occupied time ranges;
+remaining free blocks update after time advances;
+Update 1.0 appears at the authoritative countdown day;
+active Leads and available Incidents appear without revealing inactive content;
+Calendar state reconstructs after save/reload.
+```
+
+### Then
+
+Create or extend the integrated Phase 13 gate:
+
+```text
+combat resolves
+→ Profile reflects EXP/tendencies
+→ Encyclopedia contains the confirmed EXE record
+→ Calendar contains routine and next known event
+→ save/restart
+→ all three projections remain coherent
+```
+
+After that gate is confirmed, advance to **Phase 14 — Commitment, Partner Loss, TURD and Operator Loss**.
+
+## Active files
+
+### Calendar foundation
 
 ```text
 data/templates/calendar/calendar_event_data.gd
 data/templates/calendar/calendar_catalog.gd
+data/templates/content/calendar_game_content_catalog.gd
 systems/calendar/calendar_projection_service.gd
 apps/calendar/calendar_app.gd
 apps/calendar/calendar_app.tscn
+data/content/calendar/calendar_catalog.tres
+data/content/calendar/events/update_1_0.tres
 data/content/apps/app_calendar.tres
-tests/calendar/calendar_app_test.gd
-tests/calendar/calendar_app_test.tscn
 ```
 
-## Active files
-
-### Encyclopedia foundation
+### Catalog and installation integration
 
 ```text
-data/templates/encyclopedia/encyclopedia_entry_data.gd
-data/templates/encyclopedia/encyclopedia_record_data.gd
-data/templates/encyclopedia/encyclopedia_state_data.gd
-data/templates/encyclopedia/encyclopedia_catalog.gd
-data/templates/conditions/encyclopedia_condition_data.gd
-data/templates/content/encyclopedia_game_content_catalog.gd
-systems/encyclopedia/encyclopedia_service.gd
-systems/encyclopedia/encyclopedia_projection_service.gd
-apps/encyclopedia/encyclopedia_app.gd
-apps/encyclopedia/encyclopedia_app.tscn
-data/content/encyclopedia/encyclopedia_catalog.tres
-data/content/encyclopedia/entries/exe_rattildus.tres
-data/content/apps/app_encyclopedia.tres
-```
-
-### Combat integration
-
-```text
-systems/combat/combat_resolution_service.gd
+data/content/game_content_catalog.tres
+data/content/apps/kubu_os_app_catalog.tres
+core/autoloads/app_installation_manager.gd
 ```
 
 ### Validation
 
 ```text
-tests/encyclopedia/encyclopedia_app_test.gd
-tests/encyclopedia/encyclopedia_app_test.tscn
-.github/workflows/encyclopedia-app-validate.yml
+tests/calendar/calendar_app_test.gd
+tests/calendar/calendar_app_test.tscn
+.github/workflows/calendar-app-validate.yml
 ```
 
 ## Phase 12 checkpoint — NPCs, Social and minimal party
@@ -170,53 +186,54 @@ The app projects Operator identity, occupation, ranking, server, all four tenden
 
 ## Phase 13.2 checkpoint — Encyclopedia
 
+`EncyclopediaEntryData`, `EncyclopediaRecordData`, `EncyclopediaStateData` and `EncyclopediaCatalog` provide typed confirmed-knowledge content and state.
+
+The existing `CampaignState.encyclopedia_state` remains the only save section. `EncyclopediaService` materializes typed runtime state, migrates legacy dictionaries and writes canonical JSON-safe data back to the same section.
+
+Combat records `seen`, `scanned`, `defeated`, `purged`, `purified`, `tamed`, `lost`, known Modules, locations and evolutions through idempotent observation IDs.
+
+The current app and behavior do not match the final desired Encyclopedia experience. Do not expand or polish this UI until its intended information architecture is redefined with the project owner.
+
+## Phase 13.3 checkpoint — Calendar
+
 ### Immutable content
 
-`EncyclopediaEntryData` owns confirmed presentation and references:
+`CalendarEventData` supports:
 
 ```text
-entry identity and kind;
-subject APK;
-summary;
-SCAN, defeat, PURGE, PURIFY, TAME and loss notes;
-related Module IDs;
-related location IDs;
-related evolution APK IDs.
+absolute game-day events;
+weekly events;
+Update 1.0 countdown anchored events;
+all-day or block-timed events;
+visibility Conditions;
+availability Conditions;
+stable source and location IDs;
+priority and event kind.
 ```
 
-`EncyclopediaCatalog` registers entries through `EncyclopediaGameContentCatalog`. Combat reward profiles are validated against registered Encyclopedia IDs.
+`CalendarCatalog` registers authored events through `CalendarGameContentCatalog`. The initial integration content is `calendar.update_1_0`.
 
-### Mutable state
+### Projection
 
-`EncyclopediaRecordData` and `EncyclopediaStateData` track independently:
+`CalendarProjectionService` is read-only and merges:
 
 ```text
-seen;
-scanned;
-defeated;
-purged;
-purified;
-tamed;
-lost;
-known_modules;
-known_locations;
-known_evolutions;
-per-milestone counters;
-idempotent observation IDs;
-first and last update action indices.
+TimeManager date and action-block state;
+OccupationData weekly schedules;
+visible authored CalendarEventData;
+active Leads;
+available Incidents.
 ```
 
-The existing `CampaignState.encyclopedia_state` remains the save section. `EncyclopediaService` materializes typed runtime state, migrates legacy `discovered`/`encountered` dictionaries and commits canonical JSON-safe dictionaries back to that same section.
+It does not save duplicate dates, occupation routines, Leads or Incidents. These remain owned by their original systems.
 
-### Combat and app projection
+### App installation and UI
 
-- `CombatResolutionService` records one observation per resolved enemy through `EncyclopediaService`.
-- SCAN, PURGE, PURIFY and TAME are recorded independently.
-- Confirmed Modules and the current location are attached to the entry without storing Resources in the save.
-- Observation IDs prevent one resolved combat from being counted twice.
-- `EncyclopediaProjectionService` resolves IDs for the UI but owns no state.
-- The app installs automatically after the first confirmed entry and exposes search, kind filter, milestones, confirmed notes and resolved references.
-- Forum data remains community/speculative information; Encyclopedia entries represent confirmed player observations.
+- Calendar declares `OccupationConditionData.HAS_ANY` and auto-installs after Operator registration.
+- The app shows an eight-day window so D-7 Update 1.0 is visible.
+- Occupied occupation blocks are collapsed into readable contiguous time ranges.
+- The UI refreshes from time, campaign, Lead, Incident and catalog signals.
+- Current visuals are greybox and intentionally separable from projection logic.
 
 ## Required validation
 
@@ -244,19 +261,26 @@ Manual Profile runtime check: confirmed working by the project owner.
 Godot --headless --path . tests/encyclopedia/encyclopedia_app_test.tscn
 ```
 
+### Phase 13 Calendar
+
+```text
+Godot --headless --path . tests/calendar/calendar_app_test.tscn
+```
+
 Dedicated workflow:
 
 ```text
-.github/workflows/encyclopedia-app-validate.yml
+.github/workflows/calendar-app-validate.yml
 ```
 
 ## Known gaps
 
 - Current Profile ranking is projected from runtime `NetworkUserData`; a dedicated ranking progression authority does not yet exist.
-- Profile and Encyclopedia visuals use greybox/placeholder assets and need a later UX/art pass.
-- Calendar Resources and app do not exist yet.
+- Profile and Calendar visuals use greybox/placeholder assets and need later UX/art passes.
+- Encyclopedia behavior and UX are intentionally deferred for redesign.
+- Calendar can project authored hangout events, but no player-facing hangout scheduling authority exists yet.
 - `known_evolutions` is supported by typed Encyclopedia state, but final evolution-discovery authorship is not yet wired to `EvolutionManager`.
 - The `integration_field_test` and Aquarium Relay are system-integration content, not final Week One narrative content.
 - Only NOVIRE has a complete starter integration Resource.
 - Operator Partner Loss remains recoverable until Phase 14 implements TURD and Operator Loss.
-- The latest Encyclopedia test has not been executed in this tool environment because no local Godot executable or observable GitHub Actions result is available.
+- Calendar and Encyclopedia tests have not been executed in this tool environment because no local Godot executable or observable GitHub Actions result is available.
