@@ -17,11 +17,11 @@ func _apply_effect(_context: GameEffectContext) -> bool:
 
 func _validate_effect() -> PackedStringArray:
 	var errors := PackedStringArray()
-	var clean_id: String = lead_id.strip_edges()
 
-	if clean_id.is_empty():
+	if lead_id.strip_edges().is_empty():
 		errors.append("lead_id cannot be empty.")
-	elif ContentRegistry.get_lead(clean_id) == null:
-		errors.append("lead_id '%s' is not registered." % clean_id)
 
+	# Cross-reference validation belongs to the owning content catalog.
+	# ContentRegistry builds proposed indexes only after Resource validation,
+	# so checking the live registry here would reject valid new catalogs.
 	return errors
