@@ -8,7 +8,8 @@ const ENCYCLOPEDIA_ENTRY_CATEGORY: StringName = &"encyclopedia_entries"
 
 static func resolve_after_combat(
 	_outcome: CombatResult.Outcome,
-	encounter_id: String
+	encounter_id: String,
+	infestation_increase: int = DEFAULT_INFESTATION_INCREASE
 ) -> Dictionary:
 	if not CampaignState.has_campaign() \
 		or CampaignState.partner == null \
@@ -17,25 +18,28 @@ static func resolve_after_combat(
 		return _empty_result()
 
 	if PartnerContinuityService.is_turd_active():
-		var operator_loss_result: Dictionary = _empty_result()
-		var operator_loss_metadata: Dictionary = (
-			operator_loss_result.get("metadata", {}) as Dictionary
+		return OperatorLossService.resolve_after_combat(
+			CampaignState.partner.duplicate_state(),
+			encounter_id,
+			maxi(
+				OperatorLossService.DEFAULT_INFESTATION_INCREASE,
+				infestation_increase
+			)
 		)
-		operator_loss_metadata["operator_loss_required"] = true
-		operator_loss_metadata["irreversible"] = true
-		return operator_loss_result
 
 	return resolve_captured_primary_loss(
 		CampaignState.partner.duplicate_state(),
 		true,
-		encounter_id
+		encounter_id,
+		infestation_increase
 	)
 
 
 static func resolve_captured_primary_loss(
 	lost_partner: PartnerStateData,
 	activate_fallback: bool,
-	encounter_id: String
+	encounter_id: String,
+	infestation_increase: int = DEFAULT_INFESTATION_INCREASE
 ) -> Dictionary:
 	var result: Dictionary = _empty_result()
 	var errors: PackedStringArray = result.get(
@@ -77,17 +81,18 @@ static func resolve_captured_primary_loss(
 	metadata["irreversible"] = true
 
 	var location_id: String = CampaignState.current_location_id.strip_edges()
+	var applied_infestation: int = maxi(0, infestation_increase)
 
-	if not location_id.is_empty():
+	if not location_id.is_empty() and applied_infestation > 0:
 		var previous_infestation: int = CampaignState.world_state.get_infestation(
 			location_id
 		)
 		CampaignState.world_state.set_infestation(
 			location_id,
-			previous_infestation + DEFAULT_INFESTATION_INCREASE
+			previous_infestation + applied_infestation
 		)
 		CampaignState.campaign_changed.emit(&"world_infestation")
-		metadata["infestation_increase"] = DEFAULT_INFESTATION_INCREASE
+		metadata["infestation_increase"] = applied_infestation
 
 	_mark_apk_lost_in_encyclopedia(
 		lost_apk_id,
@@ -107,6 +112,8 @@ static func _empty_result() -> Dictionary:
 			"lost_apk_id": "",
 			"turd_assigned": false,
 			"operator_loss_required": false,
+			"operator_lost": false,
+			"legacy_site_id": "",
 			"infestation_increase": 0,
 			"irreversible": false
 		}
