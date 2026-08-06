@@ -1,0 +1,301 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/profile/app_operator_profile.gd" id="1_app"]
+
+[node name="OperatorProfileApp" type="PanelContainer"]
+clip_contents = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 19
+script = ExtResource("1_app")
+
+[node name="RootMargin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="ProfileScroll" type="ScrollContainer" parent="RootMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Content" type="VBoxContainer" parent="RootMargin/ProfileScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="OperatorHeader" type="PanelContainer" parent="RootMargin/ProfileScroll/Content"]
+layout_mode = 2
+
+[node name="HeaderMargin" type="MarginContainer" parent="RootMargin/ProfileScroll/Content/OperatorHeader"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="HeaderHBox" type="HBoxContainer" parent="RootMargin/ProfileScroll/Content/OperatorHeader/HeaderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="OperatorAvatar" type="TextureRect" parent="RootMargin/ProfileScroll/Content/OperatorHeader/HeaderMargin/HeaderHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="IdentityVBox" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/OperatorHeader/HeaderMargin/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 1
+
+[node name="OperatorName" type="Label" parent="RootMargin/ProfileScroll/Content/OperatorHeader/HeaderMargin/HeaderHBox/IdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "NO ACTIVE OPERATOR"
+text_overrun_behavior = 3
+
+[node name="UsernameLabel" type="Label" parent="RootMargin/ProfileScroll/Content/OperatorHeader/HeaderMargin/HeaderHBox/IdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "@---"
+
+[node name="RealNameLabel" type="Label" parent="RootMargin/ProfileScroll/Content/OperatorHeader/HeaderMargin/HeaderHBox/IdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NO CAMPAIGN DATA"
+
+[node name="OccupationLabel" type="Label" parent="RootMargin/ProfileScroll/Content/OperatorHeader/HeaderMargin/HeaderHBox/IdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "OCCUPATION —"
+
+[node name="RankLabel" type="Label" parent="RootMargin/ProfileScroll/Content/OperatorHeader/HeaderMargin/HeaderHBox/IdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "RANK —"
+
+[node name="ServerLabel" type="Label" parent="RootMargin/ProfileScroll/Content/OperatorHeader/HeaderMargin/HeaderHBox/IdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SERVER —"
+
+[node name="TendencyPanel" type="PanelContainer" parent="RootMargin/ProfileScroll/Content"]
+layout_mode = 2
+
+[node name="TendencyMargin" type="MarginContainer" parent="RootMargin/ProfileScroll/Content/TendencyPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="TendencyVBox" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/TendencyPanel/TendencyMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TendencyTitle" type="Label" parent="RootMargin/ProfileScroll/Content/TendencyPanel/TendencyMargin/TendencyVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "OPERATOR TENDENCIES"
+
+[node name="TendencyList" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/TendencyPanel/TendencyMargin/TendencyVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="PartnerPanel" type="PanelContainer" parent="RootMargin/ProfileScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PartnerMargin" type="MarginContainer" parent="RootMargin/ProfileScroll/Content/PartnerPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="PartnerVBox" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="PartnerTitle" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "REGISTERED PARTNER"
+
+[node name="PartnerHeader" type="HBoxContainer" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PartnerPortrait" type="TextureRect" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(112, 112)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PartnerIdentityVBox" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 1
+
+[node name="PartnerName" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader/PartnerIdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "PARTNER"
+
+[node name="PartnerSpecies" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader/PartnerIdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "UNKNOWN APK"
+
+[node name="PartnerForm" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader/PartnerIdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "UNKNOWN // UNKNOWN"
+
+[node name="PartnerLevel" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader/PartnerIdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "LEVEL 1"
+
+[node name="PartnerIdentity" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader/PartnerIdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "PERSONALITY —"
+autowrap_mode = 2
+
+[node name="PartnerAffinity" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader/PartnerIdentityVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "AFFINITY 0"
+
+[node name="PartnerExpLabel" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "EXP 0 / 0"
+
+[node name="PartnerExpBar" type="ProgressBar" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+max_value = 100.0
+show_percentage = false
+
+[node name="VitalsGrid" type="GridContainer" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox"]
+layout_mode = 2
+columns = 3
+
+[node name="HPLabel" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/VitalsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "HP 0 / 0"
+
+[node name="StabilityLabel" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/VitalsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "STABILITY 0 / 100"
+
+[node name="AllocationLabel" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/VitalsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "ALLOCATION POINTS 0"
+
+[node name="StatsTitle" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox"]
+layout_mode = 2
+text = "CALCULATED STATS"
+
+[node name="StatsGrid" type="GridContainer" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 2
+
+[node name="ModulesPanel" type="PanelContainer" parent="RootMargin/ProfileScroll/Content"]
+layout_mode = 2
+
+[node name="ModulesMargin" type="MarginContainer" parent="RootMargin/ProfileScroll/Content/ModulesPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="ModulesVBox" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/ModulesPanel/ModulesMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="EquippedTitle" type="Label" parent="RootMargin/ProfileScroll/Content/ModulesPanel/ModulesMargin/ModulesVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "EQUIPPED MODULES"
+
+[node name="EquippedModuleList" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/ModulesPanel/ModulesMargin/ModulesVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="ModuleSeparator" type="HSeparator" parent="RootMargin/ProfileScroll/Content/ModulesPanel/ModulesMargin/ModulesVBox"]
+layout_mode = 2
+
+[node name="KnownTitle" type="Label" parent="RootMargin/ProfileScroll/Content/ModulesPanel/ModulesMargin/ModulesVBox"]
+layout_mode = 2
+text = "KNOWN MODULES"
+
+[node name="KnownModuleList" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/ModulesPanel/ModulesMargin/ModulesVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="InventoryPanel" type="PanelContainer" parent="RootMargin/ProfileScroll/Content"]
+layout_mode = 2
+
+[node name="InventoryMargin" type="MarginContainer" parent="RootMargin/ProfileScroll/Content/InventoryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="InventoryVBox" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/InventoryPanel/InventoryMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="InventoryHeader" type="HBoxContainer" parent="RootMargin/ProfileScroll/Content/InventoryPanel/InventoryMargin/InventoryVBox"]
+layout_mode = 2
+
+[node name="InventoryTitle" type="Label" parent="RootMargin/ProfileScroll/Content/InventoryPanel/InventoryMargin/InventoryVBox/InventoryHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "INVENTORY"
+
+[node name="MoneyLabel" type="Label" parent="RootMargin/ProfileScroll/Content/InventoryPanel/InventoryMargin/InventoryVBox/InventoryHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "¥0"
+
+[node name="InventoryList" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/InventoryPanel/InventoryMargin/InventoryVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="StatusLabel" type="Label" parent="RootMargin/ProfileScroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "PROFILE UNAVAILABLE"
+horizontal_alignment = 1
