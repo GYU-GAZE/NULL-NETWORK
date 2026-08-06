@@ -48,6 +48,7 @@
 [ext_resource type="Resource" path="res://data/content/incidents/akihabara_aquarium_relay.tres" id="48_aquarium_incident"]
 [ext_resource type="Resource" path="res://data/content/dialogues/akihabara_aquarium_relay.tres" id="49_aquarium_dialogue"]
 [ext_resource type="Resource" path="res://data/content/npcs/npc_catalog.tres" id="50_npc_catalog"]
+[ext_resource type="Resource" path="res://data/content/social/social_content_catalog.tres" id="51_social_catalog"]
 
 [resource]
 script = ExtResource("1_catalog")
@@ -62,6 +63,7 @@ occupations = Array[ExtResource("31_occupation_type")]([ExtResource("32_neet"), 
 app_catalog = ExtResource("11_app_catalog")
 locations = Array[ExtResource("14_location_type")]([ExtResource("15_akihabara"), ExtResource("35_residential"), ExtResource("36_high_school"), ExtResource("37_corporate")])
 npc_catalog = ExtResource("50_npc_catalog")
+social_catalog = ExtResource("51_social_catalog")
 dialogues = Array[ExtResource("30_dialogue_type")]([ExtResource("29_welcome_dialogue"), ExtResource("49_aquarium_dialogue")])
 story_event_catalog = ExtResource("28_story_events")
 lead_catalog = ExtResource("46_lead_catalog")
