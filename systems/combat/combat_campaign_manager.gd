@@ -24,8 +24,58 @@ func _ready() -> void:
 func resolve_encounter(
 	outcome: CombatResult.Outcome
 ) -> PackedStringArray:
+	var errors := PackedStringArray()
+
+	if _resolution_applied:
+		return errors
+
+	if not _encounter_active or _current_encounter == null:
+		errors.append("No active encounter is available for resolution.")
+		return errors
+
+	if not _awaiting_resolution:
+		errors.append("Combat has not reached a terminal resolution boundary.")
+		return errors
+
+	if outcome != _pending_outcome:
+		errors.append("Combat outcome does not match the pending terminal state.")
+		return errors
+
 	_prepare_recoverable_partner_snapshot(outcome)
-	return super.resolve_encounter(outcome)
+	var player: Variant = _get_player_resolution_actor()
+
+	if player is not Dictionary:
+		errors.append("Combat has no player actor to resolve.")
+		return errors
+
+	var result: Dictionary = CombatResolutionService.resolve(
+		outcome,
+		_current_encounter,
+		player as Dictionary,
+		_get_enemy_resolution_records(),
+		player_action_progress,
+		combat_tendency_log,
+		_get_ally_resolution_records()
+	)
+	errors.append_array(result.get("errors", PackedStringArray()))
+
+	if not errors.is_empty():
+		return errors
+
+	_resolution_metadata = result.get("metadata", {}).duplicate(true)
+	_resolution_applied = true
+	_partner_state_committed = true
+	_awaiting_resolution = false
+	_pending_outcome = outcome
+	SaveManager.request_checkpoint(
+		StringName("combat_resolved.%s" % _current_encounter.encounter_id),
+		not str(_resolution_metadata.get("tamed_apk_id", "")).is_empty()
+	)
+	combat_resolution_applied.emit(
+		outcome,
+		_resolution_metadata.duplicate(true)
+	)
+	return errors
 
 
 func _load_team_from_slots(
@@ -38,6 +88,19 @@ func _load_team_from_slots(
 		target_team,
 		is_ally
 	)
+
+	for slot_data: CombatSlotData in slot_data_list:
+		if slot_data == null \
+			or slot_data.participant_source \
+			!= CombatSlotData.ParticipantSource.PARTY_MEMBER \
+			or slot_data.slot_index < 0 \
+			or slot_data.slot_index >= target_team.size() \
+			or target_team[slot_data.slot_index] is not Dictionary:
+			continue
+
+		(target_team[slot_data.slot_index] as Dictionary)[
+			"party_member_id"
+		] = slot_data.party_member_id.strip_edges()
 
 	if not is_ally \
 		or _current_encounter == null \
@@ -149,8 +212,22 @@ func _resolve_slot_loadout(
 	return super._resolve_slot_loadout(slot_data)
 
 
+func _serialize_actor(actor: Dictionary) -> Dictionary:
+	var data: Dictionary = super._serialize_actor(actor)
+	data["party_member_id"] = str(
+		actor.get("party_member_id", "")
+	).strip_edges()
+	data["defeated_in_combat"] = bool(
+		actor.get("defeated_in_combat", false)
+	)
+	return data
+
+
 func _deserialize_actor(data: Dictionary) -> Dictionary:
 	var actor: Dictionary = super._deserialize_actor(data)
+	actor["defeated_in_combat"] = bool(
+		data.get("defeated_in_combat", false)
+	)
 
 	if int(data.get("source_kind", -1)) \
 		!= CombatSlotData.ParticipantSource.PARTY_MEMBER:
@@ -194,6 +271,32 @@ func _find_party_npc_by_character_id(
 			return npc
 
 	return null
+
+
+func _get_ally_resolution_records() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var seen_uids: Dictionary = {}
+
+	for actor_value: Variant in ally_team:
+		if actor_value is not Dictionary:
+			continue
+
+		var actor := actor_value as Dictionary
+		var uid: int = int(actor.get("uid", -1))
+		result.append(actor.duplicate(true))
+
+		if uid >= 0:
+			seen_uids[uid] = true
+
+	var player: Variant = _get_player_resolution_actor()
+
+	if player is Dictionary:
+		var player_uid: int = int((player as Dictionary).get("uid", -1))
+
+		if player_uid < 0 or not seen_uids.has(player_uid):
+			result.append((player as Dictionary).duplicate(true))
+
+	return result
 
 
 func _emit_terminal_outcome() -> void:
