@@ -5,7 +5,7 @@ extends "res://apps/combat/combat_manager.gd"
 ##
 ## The inherited combat runtime owns turn execution and the tactical grid.
 ## This layer owns campaign-facing combat policies and resolves reusable
-## catalog APK participants through the same progression rules as partners.
+## catalog APK and Social party participants.
 
 const RECOVERABLE_PARTNER_MIN_HP: int = 1
 
@@ -31,14 +31,28 @@ func resolve_encounter(
 func _resolve_slot_loadout(
 	slot_data: CombatSlotData
 ) -> CharacterLoadout:
-	if slot_data != null \
-		and slot_data.participant_source \
-		== CombatSlotData.ParticipantSource.CATALOG_APK:
-		return APKCombatLoadoutFactory.create_loadout(
-			slot_data.apk_id,
-			slot_data.apk_level,
-			slot_data.apk_integrity_state
-		)
+	if slot_data == null:
+		return null
+
+	match slot_data.participant_source:
+		CombatSlotData.ParticipantSource.CATALOG_APK:
+			return APKCombatLoadoutFactory.create_loadout(
+				slot_data.apk_id,
+				slot_data.apk_level,
+				slot_data.apk_integrity_state
+			)
+
+		CombatSlotData.ParticipantSource.PARTY_MEMBER:
+			var npc: NPCData = SocialService.get_npc(
+				slot_data.party_member_id
+			)
+
+			if npc == null \
+				or not SocialService.is_party_member(npc.get_display_id()) \
+				or npc.party_loadout == null:
+				return null
+
+			return npc.party_loadout.duplicate(true) as CharacterLoadout
 
 	return super._resolve_slot_loadout(slot_data)
 
