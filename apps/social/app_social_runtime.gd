@@ -42,3 +42,21 @@ func _get_primary_conversation(profile_id: String) -> ChatConversationData:
 			return left.get_display_id() < right.get_display_id()
 	)
 	return candidates[0] if not candidates.is_empty() else null
+
+
+func _render_selected_conversation() -> void:
+	super._render_selected_conversation()
+
+	var conversation: ChatConversationData = (
+		SocialService.get_chat_conversation(
+			get_selected_conversation_id()
+		)
+	)
+
+	if conversation == null \
+		or not SocialService.is_party_member(
+			conversation.get_npc_id()
+		):
+		return
+
+	presence_label.text = "%s // IN PARTY" % presence_label.text
