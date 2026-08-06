@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="EncyclopediaEntryData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/encyclopedia/encyclopedia_entry_data.gd" id="1_entry"]
+
+[resource]
+script = ExtResource("1_entry")
+entry_id = "exe.rattildus"
+entry_kind = 1
+display_name = "RATTILDUS"
+subtitle = "AKIHABARA URBAN EXE"
+sort_order = 10
+subject_apk_id = "rattildus_init"
+summary = "A Rattildus-form EXE confirmed through direct contact in Akihabara."
+scan_notes = "SCAN confirms active Module signatures carried by this form. Each identified Module is stored separately in the record."
+defeat_notes = "A conventional defeat was confirmed. Combat rewards are resolved by the campaign combat pipeline."
+purge_notes = "PURGE was completed against this form, exposing an active Module and increasing the recovered EXP pool."
+purify_notes = "PURIFY was completed against this form, confirming a transferable passive Module signature."
+tame_notes = "TAME was completed against this form, confirming that it can materialize as a persistent partner."
+loss_notes = "A registered partner using this form was permanently lost."
+related_module_ids = PackedStringArray("basic_attack", "heavy_attack", "basic_defense", "basic_heal", "rattildus_guard")
+related_location_ids = PackedStringArray("akihabara")
