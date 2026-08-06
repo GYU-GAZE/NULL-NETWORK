@@ -5,6 +5,10 @@ signal installation_succeeded(app_id: String)
 signal installation_rejected(app_id: String, reason: String)
 
 
+var _synchronization_queued: bool = false
+var _is_synchronizing: bool = false
+
+
 func _ready() -> void:
 	if not CampaignState.campaign_changed.is_connected(_on_campaign_changed):
 		CampaignState.campaign_changed.connect(_on_campaign_changed)
@@ -12,7 +16,7 @@ func _ready() -> void:
 	if not ContentRegistry.registry_rebuilt.is_connected(_on_registry_rebuilt):
 		ContentRegistry.registry_rebuilt.connect(_on_registry_rebuilt)
 
-	_ensure_default_installations()
+	_queue_installation_synchronization()
 
 
 func is_installed(app_id: String) -> bool:
@@ -82,8 +86,18 @@ func install_app(
 	return true
 
 
-func _ensure_default_installations() -> void:
-	if not CampaignState.has_campaign():
+func _queue_installation_synchronization() -> void:
+	if _synchronization_queued or _is_synchronizing:
+		return
+
+	_synchronization_queued = true
+	call_deferred("_synchronize_installations")
+
+
+func _synchronize_installations() -> void:
+	_synchronization_queued = false
+
+	if _is_synchronizing or not CampaignState.has_campaign():
 		return
 
 	var catalog: AppCatalog = ContentRegistry.get_app_catalog()
@@ -91,8 +105,31 @@ func _ensure_default_installations() -> void:
 	if catalog == null:
 		return
 
-	for app_id: String in catalog.get_default_app_ids():
-		install_app(app_id, null, false, true)
+	_is_synchronizing = true
+
+	for app: AppResource in catalog.get_ordered_apps():
+		if app == null or is_installed(app.app_id):
+			continue
+
+		if app.installed_by_default:
+			install_app(app.app_id, null, false, true)
+			continue
+
+		if not app.auto_install_when_unlocked:
+			continue
+
+		var context := GameEffectContext.create(
+			"app.auto_install.%s" % app.app_id,
+			"",
+			CampaignState.current_location_id,
+			"",
+			"app_installation_sync"
+		)
+
+		if app.can_install(context):
+			install_app(app.app_id, context, true, true)
+
+	_is_synchronizing = false
 
 
 func _push_installation_notification(app: AppResource) -> void:
@@ -121,10 +158,9 @@ func _reject(app_id: String, reason: String) -> void:
 	installation_rejected.emit(app_id, reason)
 
 
-func _on_campaign_changed(section: StringName) -> void:
-	if section == &"campaign":
-		_ensure_default_installations()
+func _on_campaign_changed(_section: StringName) -> void:
+	_queue_installation_synchronization()
 
 
 func _on_registry_rebuilt() -> void:
-	_ensure_default_installations()
+	_queue_installation_synchronization()
