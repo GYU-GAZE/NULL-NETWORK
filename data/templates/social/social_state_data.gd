@@ -10,6 +10,7 @@ const PRESENCE_KEY: String = "known_presence_by_npc"
 const INTERACTIONS_KEY: String = "completed_interaction_ids"
 const INTERACTION_COUNTS_KEY: String = "interaction_execution_counts"
 const PARTY_KEY: String = "party_members"
+const PARTY_PARTNERS_KEY: String = "party_partner_states"
 
 
 var contact_ids: PackedStringArray = PackedStringArray()
@@ -21,6 +22,11 @@ var completed_interaction_ids: PackedStringArray = PackedStringArray()
 var interaction_execution_counts: Dictionary = {}
 ## npc_id -> {owner_id, joined_action_index}
 var party_members: Dictionary = {}
+## npc_id -> NPCPartyPartnerStateData.to_save_data()
+##
+## This state intentionally survives party departure. Rejoining preserves EXP,
+## HP and permanent partner loss instead of recreating a fresh loadout.
+var party_partner_states: Dictionary = {}
 
 
 func reset() -> void:
@@ -32,6 +38,7 @@ func reset() -> void:
 	completed_interaction_ids.clear()
 	interaction_execution_counts.clear()
 	party_members.clear()
+	party_partner_states.clear()
 
 
 func discover_contact(npc_id: String) -> bool:
@@ -302,6 +309,45 @@ func get_party_member_ids() -> PackedStringArray:
 	return result
 
 
+func set_party_partner_state(state: NPCPartyPartnerStateData) -> bool:
+	if state == null:
+		return false
+
+	var clean_npc_id: String = state.npc_id.strip_edges()
+
+	if clean_npc_id.is_empty() or not state.validate_state().is_empty():
+		return false
+
+	party_partner_states[clean_npc_id] = state.to_save_data()
+	return true
+
+
+func has_party_partner_state(npc_id: String) -> bool:
+	return party_partner_states.has(npc_id.strip_edges())
+
+
+func get_party_partner_state(npc_id: String) -> NPCPartyPartnerStateData:
+	var clean_npc_id: String = npc_id.strip_edges()
+	var raw_state: Variant = party_partner_states.get(clean_npc_id)
+
+	if clean_npc_id.is_empty() or raw_state is not Dictionary:
+		return null
+
+	var state := NPCPartyPartnerStateData.new()
+	state.load_save_data(raw_state as Dictionary)
+	return state
+
+
+func remove_party_partner_state(npc_id: String) -> bool:
+	var clean_npc_id: String = npc_id.strip_edges()
+
+	if not party_partner_states.has(clean_npc_id):
+		return false
+
+	party_partner_states.erase(clean_npc_id)
+	return true
+
+
 func to_save_data() -> Dictionary:
 	return {
 		CONTACTS_KEY: _string_array_to_array(contact_ids),
@@ -313,7 +359,8 @@ func to_save_data() -> Dictionary:
 			completed_interaction_ids
 		),
 		INTERACTION_COUNTS_KEY: interaction_execution_counts.duplicate(true),
-		PARTY_KEY: party_members.duplicate(true)
+		PARTY_KEY: party_members.duplicate(true),
+		PARTY_PARTNERS_KEY: party_partner_states.duplicate(true)
 	}
 
 
@@ -337,6 +384,9 @@ func load_save_data(data: Dictionary) -> void:
 		data.get(INTERACTION_COUNTS_KEY, {})
 	)
 	party_members = _read_party_dictionary(data.get(PARTY_KEY, {}))
+	party_partner_states = _read_party_partner_state_dictionary(
+		data.get(PARTY_PARTNERS_KEY, {})
+	)
 	_migrate_legacy_contact_entries(data)
 	_migrate_legacy_interaction_counts()
 
@@ -354,7 +404,8 @@ func validate_save_data(data: Dictionary) -> PackedStringArray:
 		UNREAD_KEY,
 		PRESENCE_KEY,
 		INTERACTION_COUNTS_KEY,
-		PARTY_KEY
+		PARTY_KEY,
+		PARTY_PARTNERS_KEY
 	]:
 		if data.get(dictionary_key, {}) is not Dictionary:
 			errors.append(
@@ -408,6 +459,40 @@ func validate_save_data(data: Dictionary) -> PackedStringArray:
 				errors.append(
 					"Party membership '%s' requires owner_id."
 					% npc_id
+				)
+
+	var partner_states: Variant = data.get(PARTY_PARTNERS_KEY, {})
+
+	if partner_states is Dictionary:
+		for raw_id: Variant in (partner_states as Dictionary).keys():
+			var npc_id: String = str(raw_id).strip_edges()
+			var raw_state: Variant = (partner_states as Dictionary).get(raw_id)
+
+			if npc_id.is_empty():
+				errors.append(
+					"social_state party partner states contain an empty npc_id."
+				)
+				continue
+
+			if raw_state is not Dictionary:
+				errors.append(
+					"Party partner state '%s' must be a dictionary."
+					% npc_id
+				)
+				continue
+
+			var state := NPCPartyPartnerStateData.new()
+			state.load_save_data(raw_state as Dictionary)
+
+			if state.npc_id != npc_id:
+				errors.append(
+					"Party partner state key '%s' does not match npc_id '%s'."
+					% [npc_id, state.npc_id]
+				)
+
+			for error: String in state.validate_state():
+				errors.append(
+					"Party partner state '%s': %s" % [npc_id, error]
 				)
 
 	return errors
@@ -466,7 +551,8 @@ func _migrate_legacy_contact_entries(data: Dictionary) -> void:
 		PRESENCE_KEY: true,
 		INTERACTIONS_KEY: true,
 		INTERACTION_COUNTS_KEY: true,
-		PARTY_KEY: true
+		PARTY_KEY: true,
+		PARTY_PARTNERS_KEY: true
 	}
 
 	for raw_key: Variant in data.keys():
@@ -615,6 +701,30 @@ func _read_party_dictionary(value: Variant) -> Dictionary:
 				))
 			)
 		}
+
+	return result
+
+
+func _read_party_partner_state_dictionary(value: Variant) -> Dictionary:
+	var result: Dictionary = {}
+
+	if value is not Dictionary:
+		return result
+
+	for raw_id: Variant in (value as Dictionary).keys():
+		var npc_id: String = str(raw_id).strip_edges()
+		var raw_state: Variant = (value as Dictionary).get(raw_id)
+
+		if npc_id.is_empty() or raw_state is not Dictionary:
+			continue
+
+		var state := NPCPartyPartnerStateData.new()
+		state.load_save_data(raw_state as Dictionary)
+
+		if state.npc_id != npc_id or not state.validate_state().is_empty():
+			continue
+
+		result[npc_id] = state.to_save_data()
 
 	return result
 
