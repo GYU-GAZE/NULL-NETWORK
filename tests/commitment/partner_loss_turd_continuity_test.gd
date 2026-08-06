@@ -62,10 +62,13 @@ func _run_test() -> void:
 		CombatResult.Outcome.DEFEAT,
 		"phase14.first_loss"
 	)
+	var first_loss_errors: PackedStringArray = first_loss.get(
+		"errors",
+		PackedStringArray()
+	)
 	_check(
-		(first_loss.get("errors", PackedStringArray()) as PackedStringArray).is_empty(),
-		"First Partner Loss failed: %s"
-		% first_loss.get("errors", PackedStringArray())
+		first_loss_errors.is_empty(),
+		"First Partner Loss failed: %s" % first_loss_errors
 	)
 	var first_metadata: Dictionary = first_loss.get("metadata", {}) as Dictionary
 	_check(
@@ -130,10 +133,13 @@ func _run_test() -> void:
 		CombatResult.Outcome.DEFEAT,
 		"phase14.second_loss"
 	)
+	var second_loss_errors: PackedStringArray = second_loss.get(
+		"errors",
+		PackedStringArray()
+	)
 	_check(
-		(second_loss.get("errors", PackedStringArray()) as PackedStringArray).is_empty(),
-		"Second Partner Loss failed: %s"
-		% second_loss.get("errors", PackedStringArray())
+		second_loss_errors.is_empty(),
+		"Second Partner Loss failed: %s" % second_loss_errors
 	)
 	_check(
 		PartnerContinuityService.is_turd_active()
