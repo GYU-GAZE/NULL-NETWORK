@@ -13,10 +13,14 @@
 ## Current system
 
 - Base branch: `main`
-- Roadmap phase: **Phase 14 — Commitment, Partner Loss, TURD and Operator Loss**
-- Current subphase: **14.2 Operator Loss and Operator succession**
+- Roadmap phase: **Phase 15 — Construction of the Prologue**
 - Phase 14.1 Partner Loss/TURD: manually confirmed by the project owner.
-- Phase 14.2 implementation: complete and awaiting runtime/CI validation.
+- Phase 14.2 Operator Loss/succession: runtime flow manually confirmed by the project owner on 2026-08-07.
+- TURD now reaches real 0 HP and resolves Operator Loss; the obsolete one-HP compatibility safeguard has been removed.
+- Operator registration now routes both first-time Operators and post-loss Operators to the same data-driven starter-selection page.
+- Starter selection accepts both `PROLOGUE` and `OPERATOR_CREATION` when an Operator exists and no active partner exists.
+- Player-facing starter-selection copy is context-neutral and does not reveal that another Operator previously existed.
+- Initial PROLOGUE starter selection does not install/open Navigator early; succession still completes through the succession-aware progression service.
 - Profile and Calendar are functional greyboxes; their final UX is deferred.
 - Encyclopedia has a typed foundation, but its behavior and UX are deferred for redesign.
 
@@ -34,12 +38,14 @@ primary partner reaches 0 HP in a definitive encounter
 → Operator Loss
 → Operator and TURD archived
 → broken KubuOS Handtop becomes a Legacy Site at the loss location
-→ Browser opens successor registration
-→ registration opens the data-driven starter-selection page
-→ successor selects a cataloged starter
-→ Navigator installs
+→ Browser opens normal Operator registration
+→ registration opens the generic starter-selection page
+→ new Operator selects a cataloged starter
+→ Navigator installs for the post-loss flow
 → campaign continues on the same day and in the same world
 ```
+
+The player-facing registration/starter pages do not identify the new Operator as a successor and do not expose the identity of the archived Operator.
 
 ## State ownership after Operator Loss
 
@@ -73,65 +79,106 @@ Operator archive history;
 Legacy Sites.
 ```
 
-Before clearing the old device, the Legacy Site seals money, typed inventory, known Module IDs, Encyclopedia data, forum/browser logs and app sessions. None of it is granted automatically to the successor.
+Before clearing the old device, the Legacy Site seals money, typed inventory, known Module IDs, Encyclopedia data, forum/browser logs and app sessions. None of it is granted automatically to the next Operator.
 
 ## Next exact task
 
-### Validate Phase 14.2
+### Validate the shared registration → starter boundary
 
 Run:
 
 ```text
-tests/commitment/operator_loss_succession_test.tscn
+tests/commitment/initial_starter_selection_page_test.tscn
 tests/commitment/starter_selection_page_test.tscn
+tests/commitment/operator_loss_real_damage_test.tscn
 ```
 
 Expected markers:
 
 ```text
-OPERATOR_LOSS_SUCCESSION_TEST: PASS
+INITIAL_STARTER_SELECTION_PAGE_TEST: PASS
 STARTER_SELECTION_PAGE_TEST: PASS
+OPERATOR_LOSS_REAL_DAMAGE_TEST: PASS
 ```
 
-The gates confirm:
+Manual smoke tests:
 
 ```text
-TURD at 0 HP resolves Operator Loss through CombatManager;
-Operator and destroyed TURD are archived once;
-day, period, block and countdown do not reset;
-world progression and authored infestation remain;
-old personal/device state does not leak to the successor;
-a typed Legacy Site persists and appears in the loss Local Area;
-null.net/register redirects successor registration to null.net/select-starter;
-the selection page lists only APKData marked selectable_as_starter;
-selecting a starter reinstalls Navigator and returns to MAIN_CAMPAIGN;
-save/reload preserves the successor, archive, Legacy Site and world.
+FIRST ACCOUNT
+new campaign in PROLOGUE
+→ register Operator at null.net/register
+→ Browser opens null.net/select-starter
+→ page contains no succession/previous-Operator language
+→ choose NOVIRE
+→ partner is created
+→ campaign remains PROLOGUE
+→ Navigator is not exposed before the Prologue installs it
+
+OPERATOR LOSS
+TURD reaches 0 HP through real combat damage
+→ Operator Loss
+→ register another Operator through the same visible registration page
+→ same generic starter page opens
+→ choose starter
+→ Navigator installs
+→ campaign returns to MAIN_CAMPAIGN on the same world/day
 ```
 
-Regression:
+### Then continue Phase 15 — Prologue
+
+The official roadmap still requires a playable no-debug Prologue:
 
 ```text
-tests/commitment/partner_loss_turd_continuity_test.tscn
-tests/combat/combat_campaign_resolution_test.tscn
-tests/campaign/campaign_state_test.tscn
-tests/save/save_manager_test.tscn
+campaign creation / save-mode choice
+→ KubuOS boot
+→ denpa-channel
+→ discover NULL NETWORK
+→ Operator registration
+→ starter selection
+→ forum/download progression
+→ NULL NETWORK installation
+→ Navigator installation
+→ first area
+→ tutorial combat
+→ transition to MAIN_CAMPAIGN Day 1
 ```
 
-After validation, implement **Phase 14.3 — Legacy Recovery**:
+`Phase 14.3 — Legacy Recovery` remains designed in `TEST_MATRIX.md`, but it is deferred. `ROADMAP.md` explicitly lists complete Legacy Recovery outside the first vertical slice critical path.
+
+After Phase 15, the roadmap continues with:
 
 ```text
-successor finds a Legacy Site
-→ inspect a typed recovery preview
-→ confirm one irreversible recovery Activity
-→ restore only authored material/log data
-→ mark the site recovered
-→ never restore dead APK/TURD, relationships, affinity, tendencies, ranking, reputation or identity
-→ save/reload preserves the boundary
+Phase 16 — Build the first week through the Aquarium Incident
+Phase 17 — Hardening, regression, UX and final validation
 ```
 
 ## Active files
 
-### Persistent loss and succession
+### First-account registration and starter selection
+
+```text
+apps/browser/sites/null_network/register/operator_creation.gd
+apps/browser/sites/null_network/register/operator_creation.tscn
+apps/browser/sites/null_network/register/operator_succession_registration.gd
+apps/browser/sites/null_network/register/operator_succession_registration.tscn
+apps/browser/sites/null_network/starter_selection/starter_selection.gd
+apps/browser/sites/null_network/starter_selection/starter_selection.tscn
+data/content/sites/null network/nnwregister.tres
+data/content/sites/null network/nnwstarterselection.tres
+```
+
+### Starter/progression authority
+
+```text
+data/templates/apk/apk_data.gd
+data/content/apks/starters/novire_init.tres
+systems/progression/apk_progression_service.gd
+systems/commitment/apk_succession_progression_service.gd
+core/autoloads/operator_service.gd
+systems/commitment/operator_succession_service.gd
+```
+
+### Commitment and Operator Loss
 
 ```text
 data/templates/apk/partner_continuity_state_data.gd
@@ -141,64 +188,20 @@ systems/commitment/turd_partner_factory.gd
 systems/commitment/partner_continuity_service.gd
 systems/commitment/partner_loss_service.gd
 systems/commitment/operator_loss_service.gd
-systems/commitment/operator_succession_service.gd
-systems/commitment/apk_succession_progression_service.gd
-```
-
-### Combat policy and presentation
-
-```text
-data/templates/combat/combat_resolution_data.gd
-data/content/combat/resolutions/default_exe_resolution.tres
 systems/combat/combat_campaign_manager.gd
-systems/commitment/operator_loss_combat_manager.gd
-systems/combat/combat_resolution_service.gd
-apps/combat/resolution/combat_resolution_panel.gd
-```
-
-### Legacy Site and Navigator handoff
-
-```text
-apps/navigator/operator_loss_navigator.gd
-apps/navigator/app_navigator.tscn
-apps/navigator/local_area/actors/local_area_legacy_site_actor.gd
-apps/navigator/local_area/actors/local_area_legacy_site_actor.tscn
-apps/navigator/local_area/spawning/local_area_spawn_point.gd
-apps/navigator/local_area/spawning/legacy_aware_population_controller.gd
-data/content/navigator/areas/akihabara/akihabara_local_area.tscn
-```
-
-### Successor registration and starter selection
-
-```text
-data/templates/apk/apk_data.gd
-data/content/apks/starters/novire_init.tres
-apps/browser/sites/null_network/register/operator_succession_registration.gd
-apps/browser/sites/null_network/register/operator_succession_registration.tscn
-apps/browser/sites/null_network/starter_selection/starter_selection.gd
-apps/browser/sites/null_network/starter_selection/starter_selection.tscn
-data/content/sites/null network/nnwregister.tres
-data/content/sites/null network/nnwstarterselection.tres
-core/autoloads/simulated_dns.tscn
-```
-
-`APKData.selectable_as_starter` and `starter_sort_order` are the data authority. The page contains no list of NOVIRE, VOCALYTE, WIZIP, TROJAW or PABUBU IDs. Currently only NOVIRE has a complete integration Resource and is therefore the only selectable entry.
-
-### Runtime registration
-
-```text
-project.godot
 ```
 
 ### Validation
 
 ```text
-tests/commitment/partner_loss_turd_continuity_test.gd
-tests/commitment/operator_loss_succession_test.gd
+tests/commitment/initial_starter_selection_page_test.gd
 tests/commitment/starter_selection_page_test.gd
-.github/workflows/partner-loss-turd-validate.yml
-.github/workflows/operator-loss-succession-validate.yml
+tests/commitment/operator_loss_real_damage_test.gd
+tests/commitment/operator_loss_succession_test.gd
+tests/commitment/partner_loss_turd_continuity_test.gd
 .github/workflows/starter-selection-validate.yml
+.github/workflows/operator-loss-succession-validate.yml
+.github/workflows/partner-loss-turd-validate.yml
 ```
 
 ## Architecture checkpoint
@@ -208,15 +211,19 @@ tests/commitment/starter_selection_page_test.gd
 - `operator_history` archives Operators and destroyed TURDs.
 - `WorldStateData.persistent_objects` owns Legacy Sites.
 - `CombatResolutionData` authors recoverable/definitive loss policy and infestation consequences.
-- Successor-specific behavior is added through subclasses registered as autoloads; initial campaign registration remains compatible.
+- Operator Loss state transitions belong to Services, not to Browser presentation scenes.
+- Initial and post-loss Operator registration share the same visible registration/starter UX.
 - Starter eligibility belongs to `APKData`; the Browser page is a generic projection of the APK catalog.
+- The starter page may select during `PROLOGUE` for the first Operator or `OPERATOR_CREATION` after Operator Loss.
+- Initial starter selection preserves `PROLOGUE`; post-loss starter selection completes succession and restores `MAIN_CAMPAIGN`.
 - No new parallel save section was created.
 
 ## Known gaps
 
-- Legacy Recovery is not implemented; the broken handtop currently supports inspection only.
+- Phase 15 Prologue content is not yet assembled end-to-end.
+- Legacy Recovery is not implemented; the broken handtop currently supports inspection only and recovery is deferred outside the slice critical path.
 - Final TURD balance and assets are not authored.
 - Akihabara is the integration location with a Legacy Site spawn point; final areas require authored Legacy Site placement.
 - Operator Loss, Legacy Site and starter-selection visuals are functional greyboxes requiring later UX/art passes.
-- Only NOVIRE has a complete selectable starter Resource.
-- No local Godot executable or observable GitHub Actions result is available in this tool environment. Phase 14.2 remains `READY`, not `PASS`.
+- Only NOVIRE has a complete selectable starter Resource; the Prologue gate ultimately requires five functional starters.
+- The new first-account starter-selection regression is authored but still needs Godot/CI runtime confirmation.
