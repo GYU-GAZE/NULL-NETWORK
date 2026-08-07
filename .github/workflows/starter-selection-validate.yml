@@ -1,4 +1,4 @@
-name: Successor Starter Selection Validation
+name: Starter Selection Validation
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  validate-successor-starter-selection:
+  validate-starter-selection:
     runs-on: ubuntu-latest
     timeout-minutes: 12
 
@@ -67,7 +67,18 @@ jobs:
             --headless --editor --path . --import --verbose \
             2>&1 | tee godot-starter-selection-import.log
 
-      - name: Run starter selection page test
+      - name: Run first-account starter selection test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 180 \
+            tests/commitment/initial_starter_selection_page_test.tscn \
+            2>&1 | tee godot-initial-starter-selection-test.log
+          grep -q "INITIAL_STARTER_SELECTION_PAGE_TEST: PASS" \
+            godot-initial-starter-selection-test.log
+
+      - name: Run Operator Loss starter selection test
         shell: bash
         run: |
           set -o pipefail
@@ -83,6 +94,7 @@ jobs:
         run: |
           cat \
             godot-starter-selection-import.log \
+            godot-initial-starter-selection-test.log \
             godot-starter-selection-test.log \
             > godot-starter-selection-validation.log
 
@@ -101,6 +113,7 @@ jobs:
           name: starter-selection-validation-log
           path: |
             godot-starter-selection-import.log
+            godot-initial-starter-selection-test.log
             godot-starter-selection-test.log
             godot-starter-selection-validation.log
           if-no-files-found: ignore
