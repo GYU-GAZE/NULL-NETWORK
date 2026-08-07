@@ -5,6 +5,8 @@ class_name OperatorCreationPage
 signal registration_completed(operator_id: String)
 
 
+const STARTER_SELECTION_URL: String = "null.net/select-starter"
+
 @export_category("Locked Physical Server")
 @export var server_id: String = "tokyo_japan"
 @export var server_label: String = "TOKYO, JAPAN"
@@ -59,6 +61,10 @@ signal registration_completed(operator_id: String)
 func _ready() -> void:
 	_configure_options()
 	_connect_inputs()
+
+	if not registration_completed.is_connected(_on_registration_completed):
+		registration_completed.connect(_on_registration_completed)
+
 	_refresh_registration_state()
 	_update_form_state()
 
@@ -231,6 +237,27 @@ func _on_submit_pressed() -> void:
 
 	_refresh_registration_state()
 	registration_completed.emit(CampaignState.operator.operator_id)
+
+
+func _on_registration_completed(_operator_id: String) -> void:
+	if not CampaignState.has_campaign() \
+		or CampaignState.operator.is_empty() \
+		or not CampaignState.partner.is_empty() \
+		or CampaignState.campaign_phase not in [
+			CampaignState.CampaignPhase.PROLOGUE,
+			CampaignState.CampaignPhase.OPERATOR_CREATION
+		]:
+		return
+
+	call_deferred("_open_starter_selection")
+
+
+func _open_starter_selection() -> void:
+	GlobalSignals.request_browser_navigation.emit(
+		STARTER_SELECTION_URL,
+		"operator_registration",
+		"starter_selection"
+	)
 
 
 func _get_tendency_values() -> Dictionary:
