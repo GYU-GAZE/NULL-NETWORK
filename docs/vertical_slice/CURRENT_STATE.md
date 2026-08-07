@@ -13,7 +13,10 @@
 ## Current system
 
 - Base branch: `main`
-- Roadmap phase: **Phase 15 — Construction of the Prologue**
+- Roadmap phase: **Phase 14.5 — Demo Experience Lock**
+- Canonical Phase 14.5 definition: `docs/vertical_slice/ROADMAP_PHASE_14_5.md`.
+- Phase 14.5 is inserted between systemic Phase 14 and content Phase 15.
+- Its purpose is to review and lock the player-facing experience contracts that Prologue content will depend on, without turning the phase into final-art/general-polish work.
 - Phase 14.1 Partner Loss/TURD: manually confirmed by the project owner.
 - Phase 14.2 Operator Loss/succession: runtime flow manually confirmed by the project owner on 2026-08-07.
 - TURD now reaches real 0 HP and resolves Operator Loss; the obsolete one-HP compatibility safeguard has been removed.
@@ -23,6 +26,16 @@
 - Initial PROLOGUE starter selection does not install/open Navigator early; succession still completes through the succession-aware progression service.
 - Profile and Calendar are functional greyboxes; their final UX is deferred.
 - Encyclopedia has a typed foundation, but its behavior and UX are deferred for redesign.
+
+The Phase 14.5 decision rule is:
+
+```text
+If changing it later would force Prologue content, StoryEvents, dialogues, routes,
+activities, tutorials or progression beats to be rewritten, decide/fix it now.
+
+If changing it later only makes the same behavior prettier, juicier or more polished,
+it may remain placeholder until Phase 17 or the relevant art/content pass.
+```
 
 The current irreversible loss chain is:
 
@@ -83,9 +96,43 @@ Before clearing the old device, the Legacy Site seals money, typed inventory, kn
 
 ## Next exact task
 
-### Validate the shared registration → starter boundary
+### Execute Phase 14.5 — Demo Experience Lock
 
-Run:
+The project owner will define the desired first-demo behavior surface by surface. For each surface:
+
+```text
+owner defines intended experience
+→ audit current implementation
+→ classify gaps as structural/behavioral/cosmetic
+→ implement structural and behavioral changes
+→ add/update regressions where practical
+→ runtime smoke test
+→ mark EXPERIENCE LOCKED once remaining gaps are cosmetic/content-only
+```
+
+Recommended critical-path review order:
+
+```text
+1. New Game / Load / SAFE MODE / COMMIT MODE
+2. KubuOS boot
+3. Desktop / Dock / Window System
+4. Browser core behavior
+5. denpa-channel and NULL NETWORK website flow
+6. Operator registration
+7. starter selection
+8. app download/install/unlock presentation
+9. Navigator World Map / Local Area
+10. Activity/time feedback
+11. Dialogue presentation
+12. Combat UX and resolution presentation
+13. Prologue → MAIN_CAMPAIGN Day 1 handoff
+```
+
+Do not begin authoring the final end-to-end Prologue sequence until the surfaces it depends on are sufficiently experience-locked.
+
+### Pending regression from the latest starter-flow change
+
+Run when convenient during the Phase 14.5 pass:
 
 ```text
 tests/commitment/initial_starter_selection_page_test.tscn
@@ -101,7 +148,7 @@ STARTER_SELECTION_PAGE_TEST: PASS
 OPERATOR_LOSS_REAL_DAMAGE_TEST: PASS
 ```
 
-Manual smoke tests:
+Manual smoke expectations:
 
 ```text
 FIRST ACCOUNT
@@ -124,9 +171,9 @@ TURD reaches 0 HP through real combat damage
 → campaign returns to MAIN_CAMPAIGN on the same world/day
 ```
 
-### Then continue Phase 15 — Prologue
+### After Phase 14.5
 
-The official roadmap still requires a playable no-debug Prologue:
+Continue **Phase 15 — Construction of the Prologue** using the locked experience contracts:
 
 ```text
 campaign creation / save-mode choice
@@ -153,6 +200,16 @@ Phase 17 — Hardening, regression, UX and final validation
 ```
 
 ## Active files
+
+### Phase 14.5 planning
+
+```text
+docs/vertical_slice/ROADMAP_PHASE_14_5.md
+docs/vertical_slice/CURRENT_STATE.md
+docs/vertical_slice/TEST_MATRIX.md
+```
+
+The active implementation files will change surface by surface as the project owner supplies the intended demo behavior.
 
 ### First-account registration and starter selection
 
@@ -216,14 +273,16 @@ tests/commitment/partner_loss_turd_continuity_test.gd
 - Starter eligibility belongs to `APKData`; the Browser page is a generic projection of the APK catalog.
 - The starter page may select during `PROLOGUE` for the first Operator or `OPERATOR_CREATION` after Operator Loss.
 - Initial starter selection preserves `PROLOGUE`; post-loss starter selection completes succession and restores `MAIN_CAMPAIGN`.
+- Phase 14.5 may change player-facing flow and presentation contracts, but must preserve final-form modular/data-driven ownership rather than introduce Prologue-specific hacks.
 - No new parallel save section was created.
 
 ## Known gaps
 
-- Phase 15 Prologue content is not yet assembled end-to-end.
+- Phase 14.5 experience review has not yet been performed surface by surface.
+- Phase 15 Prologue content is intentionally not assembled end-to-end until its critical interfaces are reviewed.
 - Legacy Recovery is not implemented; the broken handtop currently supports inspection only and recovery is deferred outside the slice critical path.
 - Final TURD balance and assets are not authored.
 - Akihabara is the integration location with a Legacy Site spawn point; final areas require authored Legacy Site placement.
-- Operator Loss, Legacy Site and starter-selection visuals are functional greyboxes requiring later UX/art passes.
+- Operator Loss, Legacy Site and starter-selection visuals are functional greyboxes requiring later UX/art passes unless Phase 14.5 identifies a structural UX issue.
 - Only NOVIRE has a complete selectable starter Resource; the Prologue gate ultimately requires five functional starters.
 - The new first-account starter-selection regression is authored but still needs Godot/CI runtime confirmation.
