@@ -178,9 +178,8 @@ func _refresh_access_state() -> void:
 	var available: bool = _can_select_starter()
 	var already_selected: bool = (
 		CampaignState.has_campaign()
+		and not CampaignState.operator.is_empty()
 		and not CampaignState.partner.is_empty()
-		and CampaignState.campaign_phase
-		== CampaignState.CampaignPhase.MAIN_CAMPAIGN
 	)
 
 	if already_selected:
@@ -190,8 +189,8 @@ func _refresh_access_state() -> void:
 			else CampaignState.partner.apk_id
 		)
 		confirm_button.disabled = true
-		open_navigator_button.show()
 		_set_starter_buttons_disabled(true)
+		_refresh_navigator_action()
 		return
 
 	open_navigator_button.hide()
@@ -202,13 +201,12 @@ func _refresh_access_state() -> void:
 		state_label.text = "NO ACTIVE CAMPAIGN"
 	elif CampaignState.operator.is_empty():
 		state_label.text = "REGISTER AN OPERATOR BEFORE SELECTING A PARTNER"
-	elif CampaignState.campaign_phase \
-		!= CampaignState.CampaignPhase.OPERATOR_CREATION:
+	elif not _is_starter_selection_phase():
 		state_label.text = "STARTER SELECTION IS NOT ACTIVE"
 	elif _starters.is_empty():
 		state_label.text = "NO STARTER APK IS REGISTERED"
 	else:
-		state_label.text = "SUCCESSOR ACCOUNT READY // SELECT ONE PARTNER"
+		state_label.text = "OPERATOR READY // SELECT ONE PARTNER"
 
 
 func _can_select_starter() -> bool:
@@ -216,9 +214,15 @@ func _can_select_starter() -> bool:
 		CampaignState.has_campaign()
 		and not CampaignState.operator.is_empty()
 		and CampaignState.partner.is_empty()
-		and CampaignState.campaign_phase
-		== CampaignState.CampaignPhase.OPERATOR_CREATION
+		and _is_starter_selection_phase()
 	)
+
+
+func _is_starter_selection_phase() -> bool:
+	return CampaignState.campaign_phase in [
+		CampaignState.CampaignPhase.PROLOGUE,
+		CampaignState.CampaignPhase.OPERATOR_CREATION
+	]
 
 
 func _find_starter(apk_id: String) -> APKData:
@@ -359,8 +363,12 @@ func _show_completed_state(apk: APKData) -> void:
 	state_label.text = "SYNCHRONIZATION COMPLETE // %s" % apk.display_name
 	error_label.text = ""
 	confirm_button.disabled = true
-	open_navigator_button.show()
 	_set_starter_buttons_disabled(true)
+	_refresh_navigator_action()
+
+
+func _refresh_navigator_action() -> void:
+	open_navigator_button.visible = CampaignState.has_installed_app("navigator")
 
 
 func _set_starter_buttons_disabled(disabled: bool) -> void:
