@@ -78,12 +78,24 @@ jobs:
           grep -q "OPERATOR_LOSS_SUCCESSION_TEST: PASS" \
             godot-operator-loss-test.log
 
+      - name: Run Operator Loss real-damage regression
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 240 \
+            tests/commitment/operator_loss_real_damage_test.tscn \
+            2>&1 | tee godot-operator-loss-real-damage-test.log
+          grep -q "OPERATOR_LOSS_REAL_DAMAGE_TEST: PASS" \
+            godot-operator-loss-real-damage-test.log
+
       - name: Reject script and resource errors
         shell: bash
         run: |
           cat \
             godot-operator-loss-import.log \
             godot-operator-loss-test.log \
+            godot-operator-loss-real-damage-test.log \
             > godot-operator-loss-validation.log
 
           if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|Parse Error" godot-operator-loss-validation.log; then
@@ -102,5 +114,6 @@ jobs:
           path: |
             godot-operator-loss-import.log
             godot-operator-loss-test.log
+            godot-operator-loss-real-damage-test.log
             godot-operator-loss-validation.log
           if-no-files-found: ignore
