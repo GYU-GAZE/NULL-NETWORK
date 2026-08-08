@@ -22,6 +22,7 @@ func _ready() -> void:
 	if not GlobalSignals.request_logout.is_connected(_on_logout_requested):
 		GlobalSignals.request_logout.connect(_on_logout_requested)
 
+	KubuTransitionManager.set_runtime_active(false)
 	var initial_period: int = startup_menu.refresh_profiles()
 	startup_presentation.play(initial_period)
 
@@ -79,6 +80,7 @@ func _launch_desktop() -> void:
 	startup_presentation.stop_and_hide()
 	startup_menu.hide()
 	runtime_root.add_child(_desktop_instance)
+	KubuTransitionManager.set_runtime_active(true)
 
 
 func _on_logout_requested() -> void:
@@ -93,6 +95,7 @@ func _on_logout_requested() -> void:
 		if not SaveManager.save_checkpoint(&"system.logout"):
 			push_warning("KubuOS logout checkpoint failed; returning to login anyway.")
 
+	KubuTransitionManager.set_runtime_active(false)
 	_desktop_instance.queue_free()
 	_desktop_instance = null
 	await get_tree().process_frame
