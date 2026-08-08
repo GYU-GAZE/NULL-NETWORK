@@ -77,6 +77,7 @@ static func _read_campaign_preview(
 		operator.get("display_name", "")
 	).strip_edges()
 	var username: String = str(profile.get("username", "")).strip_edges()
+	var avatar_id: String = str(profile.get("avatar_id", "")).strip_edges()
 
 	if operator_name.is_empty():
 		operator_name = str(metadata.get("display_name", "New User")).strip_edges()
@@ -88,6 +89,7 @@ static func _read_campaign_preview(
 		"campaign_id": str(metadata.get("campaign_id", campaign_id)),
 		"display_name": operator_name,
 		"username": username,
+		"avatar_id": avatar_id,
 		"save_mode": int(
 			metadata.get("save_mode", CampaignState.SaveMode.UNSET)
 		),
