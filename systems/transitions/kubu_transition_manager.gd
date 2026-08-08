@@ -31,7 +31,6 @@ const TRANSITION_DAY: StringName = &"day"
 @onready var old_period_label: Label = %OldPeriodLabel
 @onready var new_period_label: Label = %NewPeriodLabel
 @onready var day_label: Label = %DayLabel
-@onready var trail_clip: Control = %TrailClip
 @onready var trail_hbox: HBoxContainer = %TrailHBox
 @onready var trail_cursor: Label = %TrailCursor
 @onready var day_change_audio: AudioStreamPlayer = %DayChangeAudio
@@ -376,7 +375,7 @@ func _play_time_transition(transition: Dictionary) -> void:
 	await get_tree().create_timer(core_duration).timeout
 
 	if day_changed:
-		_finalize_day_trail(old_day, new_day)
+		await _finalize_day_trail(old_day, new_day)
 
 	if presentation_data.time_hold_seconds > 0.0:
 		await get_tree().create_timer(presentation_data.time_hold_seconds).timeout
@@ -558,13 +557,9 @@ func _play_day_change(old_day: int, new_day: int) -> void:
 	)
 
 
-func _finalize_day_trail(old_day: int, new_day: int) -> void:
-	if _get_week_start_day(old_day) != _get_week_start_day(new_day):
-		_rebuild_trail(new_day)
-		_position_trail_cursor_now(new_day)
-		return
-
+func _finalize_day_trail(_old_day: int, new_day: int) -> void:
 	_rebuild_trail(new_day)
+	await get_tree().process_frame
 	_position_trail_cursor_now(new_day)
 
 
@@ -629,7 +624,7 @@ func _get_trail_cursor_x(day_number: int) -> float:
 
 
 func _get_week_start_day(day_number: int) -> int:
-	return (maxi(1, day_number) - 1) / 7 * 7 + 1
+	return floori(float(maxi(1, day_number) - 1) / 7.0) * 7 + 1
 
 
 func _format_countdown(days_left: int) -> String:
@@ -664,3 +659,14 @@ func _apply_period_theme(period: int) -> void:
 		return
 
 	get_tree().root.theme = target_theme
+	_apply_theme_to_explicit_kubu_branches(get_tree().root, target_theme)
+
+
+func _apply_theme_to_explicit_kubu_branches(node: Node, target_theme: Theme) -> void:
+	for child: Node in node.get_children():
+		if child is Control:
+			var control := child as Control
+			if control.theme == day_theme or control.theme == night_theme:
+				control.theme = target_theme
+
+		_apply_theme_to_explicit_kubu_branches(child, target_theme)
