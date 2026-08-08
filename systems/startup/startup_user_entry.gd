@@ -1,0 +1,135 @@
+extends VBoxContainer
+class_name StartupUserEntry
+
+
+signal selected(campaign_id: String)
+signal activated(campaign_id: String)
+
+
+@export var normal_style: StyleBox
+@export var hover_style: StyleBox
+@export var selected_style: StyleBox
+
+@onready var selection_panel: PanelContainer = %SelectionPanel
+@onready var avatar_texture: TextureRect = %AvatarTexture
+@onready var avatar_fallback: Label = %AvatarFallback
+@onready var username_label: Label = %UsernameLabel
+@onready var description_label: Label = %DescriptionLabel
+@onready var click_target: Button = %ClickTarget
+@onready var separator: HSeparator = %Separator
+
+var campaign_id: String = ""
+var avatar_id: String = ""
+var _selected: bool = false
+var _hovered: bool = false
+var _interaction_enabled: bool = true
+
+
+func _ready() -> void:
+	click_target.pressed.connect(_on_click_target_pressed)
+	click_target.gui_input.connect(_on_click_target_gui_input)
+	click_target.mouse_entered.connect(_on_mouse_entered)
+	click_target.mouse_exited.connect(_on_mouse_exited)
+	_apply_selection_style()
+
+
+func configure(profile: Dictionary, avatar: Texture2D = null) -> void:
+	campaign_id = str(profile.get("campaign_id", "")).strip_edges()
+	avatar_id = str(profile.get("avatar_id", "")).strip_edges()
+
+	var username: String = str(profile.get("username", "")).strip_edges()
+	var display_name: String = str(profile.get("display_name", "New User")).strip_edges()
+
+	if username.is_empty():
+		username = display_name
+
+	if username.is_empty():
+		username = "New User"
+
+	var mode: String = (
+		"COMMIT"
+		if int(profile.get("save_mode", CampaignState.SaveMode.SAFE))
+		== CampaignState.SaveMode.COMMIT
+		else "SAFE"
+	)
+	var day: int = maxi(1, int(profile.get("days_passed", 1)))
+
+	username_label.text = username
+	description_label.text = "%s MODE · Day %d" % [mode, day]
+	avatar_texture.texture = avatar
+	avatar_texture.visible = avatar != null
+	avatar_fallback.visible = avatar == null
+	avatar_fallback.text = username.left(1).to_upper()
+	avatar_fallback.tooltip_text = avatar_id
+
+
+func set_selected(value: bool) -> void:
+	if _selected == value:
+		return
+
+	_selected = value
+	_apply_selection_style()
+
+
+func is_selected() -> bool:
+	return _selected
+
+
+func set_interaction_enabled(value: bool) -> void:
+	_interaction_enabled = value
+	click_target.disabled = not value
+
+
+func set_separator_visible(value: bool) -> void:
+	separator.visible = value
+
+
+func _on_click_target_pressed() -> void:
+	if not _interaction_enabled or campaign_id.is_empty():
+		return
+
+	selected.emit(campaign_id)
+
+
+func _on_click_target_gui_input(event: InputEvent) -> void:
+	if not _interaction_enabled or campaign_id.is_empty():
+		return
+
+	if event is not InputEventMouseButton:
+		return
+
+	var mouse_event := event as InputEventMouseButton
+
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT \
+		or not mouse_event.pressed \
+		or not mouse_event.double_click:
+		return
+
+	selected.emit(campaign_id)
+	activated.emit(campaign_id)
+	click_target.accept_event()
+
+
+func _on_mouse_entered() -> void:
+	_hovered = true
+	_apply_selection_style()
+
+
+func _on_mouse_exited() -> void:
+	_hovered = false
+	_apply_selection_style()
+
+
+func _apply_selection_style() -> void:
+	if selection_panel == null:
+		return
+
+	var style: StyleBox = normal_style
+
+	if _selected:
+		style = selected_style
+	elif _hovered:
+		style = hover_style
+
+	if style != null:
+		selection_panel.add_theme_stylebox_override("panel", style)
