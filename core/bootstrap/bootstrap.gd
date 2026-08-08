@@ -5,36 +5,36 @@ class_name GameBootstrap
 const MAIN_SCENE: PackedScene = preload("res://core/main.tscn")
 
 @onready var startup_presentation: StartupPresentation = %StartupPresentation
-@onready var campaign_select: CampaignSelect = %CampaignSelect
+@onready var startup_menu: StartupMenu = %StartupMenu
 @onready var runtime_root: Node = %RuntimeRoot
 
 var _desktop_instance: Node
 
 
 func _ready() -> void:
-	campaign_select.hide()
 	startup_presentation.boot_completed.connect(_on_startup_boot_completed)
-	campaign_select.campaign_load_requested.connect(_on_campaign_load_requested)
-	campaign_select.campaign_create_requested.connect(
+	startup_menu.campaign_load_requested.connect(_on_campaign_load_requested)
+	startup_menu.campaign_create_requested.connect(
 		_on_campaign_create_requested
 	)
-	startup_presentation.play(TimeManager.TimePeriod.DAY)
+	var initial_period: int = startup_menu.refresh_profiles()
+	startup_presentation.play(initial_period)
 
 
 func _on_startup_boot_completed() -> void:
-	campaign_select.show()
+	startup_menu.reveal()
 
 
 func _on_campaign_load_requested(
 	campaign_id: String,
 	checkpoint_file_id: String
 ) -> void:
-	campaign_select.set_busy(true)
+	startup_menu.set_busy(true)
 	var errors := SaveManager.load_campaign(campaign_id, checkpoint_file_id)
 
 	if not errors.is_empty():
-		campaign_select.set_busy(false)
-		campaign_select.show_error("\n".join(errors))
+		startup_menu.set_busy(false)
+		startup_menu.show_error("\n".join(errors))
 		return
 
 	_launch_desktop()
@@ -45,7 +45,7 @@ func _on_campaign_create_requested(
 	display_name: String,
 	save_mode: CampaignState.SaveMode
 ) -> void:
-	campaign_select.set_busy(true)
+	startup_menu.set_busy(true)
 	var errors := SaveManager.create_campaign(
 		campaign_id,
 		save_mode,
@@ -53,8 +53,8 @@ func _on_campaign_create_requested(
 	)
 
 	if not errors.is_empty():
-		campaign_select.set_busy(false)
-		campaign_select.show_error("\n".join(errors))
+		startup_menu.set_busy(false)
+		startup_menu.show_error("\n".join(errors))
 		return
 
 	_launch_desktop()
@@ -67,10 +67,10 @@ func _launch_desktop() -> void:
 	_desktop_instance = MAIN_SCENE.instantiate()
 
 	if _desktop_instance == null:
-		campaign_select.set_busy(false)
-		campaign_select.show_error("KubuOS desktop failed to instantiate.")
+		startup_menu.set_busy(false)
+		startup_menu.show_error("KubuOS desktop failed to instantiate.")
 		return
 
 	startup_presentation.stop_and_hide()
+	startup_menu.hide()
 	runtime_root.add_child(_desktop_instance)
-	campaign_select.queue_free()
