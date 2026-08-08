@@ -9,6 +9,7 @@ const MAIN_SCENE: PackedScene = preload("res://core/main.tscn")
 @onready var runtime_root: Node = %RuntimeRoot
 
 var _desktop_instance: Node
+var _returning_to_login: bool = false
 
 
 func _ready() -> void:
@@ -17,6 +18,10 @@ func _ready() -> void:
 	startup_menu.campaign_create_requested.connect(
 		_on_campaign_create_requested
 	)
+
+	if not GlobalSignals.request_logout.is_connected(_on_logout_requested):
+		GlobalSignals.request_logout.connect(_on_logout_requested)
+
 	var initial_period: int = startup_menu.refresh_profiles()
 	startup_presentation.play(initial_period)
 
@@ -74,3 +79,26 @@ func _launch_desktop() -> void:
 	startup_presentation.stop_and_hide()
 	startup_menu.hide()
 	runtime_root.add_child(_desktop_instance)
+
+
+func _on_logout_requested() -> void:
+	if _returning_to_login or not is_instance_valid(_desktop_instance):
+		return
+
+	_returning_to_login = true
+
+	# Logout is a stable KubuOS boundary. Persist the current living state before
+	# removing presentation nodes, regardless of SAFE/COMMIT policy.
+	if CampaignState.has_campaign():
+		if not SaveManager.save_checkpoint(&"system.logout"):
+			push_warning("KubuOS logout checkpoint failed; returning to login anyway.")
+
+	_desktop_instance.queue_free()
+	_desktop_instance = null
+	await get_tree().process_frame
+
+	startup_menu.set_busy(false)
+	var login_period: int = startup_menu.refresh_profiles()
+	await startup_presentation.show_login_state(login_period)
+	await startup_menu.reveal()
+	_returning_to_login = false
