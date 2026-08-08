@@ -113,20 +113,20 @@ func _run_test() -> void:
 
 				menu.campaign_load_requested.connect(_on_campaign_load_requested)
 				menu._input_enabled = true
-				entry.selected.emit(entry.campaign_id)
+				entry._on_click_target_pressed()
 				_check(
 					entry.is_selected(),
-					"First profile selection did not highlight the account row."
+					"First account press did not highlight the account row."
 				)
 				_check(
 					_load_request_count == 0,
-					"First profile selection loaded the campaign prematurely."
+					"First account press loaded the campaign prematurely."
 				)
-				entry.activated.emit(entry.campaign_id)
+				entry._on_click_target_pressed()
 				_check(
 					_load_request_count == 1
 					and _last_load_campaign_id == entry.campaign_id,
-					"Activated profile did not request campaign load."
+					"Second single account press did not request campaign load."
 				)
 
 			if new_entry != null:
@@ -145,19 +145,23 @@ func _run_test() -> void:
 					and new_description.text == "Create a new KubuOS user",
 					"New User pseudo-profile lost its account-style description."
 				)
-				new_entry.selected.emit(new_entry.campaign_id)
+				new_entry._on_click_target_pressed()
 				_check(
 					new_entry.is_selected(),
-					"New User first selection did not highlight its row."
+					"New User first press did not highlight its row."
 				)
-				new_entry.activated.emit(new_entry.campaign_id)
+				_check(
+					not menu.get_node("MenuArea/RightColumn/ModePanel").visible,
+					"New User first press opened mode selection prematurely."
+				)
+				new_entry._on_click_target_pressed()
 				_check(
 					_load_request_count == 1,
-					"New User activation incorrectly requested campaign load."
+					"New User second press incorrectly requested campaign load."
 				)
 				_check(
 					menu.get_node("MenuArea/RightColumn/ModePanel").visible,
-					"New User activation did not open save-mode selection."
+					"New User second single press did not open save-mode selection."
 				)
 
 		_check(
@@ -170,8 +174,16 @@ func _run_test() -> void:
 		)
 		var bottom_bar := menu.get_node_or_null("BottomBarRoot") as Control
 		_check(
-			bottom_bar != null and bottom_bar.position.y > 0.0,
-			"Startup bottom bar is not staged below the viewport before reveal."
+			bottom_bar != null
+			and is_equal_approx(bottom_bar.offset_top, 0.0)
+			and is_equal_approx(bottom_bar.offset_bottom, StartupMenu.BOTTOM_BAR_HEIGHT),
+			"Startup bottom bar is not staged below its bottom anchor before reveal."
+		)
+		menu._set_bottom_bar_resting()
+		_check(
+			is_equal_approx(bottom_bar.offset_top, -StartupMenu.BOTTOM_BAR_HEIGHT)
+			and is_equal_approx(bottom_bar.offset_bottom, 0.0),
+			"Startup bottom bar resting offsets no longer pin it to the viewport bottom."
 		)
 		menu.queue_free()
 
