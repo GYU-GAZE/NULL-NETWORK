@@ -10,7 +10,7 @@ class_name Desktop
 @export var time_pulse_scale: Vector2 = Vector2(1.05, 1.05)
 @export var time_tween_duration: float = 0.3
 
-@onready var background: ColorRect = %Background
+@onready var background: ColorRect = $Background
 @onready var clock_container: VBoxContainer = %ClockContainer
 @onready var period_label: Label = %PeriodLabel
 @onready var day_label: Label = %DayLabel
