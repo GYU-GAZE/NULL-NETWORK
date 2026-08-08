@@ -139,9 +139,11 @@ func _rebuild_profile_list() -> void:
 
 	for profile: Dictionary in _profiles:
 		var button := Button.new()
-		button.custom_minimum_size = Vector2(390.0, 62.0)
+		button.custom_minimum_size = Vector2(390.0, 58.0)
 		button.text = _profile_button_text(profile)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.flat = true
+		button.add_theme_font_size_override("font_size", 21)
 		button.pressed.connect(
 			func() -> void: _load_profile(str(profile.get("campaign_id", "")))
 		)
@@ -149,23 +151,16 @@ func _rebuild_profile_list() -> void:
 
 
 func _profile_button_text(profile: Dictionary) -> String:
-	var title: String = str(profile.get("display_name", "New User"))
+	var title: String = str(profile.get("display_name", "New User")).strip_edges()
 	var username: String = str(profile.get("username", "")).strip_edges()
-	var mode: String = (
-		"COMMIT"
-		if int(profile.get("save_mode", CampaignState.SaveMode.SAFE))
-		== CampaignState.SaveMode.COMMIT
-		else "SAFE"
-	)
-	var period: String = (
-		"NIGHT"
-		if int(profile.get("current_period", TimeManager.TimePeriod.DAY))
-		== TimeManager.TimePeriod.NIGHT
-		else "DAY"
-	)
-	var day: int = maxi(1, int(profile.get("days_passed", 1)))
-	var identity: String = title if username.is_empty() else "%s  @%s" % [title, username]
-	return "%s\n%s · DAY %d · %s" % [identity, mode, day, period]
+
+	if not title.is_empty() and title != "New User":
+		return title
+
+	if not username.is_empty():
+		return username
+
+	return "New User"
 
 
 func _load_profile(campaign_id: String) -> void:
