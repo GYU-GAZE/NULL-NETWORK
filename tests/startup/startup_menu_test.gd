@@ -7,6 +7,8 @@ const STARTUP_MENU_SCENE: PackedScene = preload(
 
 var _failures := PackedStringArray()
 var _test_root: String = ""
+var _load_request_count: int = 0
+var _last_load_campaign_id: String = ""
 
 
 func _ready() -> void:
@@ -46,6 +48,10 @@ func _run_test() -> void:
 			str(profiles[0].get("display_name", "")) == "Preview User",
 			"Startup preview did not preserve campaign display name."
 		)
+		_check(
+			profiles[0].has("avatar_id"),
+			"Startup preview no longer exposes the saved Operator avatar ID."
+		)
 
 	var menu := STARTUP_MENU_SCENE.instantiate() as StartupMenu
 	_check(menu != null, "Startup menu scene failed to instantiate.")
@@ -76,15 +82,50 @@ func _run_test() -> void:
 		)
 
 		if profile_list != null and profile_list.get_child_count() == 1:
-			var profile_button := profile_list.get_child(0) as Button
-			_check(
-				profile_button != null and profile_button.flat,
-				"Startup account row must remain backgroundless at rest."
-			)
-			_check(
-				profile_button != null and profile_button.text == "Preview User",
-				"Startup account row should present the user identity without save metadata."
-			)
+			var entry := profile_list.get_child(0) as StartupUserEntry
+			_check(entry != null, "Startup account row is not a StartupUserEntry.")
+
+			if entry != null:
+				var username_label := entry.get_node_or_null(
+					"SelectionPanel/Margin/Content/Text/UsernameLabel"
+				) as Label
+				var description_label := entry.get_node_or_null(
+					"SelectionPanel/Margin/Content/Text/DescriptionLabel"
+				) as Label
+				var avatar_frame := entry.get_node_or_null(
+					"SelectionPanel/Margin/Content/AvatarFrame"
+				) as PanelContainer
+				_check(
+					username_label != null and username_label.text == "Preview User",
+					"Startup account row did not render the user identity."
+				)
+				_check(
+					description_label != null
+					and description_label.text == "SAFE MODE · Day 1",
+					"Startup account row did not render mode/day description."
+				)
+				_check(
+					avatar_frame != null,
+					"Startup account row lost its avatar slot."
+				)
+
+				menu.campaign_load_requested.connect(_on_campaign_load_requested)
+				menu._input_enabled = true
+				entry.selected.emit(entry.campaign_id)
+				_check(
+					entry.is_selected(),
+					"First profile selection did not highlight the account row."
+				)
+				_check(
+					_load_request_count == 0,
+					"First profile selection loaded the campaign prematurely."
+				)
+				entry.activated.emit(entry.campaign_id)
+				_check(
+					_load_request_count == 1
+					and _last_load_campaign_id == entry.campaign_id,
+					"Activated profile did not request campaign load."
+				)
 
 		_check(
 			menu.get_node_or_null("MenuArea/Divider") != null,
@@ -94,6 +135,14 @@ func _run_test() -> void:
 
 	await get_tree().process_frame
 	_finish_test()
+
+
+func _on_campaign_load_requested(
+	campaign_id: String,
+	_checkpoint_file_id: String
+) -> void:
+	_load_request_count += 1
+	_last_load_campaign_id = campaign_id
 
 
 func _check(condition: bool, message: String) -> void:
