@@ -4,6 +4,7 @@ class_name GameBootstrap
 
 const MAIN_SCENE: PackedScene = preload("res://core/main.tscn")
 
+@onready var startup_presentation: StartupPresentation = %StartupPresentation
 @onready var campaign_select: CampaignSelect = %CampaignSelect
 @onready var runtime_root: Node = %RuntimeRoot
 
@@ -11,10 +12,17 @@ var _desktop_instance: Node
 
 
 func _ready() -> void:
+	campaign_select.hide()
+	startup_presentation.boot_completed.connect(_on_startup_boot_completed)
 	campaign_select.campaign_load_requested.connect(_on_campaign_load_requested)
 	campaign_select.campaign_create_requested.connect(
 		_on_campaign_create_requested
 	)
+	startup_presentation.play(TimeManager.TimePeriod.DAY)
+
+
+func _on_startup_boot_completed() -> void:
+	campaign_select.show()
 
 
 func _on_campaign_load_requested(
@@ -63,5 +71,6 @@ func _launch_desktop() -> void:
 		campaign_select.show_error("KubuOS desktop failed to instantiate.")
 		return
 
+	startup_presentation.stop_and_hide()
 	runtime_root.add_child(_desktop_instance)
 	campaign_select.queue_free()
