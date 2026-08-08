@@ -13,6 +13,8 @@ signal dock_lock_changed(locked: bool, reason: String)
 
 signal request_toggle_notification_center
 signal request_close_notification_center
+signal request_open_system_settings
+signal request_logout
 
 signal time_advanced(
 	period: int,
