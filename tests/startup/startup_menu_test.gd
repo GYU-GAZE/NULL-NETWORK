@@ -68,8 +68,8 @@ func _run_test() -> void:
 			"MenuArea/RightColumn/UserPanel/Margin/Root/Scroll/ProfileList"
 		) as VBoxContainer
 		_check(
-			profile_list != null and profile_list.get_child_count() == 1,
-			"Startup menu did not render the saved user row."
+			profile_list != null and profile_list.get_child_count() == 2,
+			"Startup menu must render saved users plus the New User pseudo-profile."
 		)
 
 		var user_panel := menu.get_node_or_null(
@@ -81,9 +81,11 @@ func _run_test() -> void:
 			"Startup user list regained a permanent panel background."
 		)
 
-		if profile_list != null and profile_list.get_child_count() == 1:
+		if profile_list != null and profile_list.get_child_count() == 2:
 			var entry := profile_list.get_child(0) as StartupUserEntry
+			var new_entry := profile_list.get_child(1) as StartupUserEntry
 			_check(entry != null, "Startup account row is not a StartupUserEntry.")
+			_check(new_entry != null, "New User row is not a StartupUserEntry.")
 
 			if entry != null:
 				var username_label := entry.get_node_or_null(
@@ -127,9 +129,49 @@ func _run_test() -> void:
 					"Activated profile did not request campaign load."
 				)
 
+			if new_entry != null:
+				var new_username := new_entry.get_node_or_null(
+					"SelectionPanel/Margin/Content/Text/UsernameLabel"
+				) as Label
+				var new_description := new_entry.get_node_or_null(
+					"SelectionPanel/Margin/Content/Text/DescriptionLabel"
+				) as Label
+				_check(
+					new_username != null and new_username.text == "New User",
+					"New User pseudo-profile lost its account-style label."
+				)
+				_check(
+					new_description != null
+					and new_description.text == "Create a new KubuOS user",
+					"New User pseudo-profile lost its account-style description."
+				)
+				new_entry.selected.emit(new_entry.campaign_id)
+				_check(
+					new_entry.is_selected(),
+					"New User first selection did not highlight its row."
+				)
+				new_entry.activated.emit(new_entry.campaign_id)
+				_check(
+					_load_request_count == 1,
+					"New User activation incorrectly requested campaign load."
+				)
+				_check(
+					menu.get_node("MenuArea/RightColumn/ModePanel").visible,
+					"New User activation did not open save-mode selection."
+				)
+
 		_check(
 			menu.get_node_or_null("MenuArea/Divider") != null,
 			"Startup menu lost the XP-style center divider."
+		)
+		_check(
+			menu.get_node_or_null("TopBand") == null,
+			"Startup menu unexpectedly restored the removed top band."
+		)
+		var bottom_bar := menu.get_node_or_null("BottomBarRoot") as Control
+		_check(
+			bottom_bar != null and bottom_bar.position.y > 0.0,
+			"Startup bottom bar is not staged below the viewport before reveal."
 		)
 		menu.queue_free()
 
