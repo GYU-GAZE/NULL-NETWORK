@@ -14,7 +14,7 @@ const STARTUP_USER_ENTRY_SCENE: PackedScene = preload(
 	"res://systems/startup/startup_user_entry.tscn"
 )
 const NEW_USER_ENTRY_ID: String = "__new_user__"
-const BOTTOM_BAR_HIDDEN_OFFSET: float = 58.0
+const BOTTOM_BAR_HEIGHT: float = 56.0
 const BOTTOM_BAR_REVEAL_SECONDS: float = 0.3
 
 @export var presentation_data: StartupPresentationData
@@ -92,6 +92,7 @@ func refresh_profiles() -> int:
 func reveal() -> void:
 	if presentation_data == null:
 		push_error("StartupMenu requires StartupPresentationData.")
+		_set_bottom_bar_resting()
 		show()
 		_input_enabled = true
 		set_process(true)
@@ -332,15 +333,34 @@ func _configure_null_logo() -> void:
 	_reset_logo_glitch()
 
 
+func _set_bottom_bar_hidden() -> void:
+	# BottomBarRoot is anchored to the viewport bottom. Animate its anchor-relative
+	# offsets instead of position.y; assigning position.y = 0 would move an anchored
+	# Control to the top of the viewport after layout resolves.
+	bottom_bar_root.offset_top = 0.0
+	bottom_bar_root.offset_bottom = BOTTOM_BAR_HEIGHT
+
+
+func _set_bottom_bar_resting() -> void:
+	bottom_bar_root.offset_top = -BOTTOM_BAR_HEIGHT
+	bottom_bar_root.offset_bottom = 0.0
+
+
 func _reveal_bottom_bar() -> void:
-	bottom_bar_root.position.y = BOTTOM_BAR_HIDDEN_OFFSET
+	_set_bottom_bar_hidden()
 	bottom_bar_root.modulate.a = 0.82
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_CUBIC)
 	tween.set_ease(Tween.EASE_OUT)
 	tween.tween_property(
 		bottom_bar_root,
-		"position:y",
+		"offset_top",
+		-BOTTOM_BAR_HEIGHT,
+		BOTTOM_BAR_REVEAL_SECONDS
+	)
+	tween.parallel().tween_property(
+		bottom_bar_root,
+		"offset_bottom",
 		0.0,
 		BOTTOM_BAR_REVEAL_SECONDS
 	)
@@ -497,7 +517,7 @@ func _reset_visual_state() -> void:
 	mode_details.hide()
 	config_modal.hide()
 	show_error("")
-	bottom_bar_root.position.y = BOTTOM_BAR_HIDDEN_OFFSET
+	_set_bottom_bar_hidden()
 	bottom_bar_root.modulate.a = 1.0
 	_selected_entry_id = ""
 	_selected_mode = CampaignState.SaveMode.UNSET
