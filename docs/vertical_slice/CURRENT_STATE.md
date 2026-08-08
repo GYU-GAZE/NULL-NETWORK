@@ -37,6 +37,18 @@ If changing it later only makes the same behavior prettier, juicier or more poli
 it may remain placeholder until Phase 17 or the relevant art/content pass.
 ```
 
+The Phase 14.5 presentation rule is:
+
+```text
+Lock behavior before beauty.
+Lock sequencing before spectacle.
+Lock information hierarchy before final styling.
+Lock system handoffs before final animation, VFX, music or sound design.
+
+Minimum feedback belongs in 14.5 when it is required to communicate a state change
+or define when another system may continue. Final juice does not.
+```
+
 The current irreversible loss chain is:
 
 ```text
@@ -105,6 +117,7 @@ owner defines intended experience
 → audit current implementation
 → classify gaps as structural/behavioral/cosmetic
 → implement structural and behavioral changes
+→ verify transition/completion boundaries used by other systems
 → add/update regressions where practical
 → runtime smoke test
 → mark EXPERIENCE LOCKED once remaining gaps are cosmetic/content-only
@@ -125,8 +138,11 @@ Recommended critical-path review order:
 10. Activity/time feedback
 11. Dialogue presentation
 12. Combat UX and resolution presentation
-13. Prologue → MAIN_CAMPAIGN Day 1 handoff
+13. Cross-system presentation / transition / completion boundaries
+14. Prologue → MAIN_CAMPAIGN Day 1 handoff
 ```
+
+For item 13, audit lifecycle behavior rather than creating a parallel transition manager by default. Reuse current signals/callbacks wherever they already express the required boundary. Add a reusable contract only where the existing architecture cannot represent the handoff cleanly.
 
 Do not begin authoring the final end-to-end Prologue sequence until the surfaces it depends on are sufficiently experience-locked.
 
@@ -274,12 +290,14 @@ tests/commitment/partner_loss_turd_continuity_test.gd
 - The starter page may select during `PROLOGUE` for the first Operator or `OPERATOR_CREATION` after Operator Loss.
 - Initial starter selection preserves `PROLOGUE`; post-loss starter selection completes succession and restores `MAIN_CAMPAIGN`.
 - Phase 14.5 may change player-facing flow and presentation contracts, but must preserve final-form modular/data-driven ownership rather than introduce Prologue-specific hacks.
+- Phase 14.5 must not introduce arbitrary fixed delays to sequence StoryEvents, Dialogues, apps or combat; lifecycle boundaries should use existing reusable contracts/signals or add a reusable contract only when needed.
 - No new parallel save section was created.
 
 ## Known gaps
 
 - Phase 14.5 experience review has not yet been performed surface by surface.
 - Phase 15 Prologue content is intentionally not assembled end-to-end until its critical interfaces are reviewed.
+- Cross-system presentation/transition/completion boundaries have not yet been audited as a dedicated Phase 14.5 surface.
 - Legacy Recovery is not implemented; the broken handtop currently supports inspection only and recovery is deferred outside the slice critical path.
 - Final TURD balance and assets are not authored.
 - Akihabara is the integration location with a Legacy Site spawn point; final areas require authored Legacy Site placement.
