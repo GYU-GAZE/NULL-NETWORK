@@ -65,6 +65,31 @@ func _run_test() -> void:
 			profile_list != null and profile_list.get_child_count() == 1,
 			"Startup menu did not render the saved user row."
 		)
+
+		var user_panel := menu.get_node_or_null(
+			"MenuArea/RightColumn/UserPanel"
+		) as PanelContainer
+		_check(
+			user_panel != null
+			and user_panel.get_theme_stylebox("panel") is StyleBoxEmpty,
+			"Startup user list regained a permanent panel background."
+		)
+
+		if profile_list != null and profile_list.get_child_count() == 1:
+			var profile_button := profile_list.get_child(0) as Button
+			_check(
+				profile_button != null and profile_button.flat,
+				"Startup account row must remain backgroundless at rest."
+			)
+			_check(
+				profile_button != null and profile_button.text == "Preview User",
+				"Startup account row should present the user identity without save metadata."
+			)
+
+		_check(
+			menu.get_node_or_null("MenuArea/Divider") != null,
+			"Startup menu lost the XP-style center divider."
+		)
 		menu.queue_free()
 
 	await get_tree().process_frame
