@@ -331,12 +331,11 @@ func _layout_boot_logo_centered() -> void:
 
 
 func _get_boot_logo_target_position() -> Vector2:
-	var centered_x: float = (size.x - boot_logo_anchor.size.x) * 0.5
-	var target_center_y: float = size.y * presentation_data.logo_target_screen_y_ratio
-	return Vector2(
-		centered_x,
-		target_center_y - boot_logo_anchor.size.y * 0.5
+	var target_center := Vector2(
+		size.x * presentation_data.logo_target_screen_x_ratio,
+		size.y * presentation_data.logo_target_screen_y_ratio
 	)
+	return target_center - boot_logo_anchor.size * 0.5
 
 
 func _on_viewport_size_changed() -> void:
