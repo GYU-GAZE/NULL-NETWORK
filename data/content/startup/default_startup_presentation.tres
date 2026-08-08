@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="StartupPresentationData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/templates/startup/startup_presentation_data.gd" id="1_presentation"]
+[ext_resource type="Script" path="res://data/templates/startup/startup_splash_data.gd" id="2_splash"]
+
+[sub_resource type="Resource" id="Splash_GyuGaze"]
+script = ExtResource("2_splash")
+splash_id = &"gyu_gaze"
+fallback_text = "GYU:GAZE WORKS"
+background_color = Color(0.005, 0.007, 0.012, 1)
+fade_in_seconds = 0.12
+hold_seconds = 0.55
+fade_out_seconds = 0.12
+logo_minimum_size = Vector2(360, 180)
+
+[sub_resource type="Resource" id="Splash_Godot"]
+script = ExtResource("2_splash")
+splash_id = &"godot_engine"
+fallback_text = "GODOT ENGINE"
+background_color = Color(0.005, 0.007, 0.012, 1)
+fade_in_seconds = 0.12
+hold_seconds = 0.55
+fade_out_seconds = 0.12
+logo_minimum_size = Vector2(360, 180)
+
+[resource]
+script = ExtResource("1_presentation")
+splashes = Array[ExtResource("2_splash")]([SubResource("Splash_GyuGaze"), SubResource("Splash_Godot")])
+skip_speed_multiplier = 10.0
+kubuos_fallback_text = "KubuOS"
+logo_ignite_seconds = 0.18
+logo_hold_seconds = 0.22
+screen_power_seconds = 0.12
+reveal_seconds = 0.72
+logo_target_screen_y_ratio = 0.16
+logo_target_scale = 0.72
+background_intro_pan_ratio = 0.22
+day_background_color = Color(0.055, 0.18, 0.27, 1)
+night_background_color = Color(0.012, 0.025, 0.075, 1)
+backdrop_overscan_pixels = 72.0
+mouse_parallax_pixels = Vector2(18, 10)
+parallax_follow_speed = 6.0
+splash_text_color = Color(0.9, 0.94, 1, 1)
+kubuos_text_color = Color(0.72, 0.94, 1, 1)
+power_line_color = Color(0.82, 0.96, 1, 1)
