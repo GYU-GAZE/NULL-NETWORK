@@ -1,0 +1,398 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://systems/startup/startup_menu.gd" id="1_script"]
+[ext_resource type="Resource" path="res://data/content/startup/default_startup_presentation.tres" id="2_data"]
+
+[node name="StartupMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+presentation_data = ExtResource("2_data")
+
+[node name="NullBrand" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 34.0
+offset_bottom = 160.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="Center" type="CenterContainer" parent="NullBrand"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NullLogoRoot" type="Control" parent="NullBrand/Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 110)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PixelField" type="Control" parent="NullBrand/Center/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NullLogoTextureGhostA" type="TextureRect" parent="NullBrand/Center/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NullLogoTextureGhostB" type="TextureRect" parent="NullBrand/Center/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NullLogoTexture" type="TextureRect" parent="NullBrand/Center/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NullLogoLabelGhostA" type="Label" parent="NullBrand/Center/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 48
+text = "NULL NETWORK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NullLogoLabelGhostB" type="Label" parent="NullBrand/Center/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 48
+text = "NULL NETWORK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NullLogoLabel" type="Label" parent="NullBrand/Center/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 48
+text = "NULL NETWORK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MenuArea" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 148.0
+offset_bottom = -72.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="RightColumn" type="MarginContainer" parent="MenuArea"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -556.0
+offset_top = -220.0
+offset_right = -58.0
+offset_bottom = 220.0
+grow_horizontal = 0
+grow_vertical = 2
+mouse_filter = 1
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="UserPanel" type="PanelContainer" parent="MenuArea/RightColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="MenuArea/RightColumn/UserPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="Root" type="VBoxContainer" parent="MenuArea/RightColumn/UserPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="MenuArea/RightColumn/UserPanel/Margin/Root"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "USERS"
+
+[node name="Separator" type="HSeparator" parent="MenuArea/RightColumn/UserPanel/Margin/Root"]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="MenuArea/RightColumn/UserPanel/Margin/Root"]
+custom_minimum_size = Vector2(0, 260)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ProfileList" type="VBoxContainer" parent="MenuArea/RightColumn/UserPanel/Margin/Root/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="EmptyProfileLabel" type="Label" parent="MenuArea/RightColumn/UserPanel/Margin/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "No users registered on this KubuOS."
+horizontal_alignment = 1
+
+[node name="NewUserButton" type="Button" parent="MenuArea/RightColumn/UserPanel/Margin/Root"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+text = "+ NEW USER"
+
+[node name="ModePanel" type="PanelContainer" parent="MenuArea/RightColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="MenuArea/RightColumn/ModePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="Root" type="VBoxContainer" parent="MenuArea/RightColumn/ModePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="MenuArea/RightColumn/ModePanel/Margin/Root"]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="MenuArea/RightColumn/ModePanel/Margin/Root/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "<"
+
+[node name="Title" type="Label" parent="MenuArea/RightColumn/ModePanel/Margin/Root/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "NEW USER"
+horizontal_alignment = 1
+
+[node name="HeaderSpacer" type="Control" parent="MenuArea/RightColumn/ModePanel/Margin/Root/Header"]
+custom_minimum_size = Vector2(42, 0)
+layout_mode = 2
+
+[node name="ModeButtons" type="HBoxContainer" parent="MenuArea/RightColumn/ModePanel/Margin/Root"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SafeModeButton" type="Button" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "SAFE MODE"
+
+[node name="CommitModeButton" type="Button" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "COMMIT MODE"
+
+[node name="ModeDetails" type="PanelContainer" parent="MenuArea/RightColumn/ModePanel/Margin/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeDetails"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Root" type="VBoxContainer" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeDetails/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ModeTitle" type="Label" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeDetails/Margin/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "MODE"
+
+[node name="ModeDescription" type="RichTextLabel" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeDetails/Margin/Root"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+fit_content = true
+scroll_active = false
+
+[node name="StartButton" type="Button" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeDetails/Margin/Root"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "START"
+
+[node name="ErrorLabel" type="Label" parent="MenuArea/RightColumn"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.35, 0.32, 1)
+autowrap_mode = 2
+
+[node name="UtilityButtons" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = -58.0
+offset_right = 274.0
+offset_bottom = -20.0
+grow_vertical = 0
+theme_override_constants/separation = 8
+
+[node name="ExitButton" type="Button" parent="UtilityButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(102, 38)
+layout_mode = 2
+text = "⏻  EXIT"
+
+[node name="ConfigsButton" type="Button" parent="UtilityButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(124, 38)
+layout_mode = 2
+text = "⚙  CONFIGS"
+
+[node name="ConfigModal" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Shade" type="ColorRect" parent="ConfigModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.64)
+
+[node name="Center" type="CenterContainer" parent="ConfigModal"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="ConfigModal/Center"]
+custom_minimum_size = Vector2(460, 240)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="ConfigModal/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 20
+
+[node name="Root" type="VBoxContainer" parent="ConfigModal/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="ConfigModal/Center/Panel/Margin/Root"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "CONFIGS"
+
+[node name="DisplayLabel" type="Label" parent="ConfigModal/Center/Panel/Margin/Root"]
+layout_mode = 2
+text = "Display mode"
+
+[node name="DisplayModeSelect" type="OptionButton" parent="ConfigModal/Center/Panel/Margin/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="ConfigModal/Center/Panel/Margin/Root"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Actions" type="HBoxContainer" parent="ConfigModal/Center/Panel/Margin/Root"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="ConfigCloseButton" type="Button" parent="ConfigModal/Center/Panel/Margin/Root/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "CLOSE"
+
+[node name="ConfigApplyButton" type="Button" parent="ConfigModal/Center/Panel/Margin/Root/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "APPLY"
