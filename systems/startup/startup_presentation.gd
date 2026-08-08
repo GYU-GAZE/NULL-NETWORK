@@ -83,6 +83,38 @@ func stop_and_hide() -> void:
 	hide()
 
 
+func show_login_state(period: int = TimeManager.TimePeriod.DAY) -> void:
+	# Logout returns directly to the already-booted KubuOS login surface. It must
+	# restore the final boot composition without replaying studio/Godot splashes.
+	_is_playing = false
+	_parallax_enabled = false
+	set_process(false)
+
+	if _active_tween != null and _active_tween.is_valid():
+		_active_tween.kill()
+
+	_active_tween = null
+	show()
+	_set_backdrop_period(period)
+	_apply_static_styling()
+	_configure_kubuos_logo()
+	await get_tree().process_frame
+	_layout_backdrop()
+	boot_layer.show()
+	splash_layer.hide()
+	backdrop_clip.modulate.a = 1.0
+	boot_logo_anchor.modulate.a = 1.0
+	boot_logo_anchor.position = _get_boot_logo_target_position()
+	boot_logo_anchor.scale = Vector2.ONE * presentation_data.logo_target_scale
+	power_line.modulate.a = 0.0
+	screen_flash.modulate.a = 0.0
+	skip_hint.hide()
+	_backdrop_parallax_offset = Vector2.ZERO
+	backdrop_root.position = _backdrop_base_position
+	_parallax_enabled = true
+	set_process(true)
+
+
 func _input(event: InputEvent) -> void:
 	if not _is_playing:
 		return
