@@ -43,7 +43,7 @@ func _on_campaign_load_requested(
 		startup_menu.show_error("\n".join(errors))
 		return
 
-	_launch_desktop()
+	await _launch_desktop()
 
 
 func _on_campaign_create_requested(
@@ -63,16 +63,18 @@ func _on_campaign_create_requested(
 		startup_menu.show_error("\n".join(errors))
 		return
 
-	_launch_desktop()
+	await _launch_desktop()
 
 
 func _launch_desktop() -> void:
 	if is_instance_valid(_desktop_instance):
 		return
 
+	await KubuTransitionManager.cover_screen()
 	_desktop_instance = MAIN_SCENE.instantiate()
 
 	if _desktop_instance == null:
+		await KubuTransitionManager.uncover_screen()
 		startup_menu.set_busy(false)
 		startup_menu.show_error("KubuOS desktop failed to instantiate.")
 		return
@@ -81,6 +83,8 @@ func _launch_desktop() -> void:
 	startup_menu.hide()
 	runtime_root.add_child(_desktop_instance)
 	KubuTransitionManager.set_runtime_active(true)
+	await get_tree().process_frame
+	await KubuTransitionManager.uncover_screen()
 
 
 func _on_logout_requested() -> void:
@@ -88,6 +92,7 @@ func _on_logout_requested() -> void:
 		return
 
 	_returning_to_login = true
+	await KubuTransitionManager.cover_screen()
 
 	# Logout is a stable KubuOS boundary. Persist the current living state before
 	# removing presentation nodes, regardless of SAFE/COMMIT policy.
@@ -104,4 +109,5 @@ func _on_logout_requested() -> void:
 	var login_period: int = startup_menu.refresh_profiles()
 	await startup_presentation.show_login_state(login_period)
 	await startup_menu.reveal()
+	await KubuTransitionManager.uncover_screen()
 	_returning_to_login = false
