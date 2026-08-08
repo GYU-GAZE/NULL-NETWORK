@@ -1,0 +1,282 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://systems/transitions/kubu_transition_manager.gd" id="1_script"]
+[ext_resource type="Resource" path="res://data/content/transitions/default_kubu_transition_presentation.tres" id="2_data"]
+[ext_resource type="Theme" path="res://data/assets/themes/kubuOS.tres" id="3_day_theme"]
+[ext_resource type="Theme" path="res://data/assets/themes/kubuOS_night.tres" id="4_night_theme"]
+
+[node name="KubuTransitionManager" type="CanvasLayer"]
+layer = 240
+script = ExtResource("1_script")
+presentation_data = ExtResource("2_data")
+day_theme = ExtResource("3_day_theme")
+night_theme = ExtResource("4_night_theme")
+
+[node name="ScreenTransitionRoot" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="BlocksRoot" type="Control" parent="ScreenTransitionRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TimeTransitionRoot" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="Background" type="ColorRect" parent="TimeTransitionRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.88, 0.93, 0.98, 1)
+
+[node name="Center" type="CenterContainer" parent="TimeTransitionRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TimeContent" type="VBoxContainer" parent="TimeTransitionRoot/Center"]
+custom_minimum_size = Vector2(650, 430)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="CountdownLabel" type="Label" parent="TimeTransitionRoot/Center/TimeContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.12, 0.16, 1)
+theme_override_colors/font_outline_color = Color(0.24, 0, 0.03, 0.9)
+theme_override_font_sizes/font_size = 34
+theme_override_constants/outline_size = 3
+text = "11 DAYS UNTIL UPDATE 1.0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="IdentityRow" type="HBoxContainer" parent="TimeTransitionRoot/Center/TimeContent"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 30
+
+[node name="BrandClip" type="Control" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow"]
+custom_minimum_size = Vector2(290, 126)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="KubuLogoTexture" type="TextureRect" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow/BrandClip"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="KubuLogoFallback" type="Label" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow/BrandClip"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 48
+text = "KubuOS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PeriodStack" type="VBoxContainer" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow"]
+custom_minimum_size = Vector2(180, 126)
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="SymbolClip" type="Control" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow/PeriodStack"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 82)
+layout_mode = 2
+clip_contents = true
+mouse_filter = 2
+
+[node name="OldSymbolRoot" type="Control" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow/PeriodStack/SymbolClip"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Texture" type="TextureRect" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow/PeriodStack/SymbolClip/OldSymbolRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Fallback" type="Label" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow/PeriodStack/SymbolClip/OldSymbolRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 34
+text = "SUN"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NewSymbolRoot" type="Control" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow/PeriodStack/SymbolClip"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Texture" type="TextureRect" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow/PeriodStack/SymbolClip/NewSymbolRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Fallback" type="Label" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow/PeriodStack/SymbolClip/NewSymbolRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 34
+text = "MOON"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PeriodLabelClip" type="Control" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow/PeriodStack"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
+clip_contents = true
+mouse_filter = 2
+
+[node name="OldPeriodLabel" type="Label" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow/PeriodStack/PeriodLabelClip"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 28
+text = "DAY"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NewPeriodLabel" type="Label" parent="TimeTransitionRoot/Center/TimeContent/IdentityRow/PeriodStack/PeriodLabelClip"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 28
+text = "NIGHT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DayLabel" type="Label" parent="TimeTransitionRoot/Center/TimeContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "DAY 01"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TrailClip" type="Control" parent="TimeTransitionRoot/Center/TimeContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+clip_contents = true
+mouse_filter = 2
+
+[node name="TrailHBox" type="HBoxContainer" parent="TimeTransitionRoot/Center/TimeContent/TrailClip"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+alignment = 1
+theme_override_constants/separation = 22
+
+[node name="TrailCursor" type="Label" parent="TimeTransitionRoot/Center/TimeContent/TrailClip"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(22, 20)
+layout_mode = 0
+offset_top = 42.0
+offset_right = 22.0
+offset_bottom = 62.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+text = "▲"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DayChangeAudio" type="AudioStreamPlayer" parent="TimeTransitionRoot"]
+unique_name_in_owner = true
