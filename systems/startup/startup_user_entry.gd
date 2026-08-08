@@ -2,8 +2,8 @@ extends VBoxContainer
 class_name StartupUserEntry
 
 
-signal selected(campaign_id: String)
-signal activated(campaign_id: String)
+signal selected(entry_id: String)
+signal activated(entry_id: String)
 
 
 @export var normal_style: StyleBox
@@ -46,20 +46,29 @@ func configure(profile: Dictionary, avatar: Texture2D = null) -> void:
 	if username.is_empty():
 		username = "New User"
 
-	var mode: String = (
-		"COMMIT"
-		if int(profile.get("save_mode", CampaignState.SaveMode.SAFE))
-		== CampaignState.SaveMode.COMMIT
-		else "SAFE"
-	)
-	var day: int = maxi(1, int(profile.get("days_passed", 1)))
+	var description: String = str(profile.get("description", "")).strip_edges()
+
+	if description.is_empty():
+		var mode: String = (
+			"COMMIT"
+			if int(profile.get("save_mode", CampaignState.SaveMode.SAFE))
+			== CampaignState.SaveMode.COMMIT
+			else "SAFE"
+		)
+		var day: int = maxi(1, int(profile.get("days_passed", 1)))
+		description = "%s MODE · Day %d" % [mode, day]
+
+	var fallback: String = str(profile.get("avatar_fallback", "")).strip_edges()
+
+	if fallback.is_empty():
+		fallback = username.left(1).to_upper()
 
 	username_label.text = username
-	description_label.text = "%s MODE · Day %d" % [mode, day]
+	description_label.text = description
 	avatar_texture.texture = avatar
 	avatar_texture.visible = avatar != null
 	avatar_fallback.visible = avatar == null
-	avatar_fallback.text = username.left(1).to_upper()
+	avatar_fallback.text = fallback
 	avatar_fallback.tooltip_text = avatar_id
 
 
