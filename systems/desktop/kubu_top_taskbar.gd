@@ -1,11 +1,14 @@
 extends PanelContainer
 class_name KubuTopTaskbar
 
+
+const SYSTEM_MENU_HEIGHT: float = 126.0
+const SYSTEM_MENU_GAP: float = 2.0
+
 @export_category("Fake OS Status")
 @export var location_label_text: String = "TOKYO - SHIBUYA"
 @export var temperature_label_text: String = "23°C"
 @export var network_label_text: String = "NET"
-@export var battery_label_text: String = "BAT 95%"
 
 @export_category("Free Time Slots")
 @export var slot_hours: Array[int] = [
@@ -28,6 +31,8 @@ class_name KubuTopTaskbar
 @export_category("Animation")
 @export var pulse_scale: Vector2 = Vector2(1.05, 1.05)
 @export var pulse_duration: float = 0.18
+@export var system_menu_open_seconds: float = 0.18
+@export var system_menu_close_seconds: float = 0.12
 
 @onready var time_label: Label = %TimeLabel
 @onready var temperature_label: Label = %TemperatureLabel
@@ -35,16 +40,23 @@ class_name KubuTopTaskbar
 @onready var day_label: Label = %DayLabel
 @onready var date_label: Label = %DateLabel
 @onready var network_label: Label = %NetworkLabel
+@onready var battery_icon: KubuBatteryIndicator = %BatteryIcon
 @onready var battery_label: Label = %BatteryLabel
 @onready var notification_button: TextureButton = %NotificationButton
 @onready var menu_button: Button = %MenuButton
 @onready var action_pip_hbox: HBoxContainer = %ActionPipHBox
 @onready var notification_badge: Label = %NotificationBadge
+@onready var system_menu_panel: PanelContainer = %SystemMenuPanel
+@onready var system_settings_button: Button = %SystemSettingsButton
+@onready var desktop_visual_button: Button = %DesktopVisualButton
+@onready var logout_button: Button = %LogoutButton
 
 var action_pips: Array[KubuActionPip] = []
 
 var _last_period_text: String = ""
 var _last_day_text: String = ""
+var _system_menu_open: bool = false
+var _system_menu_tween: Tween
 
 
 func _ready() -> void:
@@ -54,10 +66,8 @@ func _ready() -> void:
 		KubuOSMetrics.metrics_changed.connect(_apply_metrics)
 
 	temperature_label.text = temperature_label_text
-	temperature_label.text = temperature_label_text
 	location_label.text = location_label_text
 	network_label.text = network_label_text
-	battery_label.text = battery_label_text
 
 	if not GlobalSignals.time_advanced.is_connected(_on_time_advanced):
 		GlobalSignals.time_advanced.connect(_on_time_advanced)
@@ -72,16 +82,33 @@ func _ready() -> void:
 	if not menu_button.pressed.is_connected(_on_menu_button_pressed):
 		menu_button.pressed.connect(_on_menu_button_pressed)
 
+	if not system_settings_button.pressed.is_connected(_on_system_settings_pressed):
+		system_settings_button.pressed.connect(_on_system_settings_pressed)
+
+	if not logout_button.pressed.is_connected(_on_logout_pressed):
+		logout_button.pressed.connect(_on_logout_pressed)
+
+	# Desktop Visual intentionally remains a visible placeholder until the
+	# appearance-customization surface is implemented.
+	desktop_visual_button.tooltip_text = "Desktop appearance customization is not available yet."
+
 	_collect_action_pips()
 	_setup_action_pips()
+	_prepare_system_menu()
 	_refresh_from_time_manager()
 	_refresh_notification_badge()
+
 
 func _apply_metrics() -> void:
 	custom_minimum_size = Vector2(custom_minimum_size.x, KubuOSMetrics.taskbar_height)
 	size = Vector2(size.x, KubuOSMetrics.taskbar_height)
 	offset_top = 0.0
 	offset_bottom = KubuOSMetrics.taskbar_height
+
+	if system_menu_panel != null:
+		system_menu_panel.offset_top = KubuOSMetrics.taskbar_height + SYSTEM_MENU_GAP
+		system_menu_panel.offset_bottom = system_menu_panel.offset_top + SYSTEM_MENU_HEIGHT
+
 
 func _collect_action_pips() -> void:
 	action_pips.clear()
@@ -95,7 +122,6 @@ func _setup_action_pips() -> void:
 	for index in range(action_pips.size()):
 		var pip: KubuActionPip = action_pips[index]
 		var slot_hour: int = _get_slot_hour(index)
-
 		pip.setup_pip(index, slot_hour)
 
 	_refresh_action_pips()
@@ -118,12 +144,7 @@ func _on_time_advanced(period: int, days_passed: int, calendar_day: int, calenda
 	)
 
 	time_label.text = hour_text
-
-	day_label.text = "%s %02d" % [
-		period_text,
-		days_passed
-	]
-
+	day_label.text = "%s %02d" % [period_text, days_passed]
 	date_label.text = "%s %02d.%s.%d" % [
 		TimeManager.get_current_weekday_name(),
 		calendar_day,
@@ -132,6 +153,7 @@ func _on_time_advanced(period: int, days_passed: int, calendar_day: int, calenda
 	]
 
 	_refresh_action_pips()
+	_refresh_battery()
 
 	var new_day_key: String = "%s_%d" % [period_text, days_passed]
 
@@ -149,6 +171,24 @@ func _on_time_advanced(period: int, days_passed: int, calendar_day: int, calenda
 	_pulse(time_label)
 
 
+func _refresh_battery() -> void:
+	# The KubuOS battery is diegetic presentation for the current 12-block play
+	# period, not hardware simulation. Block 1 starts at 100%; block 12 reaches
+	# the persistent visual floor of 2%. This keeps the icon synchronized with
+	# the action economy while remaining presentation-only.
+	var block: int = clampi(
+		TimeManager.current_action_block,
+		0,
+		TimeManager.ACTION_BLOCKS_PER_PERIOD - 1
+	)
+	var denominator: float = float(maxi(1, TimeManager.ACTION_BLOCKS_PER_PERIOD - 1))
+	var progress: float = float(block) / denominator
+	var percentage: int = clampi(roundi(lerpf(100.0, 2.0, progress)), 2, 100)
+
+	battery_label.text = "%d%%" % percentage
+	battery_icon.set_battery_percent(percentage)
+
+
 func _refresh_action_pips() -> void:
 	var available_hours: Array[int] = _get_current_available_hours()
 	var current_day_block_index: int = TimeManager.get_current_day_block_index()
@@ -157,7 +197,6 @@ func _refresh_action_pips() -> void:
 		var pip: KubuActionPip = action_pips[index]
 		var slot_hour: int = _get_slot_hour(index)
 		var slot_block_index: int = TimeManager.get_day_block_index_for_hour(slot_hour)
-
 		var is_available: bool = available_hours.has(slot_hour)
 		var is_used: bool = slot_block_index < current_day_block_index
 		var is_current: bool = slot_block_index == current_day_block_index
@@ -204,10 +243,7 @@ func _sanitize_hours(raw_hours: Array[int]) -> Array[int]:
 
 
 func _get_slot_hour(index: int) -> int:
-	if index < 0:
-		return 6
-
-	if index >= slot_hours.size():
+	if index < 0 or index >= slot_hours.size():
 		return 6
 
 	return posmod(int(slot_hours[index]), 24)
@@ -237,12 +273,100 @@ func _refresh_notification_badge() -> void:
 	notification_badge.text = str(unread_count)
 
 
+func _prepare_system_menu() -> void:
+	_system_menu_open = false
+	system_menu_panel.hide()
+	system_menu_panel.scale = Vector2.ONE
+	system_menu_panel.modulate.a = 1.0
+	_apply_metrics()
+
+
 func _on_notification_button_pressed() -> void:
+	_close_system_menu(false)
 	GlobalSignals.request_toggle_notification_center.emit()
 
 
 func _on_menu_button_pressed() -> void:
-	UniversalNotifications.push_simple("KubuOS menu is not implemented yet.")
+	if _system_menu_open:
+		_close_system_menu()
+	else:
+		_open_system_menu()
+
+
+func _open_system_menu() -> void:
+	if _system_menu_open:
+		return
+
+	if _system_menu_tween != null and _system_menu_tween.is_valid():
+		_system_menu_tween.kill()
+
+	_system_menu_open = true
+	system_menu_panel.show()
+	system_menu_panel.pivot_offset = Vector2(system_menu_panel.size.x, 0.0)
+	system_menu_panel.scale = Vector2(1.0, 0.04)
+	system_menu_panel.modulate.a = 0.55
+
+	_system_menu_tween = create_tween()
+	_system_menu_tween.set_trans(Tween.TRANS_CUBIC)
+	_system_menu_tween.set_ease(Tween.EASE_OUT)
+	_system_menu_tween.tween_property(
+		system_menu_panel,
+		"scale:y",
+		1.0,
+		system_menu_open_seconds
+	)
+	_system_menu_tween.parallel().tween_property(
+		system_menu_panel,
+		"modulate:a",
+		1.0,
+		system_menu_open_seconds * 0.75
+	)
+
+
+func _close_system_menu(animated: bool = true) -> void:
+	if not _system_menu_open and not system_menu_panel.visible:
+		return
+
+	if _system_menu_tween != null and _system_menu_tween.is_valid():
+		_system_menu_tween.kill()
+
+	_system_menu_open = false
+
+	if not animated:
+		system_menu_panel.hide()
+		system_menu_panel.scale = Vector2.ONE
+		system_menu_panel.modulate.a = 1.0
+		return
+
+	_system_menu_tween = create_tween()
+	_system_menu_tween.set_trans(Tween.TRANS_QUAD)
+	_system_menu_tween.set_ease(Tween.EASE_IN)
+	_system_menu_tween.tween_property(
+		system_menu_panel,
+		"scale:y",
+		0.04,
+		system_menu_close_seconds
+	)
+	_system_menu_tween.parallel().tween_property(
+		system_menu_panel,
+		"modulate:a",
+		0.0,
+		system_menu_close_seconds * 0.8
+	)
+	await _system_menu_tween.finished
+	system_menu_panel.hide()
+	system_menu_panel.scale = Vector2.ONE
+	system_menu_panel.modulate.a = 1.0
+
+
+func _on_system_settings_pressed() -> void:
+	_close_system_menu(false)
+	GlobalSignals.request_open_system_settings.emit()
+
+
+func _on_logout_pressed() -> void:
+	_close_system_menu(false)
+	GlobalSignals.request_logout.emit()
 
 
 func _pulse(target: Control) -> void:
@@ -253,4 +377,9 @@ func _pulse(target: Control) -> void:
 	target.scale = pulse_scale
 
 	var tween: Tween = create_tween()
-	tween.tween_property(target, "scale", Vector2.ONE, pulse_duration).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(
+		target,
+		"scale",
+		Vector2.ONE,
+		pulse_duration
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
