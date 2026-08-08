@@ -13,6 +13,9 @@ signal campaign_create_requested(
 const STARTUP_USER_ENTRY_SCENE: PackedScene = preload(
 	"res://systems/startup/startup_user_entry.tscn"
 )
+const NEW_USER_ENTRY_ID: String = "__new_user__"
+const BOTTOM_BAR_HIDDEN_OFFSET: float = 58.0
+const BOTTOM_BAR_REVEAL_SECONDS: float = 0.3
 
 @export var presentation_data: StartupPresentationData
 
@@ -27,8 +30,6 @@ const STARTUP_USER_ENTRY_SCENE: PackedScene = preload(
 @onready var pixel_field: Control = %PixelField
 @onready var user_panel: PanelContainer = %UserPanel
 @onready var profile_list: VBoxContainer = %ProfileList
-@onready var empty_profile_label: Label = %EmptyProfileLabel
-@onready var new_user_button: Button = %NewUserButton
 @onready var mode_panel: PanelContainer = %ModePanel
 @onready var safe_mode_button: Button = %SafeModeButton
 @onready var commit_mode_button: Button = %CommitModeButton
@@ -37,6 +38,7 @@ const STARTUP_USER_ENTRY_SCENE: PackedScene = preload(
 @onready var mode_description: RichTextLabel = %ModeDescription
 @onready var start_button: Button = %StartButton
 @onready var back_button: Button = %BackButton
+@onready var bottom_bar_root: Control = %BottomBarRoot
 @onready var utility_buttons: HBoxContainer = %UtilityButtons
 @onready var exit_button: Button = %ExitButton
 @onready var configs_button: Button = %ConfigsButton
@@ -47,7 +49,7 @@ const STARTUP_USER_ENTRY_SCENE: PackedScene = preload(
 @onready var error_label: Label = %ErrorLabel
 
 var _profiles: Array[Dictionary] = []
-var _selected_campaign_id: String = ""
+var _selected_entry_id: String = ""
 var _selected_mode: CampaignState.SaveMode = CampaignState.SaveMode.UNSET
 var _rng := RandomNumberGenerator.new()
 var _glitch_timer: float = 0.0
@@ -59,7 +61,6 @@ var _busy: bool = false
 
 func _ready() -> void:
 	_rng.seed = 0x4E554C4C
-	new_user_button.pressed.connect(_show_new_user_modes)
 	safe_mode_button.pressed.connect(
 		func() -> void: _select_mode(CampaignState.SaveMode.SAFE)
 	)
@@ -101,6 +102,7 @@ func reveal() -> void:
 	set_process(false)
 	_configure_null_logo()
 	await get_tree().process_frame
+	await _reveal_bottom_bar()
 	await _materialize_null_logo()
 	await _reveal_main_controls()
 	_input_enabled = true
@@ -110,7 +112,6 @@ func reveal() -> void:
 
 func set_busy(value: bool) -> void:
 	_busy = value
-	new_user_button.disabled = value
 	safe_mode_button.disabled = value
 	commit_mode_button.disabled = value
 	start_button.disabled = value or _selected_mode == CampaignState.SaveMode.UNSET
@@ -140,35 +141,44 @@ func _rebuild_profile_list() -> void:
 	for child: Node in profile_list.get_children():
 		child.queue_free()
 
-	_selected_campaign_id = ""
-	empty_profile_label.visible = _profiles.is_empty()
+	_selected_entry_id = ""
 
-	for index: int in range(_profiles.size()):
-		var profile: Dictionary = _profiles[index]
-		var entry := STARTUP_USER_ENTRY_SCENE.instantiate() as StartupUserEntry
+	for profile: Dictionary in _profiles:
+		_add_user_entry(profile, true)
 
-		if entry == null:
-			push_error("StartupMenu could not instantiate StartupUserEntry.")
-			continue
-
-		profile_list.add_child(entry)
-		entry.configure(profile)
-		entry.set_separator_visible(index < _profiles.size() - 1)
-		entry.selected.connect(_on_profile_selected)
-		entry.activated.connect(_on_profile_activated)
-		entry.set_interaction_enabled(not _busy)
+	_add_user_entry({
+		"campaign_id": NEW_USER_ENTRY_ID,
+		"username": "New User",
+		"description": "Create a new KubuOS user",
+		"avatar_fallback": "+"
+	}, false)
 
 
-func _on_profile_selected(campaign_id: String) -> void:
+func _add_user_entry(profile: Dictionary, show_separator: bool) -> void:
+	var entry := STARTUP_USER_ENTRY_SCENE.instantiate() as StartupUserEntry
+
+	if entry == null:
+		push_error("StartupMenu could not instantiate StartupUserEntry.")
+		return
+
+	profile_list.add_child(entry)
+	entry.configure(profile)
+	entry.set_separator_visible(show_separator)
+	entry.selected.connect(_on_profile_selected)
+	entry.activated.connect(_on_profile_activated)
+	entry.set_interaction_enabled(not _busy)
+
+
+func _on_profile_selected(entry_id: String) -> void:
 	if not _input_enabled or _busy:
 		return
 
-	var clean_id: String = campaign_id.strip_edges()
+	var clean_id: String = entry_id.strip_edges()
 
 	if clean_id.is_empty():
 		return
 
-	_selected_campaign_id = clean_id
+	_selected_entry_id = clean_id
 	show_error("")
 
 	for child: Node in profile_list.get_children():
@@ -177,10 +187,14 @@ func _on_profile_selected(campaign_id: String) -> void:
 			entry.set_selected(entry.campaign_id == clean_id)
 
 
-func _on_profile_activated(campaign_id: String) -> void:
-	var clean_id: String = campaign_id.strip_edges()
+func _on_profile_activated(entry_id: String) -> void:
+	var clean_id: String = entry_id.strip_edges()
 
-	if clean_id.is_empty() or clean_id != _selected_campaign_id:
+	if clean_id.is_empty() or clean_id != _selected_entry_id:
+		return
+
+	if clean_id == NEW_USER_ENTRY_ID:
+		_show_new_user_modes()
 		return
 
 	_load_profile(clean_id)
@@ -217,11 +231,12 @@ func _show_user_list() -> void:
 	mode_panel.hide()
 	mode_details.hide()
 	user_panel.show()
+	_clear_profile_selection()
 	show_error("")
 
 
 func _clear_profile_selection() -> void:
-	_selected_campaign_id = ""
+	_selected_entry_id = ""
 
 	for child: Node in profile_list.get_children():
 		if child is StartupUserEntry:
@@ -317,6 +332,27 @@ func _configure_null_logo() -> void:
 	_reset_logo_glitch()
 
 
+func _reveal_bottom_bar() -> void:
+	bottom_bar_root.position.y = BOTTOM_BAR_HIDDEN_OFFSET
+	bottom_bar_root.modulate.a = 0.82
+	var tween := create_tween()
+	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(
+		bottom_bar_root,
+		"position:y",
+		0.0,
+		BOTTOM_BAR_REVEAL_SECONDS
+	)
+	tween.parallel().tween_property(
+		bottom_bar_root,
+		"modulate:a",
+		1.0,
+		BOTTOM_BAR_REVEAL_SECONDS * 0.72
+	)
+	await tween.finished
+
+
 func _materialize_null_logo() -> void:
 	null_brand.show()
 	null_logo_root.modulate.a = 0.0
@@ -359,17 +395,14 @@ func _materialize_null_logo() -> void:
 func _reveal_main_controls() -> void:
 	user_panel.show()
 	mode_panel.hide()
-	utility_buttons.show()
 	user_panel.pivot_offset = user_panel.size * 0.5
 	user_panel.scale = Vector2(1.0, 0.02)
 	user_panel.modulate.a = 0.38
-	utility_buttons.modulate.a = 0.0
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_EXPO)
 	tween.set_ease(Tween.EASE_OUT)
 	tween.tween_property(user_panel, "scale:y", 1.0, 0.34)
 	tween.parallel().tween_property(user_panel, "modulate:a", 1.0, 0.22)
-	tween.parallel().tween_property(utility_buttons, "modulate:a", 1.0, 0.28)
 	await tween.finished
 
 
@@ -462,9 +495,10 @@ func _reset_visual_state() -> void:
 	user_panel.hide()
 	mode_panel.hide()
 	mode_details.hide()
-	utility_buttons.hide()
 	config_modal.hide()
 	show_error("")
-	_selected_campaign_id = ""
+	bottom_bar_root.position.y = BOTTOM_BAR_HIDDEN_OFFSET
+	bottom_bar_root.modulate.a = 1.0
+	_selected_entry_id = ""
 	_selected_mode = CampaignState.SaveMode.UNSET
 	_input_enabled = false
