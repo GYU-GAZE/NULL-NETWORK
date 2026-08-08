@@ -1,10 +1,16 @@
 extends Control
 class_name Desktop
 
+
+@export_category("Period Presentation")
+@export var day_background_color: Color = Color(0.018, 0.047, 0.082, 1.0)
+@export var night_background_color: Color = Color(0.006, 0.008, 0.014, 1.0)
+
 @export_category("Time UI Animation (Juice)")
 @export var time_pulse_scale: Vector2 = Vector2(1.05, 1.05)
 @export var time_tween_duration: float = 0.3
 
+@onready var background: ColorRect = %Background
 @onready var clock_container: VBoxContainer = %ClockContainer
 @onready var period_label: Label = %PeriodLabel
 @onready var day_label: Label = %DayLabel
@@ -19,7 +25,7 @@ func _ready() -> void:
 	debug_time_button.pressed.connect(_on_debug_time_pressed)
 	GlobalSignals.time_advanced.connect(_on_time_advanced)
 
-	# Força a primeira atualização usando as variáveis diretamente do Autoload.
+	# Force the first projection from the authoritative TimeManager state.
 	TimeManager._emit_time_signal()
 
 
@@ -52,6 +58,11 @@ func _on_time_advanced(
 		actions_left
 	]
 
+	background.color = (
+		night_background_color
+		if period == TimeManager.TimePeriod.NIGHT
+		else day_background_color
+	)
 	_animate_time_change()
 
 
