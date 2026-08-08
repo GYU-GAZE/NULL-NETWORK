@@ -28,24 +28,29 @@ func _run_test() -> void:
 	)
 
 	if startup.presentation_data != null:
-		startup.presentation_data = startup.presentation_data.duplicate(true)
+		startup.presentation_data = (
+			startup.presentation_data.duplicate(true)
+			as StartupPresentationData
+		)
 		_check(
-			startup.presentation_data.splashes.size() == 2,
+			startup.presentation_data != null
+			and startup.presentation_data.splashes.size() == 2,
 			"Default startup must contain exactly two custom splash entries."
 		)
 
-		for splash: StartupSplashData in startup.presentation_data.splashes:
-			if splash == null:
-				continue
+		if startup.presentation_data != null:
+			for splash: StartupSplashData in startup.presentation_data.splashes:
+				if splash == null:
+					continue
 
-			splash.fade_in_seconds = 0.01
-			splash.hold_seconds = 0.0
-			splash.fade_out_seconds = 0.01
+				splash.fade_in_seconds = 0.01
+				splash.hold_seconds = 0.0
+				splash.fade_out_seconds = 0.01
 
-		startup.presentation_data.logo_ignite_seconds = 0.01
-		startup.presentation_data.logo_hold_seconds = 0.0
-		startup.presentation_data.screen_power_seconds = 0.01
-		startup.presentation_data.reveal_seconds = 0.02
+			startup.presentation_data.logo_ignite_seconds = 0.01
+			startup.presentation_data.logo_hold_seconds = 0.0
+			startup.presentation_data.screen_power_seconds = 0.01
+			startup.presentation_data.reveal_seconds = 0.02
 
 	startup.play(TimeManager.TimePeriod.DAY)
 	await startup.boot_completed
