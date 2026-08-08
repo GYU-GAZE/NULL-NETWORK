@@ -39,13 +39,8 @@ const BOTTOM_BAR_REVEAL_SECONDS: float = 0.3
 @onready var start_button: Button = %StartButton
 @onready var back_button: Button = %BackButton
 @onready var bottom_bar_root: Control = %BottomBarRoot
-@onready var utility_buttons: HBoxContainer = %UtilityButtons
 @onready var exit_button: Button = %ExitButton
 @onready var configs_button: Button = %ConfigsButton
-@onready var config_modal: Control = %ConfigModal
-@onready var display_mode_select: OptionButton = %DisplayModeSelect
-@onready var config_apply_button: Button = %ConfigApplyButton
-@onready var config_close_button: Button = %ConfigCloseButton
 @onready var error_label: Label = %ErrorLabel
 
 var _profiles: Array[Dictionary] = []
@@ -71,8 +66,6 @@ func _ready() -> void:
 	back_button.pressed.connect(_show_user_list)
 	exit_button.pressed.connect(_exit_game)
 	configs_button.pressed.connect(_open_configs)
-	config_apply_button.pressed.connect(_apply_display_config)
-	config_close_button.pressed.connect(_close_configs)
 	set_process(false)
 	_reset_visual_state()
 
@@ -334,9 +327,6 @@ func _configure_null_logo() -> void:
 
 
 func _set_bottom_bar_hidden() -> void:
-	# BottomBarRoot is anchored to the viewport bottom. Animate its anchor-relative
-	# offsets instead of position.y; assigning position.y = 0 would move an anchored
-	# Control to the top of the viewport after layout resolves.
 	bottom_bar_root.offset_top = 0.0
 	bottom_bar_root.offset_bottom = BOTTOM_BAR_HEIGHT
 
@@ -472,36 +462,7 @@ func _open_configs() -> void:
 	if not _input_enabled or _busy:
 		return
 
-	display_mode_select.clear()
-	display_mode_select.add_item("Windowed", KubuDisplaySettings.DisplayMode.WINDOWED)
-	display_mode_select.add_item(
-		"Borderless Fullscreen",
-		KubuDisplaySettings.DisplayMode.BORDERLESS_FULLSCREEN
-	)
-	display_mode_select.add_item(
-		"Exclusive Fullscreen",
-		KubuDisplaySettings.DisplayMode.EXCLUSIVE_FULLSCREEN
-	)
-	var current_mode: int = int(KubuDisplaySetting.get_current_display_mode())
-
-	for index in range(display_mode_select.item_count):
-		if display_mode_select.get_item_id(index) == current_mode:
-			display_mode_select.select(index)
-			break
-
-	config_modal.show()
-
-
-func _apply_display_config() -> void:
-	if display_mode_select.selected < 0:
-		return
-
-	var mode: int = display_mode_select.get_item_id(display_mode_select.selected)
-	KubuDisplaySetting.set_display_mode(mode as KubuDisplaySettings.DisplayMode)
-
-
-func _close_configs() -> void:
-	config_modal.hide()
+	GlobalSignals.request_open_system_settings.emit()
 
 
 func _exit_game() -> void:
@@ -515,7 +476,6 @@ func _reset_visual_state() -> void:
 	user_panel.hide()
 	mode_panel.hide()
 	mode_details.hide()
-	config_modal.hide()
 	show_error("")
 	_set_bottom_bar_hidden()
 	bottom_bar_root.modulate.a = 1.0
