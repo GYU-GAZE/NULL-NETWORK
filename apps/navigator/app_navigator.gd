@@ -356,7 +356,6 @@ func restore_app_session_state(
 			"NavigatorApp: session version %d is newer "
 			% saved_version
 			+ "than supported version %d."
-			% SESSION_STATE_VERSION
 		)
 		return
 
@@ -549,7 +548,7 @@ func _on_world_map_enter_area_requested(
 	)
 
 	if is_current_area:
-		_set_mode(NavigatorMode.LOCAL_AREA)
+		await _transition_to_mode(NavigatorMode.LOCAL_AREA)
 		return
 
 	if location.travel_activity == null:
@@ -726,6 +725,24 @@ func _enter_location(
 	return true
 
 
+func _enter_location_with_transition(location: MapLocation) -> bool:
+	await KubuTransitionManager.cover_screen()
+	var opened_successfully: bool = _enter_location(location)
+	await get_tree().process_frame
+	await KubuTransitionManager.uncover_screen()
+	return opened_successfully
+
+
+func _transition_to_mode(mode: NavigatorMode) -> void:
+	if _current_mode == mode:
+		return
+
+	await KubuTransitionManager.cover_screen()
+	_set_mode(mode)
+	await get_tree().process_frame
+	await KubuTransitionManager.uncover_screen()
+
+
 func _start_exe_encounter(
 	exe_actor: LocalAreaExeActor,
 	transaction_id: String,
@@ -738,6 +755,7 @@ func _start_exe_encounter(
 		)
 		return
 
+	await KubuTransitionManager.cover_screen()
 	_pending_exe_actor = exe_actor
 	_active_combat_transaction_id = transaction_id
 	_active_combat_activity_id = activity_id
@@ -748,6 +766,8 @@ func _start_exe_encounter(
 			transaction_id,
 			activity_id
 		)
+		await get_tree().process_frame
+		await KubuTransitionManager.uncover_screen()
 		return
 
 	_pending_exe_actor = null
@@ -759,6 +779,8 @@ func _start_exe_encounter(
 		activity_id
 	)
 	_set_mode(NavigatorMode.LOCAL_AREA)
+	await get_tree().process_frame
+	await KubuTransitionManager.uncover_screen()
 
 
 func _start_incident_encounter(
@@ -774,6 +796,7 @@ func _start_incident_encounter(
 		)
 		return
 
+	await KubuTransitionManager.cover_screen()
 	_pending_exe_actor = null
 	_pending_incident_id = incident_id.strip_edges()
 	_active_combat_transaction_id = transaction_id.strip_edges()
@@ -785,6 +808,8 @@ func _start_incident_encounter(
 			_active_combat_transaction_id,
 			_active_combat_activity_id
 		)
+		await get_tree().process_frame
+		await KubuTransitionManager.uncover_screen()
 		return
 
 	var failed_incident_id: String = _pending_incident_id
@@ -796,6 +821,8 @@ func _start_incident_encounter(
 		CombatResult.create(CombatResult.Outcome.CANCELLED)
 	)
 	_set_mode(NavigatorMode.LOCAL_AREA)
+	await get_tree().process_frame
+	await KubuTransitionManager.uncover_screen()
 
 
 func _on_activity_started(
@@ -829,7 +856,7 @@ func _on_activity_started(
 				payload.get("location") as MapLocation
 			)
 
-			if _enter_location(location):
+			if await _enter_location_with_transition(location):
 				ActivityManager.complete_activity(
 					transaction_id,
 					activity_id
@@ -871,7 +898,7 @@ func _on_activity_started(
 				)
 				return
 
-			_start_exe_encounter(
+			await _start_exe_encounter(
 				exe_actor,
 				transaction_id,
 				activity_id
@@ -909,6 +936,8 @@ func _on_activity_cancelled(
 func _on_combat_finished(
 	result: CombatResult
 ) -> void:
+	await KubuTransitionManager.cover_screen()
+
 	if not _pending_incident_id.is_empty():
 		var incident_id: String = _pending_incident_id
 		_pending_incident_id = ""
@@ -918,6 +947,8 @@ func _on_combat_finished(
 		_active_combat_transaction_id = ""
 		_active_combat_activity_id = ""
 		local_area_view.refresh_population()
+		await get_tree().process_frame
+		await KubuTransitionManager.uncover_screen()
 		return
 
 	var resolved_actor: LocalAreaExeActor = (
@@ -939,6 +970,8 @@ func _on_combat_finished(
 	_active_combat_transaction_id = ""
 	_active_combat_activity_id = ""
 	local_area_view.refresh_population()
+	await get_tree().process_frame
+	await KubuTransitionManager.uncover_screen()
 
 
 func _on_incident_encounter_requested(
@@ -947,7 +980,7 @@ func _on_incident_encounter_requested(
 	transaction_id: String,
 	activity_id: String
 ) -> void:
-	_start_incident_encounter(
+	await _start_incident_encounter(
 		incident_id,
 		encounter,
 		transaction_id,
@@ -956,7 +989,7 @@ func _on_incident_encounter_requested(
 
 
 func _on_local_area_back_requested() -> void:
-	_set_mode(NavigatorMode.WORLD_MAP)
+	await _transition_to_mode(NavigatorMode.WORLD_MAP)
 
 
 func _on_app_focused(app_id: String) -> void:
