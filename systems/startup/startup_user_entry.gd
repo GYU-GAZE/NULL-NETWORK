@@ -27,7 +27,6 @@ var _interaction_enabled: bool = true
 
 func _ready() -> void:
 	click_target.pressed.connect(_on_click_target_pressed)
-	click_target.gui_input.connect(_on_click_target_gui_input)
 	click_target.mouse_entered.connect(_on_mouse_entered)
 	click_target.mouse_exited.connect(_on_mouse_exited)
 	_apply_selection_style()
@@ -97,26 +96,14 @@ func _on_click_target_pressed() -> void:
 	if not _interaction_enabled or campaign_id.is_empty():
 		return
 
-	selected.emit(campaign_id)
-
-
-func _on_click_target_gui_input(event: InputEvent) -> void:
-	if not _interaction_enabled or campaign_id.is_empty():
-		return
-
-	if event is not InputEventMouseButton:
-		return
-
-	var mouse_event := event as InputEventMouseButton
-
-	if mouse_event.button_index != MOUSE_BUTTON_LEFT \
-		or not mouse_event.pressed \
-		or not mouse_event.double_click:
+	# Account selection deliberately follows the Windows XP-style two-step flow:
+	# first press highlights the row; any later single press while highlighted
+	# confirms that same account. This is not OS double-click detection.
+	if _selected:
+		activated.emit(campaign_id)
 		return
 
 	selected.emit(campaign_id)
-	activated.emit(campaign_id)
-	click_target.accept_event()
 
 
 func _on_mouse_entered() -> void:
