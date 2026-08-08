@@ -121,6 +121,11 @@ grow_vertical = 2
 focus_mode = 1
 mouse_default_cursor_shape = 2
 flat = true
+theme_override_styles/normal = SubResource("StyleBoxEmpty_normal")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_normal")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_normal")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_normal")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_normal")
 
 [node name="Separator" type="HSeparator" parent="."]
 unique_name_in_owner = true
