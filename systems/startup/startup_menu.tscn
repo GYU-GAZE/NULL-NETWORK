@@ -1,7 +1,18 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://systems/startup/startup_menu.gd" id="1_script"]
 [ext_resource type="Resource" path="res://data/content/startup/default_startup_presentation.tres" id="2_data"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_main"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mode_details"]
+bg_color = Color(0.04, 0.14, 0.36, 0.24)
+border_width_left = 2
+border_color = Color(0.72, 0.9, 1, 0.7)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="StartupMenu" type="Control"]
 layout_mode = 3
@@ -14,13 +25,57 @@ mouse_filter = 2
 script = ExtResource("1_script")
 presentation_data = ExtResource("2_data")
 
+[node name="TopBand" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 50.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.025, 0.08, 0.31, 0.82)
+
+[node name="TopBandHighlight" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 49.0
+offset_bottom = 51.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.66, 0.84, 1, 0.28)
+
+[node name="BottomBand" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -86.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.025, 0.08, 0.31, 0.86)
+
+[node name="BottomBandHighlight" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -88.0
+offset_bottom = -86.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.74, 0.9, 1, 0.34)
+
 [node name="NullBrand" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 34.0
-offset_bottom = 160.0
+offset_top = 58.0
+offset_bottom = 164.0
 grow_horizontal = 2
 mouse_filter = 2
 
@@ -35,7 +90,7 @@ mouse_filter = 2
 
 [node name="NullLogoRoot" type="Control" parent="NullBrand/Center"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(560, 110)
+custom_minimum_size = Vector2(560, 96)
 layout_mode = 2
 mouse_filter = 2
 
@@ -133,55 +188,87 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = 148.0
-offset_bottom = -72.0
+offset_bottom = -86.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="RightColumn" type="MarginContainer" parent="MenuArea"]
+[node name="DividerGlow" type="ColorRect" parent="MenuArea"]
 layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -556.0
-offset_top = -220.0
-offset_right = -58.0
-offset_bottom = 220.0
-grow_horizontal = 0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = 36.0
+offset_right = 2.0
+offset_bottom = -36.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.86, 0.94, 1, 0.06)
+
+[node name="Divider" type="ColorRect" parent="MenuArea"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -0.5
+offset_top = 48.0
+offset_right = 0.5
+offset_bottom = -48.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.9, 0.96, 1, 0.22)
+
+[node name="LeftInstruction" type="Label" parent="MenuArea"]
+layout_mode = 1
+anchor_left = 0.07
+anchor_top = 0.69
+anchor_right = 0.47
+anchor_bottom = 0.82
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 0.88)
+theme_override_font_sizes/font_size = 18
+text = "Select a user to begin."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightColumn" type="Control" parent="MenuArea"]
+layout_mode = 1
+anchor_left = 0.53
+anchor_top = 0.17
+anchor_right = 0.93
+anchor_bottom = 0.88
+grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
 
 [node name="UserPanel" type="PanelContainer" parent="MenuArea/RightColumn"]
 unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_main")
 
 [node name="Margin" type="MarginContainer" parent="MenuArea/RightColumn/UserPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
 [node name="Root" type="VBoxContainer" parent="MenuArea/RightColumn/UserPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="Title" type="Label" parent="MenuArea/RightColumn/UserPanel/Margin/Root"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "USERS"
-
-[node name="Separator" type="HSeparator" parent="MenuArea/RightColumn/UserPanel/Margin/Root"]
-layout_mode = 2
+theme_override_constants/separation = 10
 
 [node name="Scroll" type="ScrollContainer" parent="MenuArea/RightColumn/UserPanel/Margin/Root"]
-custom_minimum_size = Vector2(0, 260)
+custom_minimum_size = Vector2(0, 245)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
@@ -190,75 +277,90 @@ horizontal_scroll_mode = 0
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 5
 
 [node name="EmptyProfileLabel" type="Label" parent="MenuArea/RightColumn/UserPanel/Margin/Root"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "No users registered on this KubuOS."
-horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 0.82)
+theme_override_font_sizes/font_size = 18
+text = "No users registered."
+horizontal_alignment = 0
 
 [node name="NewUserButton" type="Button" parent="MenuArea/RightColumn/UserPanel/Margin/Root"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 54)
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
-text = "+ NEW USER"
+theme_override_font_sizes/font_size = 20
+text = "+  NEW USER"
+flat = true
+alignment = 0
 
 [node name="ModePanel" type="PanelContainer" parent="MenuArea/RightColumn"]
 unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_main")
 
 [node name="Margin" type="MarginContainer" parent="MenuArea/RightColumn/ModePanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
 [node name="Root" type="VBoxContainer" parent="MenuArea/RightColumn/ModePanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="Header" type="HBoxContainer" parent="MenuArea/RightColumn/ModePanel/Margin/Root"]
 layout_mode = 2
 
 [node name="BackButton" type="Button" parent="MenuArea/RightColumn/ModePanel/Margin/Root/Header"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 text = "<"
+flat = true
 
 [node name="Title" type="Label" parent="MenuArea/RightColumn/ModePanel/Margin/Root/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "NEW USER"
-horizontal_alignment = 1
+horizontal_alignment = 0
+vertical_alignment = 1
 
-[node name="HeaderSpacer" type="Control" parent="MenuArea/RightColumn/ModePanel/Margin/Root/Header"]
-custom_minimum_size = Vector2(42, 0)
+[node name="ModeButtons" type="VBoxContainer" parent="MenuArea/RightColumn/ModePanel/Margin/Root"]
 layout_mode = 2
-
-[node name="ModeButtons" type="HBoxContainer" parent="MenuArea/RightColumn/ModePanel/Margin/Root"]
-layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 4
 
 [node name="SafeModeButton" type="Button" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 62)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
-size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
 text = "SAFE MODE"
+flat = true
+alignment = 0
 
 [node name="CommitModeButton" type="Button" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 62)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
-size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
 text = "COMMIT MODE"
+flat = true
+alignment = 0
 
 [node name="ModeDetails" type="PanelContainer" parent="MenuArea/RightColumn/ModePanel/Margin/Root"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_mode_details")
 
 [node name="Margin" type="MarginContainer" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeDetails"]
 layout_mode = 2
@@ -274,27 +376,34 @@ theme_override_constants/separation = 8
 [node name="ModeTitle" type="Label" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeDetails/Margin/Root"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 18
 text = "MODE"
 
 [node name="ModeDescription" type="RichTextLabel" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeDetails/Margin/Root"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 72)
+custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
 fit_content = true
 scroll_active = false
 
 [node name="StartButton" type="Button" parent="MenuArea/RightColumn/ModePanel/Margin/Root/ModeDetails/Margin/Root"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "START"
 
 [node name="ErrorLabel" type="Label" parent="MenuArea/RightColumn"]
 unique_name_in_owner = true
 visible = false
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.35, 0.32, 1)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -30.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.45, 0.42, 1)
 autowrap_mode = 2
 
 [node name="UtilityButtons" type="HBoxContainer" parent="."]
@@ -305,24 +414,28 @@ anchor_left = 0.0
 anchor_top = 1.0
 anchor_right = 0.0
 anchor_bottom = 1.0
-offset_left = 28.0
-offset_top = -58.0
-offset_right = 274.0
-offset_bottom = -20.0
+offset_left = 22.0
+offset_top = -68.0
+offset_right = 304.0
+offset_bottom = -18.0
 grow_vertical = 0
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="ExitButton" type="Button" parent="UtilityButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(102, 38)
+custom_minimum_size = Vector2(118, 46)
 layout_mode = 2
+theme_override_font_sizes/font_size = 17
 text = "⏻  EXIT"
+flat = true
 
 [node name="ConfigsButton" type="Button" parent="UtilityButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(124, 38)
+custom_minimum_size = Vector2(142, 46)
 layout_mode = 2
+theme_override_font_sizes/font_size = 17
 text = "⚙  CONFIGS"
+flat = true
 
 [node name="ConfigModal" type="Control" parent="."]
 unique_name_in_owner = true
