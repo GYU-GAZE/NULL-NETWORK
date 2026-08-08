@@ -10,6 +10,10 @@ signal campaign_create_requested(
 )
 
 
+const STARTUP_USER_ENTRY_SCENE: PackedScene = preload(
+	"res://systems/startup/startup_user_entry.tscn"
+)
+
 @export var presentation_data: StartupPresentationData
 
 @onready var null_brand: Control = %NullBrand
@@ -43,6 +47,7 @@ signal campaign_create_requested(
 @onready var error_label: Label = %ErrorLabel
 
 var _profiles: Array[Dictionary] = []
+var _selected_campaign_id: String = ""
 var _selected_mode: CampaignState.SaveMode = CampaignState.SaveMode.UNSET
 var _rng := RandomNumberGenerator.new()
 var _glitch_timer: float = 0.0
@@ -111,8 +116,8 @@ func set_busy(value: bool) -> void:
 	start_button.disabled = value or _selected_mode == CampaignState.SaveMode.UNSET
 
 	for child: Node in profile_list.get_children():
-		if child is Button:
-			(child as Button).disabled = value
+		if child is StartupUserEntry:
+			(child as StartupUserEntry).set_interaction_enabled(not value)
 
 
 func show_error(message: String) -> void:
@@ -135,32 +140,50 @@ func _rebuild_profile_list() -> void:
 	for child: Node in profile_list.get_children():
 		child.queue_free()
 
+	_selected_campaign_id = ""
 	empty_profile_label.visible = _profiles.is_empty()
 
-	for profile: Dictionary in _profiles:
-		var button := Button.new()
-		button.custom_minimum_size = Vector2(390.0, 58.0)
-		button.text = _profile_button_text(profile)
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.flat = true
-		button.add_theme_font_size_override("font_size", 21)
-		button.pressed.connect(
-			func() -> void: _load_profile(str(profile.get("campaign_id", "")))
-		)
-		profile_list.add_child(button)
+	for index: int in range(_profiles.size()):
+		var profile: Dictionary = _profiles[index]
+		var entry := STARTUP_USER_ENTRY_SCENE.instantiate() as StartupUserEntry
+
+		if entry == null:
+			push_error("StartupMenu could not instantiate StartupUserEntry.")
+			continue
+
+		profile_list.add_child(entry)
+		entry.configure(profile)
+		entry.set_separator_visible(index < _profiles.size() - 1)
+		entry.selected.connect(_on_profile_selected)
+		entry.activated.connect(_on_profile_activated)
+		entry.set_interaction_enabled(not _busy)
 
 
-func _profile_button_text(profile: Dictionary) -> String:
-	var title: String = str(profile.get("display_name", "New User")).strip_edges()
-	var username: String = str(profile.get("username", "")).strip_edges()
+func _on_profile_selected(campaign_id: String) -> void:
+	if not _input_enabled or _busy:
+		return
 
-	if not title.is_empty() and title != "New User":
-		return title
+	var clean_id: String = campaign_id.strip_edges()
 
-	if not username.is_empty():
-		return username
+	if clean_id.is_empty():
+		return
 
-	return "New User"
+	_selected_campaign_id = clean_id
+	show_error("")
+
+	for child: Node in profile_list.get_children():
+		if child is StartupUserEntry:
+			var entry := child as StartupUserEntry
+			entry.set_selected(entry.campaign_id == clean_id)
+
+
+func _on_profile_activated(campaign_id: String) -> void:
+	var clean_id: String = campaign_id.strip_edges()
+
+	if clean_id.is_empty() or clean_id != _selected_campaign_id:
+		return
+
+	_load_profile(clean_id)
 
 
 func _load_profile(campaign_id: String) -> void:
@@ -176,6 +199,7 @@ func _show_new_user_modes() -> void:
 		return
 
 	show_error("")
+	_clear_profile_selection()
 	_selected_mode = CampaignState.SaveMode.UNSET
 	user_panel.hide()
 	mode_panel.show()
@@ -194,6 +218,14 @@ func _show_user_list() -> void:
 	mode_details.hide()
 	user_panel.show()
 	show_error("")
+
+
+func _clear_profile_selection() -> void:
+	_selected_campaign_id = ""
+
+	for child: Node in profile_list.get_children():
+		if child is StartupUserEntry:
+			(child as StartupUserEntry).set_selected(false)
 
 
 func _select_mode(mode: CampaignState.SaveMode) -> void:
@@ -433,5 +465,6 @@ func _reset_visual_state() -> void:
 	utility_buttons.hide()
 	config_modal.hide()
 	show_error("")
+	_selected_campaign_id = ""
 	_selected_mode = CampaignState.SaveMode.UNSET
 	_input_enabled = false
