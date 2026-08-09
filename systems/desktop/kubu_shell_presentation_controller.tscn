@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://systems/desktop/kubu_shell_presentation_controller.gd" id="1_script"]
+[ext_resource type="Resource" path="res://data/content/desktop/default_kubu_shell_presentation.tres" id="2_data"]
+
+[node name="KubuShellPresentationController" type="Node"]
+script = ExtResource("1_script")
+presentation_data = ExtResource("2_data")
