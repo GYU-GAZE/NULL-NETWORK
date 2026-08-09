@@ -92,10 +92,8 @@ func uncover_screen() -> void:
 	if not _busy or not _screen_covered:
 		return
 
-	if presentation_data != null and presentation_data.screen_covered_hold_seconds > 0.0:
-		await get_tree().create_timer(
-			presentation_data.screen_covered_hold_seconds
-		).timeout
+	if presentation_data != null:
+		await _wait_seconds(presentation_data.screen_covered_hold_seconds)
 
 	await _animate_screen_blocks(false)
 	_clear_screen_blocks()
@@ -118,6 +116,13 @@ func play_screen_transition(midpoint: Callable = Callable()) -> void:
 func _wait_until_idle() -> void:
 	while _busy:
 		await transition_finished
+
+
+func _wait_seconds(seconds: float) -> void:
+	if seconds <= 0.0:
+		return
+
+	await get_tree().create_timer(seconds).timeout
 
 
 func _build_screen_blocks() -> void:
@@ -215,7 +220,7 @@ func _animate_screen_blocks(covering: bool) -> void:
 		float(max_order) * presentation_data.screen_diagonal_stagger_seconds
 		+ duration
 	)
-	await get_tree().create_timer(total_duration).timeout
+	await _wait_seconds(total_duration)
 
 
 func _clear_screen_blocks() -> void:
@@ -301,6 +306,7 @@ func _play_time_transition(transition: Dictionary) -> void:
 	await get_tree().process_frame
 	await _position_trail_cursor(old_day)
 
+	# Stage 1: the system screen itself arrives and is allowed to settle.
 	var intro := create_tween()
 	intro.set_trans(Tween.TRANS_QUAD)
 	intro.set_ease(Tween.EASE_OUT)
@@ -311,7 +317,10 @@ func _play_time_transition(transition: Dictionary) -> void:
 		presentation_data.time_intro_seconds
 	)
 	await intro.finished
+	await _wait_seconds(presentation_data.time_pre_period_pause_seconds)
 
+	# Stage 2: period identity changes as one coherent beat. Background, symbol
+	# and period text move together, but day/countdown progression waits.
 	var background_tween := create_tween()
 	background_tween.set_trans(Tween.TRANS_SINE)
 	background_tween.set_ease(Tween.EASE_IN_OUT)
@@ -354,31 +363,31 @@ func _play_time_transition(transition: Dictionary) -> void:
 		presentation_data.time_label_seconds
 	)
 
-	var theme_tween := create_tween()
-	theme_tween.tween_interval(presentation_data.time_background_seconds * 0.5)
-	theme_tween.tween_callback(func() -> void:
-		_apply_period_theme(new_period)
-	)
-
-	_play_countdown_pulse(old_countdown, new_countdown, day_changed)
-
-	if day_changed:
-		_play_day_change(old_day, new_day)
-
-	var core_duration: float = maxf(
+	var period_stage_duration: float = maxf(
 		presentation_data.time_background_seconds,
 		maxf(
 			presentation_data.time_symbol_seconds,
 			presentation_data.time_label_seconds
 		)
 	)
-	await get_tree().create_timer(core_duration).timeout
+	await _wait_seconds(period_stage_duration)
+	_apply_period_theme(new_period)
+	_apply_time_foreground_after_period(new_period)
+	await _wait_seconds(presentation_data.time_post_period_pause_seconds)
 
+	# Stage 3: only after the second pause does campaign progression visibly
+	# advance. DAY->NIGHT has no day/countdown change, while NIGHT->DAY updates
+	# the day number, countdown, check mark and cursor together.
 	if day_changed:
+		_play_countdown_pulse(old_countdown, new_countdown, true)
+		_play_day_change(old_day, new_day, new_period)
+		await _wait_seconds(presentation_data.time_progress_seconds)
 		await _finalize_day_trail(old_day, new_day)
+	elif old_countdown != new_countdown:
+		_play_countdown_pulse(old_countdown, new_countdown, false)
+		await _wait_seconds(presentation_data.time_progress_seconds)
 
-	if presentation_data.time_hold_seconds > 0.0:
-		await get_tree().create_timer(presentation_data.time_hold_seconds).timeout
+	await _wait_seconds(presentation_data.time_hold_seconds)
 
 	var outro := create_tween()
 	outro.set_trans(Tween.TRANS_QUAD)
@@ -460,6 +469,12 @@ func _configure_time_transition(
 	day_change_audio.volume_db = presentation_data.day_change_tick_volume_db
 
 
+func _apply_time_foreground_after_period(period: int) -> void:
+	var foreground: Color = _get_period_foreground(period)
+	kubu_logo_fallback.add_theme_color_override("font_color", foreground)
+	day_label.add_theme_color_override("font_color", foreground)
+
+
 func _configure_symbol(
 	period: int,
 	texture_rect: TextureRect,
@@ -486,6 +501,7 @@ func _play_countdown_pulse(
 	new_countdown: int,
 	day_changed: bool
 ) -> void:
+	var progress_seconds: float = presentation_data.time_progress_seconds
 	var pulse := create_tween()
 	pulse.set_trans(Tween.TRANS_SINE)
 	pulse.set_ease(Tween.EASE_IN_OUT)
@@ -493,7 +509,7 @@ func _play_countdown_pulse(
 		countdown_label,
 		"scale",
 		Vector2.ONE * presentation_data.countdown_pulse_scale,
-		presentation_data.time_label_seconds * 0.5
+		progress_seconds * 0.5
 	)
 
 	if day_changed:
@@ -511,11 +527,12 @@ func _play_countdown_pulse(
 		countdown_label,
 		"scale",
 		Vector2.ONE,
-		presentation_data.time_label_seconds * 0.5
+		progress_seconds * 0.5
 	)
 
 
-func _play_day_change(old_day: int, new_day: int) -> void:
+func _play_day_change(old_day: int, new_day: int, new_period: int) -> void:
+	var progress_seconds: float = presentation_data.time_progress_seconds
 	var day_tween := create_tween()
 	day_tween.set_trans(Tween.TRANS_QUAD)
 	day_tween.set_ease(Tween.EASE_IN_OUT)
@@ -523,20 +540,20 @@ func _play_day_change(old_day: int, new_day: int) -> void:
 		day_label,
 		"modulate:a",
 		0.0,
-		presentation_data.time_label_seconds * 0.45
+		progress_seconds * 0.45
 	)
 	day_tween.tween_callback(func() -> void:
 		day_label.text = "DAY %02d" % new_day
 		day_label.add_theme_color_override(
 			"font_color",
-			_get_period_foreground(TimeManager.TimePeriod.DAY)
+			_get_period_foreground(new_period)
 		)
 	)
 	day_tween.tween_property(
 		day_label,
 		"modulate:a",
 		1.0,
-		presentation_data.time_label_seconds * 0.55
+		progress_seconds * 0.55
 	)
 
 	var old_week_start: int = _get_week_start_day(old_day)
@@ -553,7 +570,7 @@ func _play_day_change(old_day: int, new_day: int) -> void:
 		trail_cursor,
 		"position:x",
 		cursor_target,
-		presentation_data.time_label_seconds
+		progress_seconds
 	)
 
 
