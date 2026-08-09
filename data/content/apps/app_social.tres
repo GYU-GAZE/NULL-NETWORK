@@ -10,7 +10,6 @@ app_id = "social"
 app_name = "Social"
 app_icon = ExtResource("2_icon")
 app_scene = ExtResource("3_scene")
-installed_by_default = true
 sort_order = 30
 default_window_size = Vector2(760, 480)
 min_window_size = Vector2(520, 320)
