@@ -31,6 +31,28 @@ func _run_test() -> void:
 			"KubuOS taskbar menu button lost its Menu label."
 		)
 		_check(
+			taskbar.menu_button.get_parent().name == "LeftHBox",
+			"Menu must remain in the upper-left taskbar group."
+		)
+		_check(
+			taskbar.find_child("DayLabel", true, false) == null,
+			"Legacy DAY XX taskbar label must not return."
+		)
+		_check(
+			taskbar.action_pip_hbox.get_parent().name == "RightHBox",
+			"Action pips must live in the right taskbar group."
+		)
+		_check(
+			taskbar.action_pip_hbox.get_index() < taskbar.date_label.get_index(),
+			"Action pips must appear before the current date."
+		)
+		var notification_slot: Control = taskbar.notification_button.get_parent() as Control
+		_check(
+			notification_slot != null
+			and notification_slot.get_index() < taskbar.battery_icon.get_index(),
+			"Battery must be the final status group after notifications."
+		)
+		_check(
 			not taskbar.system_menu_panel.visible,
 			"System menu must start closed."
 		)
@@ -39,6 +61,10 @@ func _run_test() -> void:
 		_check(
 			taskbar.system_menu_panel.visible and taskbar._system_menu_open,
 			"System menu did not open from the taskbar button."
+		)
+		_check(
+			taskbar.system_menu_panel.position.x < taskbar.size.x * 0.5,
+			"System menu must open below the left side of the taskbar."
 		)
 
 		TimeManager.current_period = TimeManager.TimePeriod.DAY

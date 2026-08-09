@@ -32,6 +32,25 @@ func _run_test() -> void:
 		"Transition countdown plural label is incorrect."
 	)
 
+	var data: KubuTransitionPresentationData = KubuTransitionManager.presentation_data
+	_check(
+		data.time_pre_period_pause_seconds > 0.0
+		and data.time_post_period_pause_seconds > 0.0,
+		"Period transition must preserve both micro-pauses."
+	)
+	_check(
+		data.time_progress_seconds > 0.0,
+		"Day/countdown progression requires its own staged duration."
+	)
+	_check(
+		data.day_background_color.b > data.day_background_color.r,
+		"DAY transition background must remain blue-biased."
+	)
+	_check(
+		data.night_background_color.b > data.night_background_color.g,
+		"NIGHT transition background must remain purple-biased."
+	)
+
 	await get_tree().process_frame
 	KubuTransitionManager._build_screen_blocks()
 	var expected_blocks: int = (
