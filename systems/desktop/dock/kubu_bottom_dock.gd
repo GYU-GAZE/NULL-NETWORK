@@ -9,6 +9,7 @@ class_name KubuBottomDock
 @export var item_fade_duration: float = 0.18
 
 @onready var app_container: HBoxContainer = %AppContainer
+@onready var dock_panel: PanelContainer = $BottomMargin/DockCenter/DockPanel
 
 var _items_by_app_id: Dictionary = {}
 var _focused_app_id: String = ""
@@ -16,6 +17,7 @@ var _active_workspace_id: String = ""
 
 var _dock_locked: bool = false
 var _dock_lock_reason: String = ""
+var _shell_reveal_tween: Tween
 
 
 func _ready() -> void:
@@ -256,6 +258,60 @@ func set_app_badge(
 
 func get_lock_reason() -> String:
 	return _dock_lock_reason
+
+
+func prepare_shell_reveal(hidden_scale: Vector2 = Vector2(0.84, 0.84)) -> void:
+	_kill_shell_reveal_tween()
+	refresh_shell_reveal_pivot()
+	dock_panel.show()
+	dock_panel.modulate.a = 0.0
+	dock_panel.scale = Vector2(
+		clampf(hidden_scale.x, 0.01, 1.0),
+		clampf(hidden_scale.y, 0.01, 1.0)
+	)
+
+
+func refresh_shell_reveal_pivot() -> void:
+	if not is_instance_valid(dock_panel):
+		return
+
+	dock_panel.pivot_offset = dock_panel.size * 0.5
+
+
+func start_shell_reveal(duration: float) -> void:
+	_kill_shell_reveal_tween()
+	refresh_shell_reveal_pivot()
+	dock_panel.show()
+
+	var resolved_duration: float = maxf(0.01, duration)
+	_shell_reveal_tween = create_tween().set_parallel(true)
+	_shell_reveal_tween.set_trans(Tween.TRANS_BACK)
+	_shell_reveal_tween.set_ease(Tween.EASE_OUT)
+	_shell_reveal_tween.tween_property(
+		dock_panel,
+		"scale",
+		Vector2.ONE,
+		resolved_duration
+	)
+	_shell_reveal_tween.tween_property(
+		dock_panel,
+		"modulate:a",
+		1.0,
+		resolved_duration * 0.72
+	).set_trans(Tween.TRANS_CUBIC)
+
+
+func finish_shell_reveal() -> void:
+	_kill_shell_reveal_tween()
+	dock_panel.scale = Vector2.ONE
+	dock_panel.modulate.a = 1.0
+
+
+func _kill_shell_reveal_tween() -> void:
+	if _shell_reveal_tween != null and _shell_reveal_tween.is_valid():
+		_shell_reveal_tween.kill()
+
+	_shell_reveal_tween = null
 
 
 func _clear_item_focus() -> void:
