@@ -30,7 +30,10 @@ func _ready() -> void:
 
 
 func _on_debug_time_pressed() -> void:
-	TimeManager.advance_action()
+	# The debug button represents a normal player action for vertical-slice
+	# testing, so it must use the same occupation-aware progression path as
+	# ActivityManager instead of bypassing mandatory routine blocks.
+	OperatorService.advance_player_action_time()
 
 
 func _on_time_advanced(
