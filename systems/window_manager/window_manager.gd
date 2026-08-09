@@ -259,6 +259,7 @@ func _on_window_closed(app_id: String) -> void:
 
 	window.queue_free()
 
+
 func _restore_app_session_state(
 	app_id: String,
 	app_instance: Node
@@ -405,19 +406,20 @@ func get_work_area_position() -> Vector2:
 
 
 func get_work_area_size() -> Vector2:
-	var parent_size: Vector2 = _get_parent_size()
-
-	if KubuOSMetrics != null and KubuOSMetrics.has_method("get_work_area_size"):
-		return KubuOSMetrics.get_work_area_size(parent_size)
-
-	return Vector2(
-		max(0.0, parent_size.x - reserved_left_width - reserved_right_width),
-		max(0.0, parent_size.y - reserved_top_height - reserved_bottom_height)
-	)
+	return _get_window_work_area_size(_get_parent_size())
 
 
 func get_work_area_rect() -> Rect2:
 	return Rect2(get_work_area_position(), get_work_area_size())
+
+
+func _get_window_work_area_size(parent_size: Vector2) -> Vector2:
+	# Windows reserve the structural top taskbar, but the bottom dock is floating
+	# chrome and deliberately overlays windows instead of carving out a blank band.
+	return KubuOSMetrics.snap_vector(Vector2(
+		max(0.0, parent_size.x - reserved_left_width - reserved_right_width),
+		max(0.0, parent_size.y - reserved_top_height)
+	))
 
 
 func _get_parent_size() -> Vector2:
@@ -431,7 +433,7 @@ func _get_parent_size() -> Vector2:
 
 func _sync_metrics() -> void:
 	reserved_top_height = KubuOSMetrics.taskbar_height
-	reserved_bottom_height = KubuOSMetrics.dock_height
+	reserved_bottom_height = 0.0
 	reserved_left_width = KubuOSMetrics.reserved_left_width
 	reserved_right_width = KubuOSMetrics.reserved_right_width
 
@@ -532,7 +534,7 @@ func _apply_saved_window_state(state: Dictionary, window: WindowBase) -> void:
 
 func _apply_default_window_state(window: WindowBase) -> void:
 	var work_rect: Rect2 = get_work_area_rect()
-	var reference_size: Vector2 = KubuOSMetrics.get_work_area_size(
+	var reference_size: Vector2 = _get_window_work_area_size(
 		KubuOSMetrics.reference_workspace
 	)
 
