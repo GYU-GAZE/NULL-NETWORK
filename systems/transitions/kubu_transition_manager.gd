@@ -676,14 +676,27 @@ func _apply_period_theme(period: int) -> void:
 		return
 
 	get_tree().root.theme = target_theme
-	_apply_theme_to_explicit_kubu_branches(get_tree().root, target_theme)
+	_apply_theme_to_kubu_branches(get_tree().root, target_theme)
 
 
-func _apply_theme_to_explicit_kubu_branches(node: Node, target_theme: Theme) -> void:
+func _apply_theme_to_kubu_branches(node: Node, target_theme: Theme) -> void:
 	for child: Node in node.get_children():
 		if child is Control:
 			var control := child as Control
-			if control.theme == day_theme or control.theme == night_theme:
+			var parent_is_control: bool = control.get_parent() is Control
+			var uses_period_theme: bool = (
+				control.theme == day_theme
+				or control.theme == night_theme
+			)
+			var is_inheritance_root: bool = (
+				not parent_is_control
+				and control.theme == null
+			)
+
+			# CanvasLayer and plain Node boundaries interrupt Control theme inheritance.
+			# Treat their first Control child as a KubuOS inheritance root unless that
+			# branch intentionally owns another custom Theme (browser sites, etc.).
+			if uses_period_theme or is_inheritance_root:
 				control.theme = target_theme
 
-		_apply_theme_to_explicit_kubu_branches(child, target_theme)
+		_apply_theme_to_kubu_branches(child, target_theme)
