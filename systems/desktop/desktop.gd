@@ -11,6 +11,7 @@ class_name Desktop
 @export var time_tween_duration: float = 0.3
 
 @onready var background: ColorRect = $Background
+@onready var top_bar_hbox: HBoxContainer = $TopBarHBox
 @onready var clock_container: VBoxContainer = %ClockContainer
 @onready var period_label: Label = %PeriodLabel
 @onready var day_label: Label = %DayLabel
@@ -24,6 +25,11 @@ func _ready() -> void:
 
 	debug_time_button.pressed.connect(_on_debug_time_pressed)
 	GlobalSignals.time_advanced.connect(_on_time_advanced)
+
+	if not CampaignState.campaign_changed.is_connected(_on_campaign_changed):
+		CampaignState.campaign_changed.connect(_on_campaign_changed)
+
+	_refresh_operator_context_visibility()
 
 	# Force the first projection from the authoritative TimeManager state.
 	TimeManager._emit_time_signal()
@@ -67,6 +73,17 @@ func _on_time_advanced(
 		else day_background_color
 	)
 	_animate_time_change()
+
+
+func _on_campaign_changed(section: StringName) -> void:
+	if section == &"operator" or section == &"campaign":
+		_refresh_operator_context_visibility()
+
+
+func _refresh_operator_context_visibility() -> void:
+	# The large center clock is still a vertical-slice/debug surface. It must not
+	# leak time/action information during the anonymous pre-registration boot.
+	top_bar_hbox.visible = not CampaignState.operator.is_empty()
 
 
 func _animate_time_change() -> void:
