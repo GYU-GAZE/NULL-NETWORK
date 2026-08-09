@@ -3,8 +3,8 @@ class_name Desktop
 
 
 @export_category("Period Presentation")
-@export var day_background_color: Color = Color(0.018, 0.047, 0.082, 1.0)
-@export var night_background_color: Color = Color(0.006, 0.008, 0.014, 1.0)
+@export var day_background_color: Color = Color(0.025, 0.075, 0.13, 1.0)
+@export var night_background_color: Color = Color(0.04, 0.025, 0.07, 1.0)
 
 @export_category("Time UI Animation (Juice)")
 @export var time_pulse_scale: Vector2 = Vector2(1.05, 1.05)
