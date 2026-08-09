@@ -22,6 +22,7 @@ offset_top = -86.0
 offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_right = 10
 
@@ -32,6 +33,7 @@ mouse_filter = 2
 [node name="DockPanel" type="PanelContainer" parent="BottomMargin/DockCenter" unique_id=1899037788]
 custom_minimum_size = Vector2(0, 74)
 layout_mode = 2
+mouse_filter = 0
 
 [node name="DockMargin" type="MarginContainer" parent="BottomMargin/DockCenter/DockPanel" unique_id=98814161]
 layout_mode = 2
