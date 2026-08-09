@@ -9,4 +9,3 @@ url = "kubuchan.net"
 page_title = "KUBUCHAN"
 record_in_browser_history = false
 site_scene = ExtResource("2_scene")
-canvas_size = Vector2(600, 320)
