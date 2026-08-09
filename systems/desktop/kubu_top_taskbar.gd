@@ -10,22 +10,16 @@ const SYSTEM_MENU_GAP: float = 2.0
 @export var temperature_label_text: String = "23°C"
 @export var network_label_text: String = "NET"
 
-@export_category("Free Time Slots")
+@export_category("Action Timeline")
+## Absolute KubuOS day timeline: DAY 06:00-17:00, NIGHT 18:00-05:00.
+## Availability is not authored here; it is projected from the active
+## OccupationScheduleData so the taskbar cannot disagree with ActivityManager.
 @export var slot_hours: Array[int] = [
 	6, 7, 8, 9, 10, 11,
-	18, 19, 20, 21, 22, 23
+	12, 13, 14, 15, 16, 17,
+	18, 19, 20, 21, 22, 23,
+	0, 1, 2, 3, 4, 5
 ]
-
-@export var weekday_available_hours: Array[int] = [
-	6, 7, 8, 9, 10, 11
-]
-
-@export var weekend_available_hours: Array[int] = [
-	6, 7, 8, 9, 10, 11,
-	18, 19, 20, 21, 22, 23
-]
-
-@export var weekend_uses_full_availability: bool = true
 @export var highlight_current_available_slot: bool = true
 
 @export_category("Animation")
@@ -69,6 +63,9 @@ func _ready() -> void:
 
 	if not CampaignState.location_changed.is_connected(_on_location_changed):
 		CampaignState.location_changed.connect(_on_location_changed)
+
+	if not CampaignState.campaign_changed.is_connected(_on_campaign_changed):
+		CampaignState.campaign_changed.connect(_on_campaign_changed)
 
 	if not GlobalSignals.time_advanced.is_connected(_on_time_advanced):
 		GlobalSignals.time_advanced.connect(_on_time_advanced)
@@ -188,6 +185,13 @@ func _on_location_changed(_location_id: String) -> void:
 	_refresh_location_label()
 
 
+func _on_campaign_changed(section: StringName) -> void:
+	# Occupation registration changes the authoritative schedule used by the
+	# timeline. Refresh immediately instead of waiting for the next time tick.
+	if section == &"operator" or section == &"campaign":
+		_refresh_action_pips()
+
+
 func _refresh_battery() -> void:
 	# The KubuOS battery is diegetic presentation for the current 12-block play
 	# period, not hardware simulation. Block 1 starts at 100%; block 12 reaches
@@ -207,20 +211,24 @@ func _refresh_battery() -> void:
 
 
 func _refresh_action_pips() -> void:
-	var available_hours: Array[int] = _get_current_available_hours()
 	var current_day_block_index: int = TimeManager.get_current_day_block_index()
-	var current_period: int = int(TimeManager.current_period)
+	var schedule: OccupationScheduleData = OperatorService.get_current_schedule()
 
 	for index in range(action_pips.size()):
 		var pip: KubuActionPip = action_pips[index]
 		var slot_hour: int = _get_slot_hour(index)
 		var slot_block_index: int = TimeManager.get_day_block_index_for_hour(slot_hour)
-		var is_available: bool = available_hours.has(slot_hour)
+		var slot_period: int = _get_period_for_day_block(slot_block_index)
+		var is_available: bool = _is_day_block_available(schedule, slot_block_index)
 		var is_used: bool = slot_block_index < current_day_block_index
 		var is_current: bool = slot_block_index == current_day_block_index
 
 		pip.setup_pip(index, slot_hour)
-		pip.set_period_tint(current_period)
+
+		# Period color belongs to the slot, not to the current clock. The first
+		# twelve blocks always read as DAY/blue and the final twelve as
+		# NIGHT/purple, even for NEET/weekend schedules where every block is free.
+		pip.set_period_tint(slot_period)
 
 		if not is_available:
 			pip.set_state(KubuActionPip.PipState.UNAVAILABLE)
@@ -237,28 +245,25 @@ func _refresh_action_pips() -> void:
 		pip.set_state(KubuActionPip.PipState.AVAILABLE)
 
 
-func _get_current_available_hours() -> Array[int]:
-	if TimeManager.is_weekend():
-		if weekend_uses_full_availability:
-			return _sanitize_hours(slot_hours)
+func _is_day_block_available(
+	schedule: OccupationScheduleData,
+	day_block_index: int
+) -> bool:
+	if schedule == null:
+		return true
 
-		return _sanitize_hours(weekend_available_hours)
+	return not schedule.is_block_occupied(
+		TimeManager.current_weekday_index,
+		day_block_index
+	)
 
-	return _sanitize_hours(weekday_available_hours)
 
-
-func _sanitize_hours(raw_hours: Array[int]) -> Array[int]:
-	var result: Array[int] = []
-
-	for raw_hour in raw_hours:
-		var clean_hour: int = posmod(int(raw_hour), 24)
-
-		if result.has(clean_hour):
-			continue
-
-		result.append(clean_hour)
-
-	return result
+func _get_period_for_day_block(day_block_index: int) -> int:
+	return (
+		TimeManager.TimePeriod.NIGHT
+		if day_block_index >= TimeManager.ACTION_BLOCKS_PER_PERIOD
+		else TimeManager.TimePeriod.DAY
+	)
 
 
 func _get_slot_hour(index: int) -> int:
