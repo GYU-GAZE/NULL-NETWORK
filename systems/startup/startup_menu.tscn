@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://systems/startup/startup_menu.gd" id="1_script"]
 [ext_resource type="Resource" path="res://data/content/startup/default_startup_presentation.tres" id="2_data"]
+[ext_resource type="PackedScene" path="res://systems/startup/startup_mode_option.tscn" id="3_mode_option"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_main"]
 
@@ -12,18 +13,6 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.24, 0.5, 0.78, 0.72)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mode_details"]
-bg_color = Color(0.035, 0.12, 0.29, 0.92)
-border_width_left = 2
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.55, 0.78, 1, 0.8)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
@@ -206,75 +195,15 @@ theme_override_font_sizes/font_size = 14
 text = "SELECT SAVE MODE"
 horizontal_alignment = 1
 
-[node name="ModeButtons" type="VBoxContainer" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot"]
-unique_name_in_owner = true
+[node name="ModeOptions" type="VBoxContainer" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot"]
 layout_mode = 2
 theme_override_constants/separation = 7
 
-[node name="SafeModeButton" type="Button" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeButtons"]
+[node name="SafeModeOption" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeOptions" instance=ExtResource("3_mode_option")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 56)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "SAFE MODE"
-alignment = 1
 
-[node name="CommitModeButton" type="Button" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeButtons"]
+[node name="CommitModeOption" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeOptions" instance=ExtResource("3_mode_option")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 56)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "COMMIT MODE"
-alignment = 1
-
-[node name="ModeDetailsClip" type="Control" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-clip_contents = true
-mouse_filter = 2
-
-[node name="ModeDetails" type="PanelContainer" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeDetailsClip"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 154.0
-grow_horizontal = 2
-mouse_filter = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_mode_details")
-
-[node name="Margin" type="MarginContainer" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeDetailsClip/ModeDetails"]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
-
-[node name="Root" type="VBoxContainer" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeDetailsClip/ModeDetails/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="ModeTitle" type="Label" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeDetailsClip/ModeDetails/Margin/Root"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "MODE"
-horizontal_alignment = 1
-
-[node name="ModeDescription" type="RichTextLabel" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeDetailsClip/ModeDetails/Margin/Root"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 62)
-layout_mode = 2
-fit_content = true
-scroll_active = false
-
-[node name="StartButton" type="Button" parent="MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeDetailsClip/ModeDetails/Margin/Root"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 38)
-layout_mode = 2
-text = "START"
 
 [node name="ErrorLabel" type="Label" parent="MenuArea/RightColumn"]
 unique_name_in_owner = true
