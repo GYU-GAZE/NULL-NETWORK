@@ -112,6 +112,25 @@ func _test_all_occupations() -> void:
 			"%s did not apply its profile, economy, location and schedule." % occupation_id
 		)
 
+	var salaryperson: OccupationData = ContentRegistry.get_occupation("salaryperson")
+	var high_school: OccupationData = ContentRegistry.get_occupation("high_school_student")
+	var neet: OccupationData = ContentRegistry.get_occupation("neet")
+	_check(
+		salaryperson != null
+		and salaryperson.schedule.get_blocks_until_available(1, 3) == 9,
+		"Salaryperson schedule must fast-forward DAY block 3 through NIGHT block 0."
+	)
+	_check(
+		high_school != null
+		and high_school.schedule.get_blocks_until_available(1, 2) == 8,
+		"High-school schedule must fast-forward the school interval to DAY block 10."
+	)
+	_check(
+		neet != null
+		and neet.schedule.get_blocks_until_available(1, 3) == 0,
+		"NEET schedule must never invent a mandatory skip for a free block."
+	)
+
 
 func _test_persistence_and_schedule() -> void:
 	var campaign_id: String = "operator_persistence"
@@ -193,6 +212,23 @@ func _test_persistence_and_schedule() -> void:
 		CampaignState.money == money_before_income + 5000
 		and CampaignState.operator.last_income_day == 8,
 		"Salaryperson recurring weekly income was not applied exactly once."
+	)
+
+	# Monday DAY block 2 is the Salaryperson's third and final playable daytime
+	# action. Spending it must enter the work routine and return control only at
+	# NIGHT block 0, rather than leaving the player stranded inside blocked DAY.
+	TimeManager.import_save_data({
+		"version": TimeManager.SAVE_DATA_VERSION,
+		"days_passed": 5,
+		"days_until_update": 3,
+		"current_period": TimeManager.TimePeriod.DAY,
+		"current_action_block": 2
+	})
+	OperatorService.advance_player_action_time(1)
+	_check(
+		TimeManager.current_period == TimeManager.TimePeriod.NIGHT
+		and TimeManager.current_action_block == 0,
+		"Salaryperson third daytime action did not fast-forward to NIGHT block 0."
 	)
 
 
