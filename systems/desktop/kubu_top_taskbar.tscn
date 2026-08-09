@@ -36,22 +36,56 @@ layout_mode = 2
 [node name="ContentRoot" type="Control" parent="MarginContainer" unique_id=1344944196]
 layout_mode = 2
 
-[node name="LeftHBox" type="HBoxContainer" parent="MarginContainer/ContentRoot" unique_id=19311493]
+[node name="LeftHBox" type="HBoxContainer" parent="MarginContainer/ContentRoot"]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
+anchor_right = 0.45
+anchor_bottom = 1.0
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="MenuButton" type="Button" parent="MarginContainer/ContentRoot/LeftHBox" unique_id=740875205]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(58, 0)
+layout_mode = 2
+text = "Menu"
+flat = true
+
+[node name="TemperatureLabel" type="Label" parent="MarginContainer/ContentRoot/LeftHBox" unique_id=708353296]
+unique_name_in_owner = true
+layout_mode = 2
+text = "23°C"
+vertical_alignment = 1
+
+[node name="SepA" type="Label" parent="MarginContainer/ContentRoot/LeftHBox"]
+layout_mode = 2
+text = "|"
+vertical_alignment = 1
+
+[node name="LocationLabel" type="Label" parent="MarginContainer/ContentRoot/LeftHBox" unique_id=882875370]
+unique_name_in_owner = true
+layout_mode = 2
+text = "TOKYO - SHIBUYA"
+vertical_alignment = 1
+
+[node name="CenterHBox" type="HBoxContainer" parent="MarginContainer/ContentRoot"]
+layout_mode = 1
+anchor_left = 0.42
+anchor_right = 0.58
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+alignment = 1
 
-[node name="TimeMargin" type="MarginContainer" parent="MarginContainer/ContentRoot/LeftHBox" unique_id=925555801]
+[node name="TimeMargin" type="MarginContainer" parent="MarginContainer/ContentRoot/CenterHBox" unique_id=925555801]
 custom_minimum_size = Vector2(72, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_right = 8
 
-[node name="TimeLabel" type="Label" parent="MarginContainer/ContentRoot/LeftHBox/TimeMargin" unique_id=2110130482]
+[node name="TimeLabel" type="Label" parent="MarginContainer/ContentRoot/CenterHBox/TimeMargin" unique_id=2110130482]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
@@ -60,154 +94,113 @@ text = "06 AM"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ActionPipHBox" type="HBoxContainer" parent="MarginContainer/ContentRoot/LeftHBox" unique_id=1911763943]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="KubuActionPip" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=499583230 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip2" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1072617752 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip3" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=2063661907 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip4" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=730442374 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip5" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=725360401 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip6" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=968344807 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip7" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1708828972 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip8" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1904771323 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip9" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=803288499 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip10" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1643806711 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip11" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1389360433 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip12" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1756388800 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip13" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=2130226006 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip14" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1630731797 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip15" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1669250791 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip16" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=307720823 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip17" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1714191202 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip18" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1254773440 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip19" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1431757605 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip20" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=148494543 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip21" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1154246325 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip22" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1337558743 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip23" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1550069258 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="KubuActionPip24" parent="MarginContainer/ContentRoot/LeftHBox/ActionPipHBox" unique_id=1878010277 instance=ExtResource("2_ofqvs")]
-layout_mode = 2
-
-[node name="SepA" type="Label" parent="MarginContainer/ContentRoot/LeftHBox" unique_id=985008323]
-layout_mode = 2
-text = "|"
-
-[node name="TemperatureLabel" type="Label" parent="MarginContainer/ContentRoot/LeftHBox" unique_id=708353296]
-unique_name_in_owner = true
-layout_mode = 2
-text = "23°C"
-vertical_alignment = 1
-
-[node name="SepB" type="Label" parent="MarginContainer/ContentRoot/LeftHBox" unique_id=351112727]
-layout_mode = 2
-text = "|"
-
-[node name="LocationLabel" type="Label" parent="MarginContainer/ContentRoot/LeftHBox" unique_id=882875370]
-unique_name_in_owner = true
-layout_mode = 2
-text = "TOKYO - SHIBUYA"
-vertical_alignment = 1
-
-[node name="CenterHBox" type="HBoxContainer" parent="MarginContainer/ContentRoot" unique_id=22832124]
+[node name="RightHBox" type="HBoxContainer" parent="MarginContainer/ContentRoot"]
 layout_mode = 1
-anchors_preset = 15
+anchor_left = 0.28
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 6
-alignment = 1
-
-[node name="DayLabel" type="Label" parent="MarginContainer/ContentRoot/CenterHBox" unique_id=1612470781]
-unique_name_in_owner = true
-layout_mode = 2
-text = "DAY 01"
-vertical_alignment = 1
-
-[node name="RightHBox" type="HBoxContainer" parent="MarginContainer/ContentRoot" unique_id=194839902]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -2.5
-offset_bottom = 2.5
-grow_horizontal = 2
-grow_vertical = 2
+mouse_filter = 2
 alignment = 2
+theme_override_constants/separation = 4
+
+[node name="ActionPipHBox" type="HBoxContainer" parent="MarginContainer/ContentRoot/RightHBox" unique_id=1911763943]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="KubuActionPip" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=499583230 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip2" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1072617752 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip3" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=2063661907 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip4" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=730442374 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip5" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=725360401 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip6" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=968344807 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip7" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1708828972 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip8" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1904771323 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip9" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=803288499 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip10" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1643806711 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip11" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1389360433 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip12" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1756388800 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip13" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=2130226006 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip14" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1630731797 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip15" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1669250791 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip16" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=307720823 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip17" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1714191202 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip18" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1254773440 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip19" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1431757605 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip20" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=148494543 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip21" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1154246325 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip22" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1337558743 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip23" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1550069258 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="KubuActionPip24" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1878010277 instance=ExtResource("2_ofqvs")]
+layout_mode = 2
+
+[node name="SepB" type="Label" parent="MarginContainer/ContentRoot/RightHBox"]
+layout_mode = 2
+text = "|"
+vertical_alignment = 1
 
 [node name="DateLabel" type="Label" parent="MarginContainer/ContentRoot/RightHBox" unique_id=847208262]
 unique_name_in_owner = true
 layout_mode = 2
-text = "01.JAN.2026"
+text = "MON 01.JAN.2026"
 vertical_alignment = 1
 
-[node name="SepC" type="Label" parent="MarginContainer/ContentRoot/RightHBox" unique_id=1937519956]
+[node name="SepC" type="Label" parent="MarginContainer/ContentRoot/RightHBox"]
 layout_mode = 2
 text = "|"
+vertical_alignment = 1
 
 [node name="NetworkLabel" type="Label" parent="MarginContainer/ContentRoot/RightHBox" unique_id=1263436092]
 unique_name_in_owner = true
 layout_mode = 2
 text = "NET"
-vertical_alignment = 1
-
-[node name="BatteryIcon" parent="MarginContainer/ContentRoot/RightHBox" instance=ExtResource("5_battery")]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="BatteryLabel" type="Label" parent="MarginContainer/ContentRoot/RightHBox" unique_id=2065754869]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(34, 0)
-layout_mode = 2
-text = "100%"
 vertical_alignment = 1
 
 [node name="NotificationButtonSlot" type="Control" parent="MarginContainer/ContentRoot/RightHBox" unique_id=1066658690]
@@ -246,24 +239,25 @@ text = "1"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="MenuButton" type="Button" parent="MarginContainer/ContentRoot/RightHBox" unique_id=740875205]
+[node name="BatteryIcon" parent="MarginContainer/ContentRoot/RightHBox" instance=ExtResource("5_battery")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(54, 0)
 layout_mode = 2
-text = "Menu"
-flat = true
+
+[node name="BatteryLabel" type="Label" parent="MarginContainer/ContentRoot/RightHBox" unique_id=2065754869]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+text = "100%"
+vertical_alignment = 1
 
 [node name="SystemMenuPanel" type="PanelContainer" parent="MarginContainer/ContentRoot"]
 unique_name_in_owner = true
 z_index = 30
 layout_mode = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -236.0
+offset_left = 4.0
 offset_top = 24.0
-offset_right = -4.0
+offset_right = 236.0
 offset_bottom = 150.0
-grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_system_menu")
 
 [node name="Margin" type="MarginContainer" parent="MarginContainer/ContentRoot/SystemMenuPanel"]
