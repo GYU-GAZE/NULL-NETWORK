@@ -17,23 +17,24 @@ const STARTUP_USER_ENTRY_SCENE: PackedScene = preload(
 const NEW_USER_ENTRY_ID: String = "__new_user__"
 const BOTTOM_BAR_HEIGHT: float = 56.0
 const BOTTOM_BAR_REVEAL_SECONDS: float = 0.3
+const SURFACE_SWAP_OUT_SECONDS: float = 0.14
+const SURFACE_SWAP_IN_SECONDS: float = 0.22
+const MODE_OPTION_REVEAL_SECONDS: float = 0.16
+const MODE_DETAILS_HEIGHT: float = 154.0
+const MODE_DETAILS_REVEAL_SECONDS: float = 0.28
 
 @export var presentation_data: StartupPresentationData
 
-@onready var null_brand: Control = %NullBrand
-@onready var null_logo_root: Control = %NullLogoRoot
-@onready var null_logo_texture: TextureRect = %NullLogoTexture
-@onready var null_logo_texture_ghost_a: TextureRect = %NullLogoTextureGhostA
-@onready var null_logo_texture_ghost_b: TextureRect = %NullLogoTextureGhostB
-@onready var null_logo_label: Label = %NullLogoLabel
-@onready var null_logo_label_ghost_a: Label = %NullLogoLabelGhostA
-@onready var null_logo_label_ghost_b: Label = %NullLogoLabelGhostB
-@onready var pixel_field: Control = %PixelField
+@onready var account_surface: PanelContainer = %AccountSurface
 @onready var user_panel: PanelContainer = %UserPanel
 @onready var profile_list: VBoxContainer = %ProfileList
 @onready var mode_panel: PanelContainer = %ModePanel
+@onready var mode_content_root: VBoxContainer = %ModeContentRoot
+@onready var new_user_title: Label = %NewUserTitle
+@onready var mode_buttons: VBoxContainer = %ModeButtons
 @onready var safe_mode_button: Button = %SafeModeButton
 @onready var commit_mode_button: Button = %CommitModeButton
+@onready var mode_details_clip: Control = %ModeDetailsClip
 @onready var mode_details: PanelContainer = %ModeDetails
 @onready var mode_title: Label = %ModeTitle
 @onready var mode_description: RichTextLabel = %ModeDescription
@@ -47,16 +48,12 @@ const BOTTOM_BAR_REVEAL_SECONDS: float = 0.3
 var _profiles: Array[Dictionary] = []
 var _selected_entry_id: String = ""
 var _selected_mode: CampaignState.SaveMode = CampaignState.SaveMode.UNSET
-var _rng := RandomNumberGenerator.new()
-var _glitch_timer: float = 0.0
-var _glitch_wait: float = 0.8
-var _glitch_tween: Tween
 var _input_enabled: bool = false
 var _busy: bool = false
+var _surface_transitioning: bool = false
 
 
 func _ready() -> void:
-	_rng.seed = 0x4E554C4C
 	safe_mode_button.pressed.connect(
 		func() -> void: _select_mode(CampaignState.SaveMode.SAFE)
 	)
@@ -67,7 +64,6 @@ func _ready() -> void:
 	back_button.pressed.connect(_show_user_list)
 	exit_button.pressed.connect(_exit_game)
 	configs_button.pressed.connect(_open_configs)
-	set_process(false)
 	_reset_visual_state()
 
 
@@ -84,52 +80,30 @@ func refresh_profiles() -> int:
 
 
 func reveal() -> void:
-	if presentation_data == null:
-		push_error("StartupMenu requires StartupPresentationData.")
-		_set_bottom_bar_resting()
-		show()
-		_input_enabled = true
-		set_process(true)
-		return
-
 	show()
 	_input_enabled = false
-	set_process(false)
-	_configure_null_logo()
 	await get_tree().process_frame
 	await _reveal_bottom_bar()
-	await _materialize_null_logo()
 	await _reveal_main_controls()
 	_input_enabled = true
-	set_process(true)
-	_schedule_next_glitch()
 
 
 func set_busy(value: bool) -> void:
 	_busy = value
-	safe_mode_button.disabled = value
-	commit_mode_button.disabled = value
-	start_button.disabled = value or _selected_mode == CampaignState.SaveMode.UNSET
-
-	for child: Node in profile_list.get_children():
-		if child is StartupUserEntry:
-			(child as StartupUserEntry).set_interaction_enabled(not value)
+	safe_mode_button.disabled = value or _surface_transitioning
+	commit_mode_button.disabled = value or _surface_transitioning
+	start_button.disabled = (
+		value
+		or _surface_transitioning
+		or _selected_mode == CampaignState.SaveMode.UNSET
+	)
+	back_button.disabled = value or _surface_transitioning
+	_set_user_entries_enabled(not value and not _surface_transitioning)
 
 
 func show_error(message: String) -> void:
 	error_label.text = message.strip_edges()
 	error_label.visible = not error_label.text.is_empty()
-
-
-func _process(delta: float) -> void:
-	if not _input_enabled or presentation_data == null:
-		return
-
-	_glitch_timer -= delta
-
-	if _glitch_timer <= 0.0:
-		_play_logo_glitch()
-		_schedule_next_glitch()
 
 
 func _rebuild_profile_list() -> void:
@@ -139,7 +113,7 @@ func _rebuild_profile_list() -> void:
 	_selected_entry_id = ""
 
 	for profile: Dictionary in _profiles:
-		_add_user_entry(profile, true)
+		_add_user_entry(_prepare_saved_profile_for_entry(profile), true)
 
 	_add_user_entry({
 		"campaign_id": NEW_USER_ENTRY_ID,
@@ -148,6 +122,44 @@ func _rebuild_profile_list() -> void:
 		"avatar_fallback": "+",
 		"can_delete": false
 	}, false)
+
+
+func _prepare_saved_profile_for_entry(profile: Dictionary) -> Dictionary:
+	var result: Dictionary = profile.duplicate(true)
+	var occupation_id: String = str(
+		profile.get("occupation_id", "")
+	).strip_edges()
+	var occupation_label: String = ""
+
+	if not occupation_id.is_empty():
+		var occupation: OccupationData = ContentRegistry.get_occupation(occupation_id)
+
+		if occupation != null:
+			occupation_label = occupation.get_display_name().strip_edges()
+		else:
+			# Old or content-mismatched saves still expose their persisted ID rather
+			# than silently losing the occupation field on the login surface.
+			occupation_label = occupation_id.replace("_", " ").capitalize()
+
+	var mode_value: int = int(
+		profile.get("save_mode", CampaignState.SaveMode.UNSET)
+	)
+	var mode_label: String = "UNSET"
+
+	if mode_value == CampaignState.SaveMode.SAFE:
+		mode_label = "SAFE"
+	elif mode_value == CampaignState.SaveMode.COMMIT:
+		mode_label = "COMMIT"
+
+	var description_parts: Array[String] = []
+
+	if not occupation_label.is_empty():
+		description_parts.append(occupation_label)
+
+	description_parts.append("%s MODE" % mode_label)
+	description_parts.append("Day %d" % maxi(1, int(profile.get("days_passed", 1))))
+	result["description"] = " · ".join(description_parts)
+	return result
 
 
 func _add_user_entry(profile: Dictionary, show_separator: bool) -> void:
@@ -163,11 +175,11 @@ func _add_user_entry(profile: Dictionary, show_separator: bool) -> void:
 	entry.selected.connect(_on_profile_selected)
 	entry.activated.connect(_on_profile_activated)
 	entry.delete_requested.connect(_on_profile_delete_requested)
-	entry.set_interaction_enabled(not _busy)
+	entry.set_interaction_enabled(not _busy and not _surface_transitioning)
 
 
 func _on_profile_selected(entry_id: String) -> void:
-	if not _input_enabled or _busy:
+	if not _input_enabled or _busy or _surface_transitioning:
 		return
 
 	var clean_id: String = entry_id.strip_edges()
@@ -185,6 +197,9 @@ func _on_profile_selected(entry_id: String) -> void:
 
 
 func _on_profile_activated(entry_id: String) -> void:
+	if _surface_transitioning:
+		return
+
 	var clean_id: String = entry_id.strip_edges()
 
 	if clean_id.is_empty() or clean_id != _selected_entry_id:
@@ -198,7 +213,7 @@ func _on_profile_activated(entry_id: String) -> void:
 
 
 func _on_profile_delete_requested(entry_id: String) -> void:
-	if not _input_enabled or _busy:
+	if not _input_enabled or _busy or _surface_transitioning:
 		return
 
 	var clean_id: String = entry_id.strip_edges()
@@ -223,30 +238,171 @@ func _load_profile(campaign_id: String) -> void:
 
 
 func _show_new_user_modes() -> void:
-	if not _input_enabled or _busy:
+	if not _input_enabled or _busy or _surface_transitioning:
 		return
 
+	_surface_transitioning = true
+	_set_user_entries_enabled(false)
 	show_error("")
 	_clear_profile_selection()
 	_selected_mode = CampaignState.SaveMode.UNSET
+	start_button.disabled = true
+	safe_mode_button.disabled = true
+	commit_mode_button.disabled = true
+	back_button.disabled = true
+	mode_details_clip.custom_minimum_size.y = 0.0
+	mode_details.modulate.a = 0.0
+
+	var exit_tween := create_tween()
+	exit_tween.set_trans(Tween.TRANS_QUAD)
+	exit_tween.set_ease(Tween.EASE_IN)
+	exit_tween.tween_property(
+		user_panel,
+		"modulate:a",
+		0.0,
+		SURFACE_SWAP_OUT_SECONDS
+	)
+	exit_tween.parallel().tween_property(
+		user_panel,
+		"scale",
+		Vector2(0.985, 0.985),
+		SURFACE_SWAP_OUT_SECONDS
+	)
+	await exit_tween.finished
+
 	user_panel.hide()
+	user_panel.modulate.a = 1.0
+	user_panel.scale = Vector2.ONE
 	mode_panel.show()
-	mode_details.hide()
+	mode_panel.modulate.a = 1.0
+	mode_content_root.modulate.a = 1.0
+	new_user_title.modulate.a = 0.0
+	new_user_title.scale = Vector2(0.92, 0.92)
+	back_button.modulate.a = 0.0
+	var mode_hint := mode_panel.get_node_or_null(
+		"Margin/ModeContentRoot/ModeHint"
+	) as Label
+
+	if mode_hint != null:
+		mode_hint.modulate.a = 0.0
+
+	for button: Button in [safe_mode_button, commit_mode_button]:
+		button.modulate.a = 0.0
+		button.scale = Vector2(1.0, 0.05)
+
+	await get_tree().process_frame
+	new_user_title.pivot_offset = new_user_title.size * 0.5
+
+	for button: Button in [safe_mode_button, commit_mode_button]:
+		button.pivot_offset = button.size * 0.5
+
+	var header_tween := create_tween().set_parallel(true)
+	header_tween.set_trans(Tween.TRANS_CUBIC)
+	header_tween.set_ease(Tween.EASE_OUT)
+	header_tween.tween_property(
+		new_user_title,
+		"modulate:a",
+		1.0,
+		SURFACE_SWAP_IN_SECONDS
+	)
+	header_tween.tween_property(
+		new_user_title,
+		"scale",
+		Vector2.ONE,
+		SURFACE_SWAP_IN_SECONDS
+	)
+	header_tween.tween_property(
+		back_button,
+		"modulate:a",
+		1.0,
+		SURFACE_SWAP_IN_SECONDS
+	)
+
+	if mode_hint != null:
+		header_tween.tween_property(
+			mode_hint,
+			"modulate:a",
+			1.0,
+			SURFACE_SWAP_IN_SECONDS
+		)
+
+	await header_tween.finished
+
+	for button: Button in [safe_mode_button, commit_mode_button]:
+		var button_tween := create_tween().set_parallel(true)
+		button_tween.set_trans(Tween.TRANS_EXPO)
+		button_tween.set_ease(Tween.EASE_OUT)
+		button_tween.tween_property(
+			button,
+			"modulate:a",
+			1.0,
+			MODE_OPTION_REVEAL_SECONDS
+		)
+		button_tween.tween_property(
+			button,
+			"scale",
+			Vector2.ONE,
+			MODE_OPTION_REVEAL_SECONDS
+		)
+		await button_tween.finished
+
+	_surface_transitioning = false
 	safe_mode_button.disabled = false
 	commit_mode_button.disabled = false
-	start_button.disabled = true
+	back_button.disabled = false
 
 
 func _show_user_list() -> void:
-	if _busy:
+	if _busy or _surface_transitioning:
 		return
+
+	_surface_transitioning = true
+	safe_mode_button.disabled = true
+	commit_mode_button.disabled = true
+	start_button.disabled = true
+	back_button.disabled = true
+
+	var exit_tween := create_tween()
+	exit_tween.set_trans(Tween.TRANS_QUAD)
+	exit_tween.set_ease(Tween.EASE_IN)
+	exit_tween.tween_property(
+		mode_panel,
+		"modulate:a",
+		0.0,
+		SURFACE_SWAP_OUT_SECONDS
+	)
+	await exit_tween.finished
 
 	_selected_mode = CampaignState.SaveMode.UNSET
 	mode_panel.hide()
-	mode_details.hide()
+	mode_panel.modulate.a = 1.0
+	mode_details_clip.custom_minimum_size.y = 0.0
+	mode_details.modulate.a = 0.0
 	user_panel.show()
+	user_panel.modulate.a = 0.0
+	user_panel.scale = Vector2(0.985, 0.985)
 	_clear_profile_selection()
 	show_error("")
+
+	var enter_tween := create_tween().set_parallel(true)
+	enter_tween.set_trans(Tween.TRANS_CUBIC)
+	enter_tween.set_ease(Tween.EASE_OUT)
+	enter_tween.tween_property(
+		user_panel,
+		"modulate:a",
+		1.0,
+		SURFACE_SWAP_IN_SECONDS
+	)
+	enter_tween.tween_property(
+		user_panel,
+		"scale",
+		Vector2.ONE,
+		SURFACE_SWAP_IN_SECONDS
+	)
+	await enter_tween.finished
+
+	_surface_transitioning = false
+	_set_user_entries_enabled(true)
 
 
 func _clear_profile_selection() -> void:
@@ -257,8 +413,14 @@ func _clear_profile_selection() -> void:
 			(child as StartupUserEntry).set_selected(false)
 
 
+func _set_user_entries_enabled(value: bool) -> void:
+	for child: Node in profile_list.get_children():
+		if child is StartupUserEntry:
+			(child as StartupUserEntry).set_interaction_enabled(value)
+
+
 func _select_mode(mode: CampaignState.SaveMode) -> void:
-	if not _input_enabled or _busy:
+	if not _input_enabled or _busy or _surface_transitioning:
 		return
 
 	if mode not in [CampaignState.SaveMode.SAFE, CampaignState.SaveMode.COMMIT]:
@@ -277,16 +439,31 @@ func _select_mode(mode: CampaignState.SaveMode) -> void:
 	)
 	start_button.disabled = false
 
-	if not mode_details.visible:
-		mode_details.show()
-		mode_details.custom_minimum_size.y = 0.0
+	if mode_details_clip.custom_minimum_size.y <= 0.5:
+		mode_details_clip.custom_minimum_size.y = 0.0
 		mode_details.modulate.a = 0.0
-		await get_tree().process_frame
-		var tween := create_tween()
-		tween.set_trans(Tween.TRANS_QUAD)
-		tween.set_ease(Tween.EASE_OUT)
-		tween.tween_property(mode_details, "custom_minimum_size:y", 154.0, 0.22)
-		tween.parallel().tween_property(mode_details, "modulate:a", 1.0, 0.16)
+		var reveal_tween := create_tween().set_parallel(true)
+		reveal_tween.set_trans(Tween.TRANS_CUBIC)
+		reveal_tween.set_ease(Tween.EASE_OUT)
+		reveal_tween.tween_property(
+			mode_details_clip,
+			"custom_minimum_size:y",
+			MODE_DETAILS_HEIGHT,
+			MODE_DETAILS_REVEAL_SECONDS
+		)
+		reveal_tween.tween_property(
+			mode_details,
+			"modulate:a",
+			1.0,
+			MODE_DETAILS_REVEAL_SECONDS * 0.72
+		).set_delay(MODE_DETAILS_REVEAL_SECONDS * 0.16)
+		return
+
+	mode_details.modulate.a = 0.72
+	var refresh_tween := create_tween()
+	refresh_tween.set_trans(Tween.TRANS_SINE)
+	refresh_tween.set_ease(Tween.EASE_OUT)
+	refresh_tween.tween_property(mode_details, "modulate:a", 1.0, 0.14)
 
 
 func _start_new_campaign() -> void:
@@ -307,43 +484,6 @@ func _generate_campaign_id() -> String:
 		candidate = "user_%d_%06d" % [timestamp, suffix]
 
 	return SaveConstants.sanitize_identifier(candidate)
-
-
-func _configure_null_logo() -> void:
-	var texture: Texture2D = presentation_data.null_network_logo_texture
-	var has_texture: bool = texture != null
-
-	for node: TextureRect in [
-		null_logo_texture,
-		null_logo_texture_ghost_a,
-		null_logo_texture_ghost_b
-	]:
-		node.texture = texture
-		node.visible = has_texture
-
-	for node: Label in [
-		null_logo_label,
-		null_logo_label_ghost_a,
-		null_logo_label_ghost_b
-	]:
-		node.text = presentation_data.null_network_fallback_text
-		node.visible = not has_texture
-
-	null_logo_label.add_theme_color_override(
-		"font_color",
-		presentation_data.null_logo_text_color
-	)
-	null_logo_label_ghost_a.add_theme_color_override(
-		"font_color",
-		presentation_data.null_logo_glitch_color_a
-	)
-	null_logo_label_ghost_b.add_theme_color_override(
-		"font_color",
-		presentation_data.null_logo_glitch_color_b
-	)
-	null_logo_texture_ghost_a.modulate = presentation_data.null_logo_glitch_color_a
-	null_logo_texture_ghost_b.modulate = presentation_data.null_logo_glitch_color_b
-	_reset_logo_glitch()
 
 
 func _set_bottom_bar_hidden() -> void:
@@ -383,99 +523,37 @@ func _reveal_bottom_bar() -> void:
 	await tween.finished
 
 
-func _materialize_null_logo() -> void:
-	null_brand.show()
-	null_logo_root.modulate.a = 0.0
-	_clear_pixels()
-	var duration: float = presentation_data.null_logo_build_seconds
-	var particle_count: int = presentation_data.null_logo_particle_count
-	var target_rect := Rect2(Vector2.ZERO, null_logo_root.size)
-	var tween := create_tween()
-	tween.set_trans(Tween.TRANS_QUAD)
-	tween.set_ease(Tween.EASE_OUT)
-
-	for index in range(particle_count):
-		var pixel := ColorRect.new()
-		var pixel_size: float = _rng.randf_range(2.0, 5.0)
-		pixel.size = Vector2(pixel_size, pixel_size)
-		pixel.color = (
-			presentation_data.null_logo_glitch_color_a
-			if index % 2 == 0
-			else presentation_data.null_logo_glitch_color_b
-		)
-		pixel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		pixel.position = Vector2(
-			_rng.randf_range(-90.0, target_rect.size.x + 90.0),
-			_rng.randf_range(-55.0, target_rect.size.y + 55.0)
-		)
-		pixel_field.add_child(pixel)
-		var target := Vector2(
-			_rng.randf_range(12.0, maxf(13.0, target_rect.size.x - 12.0)),
-			_rng.randf_range(10.0, maxf(11.0, target_rect.size.y - 10.0))
-		)
-		tween.parallel().tween_property(pixel, "position", target, duration)
-		tween.parallel().tween_property(pixel, "modulate:a", 0.15, duration)
-
-	tween.parallel().tween_property(null_logo_root, "modulate:a", 1.0, duration * 0.72)
-	await tween.finished
-	_clear_pixels()
-	_play_logo_glitch()
-
-
 func _reveal_main_controls() -> void:
-	user_panel.show()
 	mode_panel.hide()
-	user_panel.pivot_offset = user_panel.size * 0.5
-	user_panel.scale = Vector2(1.0, 0.02)
-	user_panel.modulate.a = 0.38
-	var tween := create_tween()
+	mode_details_clip.custom_minimum_size.y = 0.0
+	mode_details.modulate.a = 0.0
+	user_panel.show()
+	account_surface.pivot_offset = account_surface.size * 0.5
+	account_surface.scale = Vector2(1.0, 0.03)
+	account_surface.modulate.a = 0.38
+	user_panel.modulate.a = 0.0
+	var tween := create_tween().set_parallel(true)
 	tween.set_trans(Tween.TRANS_EXPO)
 	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property(user_panel, "scale:y", 1.0, 0.34)
-	tween.parallel().tween_property(user_panel, "modulate:a", 1.0, 0.22)
+	tween.tween_property(
+		account_surface,
+		"scale:y",
+		1.0,
+		0.34
+	)
+	tween.tween_property(
+		account_surface,
+		"modulate:a",
+		1.0,
+		0.24
+	)
+	tween.tween_property(
+		user_panel,
+		"modulate:a",
+		1.0,
+		0.22
+	).set_delay(0.08)
 	await tween.finished
-
-
-func _play_logo_glitch() -> void:
-	if _glitch_tween != null and _glitch_tween.is_valid():
-		return
-
-	var offset_a := Vector2(_rng.randi_range(-4, 4), _rng.randi_range(-1, 1))
-	var offset_b := Vector2(_rng.randi_range(-4, 4), _rng.randi_range(-1, 1))
-	null_logo_root.position.x = float(_rng.randi_range(-2, 2))
-	null_logo_texture_ghost_a.position = offset_a
-	null_logo_texture_ghost_b.position = offset_b
-	null_logo_label_ghost_a.position = offset_a
-	null_logo_label_ghost_b.position = offset_b
-	null_logo_texture_ghost_a.modulate.a = 0.48
-	null_logo_texture_ghost_b.modulate.a = 0.42
-	null_logo_label_ghost_a.modulate.a = 0.7
-	null_logo_label_ghost_b.modulate.a = 0.65
-	_glitch_tween = create_tween()
-	_glitch_tween.tween_interval(0.055)
-	_glitch_tween.tween_callback(_reset_logo_glitch)
-
-
-func _reset_logo_glitch() -> void:
-	null_logo_root.position = Vector2.ZERO
-	null_logo_texture_ghost_a.position = Vector2.ZERO
-	null_logo_texture_ghost_b.position = Vector2.ZERO
-	null_logo_label_ghost_a.position = Vector2.ZERO
-	null_logo_label_ghost_b.position = Vector2.ZERO
-	null_logo_texture_ghost_a.modulate.a = 0.0
-	null_logo_texture_ghost_b.modulate.a = 0.0
-	null_logo_label_ghost_a.modulate.a = 0.0
-	null_logo_label_ghost_b.modulate.a = 0.0
-	_glitch_tween = null
-
-
-func _schedule_next_glitch() -> void:
-	_glitch_timer = _rng.randf_range(0.65, 1.7)
-
-
-func _clear_pixels() -> void:
-	for child: Node in pixel_field.get_children():
-		child.queue_free()
 
 
 func _open_configs() -> void:
@@ -492,13 +570,16 @@ func _exit_game() -> void:
 
 func _reset_visual_state() -> void:
 	hide()
-	null_brand.hide()
 	user_panel.hide()
 	mode_panel.hide()
-	mode_details.hide()
+	mode_details_clip.custom_minimum_size.y = 0.0
+	mode_details.modulate.a = 0.0
+	account_surface.scale = Vector2.ONE
+	account_surface.modulate.a = 1.0
 	show_error("")
 	_set_bottom_bar_hidden()
 	bottom_bar_root.modulate.a = 1.0
 	_selected_entry_id = ""
 	_selected_mode = CampaignState.SaveMode.UNSET
 	_input_enabled = false
+	_surface_transitioning = false
