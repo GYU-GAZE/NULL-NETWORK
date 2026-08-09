@@ -51,7 +51,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.88, 0.93, 0.98, 1)
+color = Color(0.09, 0.18, 0.3, 1)
 
 [node name="Center" type="CenterContainer" parent="TimeTransitionRoot"]
 layout_mode = 1
