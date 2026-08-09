@@ -26,6 +26,10 @@ func _run_test() -> void:
 		startup.presentation_data != null,
 		"Startup presentation has no presentation data."
 	)
+	_check(
+		startup.get_node_or_null("BootLayer/NullBrandAnchor") != null,
+		"NULL NETWORK branding no longer belongs to the persistent boot presentation."
+	)
 
 	if startup.presentation_data != null:
 		startup.presentation_data = (
@@ -48,6 +52,7 @@ func _run_test() -> void:
 				splash.fade_out_seconds = 0.01
 
 			startup.presentation_data.logo_ignite_seconds = 0.01
+			startup.presentation_data.null_logo_build_seconds = 0.01
 			startup.presentation_data.logo_hold_seconds = 0.0
 			startup.presentation_data.screen_power_seconds = 0.01
 			startup.presentation_data.reveal_seconds = 0.02
@@ -55,6 +60,25 @@ func _run_test() -> void:
 	startup.play(TimeManager.TimePeriod.DAY)
 	await startup.boot_completed
 	_check(startup.visible, "Startup backdrop should remain available after boot.")
+
+	var kubu_anchor := startup.get_node_or_null(
+		"BootLayer/BootLogoAnchor"
+	) as Control
+	var null_anchor := startup.get_node_or_null(
+		"BootLayer/NullBrandAnchor"
+	) as Control
+
+	if kubu_anchor != null and null_anchor != null:
+		_check(
+		null_anchor.position.y < kubu_anchor.position.y,
+			"NULL NETWORK did not finish above the displaced KubuOS logo."
+		)
+		var null_center_x: float = null_anchor.position.x + null_anchor.size.x * 0.5
+		_check(
+			is_equal_approx(null_center_x, startup.size.x * 0.5),
+			"NULL NETWORK final branding is no longer horizontally centered."
+		)
+
 	startup.stop_and_hide()
 	_check(not startup.visible, "Startup presentation did not hide on shutdown.")
 	startup.queue_free()
