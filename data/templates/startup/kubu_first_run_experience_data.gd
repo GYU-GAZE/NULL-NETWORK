@@ -10,7 +10,6 @@ class_name KubuFirstRunExperienceData
 @export_category("Browser Bootstrap")
 @export var browser_app_id: String = "browser"
 @export var landing_url: String = "kubuchan.net"
-@export_range(0.0, 10.0, 0.05) var auto_open_delay_seconds: float = 1.8
 @export_range(0.0, 2.0, 0.05) var post_open_input_delay_seconds: float = 0.25
 @export var maximize_browser: bool = true
 
