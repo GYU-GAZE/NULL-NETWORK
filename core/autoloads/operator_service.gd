@@ -220,7 +220,18 @@ func _evaluate_activity_availability(
 	)
 
 	if first_conflict.is_empty():
-		return {"allowed": true}
+		var projection_error: String = _project_schedule_skip_into_preview(
+			occupation.schedule,
+			preview
+		)
+
+		if projection_error.is_empty():
+			return {"allowed": true}
+
+		return {
+			"allowed": false,
+			"reason": projection_error
+		}
 
 	var day_block: int = int(first_conflict.get("day_block", 0))
 	var period: int = TimeManager.TimePeriod.DAY
@@ -239,6 +250,62 @@ func _evaluate_activity_availability(
 			TimeManager.format_action_block_hour(period, period_block)
 		]
 	}
+
+
+func _project_schedule_skip_into_preview(
+	schedule: OccupationScheduleData,
+	preview: ActivityPreviewData
+) -> String:
+	if schedule == null or preview == null:
+		return ""
+
+	var final_day_block: int = preview.final_action_block
+
+	if preview.final_period == TimeManager.TimePeriod.NIGHT:
+		final_day_block += TimeManager.ACTION_BLOCKS_PER_PERIOD
+
+	var elapsed_days: int = maxi(0, preview.final_day - preview.initial_day)
+	var final_weekday_index: int = posmod(
+		TimeManager.current_weekday_index + elapsed_days,
+		7
+	)
+	var skip_blocks: int = schedule.get_blocks_until_available(
+		final_weekday_index,
+		final_day_block
+	)
+
+	if skip_blocks < 0:
+		return "Occupation schedule has no playable block within one full week."
+
+	if skip_blocks == 0:
+		return ""
+
+	var projected_absolute_block: int = final_day_block + skip_blocks
+	var additional_days: int = int(
+		projected_absolute_block / TimeManager.TOTAL_ACTION_BLOCKS_PER_DAY
+	)
+	var projected_day_block: int = posmod(
+		projected_absolute_block,
+		TimeManager.TOTAL_ACTION_BLOCKS_PER_DAY
+	)
+
+	preview.final_day += additional_days
+
+	if projected_day_block >= TimeManager.ACTION_BLOCKS_PER_PERIOD:
+		preview.final_period = TimeManager.TimePeriod.NIGHT
+		preview.final_action_block = (
+			projected_day_block - TimeManager.ACTION_BLOCKS_PER_PERIOD
+		)
+	else:
+		preview.final_period = TimeManager.TimePeriod.DAY
+		preview.final_action_block = projected_day_block
+
+	preview.crosses_day = preview.final_day != preview.initial_day
+	preview.crosses_period = (
+		preview.crosses_day
+		or preview.final_period != preview.initial_period
+	)
+	return ""
 
 
 func _find_first_schedule_conflict(
