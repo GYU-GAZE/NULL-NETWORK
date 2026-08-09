@@ -110,7 +110,7 @@ func _run_test() -> void:
 					"SelectionPanel/Margin/Content/AvatarFrame"
 				) as PanelContainer
 				var delete_button := entry.get_node_or_null(
-					"SelectionPanel/DeleteButton"
+					"SelectionPanel/ActionOverlay/DeleteButton"
 				) as Button
 				_check(
 					username_label != null and username_label.text == "Preview User",
@@ -146,6 +146,11 @@ func _run_test() -> void:
 						and delete_style.border_width_left > 0
 						and delete_style.bg_color.r > delete_style.bg_color.b,
 						"Delete action is no longer a bordered red system button."
+					)
+					_check(
+						delete_button.get_parent().name == "ActionOverlay"
+						and delete_button.size.x <= 90.0,
+						"Delete action must stay a compact overlay instead of filling the account row."
 					)
 
 				_check(
