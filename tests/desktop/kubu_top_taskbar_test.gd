@@ -67,35 +67,70 @@ func _run_test() -> void:
 			"System menu must open below the left side of the taskbar."
 		)
 
-		var first_pip: KubuActionPip = (
+		_check(
+			taskbar.action_pips.size() == TimeManager.TOTAL_ACTION_BLOCKS_PER_DAY,
+			"Taskbar must expose all 24 absolute action blocks."
+		)
+
+		var day_pip: KubuActionPip = (
 			taskbar.action_pips[0]
-			if not taskbar.action_pips.is_empty()
+			if taskbar.action_pips.size() > 0
 			else null
 		)
-		_check(first_pip != null, "Taskbar lost its action pip instances.")
+		var night_pip: KubuActionPip = (
+			taskbar.action_pips[TimeManager.ACTION_BLOCKS_PER_PERIOD]
+			if taskbar.action_pips.size() > TimeManager.ACTION_BLOCKS_PER_PERIOD
+			else null
+		)
+
+		_check(day_pip != null and night_pip != null, "Taskbar lost DAY/NIGHT pip instances.")
 
 		TimeManager.current_period = TimeManager.TimePeriod.DAY
 		TimeManager.current_action_block = 0
 		taskbar._refresh_action_pips()
-		if first_pip != null:
-			_check(
-				first_pip.current_period == TimeManager.TimePeriod.DAY
-				and first_pip.self_modulate == first_pip.day_tint,
-				"DAY action pips must use the shared blue tint."
-			)
 
-		TimeManager.current_period = TimeManager.TimePeriod.NIGHT
-		taskbar._refresh_action_pips()
-		if first_pip != null:
+		if day_pip != null and night_pip != null:
 			_check(
-				first_pip.current_period == TimeManager.TimePeriod.NIGHT
-				and first_pip.self_modulate == first_pip.night_tint,
-				"NIGHT action pips must use the shared purple tint."
+				day_pip.current_period == TimeManager.TimePeriod.DAY
+				and day_pip.self_modulate == day_pip.day_tint,
+				"First twelve action pips must remain DAY/blue."
 			)
 			_check(
-				first_pip.day_tint != first_pip.night_tint,
+				night_pip.current_period == TimeManager.TimePeriod.NIGHT
+				and night_pip.self_modulate == night_pip.night_tint,
+				"Final twelve action pips must remain NIGHT/purple."
+			)
+			_check(
+				day_pip.day_tint != night_pip.night_tint,
 				"DAY and NIGHT action pip tints must remain visually distinct."
 			)
+
+		# Changing the current period must not recolor the timeline halves. The
+		# slot owns its hue; the clock only changes used/current/available state.
+		TimeManager.current_period = TimeManager.TimePeriod.NIGHT
+		TimeManager.current_action_block = 0
+		taskbar._refresh_action_pips()
+
+		if day_pip != null and night_pip != null:
+			_check(
+				day_pip.current_period == TimeManager.TimePeriod.DAY
+				and night_pip.current_period == TimeManager.TimePeriod.NIGHT,
+				"DAY/NIGHT pip color split must survive period transitions."
+			)
+
+		var schedule := OccupationScheduleData.new()
+		schedule.occupied_weekday_indices = PackedInt32Array([
+			TimeManager.current_weekday_index
+		])
+		schedule.occupied_day_blocks = PackedInt32Array([13])
+		_check(
+			taskbar._is_day_block_available(schedule, 12),
+			"A free NIGHT block was incorrectly projected as unavailable."
+		)
+		_check(
+			not taskbar._is_day_block_available(schedule, 13),
+			"Occupation schedule must own unavailable pip projection."
+		)
 
 		TimeManager.current_period = TimeManager.TimePeriod.DAY
 		TimeManager.current_action_block = 0
