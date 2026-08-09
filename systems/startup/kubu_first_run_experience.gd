@@ -77,15 +77,31 @@ func _initialize_experience() -> void:
 		_set_input_locked(false)
 		return
 
-	GlobalSignals.request_open_app.emit(browser_app)
-	await get_tree().process_frame
-
 	var window_manager := get_node_or_null(window_manager_path) as WindowManager
-	var browser_window: WindowBase = null
 
-	if window_manager != null:
-		browser_window = window_manager.open_windows.get(
+	if window_manager == null:
+		push_error("First-run experience could not resolve WindowManager.")
+		_intro_running = false
+		_set_input_locked(false)
+		return
+
+	# request_open_app is dispatched synchronously by WindowManager. Resolve and
+	# maximize the new window in the same frame, before WindowBase's deferred
+	# opening animation starts. Waiting a frame before maximizing used to trigger
+	# a focus pulse that cancelled the opening tween while its alpha was still 0,
+	# leaving an invisible-but-running Browser represented only by its dock icon.
+	GlobalSignals.request_open_app.emit(browser_app)
+
+	var browser_window: WindowBase = window_manager.open_windows.get(
 		experience_data.browser_app_id
+	) as WindowBase
+
+	# Keep a one-frame fallback for future WindowManager implementations that may
+	# dispatch app creation asynchronously. The normal runtime path resolves above.
+	if browser_window == null:
+		await get_tree().process_frame
+		browser_window = window_manager.open_windows.get(
+			experience_data.browser_app_id
 		) as WindowBase
 
 	if browser_window == null:
@@ -96,6 +112,13 @@ func _initialize_experience() -> void:
 
 	if experience_data.maximize_browser and not browser_window.is_maximized:
 		browser_window.maximize()
+
+	# Give the Browser scene and WindowBase deferred opening animation one frame to
+	# enter their stable tree state before issuing the scripted first navigation.
+	await get_tree().process_frame
+
+	if not is_inside_tree() or not is_instance_valid(browser_window):
+		return
 
 	# BrowserApp already exposes this global navigation intent for system/story
 	# driven navigation. Empty event/step IDs deliberately mean no StoryEvent ACK.
