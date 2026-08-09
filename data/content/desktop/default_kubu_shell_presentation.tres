@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="KubuShellPresentationData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/desktop/kubu_shell_presentation_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+first_run_top_seconds = 0.48
+first_run_bottom_seconds = 0.44
+first_run_gap_seconds = 0.1
+first_run_settle_seconds = 0.14
+first_run_top_hidden_scale_y = 0.08
+first_run_bottom_hidden_scale = Vector2(0.76, 0.76)
+day_start_seconds = 0.26
+day_start_top_hidden_scale_y = 0.3
+day_start_bottom_hidden_scale = Vector2(0.86, 0.86)
