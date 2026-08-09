@@ -66,6 +66,11 @@ func play_first_run_reveal() -> void:
 		prepare_first_run_reveal()
 
 	_reveal_running = true
+
+	# Main is instantiated while Bootstrap's block transition is still covering
+	# the desktop. Wait for that actual visual transition instead of replacing it
+	# with a blind timer; the first visible runtime beat is then the TOP DOCK pop.
+	await _wait_for_transition_idle()
 	reveal_started.emit(REVEAL_FIRST_RUN)
 
 	# One layout frame keeps both pivots deterministic while they remain hidden.
@@ -168,6 +173,11 @@ func _validate_configuration() -> void:
 
 	if not _has_shell_nodes():
 		push_error("KubuShellPresentationController could not resolve both docks.")
+
+
+func _wait_for_transition_idle() -> void:
+	while KubuTransitionManager.is_transitioning():
+		await KubuTransitionManager.transition_finished
 
 
 func _wait_seconds(seconds: float) -> void:
