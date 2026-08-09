@@ -6,9 +6,11 @@
 [ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="4_effect"]
 [ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="5_flag"]
 
-[sub_resource type="Resource" id="Trigger_campaign_created"]
+[sub_resource type="Resource" id="Trigger_registration_unlocked"]
 script = ExtResource("2_trigger")
-trigger_type = 0
+trigger_type = 3
+watched_flag_name = "prologue.registration_unlocked"
+watched_flag_value = true
 
 [sub_resource type="Resource" id="Step_open_browser"]
 script = ExtResource("3_step")
@@ -32,7 +34,7 @@ value = true
 script = ExtResource("1_event")
 event_id = "prologue.registration_started"
 priority = 1000
-trigger = SubResource("Trigger_campaign_created")
+trigger = SubResource("Trigger_registration_unlocked")
 repeat_policy = 0
 steps = Array[ExtResource("3_step")]([SubResource("Step_open_browser"), SubResource("Step_navigate_register")])
 completion_effects = Array[ExtResource("4_effect")]([SubResource("Effect_started")])
