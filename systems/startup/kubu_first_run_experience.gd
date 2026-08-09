@@ -60,21 +60,9 @@ func _initialize_experience() -> void:
 	_intro_running = true
 	_set_input_locked(true)
 
-	# The old fixed 1.8-second wait looked like a frozen game. The shell reveal is
-	# now the first-run clock: TOP DOCK boots, then BOTTOM DOCK, then Browser opens.
-	var shell_presentation := _get_shell_presentation()
-	if shell_presentation != null:
-		await shell_presentation.play_first_run_reveal()
-	else:
-		push_error(
-			"First-run experience could not resolve KubuShellPresentationController."
-		)
-
-	if not is_inside_tree() or not _should_play_intro():
-		_intro_running = false
-		_set_input_locked(false)
-		return
-
+	# Browser must exist in CampaignState before the BOTTOM DOCK is revealed.
+	# This avoids depending on AppInstallationManager's deferred default-app sync
+	# and guarantees the first visible dock already contains its single app.
 	if not _ensure_browser_installed():
 		push_error("First-run experience could not install or resolve the Browser app.")
 		_intro_running = false
@@ -87,6 +75,21 @@ func _initialize_experience() -> void:
 
 	if browser_app == null:
 		push_error("First-run experience Browser AppResource is missing.")
+		_intro_running = false
+		_set_input_locked(false)
+		return
+
+	# The old fixed 1.8-second wait looked like a frozen game. The shell reveal is
+	# now the first-run clock: TOP DOCK boots, then BOTTOM DOCK, then Browser opens.
+	var shell_presentation := _get_shell_presentation()
+	if shell_presentation != null:
+		await shell_presentation.play_first_run_reveal()
+	else:
+		push_error(
+			"First-run experience could not resolve KubuShellPresentationController."
+		)
+
+	if not is_inside_tree() or not _should_play_intro():
 		_intro_running = false
 		_set_input_locked(false)
 		return
