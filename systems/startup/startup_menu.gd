@@ -8,6 +8,7 @@ signal campaign_create_requested(
 	display_name: String,
 	save_mode: CampaignState.SaveMode
 )
+signal campaign_delete_requested(campaign_id: String)
 
 
 const STARTUP_USER_ENTRY_SCENE: PackedScene = preload(
@@ -144,7 +145,8 @@ func _rebuild_profile_list() -> void:
 		"campaign_id": NEW_USER_ENTRY_ID,
 		"username": "New User",
 		"description": "Create a new KubuOS user",
-		"avatar_fallback": "+"
+		"avatar_fallback": "+",
+		"can_delete": false
 	}, false)
 
 
@@ -160,6 +162,7 @@ func _add_user_entry(profile: Dictionary, show_separator: bool) -> void:
 	entry.set_separator_visible(show_separator)
 	entry.selected.connect(_on_profile_selected)
 	entry.activated.connect(_on_profile_activated)
+	entry.delete_requested.connect(_on_profile_delete_requested)
 	entry.set_interaction_enabled(not _busy)
 
 
@@ -192,6 +195,23 @@ func _on_profile_activated(entry_id: String) -> void:
 		return
 
 	_load_profile(clean_id)
+
+
+func _on_profile_delete_requested(entry_id: String) -> void:
+	if not _input_enabled or _busy:
+		return
+
+	var clean_id: String = entry_id.strip_edges()
+
+	if (
+		clean_id.is_empty()
+		or clean_id == NEW_USER_ENTRY_ID
+		or clean_id != _selected_entry_id
+	):
+		return
+
+	show_error("")
+	campaign_delete_requested.emit(clean_id)
 
 
 func _load_profile(campaign_id: String) -> void:
