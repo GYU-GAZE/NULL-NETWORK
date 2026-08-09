@@ -627,9 +627,14 @@ func _start_pending_request(request_id: String) -> void:
 		_active_transactions[transaction_id] = transaction
 
 	if preview.charged_action_cost > 0:
-		TimeManager.advance_action(
-			preview.charged_action_cost
-		)
+		if source_id == StoryEventManager.SOURCE_ID:
+			# Mandatory routines own their own authored time sequence. Do not apply
+			# occupation fast-forward while that routine itself is executing.
+			TimeManager.advance_action(preview.charged_action_cost)
+		else:
+			OperatorService.advance_player_action_time(
+				preview.charged_action_cost
+			)
 
 	activity_started.emit(
 		transaction_id,
