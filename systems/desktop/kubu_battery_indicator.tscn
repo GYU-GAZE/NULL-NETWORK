@@ -3,9 +3,10 @@
 [ext_resource type="Script" path="res://systems/desktop/kubu_battery_indicator.gd" id="1_script"]
 
 [node name="KubuBatteryIndicator" type="Control"]
-custom_minimum_size = Vector2(22, 12)
+custom_minimum_size = Vector2(18, 10)
 layout_mode = 3
 anchors_preset = 0
+size_flags_vertical = 4
 mouse_filter = 2
 script = ExtResource("1_script")
 
