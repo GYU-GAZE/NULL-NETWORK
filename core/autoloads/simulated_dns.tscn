@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bptitsuqumy4e"]
+[gd_scene load_steps=13 format=3 uid="uid://bptitsuqumy4e"]
 
 [ext_resource type="Script" uid="uid://1xdf2ppqaxl7" path="res://core/autoloads/simulated_dns.gd" id="1_dns"]
 [ext_resource type="Resource" uid="uid://bp4bnvyj836yd" path="res://data/content/sites/null network/nnwhome.tres" id="2_home"]
@@ -11,7 +11,8 @@
 [ext_resource type="Resource" uid="uid://dvi4ve0f0elur" path="res://data/content/sites/null network/forum_thread_route.tres" id="9_threads"]
 [ext_resource type="Resource" path="res://data/content/sites/null network/nnwregister.tres" id="10_register"]
 [ext_resource type="Resource" path="res://data/content/sites/null network/nnwstarterselection.tres" id="11_starter"]
+[ext_resource type="Resource" path="res://data/content/sites/kubuchan/kubuchan_home.tres" id="12_kubuchan"]
 
 [node name="SimulatedDNS" type="Node" unique_id=1524678864]
 script = ExtResource("1_dns")
-registered_sites = Array[WebsitePage]([ExtResource("2_home"), ExtResource("3_forums"), ExtResource("4_rankings"), ExtResource("5_started"), ExtResource("6_updates"), ExtResource("7_browser_home"), ExtResource("8_profiles"), ExtResource("9_threads"), ExtResource("10_register"), ExtResource("11_starter")])
+registered_sites = Array[WebsitePage]([ExtResource("2_home"), ExtResource("3_forums"), ExtResource("4_rankings"), ExtResource("5_started"), ExtResource("6_updates"), ExtResource("7_browser_home"), ExtResource("8_profiles"), ExtResource("9_threads"), ExtResource("10_register"), ExtResource("11_starter"), ExtResource("12_kubuchan")])
