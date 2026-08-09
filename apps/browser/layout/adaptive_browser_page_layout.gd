@@ -25,22 +25,8 @@ func _apply_adaptive_layout() -> void:
 		)
 		return
 
-	var host := page.get_parent() as Control
-
-	if host == null:
-		push_warning(
-			"AdaptiveBrowserPageLayout: adaptive page requires a Control host."
-		)
-		return
-
-	page.set_anchors_preset(Control.PRESET_FULL_RECT)
-	page.offset_left = 0.0
-	page.offset_top = 0.0
-	page.offset_right = 0.0
-	page.offset_bottom = 0.0
-	page.custom_minimum_size = Vector2.ZERO
-	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	page.size_flags_vertical = Control.SIZE_EXPAND_FILL
-
+	# BrowserApp now owns full-rect responsive sizing for every WebsitePage.
+	# This compatibility helper remains on older Forum/Updates scenes only to
+	# apply their optional site theme; it no longer performs a second layout pass.
 	if apply_site_theme and site_theme != null:
 		page.theme = site_theme
