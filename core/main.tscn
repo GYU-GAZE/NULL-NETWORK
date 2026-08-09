@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://celg3otohqa16"]
+[gd_scene load_steps=13 format=3 uid="uid://celg3otohqa16"]
 
 [ext_resource type="PackedScene" uid="uid://1sfbm60f4wjd" path="res://systems/desktop/desktop.tscn" id="1_desktop"]
 [ext_resource type="PackedScene" uid="uid://8g2y08hbwa6r" path="res://systems/workspace/workspace_manager.tscn" id="2_rayt5"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://w14nl6xxwxew" path="res://systems/desktop/dock/kubu_dock_item.tscn" id="10_xhu5d"]
 [ext_resource type="PackedScene" path="res://systems/ui/activity_confirmation_dialog.tscn" id="11_activity_confirmation"]
 [ext_resource type="PackedScene" path="res://systems/startup/kubu_first_run_experience.tscn" id="12_first_run"]
+[ext_resource type="PackedScene" path="res://systems/desktop/kubu_shell_presentation_controller.tscn" id="13_shell_presentation"]
 
 [node name="Main" type="Node" unique_id=977689112]
 
@@ -45,5 +46,10 @@ layer = 30
 
 [node name="ActivityConfirmationDialog" parent="ModalLayer" instance=ExtResource("11_activity_confirmation")]
 
+[node name="KubuShellPresentationController" parent="." instance=ExtResource("13_shell_presentation")]
+top_taskbar_path = NodePath("../OSChromeLayer/KubuTopTaskbar")
+bottom_dock_path = NodePath("../OSChromeLayer/KubuBottomDock")
+
 [node name="KubuFirstRunExperience" parent="." instance=ExtResource("12_first_run")]
 window_manager_path = NodePath("../WindowManagerLayer/WindowManager")
+shell_presentation_path = NodePath("../KubuShellPresentationController")
