@@ -67,6 +67,36 @@ func _run_test() -> void:
 			"System menu must open below the left side of the taskbar."
 		)
 
+		var first_pip: KubuActionPip = (
+			taskbar.action_pips[0]
+			if not taskbar.action_pips.is_empty()
+			else null
+		)
+		_check(first_pip != null, "Taskbar lost its action pip instances.")
+
+		TimeManager.current_period = TimeManager.TimePeriod.DAY
+		TimeManager.current_action_block = 0
+		taskbar._refresh_action_pips()
+		if first_pip != null:
+			_check(
+				first_pip.current_period == TimeManager.TimePeriod.DAY
+				and first_pip.self_modulate == first_pip.day_tint,
+				"DAY action pips must use the shared blue tint."
+			)
+
+		TimeManager.current_period = TimeManager.TimePeriod.NIGHT
+		taskbar._refresh_action_pips()
+		if first_pip != null:
+			_check(
+				first_pip.current_period == TimeManager.TimePeriod.NIGHT
+				and first_pip.self_modulate == first_pip.night_tint,
+				"NIGHT action pips must use the shared purple tint."
+			)
+			_check(
+				first_pip.day_tint != first_pip.night_tint,
+				"DAY and NIGHT action pip tints must remain visually distinct."
+			)
+
 		TimeManager.current_period = TimeManager.TimePeriod.DAY
 		TimeManager.current_action_block = 0
 		taskbar._refresh_battery()
