@@ -49,6 +49,10 @@ const SYSTEM_MENU_GAP: float = 2.0
 @onready var system_settings_button: Button = %SystemSettingsButton
 @onready var desktop_visual_button: Button = %DesktopVisualButton
 @onready var logout_button: Button = %LogoutButton
+@onready var left_context_separator: Label = $MarginContainer/ContentRoot/LeftHBox/SepA
+@onready var center_hbox: HBoxContainer = $MarginContainer/ContentRoot/CenterHBox
+@onready var action_date_separator: Label = $MarginContainer/ContentRoot/RightHBox/SepB
+@onready var network_separator: Label = $MarginContainer/ContentRoot/RightHBox/SepC
 
 var action_pips: Array[KubuActionPip] = []
 
@@ -101,6 +105,7 @@ func _ready() -> void:
 	_prepare_system_menu()
 	_refresh_from_time_manager()
 	_refresh_notification_badge()
+	_refresh_context_visibility()
 
 
 func _apply_metrics() -> void:
@@ -187,15 +192,31 @@ func _refresh_location_label() -> void:
 	location_label.text = location.location_name.strip_edges().to_upper()
 
 
+func _refresh_context_visibility() -> void:
+	# Before Operator registration, KubuOS intentionally exposes only universal
+	# shell status: Menu, NET, notifications and battery. Time/location/action
+	# data is contextual player information and appears only after registration.
+	var show_context: bool = not CampaignState.operator.is_empty()
+	temperature_label.visible = show_context
+	left_context_separator.visible = show_context
+	location_label.visible = show_context
+	center_hbox.visible = show_context
+	action_pip_hbox.visible = show_context
+	action_date_separator.visible = show_context
+	date_label.visible = show_context
+	network_separator.visible = show_context
+
+
 func _on_location_changed(_location_id: String) -> void:
 	_refresh_location_label()
 
 
 func _on_campaign_changed(section: StringName) -> void:
-	# Occupation registration changes the authoritative schedule used by the
-	# timeline. Refresh immediately instead of waiting for the next time tick.
+	# Operator registration changes both the authoritative occupation schedule
+	# and which contextual KubuOS chrome is allowed to be visible.
 	if section == &"operator" or section == &"campaign":
 		_refresh_action_pips()
+		_refresh_context_visibility()
 
 
 func _refresh_battery() -> void:
