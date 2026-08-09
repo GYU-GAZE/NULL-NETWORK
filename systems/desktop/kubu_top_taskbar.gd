@@ -37,7 +37,6 @@ const SYSTEM_MENU_GAP: float = 2.0
 @onready var time_label: Label = %TimeLabel
 @onready var temperature_label: Label = %TemperatureLabel
 @onready var location_label: Label = %LocationLabel
-@onready var day_label: Label = %DayLabel
 @onready var date_label: Label = %DateLabel
 @onready var network_label: Label = %NetworkLabel
 @onready var battery_icon: KubuBatteryIndicator = %BatteryIcon
@@ -53,8 +52,7 @@ const SYSTEM_MENU_GAP: float = 2.0
 
 var action_pips: Array[KubuActionPip] = []
 
-var _last_period_text: String = ""
-var _last_day_text: String = ""
+var _last_date_text: String = ""
 var _system_menu_open: bool = false
 var _system_menu_tween: Tween
 
@@ -66,8 +64,11 @@ func _ready() -> void:
 		KubuOSMetrics.metrics_changed.connect(_apply_metrics)
 
 	temperature_label.text = temperature_label_text
-	location_label.text = location_label_text
 	network_label.text = network_label_text
+	_refresh_location_label()
+
+	if not CampaignState.location_changed.is_connected(_on_location_changed):
+		CampaignState.location_changed.connect(_on_location_changed)
 
 	if not GlobalSignals.time_advanced.is_connected(_on_time_advanced):
 		GlobalSignals.time_advanced.connect(_on_time_advanced)
@@ -136,39 +137,55 @@ func _refresh_from_time_manager() -> void:
 	)
 
 
-func _on_time_advanced(period: int, days_passed: int, calendar_day: int, calendar_month: String) -> void:
-	var period_text: String = TimeManager.get_period_name(period as TimeManager.TimePeriod)
+func _on_time_advanced(
+	period: int,
+	_days_passed: int,
+	calendar_day: int,
+	calendar_month: String
+) -> void:
 	var hour_text: String = TimeManager.format_action_block_hour(
 		period,
 		TimeManager.current_action_block
 	)
-
-	time_label.text = hour_text
-	day_label.text = "%s %02d" % [period_text, days_passed]
-	date_label.text = "%s %02d.%s.%d" % [
+	var current_date_text := "%s %02d.%s.%d" % [
 		TimeManager.get_current_weekday_name(),
 		calendar_day,
 		calendar_month,
 		TimeManager.current_year
 	]
 
+	time_label.text = hour_text
+	date_label.text = current_date_text
+
 	_refresh_action_pips()
 	_refresh_battery()
 
-	var new_day_key: String = "%s_%d" % [period_text, days_passed]
-
-	if new_day_key != _last_day_text:
-		_last_day_text = new_day_key
-		_last_period_text = period_text
-		_pulse(day_label)
-		return
-
-	if period_text != _last_period_text:
-		_last_period_text = period_text
-		_pulse(day_label)
+	if current_date_text != _last_date_text:
+		_last_date_text = current_date_text
+		_pulse(date_label)
 		return
 
 	_pulse(time_label)
+
+
+func _refresh_location_label() -> void:
+	var current_location_id: String = CampaignState.current_location_id.strip_edges()
+
+	if current_location_id.is_empty():
+		location_label.text = location_label_text
+		return
+
+	var location: MapLocation = ContentRegistry.get_location(current_location_id)
+
+	if location == null or location.location_name.strip_edges().is_empty():
+		location_label.text = location_label_text
+		return
+
+	location_label.text = location.location_name.strip_edges().to_upper()
+
+
+func _on_location_changed(_location_id: String) -> void:
+	_refresh_location_label()
 
 
 func _refresh_battery() -> void:
@@ -302,7 +319,7 @@ func _open_system_menu() -> void:
 
 	_system_menu_open = true
 	system_menu_panel.show()
-	system_menu_panel.pivot_offset = Vector2(system_menu_panel.size.x, 0.0)
+	system_menu_panel.pivot_offset = Vector2.ZERO
 	system_menu_panel.scale = Vector2(1.0, 0.04)
 	system_menu_panel.modulate.a = 0.55
 
