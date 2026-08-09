@@ -20,8 +20,14 @@ const BOTTOM_BAR_REVEAL_SECONDS: float = 0.3
 const SURFACE_SWAP_OUT_SECONDS: float = 0.14
 const SURFACE_SWAP_IN_SECONDS: float = 0.22
 const MODE_OPTION_REVEAL_SECONDS: float = 0.16
-const MODE_DETAILS_HEIGHT: float = 154.0
-const MODE_DETAILS_REVEAL_SECONDS: float = 0.28
+const SAFE_MODE_DESCRIPTION: String = (
+	"Historical checkpoints and manual saves remain available. You can return to an "
+	+ "earlier record when you choose to do so."
+)
+const COMMIT_MODE_DESCRIPTION: String = (
+	"One living record. Manual rollback and visible checkpoint history are disabled. "
+	+ "Irreversible events overwrite the current record."
+)
 
 @export var presentation_data: StartupPresentationData
 
@@ -31,14 +37,8 @@ const MODE_DETAILS_REVEAL_SECONDS: float = 0.28
 @onready var mode_panel: PanelContainer = %ModePanel
 @onready var mode_content_root: VBoxContainer = %ModeContentRoot
 @onready var new_user_title: Label = %NewUserTitle
-@onready var mode_buttons: VBoxContainer = %ModeButtons
-@onready var safe_mode_button: Button = %SafeModeButton
-@onready var commit_mode_button: Button = %CommitModeButton
-@onready var mode_details_clip: Control = %ModeDetailsClip
-@onready var mode_details: PanelContainer = %ModeDetails
-@onready var mode_title: Label = %ModeTitle
-@onready var mode_description: RichTextLabel = %ModeDescription
-@onready var start_button: Button = %StartButton
+@onready var safe_mode_option: StartupModeOption = %SafeModeOption
+@onready var commit_mode_option: StartupModeOption = %CommitModeOption
 @onready var back_button: Button = %BackButton
 @onready var bottom_bar_root: Control = %BottomBarRoot
 @onready var exit_button: Button = %ExitButton
@@ -54,13 +54,21 @@ var _surface_transitioning: bool = false
 
 
 func _ready() -> void:
-	safe_mode_button.pressed.connect(
-		func() -> void: _select_mode(CampaignState.SaveMode.SAFE)
+	safe_mode_option.configure(
+		CampaignState.SaveMode.SAFE,
+		"SAFE MODE",
+		SAFE_MODE_DESCRIPTION
 	)
-	commit_mode_button.pressed.connect(
-		func() -> void: _select_mode(CampaignState.SaveMode.COMMIT)
+	commit_mode_option.configure(
+		CampaignState.SaveMode.COMMIT,
+		"COMMIT MODE",
+		COMMIT_MODE_DESCRIPTION
 	)
-	start_button.pressed.connect(_start_new_campaign)
+
+	for option: StartupModeOption in _get_mode_options():
+		option.toggle_requested.connect(_on_mode_toggle_requested)
+		option.start_requested.connect(_on_mode_start_requested)
+
 	back_button.pressed.connect(_show_user_list)
 	exit_button.pressed.connect(_exit_game)
 	configs_button.pressed.connect(_open_configs)
@@ -90,14 +98,8 @@ func reveal() -> void:
 
 func set_busy(value: bool) -> void:
 	_busy = value
-	safe_mode_button.disabled = value or _surface_transitioning
-	commit_mode_button.disabled = value or _surface_transitioning
-	start_button.disabled = (
-		value
-		or _surface_transitioning
-		or _selected_mode == CampaignState.SaveMode.UNSET
-	)
 	back_button.disabled = value or _surface_transitioning
+	_set_mode_options_enabled(not value and not _surface_transitioning)
 	_set_user_entries_enabled(not value and not _surface_transitioning)
 
 
@@ -243,15 +245,14 @@ func _show_new_user_modes() -> void:
 
 	_surface_transitioning = true
 	_set_user_entries_enabled(false)
+	_set_mode_options_enabled(false)
 	show_error("")
 	_clear_profile_selection()
 	_selected_mode = CampaignState.SaveMode.UNSET
-	start_button.disabled = true
-	safe_mode_button.disabled = true
-	commit_mode_button.disabled = true
 	back_button.disabled = true
-	mode_details_clip.custom_minimum_size.y = 0.0
-	mode_details.modulate.a = 0.0
+
+	for option: StartupModeOption in _get_mode_options():
+		option.reset_immediately()
 
 	var exit_tween := create_tween()
 	exit_tween.set_trans(Tween.TRANS_QUAD)
@@ -286,15 +287,15 @@ func _show_new_user_modes() -> void:
 	if mode_hint != null:
 		mode_hint.modulate.a = 0.0
 
-	for button: Button in [safe_mode_button, commit_mode_button]:
-		button.modulate.a = 0.0
-		button.scale = Vector2(1.0, 0.05)
+	for option: StartupModeOption in _get_mode_options():
+		option.modulate.a = 0.0
+		option.scale = Vector2(1.0, 0.05)
 
 	await get_tree().process_frame
 	new_user_title.pivot_offset = new_user_title.size * 0.5
 
-	for button: Button in [safe_mode_button, commit_mode_button]:
-		button.pivot_offset = button.size * 0.5
+	for option: StartupModeOption in _get_mode_options():
+		option.pivot_offset = option.size * 0.5
 
 	var header_tween := create_tween().set_parallel(true)
 	header_tween.set_trans(Tween.TRANS_CUBIC)
@@ -328,27 +329,26 @@ func _show_new_user_modes() -> void:
 
 	await header_tween.finished
 
-	for button: Button in [safe_mode_button, commit_mode_button]:
-		var button_tween := create_tween().set_parallel(true)
-		button_tween.set_trans(Tween.TRANS_EXPO)
-		button_tween.set_ease(Tween.EASE_OUT)
-		button_tween.tween_property(
-			button,
+	for option: StartupModeOption in _get_mode_options():
+		var option_tween := create_tween().set_parallel(true)
+		option_tween.set_trans(Tween.TRANS_EXPO)
+		option_tween.set_ease(Tween.EASE_OUT)
+		option_tween.tween_property(
+			option,
 			"modulate:a",
 			1.0,
 			MODE_OPTION_REVEAL_SECONDS
 		)
-		button_tween.tween_property(
-			button,
+		option_tween.tween_property(
+			option,
 			"scale",
 			Vector2.ONE,
 			MODE_OPTION_REVEAL_SECONDS
 		)
-		await button_tween.finished
+		await option_tween.finished
 
 	_surface_transitioning = false
-	safe_mode_button.disabled = false
-	commit_mode_button.disabled = false
+	_set_mode_options_enabled(true)
 	back_button.disabled = false
 
 
@@ -357,9 +357,7 @@ func _show_user_list() -> void:
 		return
 
 	_surface_transitioning = true
-	safe_mode_button.disabled = true
-	commit_mode_button.disabled = true
-	start_button.disabled = true
+	_set_mode_options_enabled(false)
 	back_button.disabled = true
 
 	var exit_tween := create_tween()
@@ -374,10 +372,11 @@ func _show_user_list() -> void:
 	await exit_tween.finished
 
 	_selected_mode = CampaignState.SaveMode.UNSET
+	for option: StartupModeOption in _get_mode_options():
+		option.reset_immediately()
+
 	mode_panel.hide()
 	mode_panel.modulate.a = 1.0
-	mode_details_clip.custom_minimum_size.y = 0.0
-	mode_details.modulate.a = 0.0
 	user_panel.show()
 	user_panel.modulate.a = 0.0
 	user_panel.scale = Vector2(0.985, 0.985)
@@ -419,51 +418,66 @@ func _set_user_entries_enabled(value: bool) -> void:
 			(child as StartupUserEntry).set_interaction_enabled(value)
 
 
-func _select_mode(mode: CampaignState.SaveMode) -> void:
+func _get_mode_options() -> Array[StartupModeOption]:
+	var result: Array[StartupModeOption] = [
+		safe_mode_option,
+		commit_mode_option
+	]
+	return result
+
+
+func _set_mode_options_enabled(value: bool) -> void:
+	for option: StartupModeOption in _get_mode_options():
+		option.set_interaction_enabled(value)
+
+
+func _on_mode_toggle_requested(mode_value: int) -> void:
 	if not _input_enabled or _busy or _surface_transitioning:
 		return
 
-	if mode not in [CampaignState.SaveMode.SAFE, CampaignState.SaveMode.COMMIT]:
+	var target: StartupModeOption
+	var other: StartupModeOption
+	var target_mode: CampaignState.SaveMode
+
+	match mode_value:
+		CampaignState.SaveMode.SAFE:
+			target = safe_mode_option
+			other = commit_mode_option
+			target_mode = CampaignState.SaveMode.SAFE
+		CampaignState.SaveMode.COMMIT:
+			target = commit_mode_option
+			other = safe_mode_option
+			target_mode = CampaignState.SaveMode.COMMIT
+		_:
+			return
+
+	_surface_transitioning = true
+	_set_mode_options_enabled(false)
+	back_button.disabled = true
+
+	if target.is_expanded():
+		await target.set_expanded(false)
+		_selected_mode = CampaignState.SaveMode.UNSET
+	else:
+		if other.is_expanded():
+			await other.set_expanded(false)
+
+		_selected_mode = target_mode
+		await target.set_expanded(true)
+
+	_surface_transitioning = false
+	_set_mode_options_enabled(true)
+	back_button.disabled = false
+
+
+func _on_mode_start_requested(mode_value: int) -> void:
+	if not _input_enabled or _busy or _surface_transitioning:
 		return
 
-	_selected_mode = mode
-	var is_commit: bool = mode == CampaignState.SaveMode.COMMIT
-	mode_title.text = "COMMIT MODE" if is_commit else "SAFE MODE"
-	mode_description.text = (
-		"One living record. Manual rollback and visible checkpoint history are disabled. "
-		+ "Irreversible events overwrite the current record."
-		if is_commit
-		else
-		"Historical checkpoints and manual saves remain available. You can return to an "
-		+ "earlier record when you choose to do so."
-	)
-	start_button.disabled = false
-
-	if mode_details_clip.custom_minimum_size.y <= 0.5:
-		mode_details_clip.custom_minimum_size.y = 0.0
-		mode_details.modulate.a = 0.0
-		var reveal_tween := create_tween().set_parallel(true)
-		reveal_tween.set_trans(Tween.TRANS_CUBIC)
-		reveal_tween.set_ease(Tween.EASE_OUT)
-		reveal_tween.tween_property(
-			mode_details_clip,
-			"custom_minimum_size:y",
-			MODE_DETAILS_HEIGHT,
-			MODE_DETAILS_REVEAL_SECONDS
-		)
-		reveal_tween.tween_property(
-			mode_details,
-			"modulate:a",
-			1.0,
-			MODE_DETAILS_REVEAL_SECONDS * 0.72
-		).set_delay(MODE_DETAILS_REVEAL_SECONDS * 0.16)
+	if mode_value != int(_selected_mode):
 		return
 
-	mode_details.modulate.a = 0.72
-	var refresh_tween := create_tween()
-	refresh_tween.set_trans(Tween.TRANS_SINE)
-	refresh_tween.set_ease(Tween.EASE_OUT)
-	refresh_tween.tween_property(mode_details, "modulate:a", 1.0, 0.14)
+	_start_new_campaign()
 
 
 func _start_new_campaign() -> void:
@@ -525,8 +539,9 @@ func _reveal_bottom_bar() -> void:
 
 func _reveal_main_controls() -> void:
 	mode_panel.hide()
-	mode_details_clip.custom_minimum_size.y = 0.0
-	mode_details.modulate.a = 0.0
+	for option: StartupModeOption in _get_mode_options():
+		option.reset_immediately()
+
 	user_panel.show()
 	account_surface.pivot_offset = account_surface.size * 0.5
 	account_surface.scale = Vector2(1.0, 0.03)
@@ -572,8 +587,9 @@ func _reset_visual_state() -> void:
 	hide()
 	user_panel.hide()
 	mode_panel.hide()
-	mode_details_clip.custom_minimum_size.y = 0.0
-	mode_details.modulate.a = 0.0
+	for option: StartupModeOption in _get_mode_options():
+		option.reset_immediately()
+
 	account_surface.scale = Vector2.ONE
 	account_surface.modulate.a = 1.0
 	show_error("")
