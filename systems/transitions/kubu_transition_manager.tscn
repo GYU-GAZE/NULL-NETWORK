@@ -13,6 +13,17 @@ presentation_data = ExtResource("2_data")
 day_theme = ExtResource("3_day_theme")
 night_theme = ExtResource("4_night_theme")
 
+[node name="TimeTransitionUnderlay" type="ColorRect" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.09, 0.18, 0.3, 1)
+script = ExtResource("5_underlay")
+
 [node name="ScreenTransitionRoot" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 3
@@ -32,17 +43,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-
-[node name="TimeTransitionUnderlay" type="ColorRect" parent="."]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-color = Color(0.09, 0.18, 0.3, 1)
-script = ExtResource("5_underlay")
 
 [node name="TimeTransitionRoot" type="Control" parent="."]
 unique_name_in_owner = true
