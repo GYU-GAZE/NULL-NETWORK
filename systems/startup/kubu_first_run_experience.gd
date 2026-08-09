@@ -1,0 +1,185 @@
+extends Node
+class_name KubuFirstRunExperienceController
+
+
+@export var experience_data: KubuFirstRunExperienceData
+@export var window_manager_path: NodePath
+
+@onready var input_shield: Control = %InputShield
+
+var _input_locked: bool = false
+var _intro_running: bool = false
+
+
+func _ready() -> void:
+	input_shield.hide()
+	set_process_input(false)
+
+	if not GameState.flag_changed.is_connected(_on_flag_changed):
+		GameState.flag_changed.connect(_on_flag_changed)
+
+	if not CampaignState.campaign_changed.is_connected(_on_campaign_changed):
+		CampaignState.campaign_changed.connect(_on_campaign_changed)
+
+	call_deferred("_initialize_experience")
+
+
+func _input(_event: InputEvent) -> void:
+	if not _input_locked:
+		return
+
+	get_viewport().set_input_as_handled()
+
+
+func _initialize_experience() -> void:
+	if experience_data == null:
+		push_error("KubuFirstRunExperienceController requires experience_data.")
+		return
+
+	var errors: PackedStringArray = experience_data.validate_data()
+
+	if not errors.is_empty():
+		for error: String in errors:
+			push_error("First-run experience: %s" % error)
+		return
+
+	_refresh_shell_lock()
+
+	if not _should_play_intro():
+		return
+
+	_intro_running = true
+	_set_input_locked(true)
+
+	if experience_data.auto_open_delay_seconds > 0.0:
+		await get_tree().create_timer(
+			experience_data.auto_open_delay_seconds
+		).timeout
+
+	if not is_inside_tree() or not _should_play_intro():
+		_intro_running = false
+		_set_input_locked(false)
+		return
+
+	if not _ensure_browser_installed():
+		push_error("First-run experience could not install or resolve the Browser app.")
+		_intro_running = false
+		_set_input_locked(false)
+		return
+
+	var browser_app: AppResource = ContentRegistry.get_app(
+		experience_data.browser_app_id
+	)
+
+	if browser_app == null:
+		push_error("First-run experience Browser AppResource is missing.")
+		_intro_running = false
+		_set_input_locked(false)
+		return
+
+	GlobalSignals.request_open_app.emit(browser_app)
+	await get_tree().process_frame
+
+	var window_manager := get_node_or_null(window_manager_path) as WindowManager
+	var browser_window: WindowBase = null
+
+	if window_manager != null:
+		browser_window = window_manager.open_windows.get(
+		experience_data.browser_app_id
+		) as WindowBase
+
+	if browser_window == null:
+		push_error("First-run experience could not resolve the opened Browser window.")
+		_intro_running = false
+		_set_input_locked(false)
+		return
+
+	if experience_data.maximize_browser and not browser_window.is_maximized:
+		browser_window.maximize()
+
+	# BrowserApp already exposes this global navigation intent for system/story
+	# driven navigation. Empty event/step IDs deliberately mean no StoryEvent ACK.
+	GlobalSignals.request_browser_navigation.emit(
+		experience_data.landing_url,
+		"",
+		""
+	)
+
+	if experience_data.post_open_input_delay_seconds > 0.0:
+		await get_tree().create_timer(
+			experience_data.post_open_input_delay_seconds
+		).timeout
+
+	if not is_inside_tree():
+		return
+
+	GameState.set_flag(experience_data.completion_flag, true)
+	SaveManager.request_checkpoint(
+		experience_data.completion_checkpoint,
+		true
+	)
+	_intro_running = false
+	_set_input_locked(false)
+	_refresh_shell_lock()
+
+
+func _should_play_intro() -> bool:
+	if experience_data == null or not CampaignState.has_campaign():
+		return false
+
+	if CampaignState.campaign_phase != CampaignState.CampaignPhase.PROLOGUE:
+		return false
+
+	if not CampaignState.operator.is_empty():
+		return false
+
+	return not GameState.get_flag(experience_data.completion_flag, false)
+
+
+func _ensure_browser_installed() -> bool:
+	var app_id: String = experience_data.browser_app_id.strip_edges()
+
+	if CampaignState.has_installed_app(app_id):
+		return ContentRegistry.get_app(app_id) != null
+
+	return AppInstallationManager.install_app(
+		app_id,
+		null,
+		false,
+		true
+	)
+
+
+func _set_input_locked(value: bool) -> void:
+	_input_locked = value
+	input_shield.visible = value
+	set_process_input(value)
+
+
+func _refresh_shell_lock() -> void:
+	if experience_data == null or not CampaignState.has_campaign():
+		GlobalSignals.dock_lock_changed.emit(false, "")
+		return
+
+	var should_lock: bool = (
+		CampaignState.campaign_phase == CampaignState.CampaignPhase.PROLOGUE
+		and CampaignState.operator.is_empty()
+		and not GameState.get_flag(experience_data.release_flag, false)
+	)
+	GlobalSignals.dock_lock_changed.emit(
+		should_lock,
+		"prologue.kubuchan" if should_lock else ""
+	)
+
+
+func _on_flag_changed(flag_name: String, _value: bool) -> void:
+	if experience_data == null:
+		return
+
+	if flag_name == experience_data.release_flag:
+		_refresh_shell_lock()
+
+
+func _on_campaign_changed(section: StringName) -> void:
+	if section == &"campaign" or section == &"operator":
+		_refresh_shell_lock()
