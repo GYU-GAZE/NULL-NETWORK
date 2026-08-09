@@ -143,7 +143,7 @@ func _on_delete_button_pressed() -> void:
 		delete_button.tooltip_text = "Delete this user permanently"
 		return
 
-	_delete_confirmation_armed = false
+	_reset_delete_confirmation()
 	delete_requested.emit(campaign_id)
 
 
