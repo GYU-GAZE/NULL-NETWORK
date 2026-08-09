@@ -59,6 +59,7 @@ var action_pips: Array[KubuActionPip] = []
 var _last_date_text: String = ""
 var _system_menu_open: bool = false
 var _system_menu_tween: Tween
+var _shell_reveal_tween: Tween
 
 
 func _ready() -> void:
@@ -418,6 +419,54 @@ func _on_system_settings_pressed() -> void:
 func _on_logout_pressed() -> void:
 	_close_system_menu(false)
 	GlobalSignals.request_logout.emit()
+
+
+func prepare_shell_reveal(hidden_scale_y: float = 0.2) -> void:
+	_kill_shell_reveal_tween()
+	refresh_shell_reveal_pivot()
+	show()
+	modulate.a = 0.0
+	scale = Vector2(1.0, clampf(hidden_scale_y, 0.01, 1.0))
+
+
+func refresh_shell_reveal_pivot() -> void:
+	pivot_offset = Vector2(size.x * 0.5, 0.0)
+
+
+func start_shell_reveal(duration: float) -> void:
+	_kill_shell_reveal_tween()
+	refresh_shell_reveal_pivot()
+	show()
+
+	var resolved_duration: float = maxf(0.01, duration)
+	_shell_reveal_tween = create_tween().set_parallel(true)
+	_shell_reveal_tween.set_trans(Tween.TRANS_BACK)
+	_shell_reveal_tween.set_ease(Tween.EASE_OUT)
+	_shell_reveal_tween.tween_property(
+		self,
+		"scale:y",
+		1.0,
+		resolved_duration
+	)
+	_shell_reveal_tween.tween_property(
+		self,
+		"modulate:a",
+		1.0,
+		resolved_duration * 0.72
+	).set_trans(Tween.TRANS_CUBIC)
+
+
+func finish_shell_reveal() -> void:
+	_kill_shell_reveal_tween()
+	scale = Vector2.ONE
+	modulate.a = 1.0
+
+
+func _kill_shell_reveal_tween() -> void:
+	if _shell_reveal_tween != null and _shell_reveal_tween.is_valid():
+		_shell_reveal_tween.kill()
+
+	_shell_reveal_tween = null
 
 
 func _pulse(target: Control) -> void:
