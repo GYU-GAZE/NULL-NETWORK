@@ -4,6 +4,7 @@ class_name KubuFirstRunExperienceController
 
 @export var experience_data: KubuFirstRunExperienceData
 @export var window_manager_path: NodePath
+@export var shell_presentation_path: NodePath
 
 @onready var input_shield: Control = %InputShield
 
@@ -20,6 +21,14 @@ func _ready() -> void:
 
 	if not CampaignState.campaign_changed.is_connected(_on_campaign_changed):
 		CampaignState.campaign_changed.connect(_on_campaign_changed)
+
+	# Stage the chrome hidden while Bootstrap's screen transition still covers the
+	# newly-instantiated Main scene. This prevents one-frame flashes before the
+	# first-run reveal begins.
+	if _should_play_intro():
+		var shell_presentation := _get_shell_presentation()
+		if shell_presentation != null:
+			shell_presentation.prepare_first_run_reveal()
 
 	call_deferred("_initialize_experience")
 
@@ -51,10 +60,15 @@ func _initialize_experience() -> void:
 	_intro_running = true
 	_set_input_locked(true)
 
-	if experience_data.auto_open_delay_seconds > 0.0:
-		await get_tree().create_timer(
-			experience_data.auto_open_delay_seconds
-		).timeout
+	# The old fixed 1.8-second wait looked like a frozen game. The shell reveal is
+	# now the first-run clock: TOP DOCK boots, then BOTTOM DOCK, then Browser opens.
+	var shell_presentation := _get_shell_presentation()
+	if shell_presentation != null:
+		await shell_presentation.play_first_run_reveal()
+	else:
+		push_error(
+			"First-run experience could not resolve KubuShellPresentationController."
+		)
 
 	if not is_inside_tree() or not _should_play_intro():
 		_intro_running = false
@@ -171,6 +185,12 @@ func _ensure_browser_installed() -> bool:
 		false,
 		true
 	)
+
+
+func _get_shell_presentation() -> KubuShellPresentationController:
+	return get_node_or_null(
+		shell_presentation_path
+	) as KubuShellPresentationController
 
 
 func _set_input_locked(value: bool) -> void:
