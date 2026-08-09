@@ -211,16 +211,60 @@ func _run_test() -> void:
 					"New User identity is not centered in the shared account surface."
 				)
 
-				menu._select_mode(CampaignState.SaveMode.SAFE)
-				await get_tree().create_timer(StartupMenu.MODE_DETAILS_REVEAL_SECONDS + 0.05).timeout
-				var details_clip := menu.get_node_or_null(
-					"MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeDetailsClip"
-				) as Control
+				var safe_option := menu.get_node_or_null(
+					"MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeOptions/SafeModeOption"
+				) as StartupModeOption
+				var commit_option := menu.get_node_or_null(
+					"MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeOptions/CommitModeOption"
+				) as StartupModeOption
+				_check(safe_option != null, "SAFE mode expandable option is missing.")
+				_check(commit_option != null, "COMMIT mode expandable option is missing.")
 				_check(
-					details_clip != null
-					and details_clip.custom_minimum_size.y >= StartupMenu.MODE_DETAILS_HEIGHT - 1.0,
-					"Selected save mode did not smoothly reveal its secondary detail box."
+					menu.get_node_or_null(
+						"MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeDetailsClip"
+					) == null,
+					"Legacy detached mode details box still exists."
 				)
+
+				if safe_option != null:
+					safe_option._on_header_pressed()
+
+					while menu._surface_transitioning:
+						await get_tree().process_frame
+
+					_check(
+						safe_option.is_expanded(),
+						"SAFE mode button did not expand into its own details menu."
+					)
+					_check(
+						safe_option.custom_minimum_size.y >= safe_option.expanded_height - 1.0,
+						"SAFE mode button did not reach its expanded height."
+					)
+					var safe_start := safe_option.get_node_or_null(
+						"ContentRoot/Body/Margin/VBox/StartButton"
+					) as Button
+					_check(
+						safe_start != null and not safe_start.disabled,
+						"Expanded SAFE mode does not contain an enabled START action."
+					)
+					_check(
+						commit_option == null or not commit_option.is_expanded(),
+						"Expanding SAFE mode also expanded COMMIT mode."
+					)
+
+					safe_option._on_header_pressed()
+
+					while menu._surface_transitioning:
+						await get_tree().process_frame
+
+					_check(
+						not safe_option.is_expanded()
+						and is_equal_approx(
+							safe_option.custom_minimum_size.y,
+							safe_option.collapsed_height
+						),
+						"Pressing an expanded SAFE mode did not collapse it back into a button."
+					)
 
 		_check(
 			menu.get_node_or_null("MenuArea/Divider") != null,
