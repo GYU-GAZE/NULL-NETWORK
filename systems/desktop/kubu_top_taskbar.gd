@@ -22,6 +22,12 @@ const SYSTEM_MENU_GAP: float = 2.0
 ]
 @export var highlight_current_available_slot: bool = true
 
+## Serialized compatibility for the pre-schedule taskbar scene. This value is
+## intentionally ignored; OccupationScheduleData is the sole availability
+## authority now. @export_storage keeps old .tscn data loadable without exposing
+## a second configuration surface in the Inspector.
+@export_storage var weekday_available_hours: Array[int] = []
+
 @export_category("Animation")
 @export var pulse_scale: Vector2 = Vector2(1.05, 1.05)
 @export var pulse_duration: float = 0.18
