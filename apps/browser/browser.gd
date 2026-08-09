@@ -10,8 +10,10 @@ const SESSION_STATE_VERSION: int = 1
 @export_category("Browser Routes")
 @export var home_url: String = "home"
 
-@export_category("Site Canvas")
-@export var fallback_site_canvas_size: Vector2 = Vector2(600, 320)
+## Compatibility storage for older Browser scenes. Website Controls are now
+## always hosted responsively by SiteContainer; individual pages no longer own a
+## fixed 600x320 Browser viewport.
+@export_storage var fallback_site_canvas_size: Vector2 = Vector2(600, 320)
 
 @export_category("Tab Layout")
 @export var tab_width: float = 160.0
@@ -80,11 +82,12 @@ func _apply_browser_shell_layout() -> void:
 	content_area.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content_area.clip_contents = true
 
-	site_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	site_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	site_container.custom_minimum_size = Vector2.ZERO
 	site_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	site_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	site_container.clip_contents = true
+
 
 func _on_story_browser_navigation_requested(
 	url: String,
@@ -287,11 +290,7 @@ func _render_url(target_url: String) -> void:
 		_refresh_favorite_button()
 		return
 
-	_render_site(
-		page.site_scene,
-		tab.site_state,
-		page.get_resolved_canvas_size()
-	)
+	_render_site(page.site_scene, tab.site_state)
 	_refresh_tab_buttons()
 	_refresh_favorite_button()
 
@@ -412,10 +411,7 @@ func _render_error_page(
 
 		if instance != null:
 			site_container.add_child(instance)
-			_configure_site_control(
-				instance,
-				fallback_site_canvas_size
-			)
+			_configure_site_control(instance)
 
 			if instance.has_method("setup"):
 				instance.call(
@@ -439,16 +435,12 @@ func _render_error_page(
 	fallback_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	fallback_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	site_container.add_child(fallback_label)
-	_configure_site_control(
-		fallback_label,
-		fallback_site_canvas_size
-	)
+	_configure_site_control(fallback_label)
 
 
 func _render_site(
 	scene: PackedScene,
-	state: Dictionary = {},
-	canvas_size: Vector2 = Vector2(600, 320)
+	state: Dictionary = {}
 ) -> void:
 	var instance: Node = scene.instantiate()
 
@@ -462,7 +454,7 @@ func _render_site(
 		return
 
 	site_container.add_child(instance)
-	_configure_site_control(instance, canvas_size)
+	_configure_site_control(instance)
 	_connect_browser_navigation_signals(instance)
 
 	var tab := _get_current_tab()
@@ -474,25 +466,20 @@ func _render_site(
 		instance.call_deferred("restore_browser_state", state.duplicate(true))
 
 
-func _configure_site_control(
-	instance: Node,
-	canvas_size: Vector2
-) -> void:
+func _configure_site_control(instance: Node) -> void:
 	if not instance is Control:
 		return
 
+	# Browser owns the viewport contract for every WebsitePage. The previous code
+	# forced every page to its authored 600x320 canvas and SHRINK_BEGIN, so only
+	# pages carrying their own deferred AdaptiveBrowserPageLayout escaped the
+	# top-left fixed-size box. Full-rect anchors make all sites follow Browser
+	# resize/maximize automatically without page-specific scripts.
 	var control := instance as Control
-	var resolved_canvas_size := Vector2(
-		max(1.0, canvas_size.x),
-		max(1.0, canvas_size.y)
-	)
-
-	control.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	control.position = Vector2.ZERO
-	control.size = resolved_canvas_size
-	control.custom_minimum_size = resolved_canvas_size
-	control.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	control.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	control.custom_minimum_size = Vector2.ZERO
+	control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	control.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
 
 func _refresh_tab_layout_only() -> void:
@@ -536,6 +523,7 @@ func _clear_control_children(container: Node) -> void:
 
 func _is_home_url(url: String) -> bool:
 	return SimulatedDNS.normalize_url(url) == SimulatedDNS.normalize_url(home_url)
+
 
 func get_app_session_state() -> Dictionary:
 	_save_current_site_state()
@@ -603,4 +591,3 @@ func restore_app_session_state(state: Dictionary) -> void:
 	_render_current_tab()
 	_refresh_tab_buttons()
 	_refresh_favorite_button()
-
