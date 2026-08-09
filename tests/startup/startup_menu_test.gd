@@ -52,6 +52,10 @@ func _run_test() -> void:
 			profiles[0].has("avatar_id"),
 			"Startup preview no longer exposes the saved Operator avatar ID."
 		)
+		_check(
+			profiles[0].has("occupation_id"),
+			"Startup preview no longer exposes the saved Operator occupation ID."
+		)
 
 	var menu := STARTUP_MENU_SCENE.instantiate() as StartupMenu
 	_check(menu != null, "Startup menu scene failed to instantiate.")
@@ -72,13 +76,21 @@ func _run_test() -> void:
 			"Startup menu must render saved users plus the New User pseudo-profile."
 		)
 
+		var account_surface := menu.get_node_or_null(
+			"MenuArea/RightColumn/AccountSurface"
+		) as PanelContainer
+		_check(
+			account_surface != null,
+			"Startup account list and New User flow no longer share one visual surface."
+		)
+
 		var user_panel := menu.get_node_or_null(
 			"MenuArea/RightColumn/UserPanel"
 		) as PanelContainer
 		_check(
 			user_panel != null
 			and user_panel.get_theme_stylebox("panel") is StyleBoxEmpty,
-			"Startup user list regained a permanent panel background."
+			"Startup user content regained a second permanent panel background."
 		)
 
 		if profile_list != null and profile_list.get_child_count() == 2:
@@ -97,6 +109,9 @@ func _run_test() -> void:
 				var avatar_frame := entry.get_node_or_null(
 					"SelectionPanel/Margin/Content/AvatarFrame"
 				) as PanelContainer
+				var delete_button := entry.get_node_or_null(
+					"SelectionPanel/DeleteButton"
+				) as Button
 				_check(
 					username_label != null and username_label.text == "Preview User",
 					"Startup account row did not render the user identity."
@@ -104,12 +119,13 @@ func _run_test() -> void:
 				_check(
 					description_label != null
 					and description_label.text == "SAFE MODE · Day 1",
-					"Startup account row did not render mode/day description."
+					"Startup account row did not preserve fallback mode/day description."
 				)
 				_check(
 					avatar_frame != null,
 					"Startup account row lost its avatar slot."
 				)
+				_check(entry.can_delete(), "Saved account unexpectedly disabled deletion.")
 
 				menu.campaign_load_requested.connect(_on_campaign_load_requested)
 				menu._input_enabled = true
@@ -118,6 +134,20 @@ func _run_test() -> void:
 					entry.is_selected(),
 					"First account press did not highlight the account row."
 				)
+				_check(
+					delete_button != null and delete_button.visible,
+					"Selected account did not expose its delete action."
+				)
+
+				if delete_button != null:
+					var delete_style := delete_button.get_theme_stylebox("normal") as StyleBoxFlat
+					_check(
+						delete_style != null
+						and delete_style.border_width_left > 0
+						and delete_style.bg_color.r > delete_style.bg_color.b,
+						"Delete action is no longer a bordered red system button."
+					)
+
 				_check(
 					_load_request_count == 0,
 					"First account press loaded the campaign prematurely."
@@ -145,6 +175,7 @@ func _run_test() -> void:
 					and new_description.text == "Create a new KubuOS user",
 					"New User pseudo-profile lost its account-style description."
 				)
+				_check(not new_entry.can_delete(), "New User pseudo-profile became deletable.")
 				new_entry._on_click_target_pressed()
 				_check(
 					new_entry.is_selected(),
@@ -155,6 +186,10 @@ func _run_test() -> void:
 					"New User first press opened mode selection prematurely."
 				)
 				new_entry._on_click_target_pressed()
+
+				while menu._surface_transitioning:
+					await get_tree().process_frame
+
 				_check(
 					_load_request_count == 1,
 					"New User second press incorrectly requested campaign load."
@@ -162,6 +197,29 @@ func _run_test() -> void:
 				_check(
 					menu.get_node("MenuArea/RightColumn/ModePanel").visible,
 					"New User second single press did not open save-mode selection."
+				)
+				_check(
+					account_surface != null and account_surface.visible,
+					"Shared account background disappeared during New User flow."
+				)
+				var new_user_title := menu.get_node_or_null(
+					"MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/Header/NewUserTitle"
+				) as Label
+				_check(
+					new_user_title != null
+					and new_user_title.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER,
+					"New User identity is not centered in the shared account surface."
+				)
+
+				menu._select_mode(CampaignState.SaveMode.SAFE)
+				await get_tree().create_timer(StartupMenu.MODE_DETAILS_REVEAL_SECONDS + 0.05).timeout
+				var details_clip := menu.get_node_or_null(
+					"MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeDetailsClip"
+				) as Control
+				_check(
+					details_clip != null
+					and details_clip.custom_minimum_size.y >= StartupMenu.MODE_DETAILS_HEIGHT - 1.0,
+					"Selected save mode did not smoothly reveal its secondary detail box."
 				)
 
 		_check(
@@ -171,6 +229,10 @@ func _run_test() -> void:
 		_check(
 			menu.get_node_or_null("TopBand") == null,
 			"Startup menu unexpectedly restored the removed top band."
+		)
+		_check(
+			menu.get_node_or_null("NullBrand") == null,
+			"Startup menu duplicated NULL NETWORK branding instead of leaving it in StartupPresentation."
 		)
 		var bottom_bar := menu.get_node_or_null("BottomBarRoot") as Control
 		_check(
