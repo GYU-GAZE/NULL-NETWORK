@@ -24,6 +24,9 @@ class_name StartupPresentationData
 @export var null_network_fallback_text: String = "NULL NETWORK"
 @export_range(0.05, 3.0, 0.05) var null_logo_build_seconds: float = 0.8
 @export_range(8, 128, 1) var null_logo_particle_count: int = 52
+@export_range(0.02, 0.35, 0.01) var null_logo_target_screen_y_ratio: float = 0.10
+@export_range(0.0, 120.0, 1.0) var null_logo_boot_gap_pixels: float = 8.0
+@export_range(0.25, 1.25, 0.01) var null_logo_target_scale: float = 1.0
 @export var null_logo_text_color: Color = Color(0.91, 0.97, 1.0, 1.0)
 @export var null_logo_glitch_color_a: Color = Color(0.2, 0.9, 1.0, 0.55)
 @export var null_logo_glitch_color_b: Color = Color(1.0, 0.2, 0.55, 0.5)
