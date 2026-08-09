@@ -21,14 +21,16 @@ func _ready() -> void:
 		GlobalSignals.time_advanced.connect(_on_time_advanced)
 
 	var manager: Node = get_parent()
+	var started_callback := Callable(self, "_on_transition_started")
+	var finished_callback := Callable(self, "_on_transition_finished")
 
 	if manager != null and manager.has_signal("transition_started"):
-		if not manager.transition_started.is_connected(_on_transition_started):
-			manager.transition_started.connect(_on_transition_started)
+		if not manager.is_connected("transition_started", started_callback):
+			manager.connect("transition_started", started_callback)
 
 	if manager != null and manager.has_signal("transition_finished"):
-		if not manager.transition_finished.is_connected(_on_transition_finished):
-			manager.transition_finished.connect(_on_transition_finished)
+		if not manager.is_connected("transition_finished", finished_callback):
+			manager.connect("transition_finished", finished_callback)
 
 
 func _on_time_advanced(
