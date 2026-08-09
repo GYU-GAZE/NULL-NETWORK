@@ -18,6 +18,9 @@ func _ready() -> void:
 	startup_menu.campaign_create_requested.connect(
 		_on_campaign_create_requested
 	)
+	startup_menu.campaign_delete_requested.connect(
+		_on_campaign_delete_requested
+	)
 
 	if not GlobalSignals.request_logout.is_connected(_on_logout_requested):
 		GlobalSignals.request_logout.connect(_on_logout_requested)
@@ -64,6 +67,24 @@ func _on_campaign_create_requested(
 		return
 
 	await _launch_desktop()
+
+
+func _on_campaign_delete_requested(campaign_id: String) -> void:
+	if is_instance_valid(_desktop_instance):
+		return
+
+	startup_menu.set_busy(true)
+	var errors: PackedStringArray = SaveManager.delete_campaign(campaign_id)
+
+	if not errors.is_empty():
+		startup_menu.set_busy(false)
+		startup_menu.show_error("\n".join(errors))
+		return
+
+	var login_period: int = startup_menu.refresh_profiles()
+	await startup_presentation.show_login_state(login_period)
+	startup_menu.show_error("")
+	startup_menu.set_busy(false)
 
 
 func _launch_desktop() -> void:
