@@ -164,7 +164,11 @@ theme_override_styles/pressed = SubResource("StyleBoxEmpty_normal")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_normal")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_normal")
 
-[node name="DeleteButton" type="Button" parent="SelectionPanel"]
+[node name="ActionOverlay" type="Control" parent="SelectionPanel"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="DeleteButton" type="Button" parent="SelectionPanel/ActionOverlay"]
 unique_name_in_owner = true
 visible = false
 z_index = 2
