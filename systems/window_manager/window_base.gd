@@ -53,6 +53,7 @@ var restore_position: Vector2 = Vector2.ZERO
 var restore_size: Vector2 = Vector2.ZERO
 
 var _animation_tween: Tween
+var _is_opening: bool = false
 var _is_closing: bool = false
 
 @onready var title_label: Label = %TitleLabel
@@ -113,6 +114,7 @@ func play_open_animation() -> void:
 
 	_kill_animation_tween()
 	_refresh_pivot_offset()
+	_is_opening = true
 
 	scale = opening_scale
 	modulate = Color(1.0, 1.0, 1.0, 0.0)
@@ -124,6 +126,13 @@ func play_open_animation() -> void:
 	_animation_tween.tween_property(self, "modulate:a", 1.0, tween_duration) \
 		.set_trans(Tween.TRANS_SINE) \
 		.set_ease(Tween.EASE_OUT)
+	_animation_tween.chain().tween_callback(_finish_open_animation)
+
+
+func _finish_open_animation() -> void:
+	_is_opening = false
+	_animation_tween = null
+	modulate.a = 1.0
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -309,7 +318,10 @@ func _on_resize_border_gui_input(event: InputEvent) -> void:
 
 
 func pulse() -> void:
-	if _is_closing:
+	if _is_closing or _is_opening:
+		# Focusing/maximizing a just-created window must not cancel its opening
+		# tween. Cancelling it while modulate.a is near zero leaves an invisible
+		# but fully registered app window and a misleading active dock icon.
 		return
 
 	_kill_animation_tween()
@@ -332,6 +344,7 @@ func close() -> void:
 		return
 
 	_is_closing = true
+	_is_opening = false
 	close_button.disabled = true
 	maximize_button.disabled = true
 	is_dragging = false
