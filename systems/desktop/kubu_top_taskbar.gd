@@ -209,6 +209,7 @@ func _refresh_battery() -> void:
 func _refresh_action_pips() -> void:
 	var available_hours: Array[int] = _get_current_available_hours()
 	var current_day_block_index: int = TimeManager.get_current_day_block_index()
+	var current_period: int = int(TimeManager.current_period)
 
 	for index in range(action_pips.size()):
 		var pip: KubuActionPip = action_pips[index]
@@ -219,6 +220,7 @@ func _refresh_action_pips() -> void:
 		var is_current: bool = slot_block_index == current_day_block_index
 
 		pip.setup_pip(index, slot_hour)
+		pip.set_period_tint(current_period)
 
 		if not is_available:
 			pip.set_state(KubuActionPip.PipState.UNAVAILABLE)
