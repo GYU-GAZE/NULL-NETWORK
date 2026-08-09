@@ -63,17 +63,54 @@ func _run_test() -> void:
 	)
 	KubuTransitionManager._clear_screen_blocks()
 
+	# Main runtime presentation is split by Node/CanvasLayer boundaries. A Control
+	# immediately below one of those boundaries must become a period-theme root,
+	# while branches that intentionally own another Theme must remain untouched.
+	var boundary := Node.new()
+	boundary.name = "ThemeBoundaryTest"
+	add_child(boundary)
+	var inherited_root := Control.new()
+	boundary.add_child(inherited_root)
+	var inherited_child := Control.new()
+	inherited_root.add_child(inherited_child)
+	var custom_theme := Theme.new()
+	var custom_root := Control.new()
+	custom_root.theme = custom_theme
+	boundary.add_child(custom_root)
+
 	KubuTransitionManager._apply_period_theme(TimeManager.TimePeriod.NIGHT)
 	_check(
 		get_tree().root.theme == KubuTransitionManager.night_theme,
 		"NIGHT did not apply the KubuOS night theme."
 	)
+	_check(
+		inherited_root.theme == KubuTransitionManager.night_theme,
+		"NIGHT theme did not cross a non-Control runtime boundary."
+	)
+	_check(
+		inherited_child.theme == null,
+		"Nested Controls should inherit from the branch root instead of duplicating Theme ownership."
+	)
+	_check(
+		custom_root.theme == custom_theme,
+		"Period switching must not overwrite intentionally custom app/site themes."
+	)
+
 	KubuTransitionManager._apply_period_theme(TimeManager.TimePeriod.DAY)
 	_check(
 		get_tree().root.theme == KubuTransitionManager.day_theme,
 		"DAY did not restore the KubuOS day theme."
 	)
+	_check(
+		inherited_root.theme == KubuTransitionManager.day_theme,
+		"DAY theme did not restore the runtime branch root."
+	)
+	_check(
+		custom_root.theme == custom_theme,
+		"DAY restore overwrote an intentionally custom app/site theme."
+	)
 
+	boundary.queue_free()
 	get_tree().root.theme = _original_theme
 	_finish_test()
 
