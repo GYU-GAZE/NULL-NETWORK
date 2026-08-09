@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://celg3otohqa16"]
+[gd_scene load_steps=12 format=3 uid="uid://celg3otohqa16"]
 
 [ext_resource type="PackedScene" uid="uid://1sfbm60f4wjd" path="res://systems/desktop/desktop.tscn" id="1_desktop"]
 [ext_resource type="PackedScene" uid="uid://8g2y08hbwa6r" path="res://systems/workspace/workspace_manager.tscn" id="2_rayt5"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://bhd3dga5ag1j1" path="res://systems/ui/notification_layer.tscn" id="8_notification_layer"]
 [ext_resource type="PackedScene" uid="uid://w14nl6xxwxew" path="res://systems/desktop/dock/kubu_dock_item.tscn" id="10_xhu5d"]
 [ext_resource type="PackedScene" path="res://systems/ui/activity_confirmation_dialog.tscn" id="11_activity_confirmation"]
+[ext_resource type="PackedScene" path="res://systems/startup/kubu_first_run_experience.tscn" id="12_first_run"]
 
 [node name="Main" type="Node" unique_id=977689112]
 
@@ -43,3 +44,6 @@ dock_item_scene = ExtResource("10_xhu5d")
 layer = 30
 
 [node name="ActivityConfirmationDialog" parent="ModalLayer" instance=ExtResource("11_activity_confirmation")]
+
+[node name="KubuFirstRunExperience" parent="." instance=ExtResource("12_first_run")]
+window_manager_path = NodePath("../WindowManagerLayer/WindowManager")
