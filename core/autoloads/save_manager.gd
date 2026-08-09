@@ -10,6 +10,8 @@ signal save_completed(
 signal save_failed(campaign_id: String, errors: PackedStringArray)
 signal campaign_loaded(campaign_id: String, recovered_from_backup: bool)
 signal campaign_load_failed(campaign_id: String, errors: PackedStringArray)
+signal campaign_deleted(campaign_id: String)
+signal campaign_delete_failed(campaign_id: String, errors: PackedStringArray)
 
 
 var storage_root: String = SaveConstants.DEFAULT_STORAGE_ROOT
@@ -318,6 +320,75 @@ func campaign_exists(campaign_id: String) -> bool:
 	) or FileAccess.file_exists(
 		SaveConstants.technical_backup_path(storage_root, clean_id)
 	)
+
+
+func delete_campaign(campaign_id: String) -> PackedStringArray:
+	var errors := PackedStringArray()
+	var clean_id: String = SaveConstants.sanitize_identifier(campaign_id)
+
+	if clean_id.is_empty():
+		errors.append("Campaign ID is invalid.")
+		_fail_delete(clean_id, errors)
+		return errors
+
+	if _save_in_progress or _is_loading:
+		errors.append("Campaign cannot be deleted while save data is busy.")
+		_fail_delete(clean_id, errors)
+		return errors
+
+	var campaign_directory: String = SaveConstants.campaign_directory(
+		storage_root,
+		clean_id
+	)
+	var absolute_directory: String = ProjectSettings.globalize_path(
+		campaign_directory
+	)
+
+	if not DirAccess.dir_exists_absolute(absolute_directory):
+		errors.append("Campaign '%s' does not exist." % clean_id)
+		_fail_delete(clean_id, errors)
+		return errors
+
+	var deleting_active_campaign: bool = (
+		CampaignState.has_campaign()
+		and CampaignState.campaign_id == clean_id
+	)
+	var deleting_active_metadata: bool = (
+		SaveConstants.sanitize_identifier(
+			str(_active_metadata.get("campaign_id", ""))
+		) == clean_id
+	)
+
+	# A deferred checkpoint from the account being deleted must not be allowed to
+	# recreate its directory after the filesystem removal completes.
+	if deleting_active_campaign or deleting_active_metadata:
+		_queued_checkpoint = &""
+		_queued_irreversible = false
+
+	if not _remove_directory_recursive(campaign_directory):
+		errors.append("Campaign '%s' could not be removed completely." % clean_id)
+		_fail_delete(clean_id, errors)
+		return errors
+
+	if deleting_active_campaign:
+		# Provider resets can emit time signals. Treat this as a restore boundary so
+		# those resets cannot enqueue fresh checkpoints for the deleted account.
+		_is_loading = true
+		_registry.reset_registered_providers()
+		_registry.clear_pending_sections()
+		_is_loading = false
+		_queued_checkpoint = &""
+		_queued_irreversible = false
+
+	if deleting_active_campaign or deleting_active_metadata:
+		_active_metadata.clear()
+		_checkpoint_sequence = 0
+		_last_observed_day = TimeManager.days_passed
+		_last_observed_period = int(TimeManager.current_period)
+
+	set_meta(&"last_errors", PackedStringArray())
+	campaign_deleted.emit(clean_id)
+	return errors
 
 
 func list_campaigns() -> Array[Dictionary]:
@@ -747,6 +818,45 @@ func _ensure_campaign_directories(campaign_id: String) -> bool:
 	)
 
 
+func _remove_directory_recursive(directory_path: String) -> bool:
+	var absolute_directory: String = ProjectSettings.globalize_path(directory_path)
+
+	if not DirAccess.dir_exists_absolute(absolute_directory):
+		return true
+
+	var directory := DirAccess.open(directory_path)
+
+	if directory == null:
+		return false
+
+	var removed_everything: bool = true
+	directory.list_dir_begin()
+	var entry_name: String = directory.get_next()
+
+	while not entry_name.is_empty():
+		var child_path: String = "%s/%s" % [directory_path, entry_name]
+
+		if directory.current_is_dir():
+			if not _remove_directory_recursive(child_path):
+				removed_everything = false
+		else:
+			var remove_error: Error = DirAccess.remove_absolute(
+				ProjectSettings.globalize_path(child_path)
+			)
+
+			if remove_error != OK:
+				removed_everything = false
+
+		entry_name = directory.get_next()
+
+	directory.list_dir_end()
+
+	if DirAccess.remove_absolute(absolute_directory) != OK:
+		removed_everything = false
+
+	return removed_everything
+
+
 func _make_checkpoint_file_id(checkpoint: StringName) -> String:
 	return "%012d_%06d_%s" % [
 		int(Time.get_unix_time_from_system()),
@@ -767,6 +877,11 @@ func _fail_save(errors: PackedStringArray) -> void:
 func _fail_load(campaign_id: String, errors: PackedStringArray) -> void:
 	set_meta(&"last_errors", errors.duplicate())
 	campaign_load_failed.emit(campaign_id, errors)
+
+
+func _fail_delete(campaign_id: String, errors: PackedStringArray) -> void:
+	set_meta(&"last_errors", errors.duplicate())
+	campaign_delete_failed.emit(campaign_id, errors)
 
 
 func _sort_metadata_newest_first(a: Dictionary, b: Dictionary) -> bool:
