@@ -8,7 +8,6 @@ completion_flag = "prologue.kubuchan_intro_presented"
 release_flag = "prologue.registration_unlocked"
 browser_app_id = "browser"
 landing_url = "kubuchan.net"
-auto_open_delay_seconds = 1.8
 post_open_input_delay_seconds = 0.25
 maximize_browser = true
 completion_checkpoint = &"prologue.kubuchan_intro_presented"
