@@ -147,6 +147,48 @@ func get_current_schedule() -> OccupationScheduleData:
 	return occupation.schedule if occupation != null else null
 
 
+func advance_player_action_time(amount: int = 1) -> void:
+	if amount <= 0:
+		return
+
+	# First spend the player's authored action cost normally. This signal is
+	# intentional: if the resulting block is the beginning of a mandatory
+	# routine, _on_time_advanced can trigger that routine before we fast-forward
+	# over the occupied interval.
+	TimeManager.advance_action(amount)
+	_skip_current_occupied_interval()
+
+
+func get_current_schedule_skip_blocks() -> int:
+	var schedule: OccupationScheduleData = get_current_schedule()
+
+	if schedule == null:
+		return 0
+
+	return schedule.get_blocks_until_available(
+		TimeManager.current_weekday_index,
+		TimeManager.get_current_day_block_index()
+	)
+
+
+func _skip_current_occupied_interval() -> void:
+	var skip_blocks: int = get_current_schedule_skip_blocks()
+
+	if skip_blocks < 0:
+		push_error(
+			"Operator schedule has no available block within one full week."
+		)
+		return
+
+	if skip_blocks == 0:
+		return
+
+	# TimeManager remains the sole owner of calendar/period mutation. The
+	# occupation layer only resolves how many chronological blocks must be
+	# skipped before control returns to the player.
+	TimeManager.advance_action(skip_blocks)
+
+
 func _evaluate_activity_availability(
 	_definition: ActivityDefinitionData,
 	preview: ActivityPreviewData
