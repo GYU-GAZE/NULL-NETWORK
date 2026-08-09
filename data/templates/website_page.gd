@@ -13,8 +13,10 @@ class_name WebsitePage
 @export_category("Page Scene")
 @export var site_scene: PackedScene
 
-@export_category("Page Presentation")
-@export var canvas_size: Vector2 = Vector2(600, 320)
+## Serialized compatibility with WebsitePage assets authored before Browser
+## became the single responsive viewport authority. The Browser intentionally
+## ignores this value for Control-based sites.
+@export_storage var canvas_size: Vector2 = Vector2(600, 320)
 
 
 func has_valid_route() -> bool:
@@ -26,6 +28,8 @@ func has_site_scene() -> bool:
 
 
 func get_resolved_canvas_size() -> Vector2:
+	# Kept only for compatibility with external tooling/resources that may still
+	# inspect the old authored canvas. Runtime Browser layout is responsive.
 	return Vector2(
 		max(1.0, canvas_size.x),
 		max(1.0, canvas_size.y)
