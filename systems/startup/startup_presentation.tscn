@@ -169,6 +169,111 @@ text = "KubuOS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="NullBrandAnchor" type="Control" parent="BootLayer"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 560.0
+offset_bottom = 96.0
+mouse_filter = 2
+
+[node name="PixelField" type="Control" parent="BootLayer/NullBrandAnchor"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NullLogoRoot" type="Control" parent="BootLayer/NullBrandAnchor"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NullLogoTextureGhostA" type="TextureRect" parent="BootLayer/NullBrandAnchor/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NullLogoTextureGhostB" type="TextureRect" parent="BootLayer/NullBrandAnchor/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NullLogoTexture" type="TextureRect" parent="BootLayer/NullBrandAnchor/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NullLogoLabelGhostA" type="Label" parent="BootLayer/NullBrandAnchor/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 48
+text = "NULL NETWORK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NullLogoLabelGhostB" type="Label" parent="BootLayer/NullBrandAnchor/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 48
+text = "NULL NETWORK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NullLogoLabel" type="Label" parent="BootLayer/NullBrandAnchor/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 48
+text = "NULL NETWORK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="PowerLine" type="ColorRect" parent="BootLayer"]
 unique_name_in_owner = true
 layout_mode = 1
