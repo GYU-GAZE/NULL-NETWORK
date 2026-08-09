@@ -12,6 +12,8 @@ signal display_state_changed(
 
 @export_category("OS Chrome — Logical Units")
 @export var taskbar_height: float = 19.0
+## Visual height of the floating bottom dock. The dock overlays desktop/workspace
+## content and is intentionally NOT reserved from the KubuOS work area.
 @export var dock_height: float = 86.0
 @export var reserved_left_width: float = 0.0
 @export var reserved_right_width: float = 0.0
@@ -77,14 +79,12 @@ func get_work_area_position() -> Vector2:
 
 
 func get_work_area_size(parent_size: Vector2) -> Vector2:
+	# The top taskbar is structural chrome and owns vertical space. The bottom
+	# dock is floating chrome: windows and workspaces are allowed to extend all
+	# the way to the viewport bottom underneath it.
 	return snap_vector(Vector2(
 		max(0.0, parent_size.x - reserved_left_width - reserved_right_width),
-		max(
-			0.0,
-			parent_size.y
-			- taskbar_height
-			- dock_height
-		)
+		max(0.0, parent_size.y - taskbar_height)
 	))
 
 
