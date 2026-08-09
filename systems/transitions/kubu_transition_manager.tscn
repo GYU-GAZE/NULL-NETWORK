@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://systems/transitions/kubu_transition_manager.gd" id="1_script"]
 [ext_resource type="Resource" path="res://data/content/transitions/default_kubu_transition_presentation.tres" id="2_data"]
 [ext_resource type="Theme" path="res://data/assets/themes/kubuOS.tres" id="3_day_theme"]
 [ext_resource type="Theme" path="res://data/assets/themes/kubuOS_night.tres" id="4_night_theme"]
+[ext_resource type="Script" path="res://systems/transitions/time_transition_underlay.gd" id="5_underlay"]
 
 [node name="KubuTransitionManager" type="CanvasLayer"]
 layer = 240
@@ -31,6 +32,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="TimeTransitionUnderlay" type="ColorRect" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.09, 0.18, 0.3, 1)
+script = ExtResource("5_underlay")
 
 [node name="TimeTransitionRoot" type="Control" parent="."]
 unique_name_in_owner = true
