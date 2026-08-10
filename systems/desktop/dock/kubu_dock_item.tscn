@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://pkinehbwooc0" path="res://systems/desktop/dock/kubu_dock_item.gd" id="1_autvx"]
 
 [node name="KubuDockItem" type="Control" unique_id=744712914]
-custom_minimum_size = Vector2(70, 82)
+custom_minimum_size = Vector2(38, 42)
 layout_mode = 3
 anchors_preset = 0
 mouse_filter = 1
@@ -26,7 +26,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 2
+theme_override_constants/separation = 1
 alignment = 1
 
 [node name="IconCenter" type="CenterContainer" parent="VisualRoot/MainVBox" unique_id=1981437358]
@@ -34,9 +34,9 @@ layout_mode = 2
 
 [node name="IconButton" type="Button" parent="VisualRoot/MainVBox/IconCenter" unique_id=821675320]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(54, 54)
+custom_minimum_size = Vector2(27, 27)
 layout_mode = 2
-theme_override_constants/icon_max_width = 48
+theme_override_constants/icon_max_width = 24
 flat = true
 expand_icon = true
 
@@ -61,10 +61,10 @@ layout_mode = 1
 anchors_preset = -1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -23.0
-offset_top = -3.0
-offset_right = 3.0
-offset_bottom = 20.0
+offset_left = -14.0
+offset_top = -2.0
+offset_right = 2.0
+offset_bottom = 12.0
 grow_horizontal = 0
 
 [node name="BadgeLabel" type="Label" parent="BadgePanel" unique_id=1927157954]
