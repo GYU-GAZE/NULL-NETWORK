@@ -10,7 +10,11 @@ class_name KubuTypographyData
 @export var fallback_font: Font
 
 @export_category("Pixel Rendering")
+## Native design size of the typeface. Unstyled text uses this exact size.
 @export_range(1, 64, 1) var font_size: int = 6
+## Explicit display sizes are snapped to integer multiples of the design size,
+## preserving visual hierarchy without introducing fractional pixel geometry.
+@export var preserve_explicit_size_hierarchy: bool = true
 @export var oversampling: float = 1.0
 
 var _cached_font: FontVariation
@@ -59,6 +63,16 @@ func get_font() -> Font:
 
 	_cached_font = variation
 	return _cached_font
+
+
+func get_pixel_aligned_size(requested_size: int) -> int:
+	var design_size: int = maxi(1, font_size)
+
+	if not preserve_explicit_size_hierarchy or requested_size <= design_size:
+		return design_size
+
+	var scale: int = maxi(1, roundi(float(requested_size) / float(design_size)))
+	return design_size * scale
 
 
 func validate_data() -> PackedStringArray:
