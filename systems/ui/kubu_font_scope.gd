@@ -61,10 +61,11 @@ func _apply_to_subtree(root: Node) -> void:
 
 func _apply_to_control(control: Control) -> void:
 	# Most Godot text controls expose their primary face through the generic
-	# `font` / `font_size` theme items. Applying local typography overrides keeps
-	# the existing DAY/NIGHT Theme colors and StyleBoxes intact.
+	# `font` / `font_size` theme items. Local overrides preserve all existing
+	# DAY/NIGHT colors and StyleBoxes instead of replacing the active Theme.
+	var generic_size: int = _resolve_font_size(control, &"font_size")
 	control.add_theme_font_override(&"font", _font)
-	control.add_theme_font_size_override(&"font_size", typography.font_size)
+	control.add_theme_font_size_override(&"font_size", generic_size)
 
 	if control is RichTextLabel:
 		_apply_rich_text_overrides(control as RichTextLabel)
@@ -93,4 +94,19 @@ func _apply_rich_text_overrides(label: RichTextLabel) -> void:
 		label.add_theme_font_override(key, _font)
 
 	for key: StringName in size_keys:
-		label.add_theme_font_size_override(key, typography.font_size)
+		label.add_theme_font_size_override(
+			key,
+			_resolve_font_size(label, key)
+		)
+
+
+func _resolve_font_size(control: Control, key: StringName) -> int:
+	var requested_size: int = typography.font_size
+
+	if (
+		typography.preserve_explicit_size_hierarchy
+		and control.has_theme_font_size_override(key)
+	):
+		requested_size = control.get_theme_font_size(key)
+
+	return typography.get_pixel_aligned_size(requested_size)
