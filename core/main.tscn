@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://celg3otohqa16"]
+[gd_scene load_steps=14 format=3 uid="uid://celg3otohqa16"]
 
 [ext_resource type="PackedScene" uid="uid://1sfbm60f4wjd" path="res://systems/desktop/desktop.tscn" id="1_desktop"]
 [ext_resource type="PackedScene" uid="uid://8g2y08hbwa6r" path="res://systems/workspace/workspace_manager.tscn" id="2_rayt5"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" path="res://systems/ui/activity_confirmation_dialog.tscn" id="11_activity_confirmation"]
 [ext_resource type="PackedScene" path="res://systems/startup/kubu_first_run_experience.tscn" id="12_first_run"]
 [ext_resource type="PackedScene" path="res://systems/desktop/kubu_shell_presentation_controller.tscn" id="13_shell_presentation"]
+[ext_resource type="PackedScene" path="res://systems/ui/kubu_font_scope.tscn" id="14_font_scope"]
 
 [node name="Main" type="Node" unique_id=977689112]
 
@@ -40,6 +41,8 @@ custom_minimum_size = Vector2(0, 22)
 
 [node name="KubuBottomDock" parent="OSChromeLayer" unique_id=1185085997 instance=ExtResource("6_kagtj")]
 dock_item_scene = ExtResource("10_xhu5d")
+
+[node name="SystemFontScope" parent="OSChromeLayer" instance=ExtResource("14_font_scope")]
 
 [node name="ModalLayer" type="CanvasLayer" parent="."]
 layer = 30
