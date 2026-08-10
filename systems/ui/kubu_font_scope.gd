@@ -7,6 +7,7 @@ class_name KubuFontScope
 
 var _target: Node
 var _font: Font
+var _observed_nodes: Array[Node] = []
 
 
 func _ready() -> void:
@@ -29,34 +30,37 @@ func _ready() -> void:
 		push_error("KubuFontScope: typography did not resolve a Font.")
 		return
 
-	_apply_to_subtree(_target)
-
-	if not get_tree().node_added.is_connected(_on_tree_node_added):
-		get_tree().node_added.connect(_on_tree_node_added)
+	_observe_subtree(_target)
 
 
 func _exit_tree() -> void:
-	if get_tree() == null:
+	for observed: Node in _observed_nodes:
+		if not is_instance_valid(observed):
+			continue
+
+		if observed.child_entered_tree.is_connected(_on_child_entered_tree):
+			observed.child_entered_tree.disconnect(_on_child_entered_tree)
+
+	_observed_nodes.clear()
+
+
+func _on_child_entered_tree(child: Node) -> void:
+	_observe_subtree(child)
+
+
+func _observe_subtree(root: Node) -> void:
+	if root == null or not is_instance_valid(root):
 		return
 
-	if get_tree().node_added.is_connected(_on_tree_node_added):
-		get_tree().node_added.disconnect(_on_tree_node_added)
-
-
-func _on_tree_node_added(node: Node) -> void:
-	if _target == null or not is_instance_valid(_target):
-		return
-
-	if node == _target or _target.is_ancestor_of(node):
-		_apply_to_subtree(node)
-
-
-func _apply_to_subtree(root: Node) -> void:
 	if root is Control:
 		_apply_to_control(root as Control)
 
+	if not root.child_entered_tree.is_connected(_on_child_entered_tree):
+		root.child_entered_tree.connect(_on_child_entered_tree)
+		_observed_nodes.append(root)
+
 	for child: Node in root.get_children():
-		_apply_to_subtree(child)
+		_observe_subtree(child)
 
 
 func _apply_to_control(control: Control) -> void:
