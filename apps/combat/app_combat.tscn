@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://c7acibtxdt54a"]
+[gd_scene load_steps=6 format=3 uid="uid://c7acibtxdt54a"]
 
 [ext_resource type="Script" path="res://apps/combat/app_combat_drag_actions.gd" id="1_combat"]
 [ext_resource type="PackedScene" path="res://apps/combat/player_actions/player_action_selector.tscn" id="2_actions"]
 [ext_resource type="PackedScene" path="res://apps/combat/resolution/combat_resolution_panel.tscn" id="3_resolution"]
 [ext_resource type="PackedScene" path="res://apps/navigator/evolution/evolution_overlay.tscn" id="4_evolution"]
+[ext_resource type="PackedScene" path="res://systems/ui/kubu_font_scope.tscn" id="5_font_scope"]
 
 [node name="CombatApp" type="PanelContainer" unique_id=1771139256]
 clip_contents = true
@@ -196,3 +197,5 @@ size_flags_vertical = 0
 [node name="TooltipLabel" type="Label" parent="OverlayLayer/HoverTooltip" unique_id=1280043019]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="CombatFontScope" parent="." instance=ExtResource("5_font_scope")]
