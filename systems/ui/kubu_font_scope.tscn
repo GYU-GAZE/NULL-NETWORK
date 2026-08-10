@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://systems/ui/kubu_font_scope.gd" id="1_script"]
+[ext_resource type="Resource" path="res://data/content/ui/kubuos_micro_typography.tres" id="2_typography"]
+
+[node name="KubuFontScope" type="Node"]
+script = ExtResource("1_script")
+typography = ExtResource("2_typography")
