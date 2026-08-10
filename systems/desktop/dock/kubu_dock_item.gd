@@ -5,7 +5,7 @@ signal activated(app: AppResource)
 
 @export_category("Hover Animation")
 @export var hover_scale: Vector2 = Vector2(1.14, 1.14)
-@export var hover_offset_y: float = -7.0
+@export var hover_offset_y: float = -4.0
 @export var hover_duration: float = 0.14
 
 @export_category("State Visuals")
@@ -108,14 +108,14 @@ func _refresh_visual_state() -> void:
 	if _is_focused:
 		visual_root.modulate = focused_modulate
 		state_indicator.color = focused_indicator_color
-		state_indicator.custom_minimum_size = Vector2(18.0, 3.0)
+		state_indicator.custom_minimum_size = Vector2(10.0, 2.0)
 		state_indicator.visible = true
 		return
 
 	if _is_running:
 		visual_root.modulate = running_modulate
 		state_indicator.color = running_indicator_color
-		state_indicator.custom_minimum_size = Vector2(6.0, 3.0)
+		state_indicator.custom_minimum_size = Vector2(4.0, 2.0)
 		state_indicator.visible = true
 		return
 
