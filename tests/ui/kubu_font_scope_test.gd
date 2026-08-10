@@ -17,6 +17,14 @@ func _ready() -> void:
 
 func _run_test() -> void:
 	_check(TYPOGRAPHY.font_size == 6, "KubuOS Micro must remain authored at 6 px.")
+	_check(
+		TYPOGRAPHY.get_pixel_aligned_size(19) == 18,
+		"Explicit font sizes must snap to the six-pixel design grid."
+	)
+	_check(
+		TYPOGRAPHY.get_pixel_aligned_size(24) == 24,
+		"Valid integer multiples of six must retain their hierarchy."
+	)
 
 	var resolved_font: Font = TYPOGRAPHY.get_font()
 	_check(resolved_font != null, "KubuOS Micro typography did not resolve a Font.")
@@ -55,6 +63,11 @@ func _run_test() -> void:
 	label.text = "KUBUOS"
 	root.add_child(label)
 
+	var large_label := Label.new()
+	large_label.name = "LargeSystemTitle"
+	large_label.add_theme_font_size_override(&"font_size", 24)
+	root.add_child(large_label)
+
 	var rich_text := RichTextLabel.new()
 	rich_text.name = "CombatLog"
 	root.add_child(rich_text)
@@ -70,6 +83,14 @@ func _run_test() -> void:
 	_check(
 		label.get_theme_font_size(&"font_size") == 6,
 		"Font scope did not apply the 6 px size to Label."
+	)
+	_check(
+		large_label.get_theme_font(&"font") == resolved_font,
+		"Font scope did not apply KubuOS Micro to an explicitly sized Label."
+	)
+	_check(
+		large_label.get_theme_font_size(&"font_size") == 24,
+		"Font scope must preserve explicit hierarchy when it is a multiple of six."
 	)
 	_check(
 		rich_text.get_theme_font(&"normal_font") == resolved_font,
