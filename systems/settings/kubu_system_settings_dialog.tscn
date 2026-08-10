@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://systems/settings/kubu_system_settings_dialog.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://systems/ui/kubu_font_scope.tscn" id="2_font_scope"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.045, 0.055, 0.085, 0.98)
@@ -63,7 +64,6 @@ theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="Root/Center/Panel/Margin/Content"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
 text = "SYSTEM SETTINGS"
 
 [node name="DisplayLabel" type="Label" parent="Root/Center/Panel/Margin/Content"]
@@ -92,3 +92,5 @@ text = "CLOSE"
 unique_name_in_owner = true
 layout_mode = 2
 text = "APPLY"
+
+[node name="SystemFontScope" parent="." instance=ExtResource("2_font_scope")]
