@@ -13,7 +13,7 @@ signal display_state_changed(
 @export_category("OS Chrome — Logical Units")
 @export var taskbar_height: float = 19.0
 @export_storage var dock_height: float = 0.0
-@export var reserved_left_width: float = 40.0
+@export var reserved_left_width: float = 0.0
 @export var reserved_right_width: float = 0.0
 
 @export_category("Notifications — Logical Units")
