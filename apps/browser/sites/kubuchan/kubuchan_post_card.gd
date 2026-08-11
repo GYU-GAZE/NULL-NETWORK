@@ -150,21 +150,35 @@ func _refresh_post_width() -> void:
 
 
 func _measure_desired_content_width() -> float:
-	var desired_width: float = meta_row.get_combined_minimum_size().x + 14.0
-	var font: Font = body_label.get_theme_font(&"normal_font")
-	var font_size: int = body_label.get_theme_font_size(&"normal_font_size")
+	# MetaRow is part of the authored scene contract, but width measurement must
+	# never make the whole Browser fail if a future visual refactor temporarily
+	# removes/replaces one of its helper nodes.
+	var desired_width: float = reply_min_width
 
-	if font != null:
-		for line: String in _raw_body_text.split("\n"):
-			var line_width: float = font.get_string_size(
-				line,
-				HORIZONTAL_ALIGNMENT_LEFT,
-				-1,
-				font_size
-			).x
-			desired_width = maxf(desired_width, line_width + reply_text_padding)
+	if is_instance_valid(meta_row):
+		desired_width = maxf(
+			desired_width,
+			meta_row.get_combined_minimum_size().x + 14.0
+		)
 
-	if link_button.visible:
+	if is_instance_valid(body_label):
+		var font: Font = body_label.get_theme_font(&"normal_font")
+		var font_size: int = body_label.get_theme_font_size(&"normal_font_size")
+
+		if font != null:
+			for line: String in _raw_body_text.split("\n"):
+				var line_width: float = font.get_string_size(
+					line,
+					HORIZONTAL_ALIGNMENT_LEFT,
+					-1,
+					font_size
+				).x
+				desired_width = maxf(
+					desired_width,
+					line_width + reply_text_padding
+				)
+
+	if is_instance_valid(link_button) and link_button.visible:
 		desired_width = maxf(
 			desired_width,
 			link_button.get_combined_minimum_size().x + reply_text_padding
