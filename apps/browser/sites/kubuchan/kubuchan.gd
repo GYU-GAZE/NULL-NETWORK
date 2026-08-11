@@ -9,7 +9,7 @@ signal browser_navigation_requested(url: String)
 
 @onready var board_title_label: Label = %BoardTitleLabel
 @onready var board_tagline_label: Label = %BoardTaglineLabel
-@onready var thread_scroll: ScrollContainer = %ThreadScroll
+@onready var page_scroll: ScrollContainer = %PageScroll
 @onready var thread_vbox: VBoxContainer = %ThreadVBox
 @onready var archived_notice_label: Label = %ArchivedNoticeLabel
 
@@ -67,7 +67,7 @@ func _on_link_requested(url: String) -> void:
 
 func get_browser_state() -> Dictionary:
 	return {
-		"scroll_y": thread_scroll.scroll_vertical
+		"scroll_y": page_scroll.scroll_vertical
 	}
 
 
@@ -75,4 +75,9 @@ func restore_browser_state(state: Dictionary) -> void:
 	if state.is_empty():
 		return
 
-	thread_scroll.scroll_vertical = maxi(0, int(state.get("scroll_y", 0)))
+	# The Browser restores site state deferred, but the page's minimum height may
+	# still settle one frame later after all data-driven post cards calculate their
+	# content-sized widths/heights. Assigning deferred keeps restored scroll values
+	# from being clamped against a not-yet-final ScrollContainer range.
+	var restored_scroll: int = maxi(0, int(state.get("scroll_y", 0)))
+	page_scroll.set_deferred("scroll_vertical", restored_scroll)
