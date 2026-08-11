@@ -52,30 +52,37 @@ grow_horizontal = 2
 mouse_filter = 2
 color = Color(0.839216, 0.858824, 0.913725, 0.68)
 
-[node name="Margin" type="MarginContainer" parent="PageRoot"]
+[node name="PageScroll" type="ScrollContainer" parent="PageRoot"]
+unique_name_in_owner = true
+clip_contents = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
+mouse_filter = 0
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+
+[node name="Margin" type="MarginContainer" parent="PageRoot/PageScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 6
 
-[node name="RootVBox" type="VBoxContainer" parent="PageRoot/Margin"]
+[node name="RootVBox" type="VBoxContainer" parent="PageRoot/PageScroll/Margin"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
 theme_override_constants/separation = 4
 
-[node name="TopNavRow" type="HBoxContainer" parent="PageRoot/Margin/RootVBox"]
+[node name="TopNavRow" type="HBoxContainer" parent="PageRoot/PageScroll/Margin/RootVBox"]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="BoardListLabel" type="Label" parent="PageRoot/Margin/RootVBox/TopNavRow"]
+[node name="BoardListLabel" type="Label" parent="PageRoot/PageScroll/Margin/RootVBox/TopNavRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
@@ -83,28 +90,28 @@ theme_override_colors/font_color = Color(0.211765, 0.254902, 0.411765, 1)
 text = "[ dev / hw / kg / net / os / soft / tech / wall ]"
 clip_text = true
 
-[node name="UtilityLabel" type="Label" parent="PageRoot/Margin/RootVBox/TopNavRow"]
+[node name="UtilityLabel" type="Label" parent="PageRoot/PageScroll/Margin/RootVBox/TopNavRow"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.211765, 0.254902, 0.411765, 1)
 text = "[Settings] [Home]"
 horizontal_alignment = 2
 
-[node name="BrandBlock" type="VBoxContainer" parent="PageRoot/Margin/RootVBox"]
+[node name="BrandBlock" type="VBoxContainer" parent="PageRoot/PageScroll/Margin/RootVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 0
 alignment = 1
 
-[node name="SiteTitle" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock"]
+[node name="SiteTitle" type="Label" parent="PageRoot/PageScroll/Margin/RootVBox/BrandBlock"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.329412, 0.34902, 0.47451, 1)
 text = "KUBUCHAN"
 horizontal_alignment = 1
 
-[node name="BoardTitleLabel" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock"]
+[node name="BoardTitleLabel" type="Label" parent="PageRoot/PageScroll/Margin/RootVBox/BrandBlock"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
@@ -113,7 +120,7 @@ theme_override_font_sizes/font_size = 38
 text = "/kg/ - Kubu Gaming"
 horizontal_alignment = 1
 
-[node name="BoardTaglineLabel" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock"]
+[node name="BoardTaglineLabel" type="Label" parent="PageRoot/PageScroll/Margin/RootVBox/BrandBlock"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
@@ -121,34 +128,34 @@ theme_override_colors/font_color = Color(0.411765, 0.439216, 0.533333, 1)
 text = "Games, software toys and network play on KubuOS"
 horizontal_alignment = 1
 
-[node name="HeaderSeparator" type="HSeparator" parent="PageRoot/Margin/RootVBox"]
+[node name="HeaderSeparator" type="HSeparator" parent="PageRoot/PageScroll/Margin/RootVBox"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/separator = SubResource("SeparatorLine")
 
-[node name="ThreadTools" type="HBoxContainer" parent="PageRoot/Margin/RootVBox"]
+[node name="ThreadTools" type="HBoxContainer" parent="PageRoot/PageScroll/Margin/RootVBox"]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="ThreadToolsLeft" type="Label" parent="PageRoot/Margin/RootVBox/ThreadTools"]
+[node name="ThreadToolsLeft" type="Label" parent="PageRoot/PageScroll/Margin/RootVBox/ThreadTools"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.211765, 0.254902, 0.411765, 1)
 text = "[Return] [Catalog]"
 
-[node name="ThreadToolsSpacer" type="Control" parent="PageRoot/Margin/RootVBox/ThreadTools"]
+[node name="ThreadToolsSpacer" type="Control" parent="PageRoot/PageScroll/Margin/RootVBox/ThreadTools"]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="ThreadToolsRight" type="Label" parent="PageRoot/Margin/RootVBox/ThreadTools"]
+[node name="ThreadToolsRight" type="Label" parent="PageRoot/PageScroll/Margin/RootVBox/ThreadTools"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.211765, 0.254902, 0.411765, 1)
 text = "[Bottom] [Refresh]"
 horizontal_alignment = 2
 
-[node name="PostReplyLabel" type="Label" parent="PageRoot/Margin/RootVBox"]
+[node name="PostReplyLabel" type="Label" parent="PageRoot/PageScroll/Margin/RootVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
@@ -156,37 +163,28 @@ theme_override_colors/font_color = Color(0.376471, 0.341176, 0.505882, 1)
 text = "[Post a Reply]"
 horizontal_alignment = 1
 
-[node name="ThreadSeparator" type="HSeparator" parent="PageRoot/Margin/RootVBox"]
+[node name="ThreadSeparator" type="HSeparator" parent="PageRoot/PageScroll/Margin/RootVBox"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/separator = SubResource("SeparatorLine")
 
-[node name="ThreadScroll" type="ScrollContainer" parent="PageRoot/Margin/RootVBox"]
-unique_name_in_owner = true
-clip_contents = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-vertical_scroll_mode = 1
-
-[node name="ThreadVBox" type="VBoxContainer" parent="PageRoot/Margin/RootVBox/ThreadScroll"]
+[node name="ThreadVBox" type="VBoxContainer" parent="PageRoot/PageScroll/Margin/RootVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 5
 
-[node name="BottomSeparator" type="HSeparator" parent="PageRoot/Margin/RootVBox"]
+[node name="BottomSeparator" type="HSeparator" parent="PageRoot/PageScroll/Margin/RootVBox"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/separator = SubResource("SeparatorLine")
 
-[node name="ArchivedNotice" type="PanelContainer" parent="PageRoot/Margin/RootVBox"]
+[node name="ArchivedNotice" type="PanelContainer" parent="PageRoot/PageScroll/Margin/RootVBox"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("ArchivePanel")
 
-[node name="ArchivedNoticeLabel" type="Label" parent="PageRoot/Margin/RootVBox/ArchivedNotice"]
+[node name="ArchivedNoticeLabel" type="Label" parent="PageRoot/PageScroll/Margin/RootVBox/ArchivedNotice"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
@@ -194,14 +192,14 @@ theme_override_colors/font_color = Color(0.392157, 0.4, 0.486275, 1)
 text = "KUBUCHAN // read-only thread view"
 horizontal_alignment = 1
 
-[node name="FooterNav" type="Label" parent="PageRoot/Margin/RootVBox"]
+[node name="FooterNav" type="Label" parent="PageRoot/PageScroll/Margin/RootVBox"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.211765, 0.254902, 0.411765, 1)
 text = "[Home] [News] [FAQ] [Rules] [Support]"
 horizontal_alignment = 1
 
-[node name="FooterLegal" type="Label" parent="PageRoot/Margin/RootVBox"]
+[node name="FooterLegal" type="Label" parent="PageRoot/PageScroll/Margin/RootVBox"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.478431, 0.494118, 0.572549, 1)
