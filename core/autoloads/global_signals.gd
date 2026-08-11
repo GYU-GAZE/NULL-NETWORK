@@ -10,6 +10,9 @@ signal app_focused(app_id: String)
 signal workspace_activated(workspace_id: String)
 
 signal dock_lock_changed(locked: bool, reason: String)
+signal app_badge_count_changed(app_id: String, count: int)
+signal app_badge_dot_changed(app_id: String, visible: bool)
+signal app_badge_icon_changed(app_id: String, icon: Texture2D)
 
 signal request_toggle_notification_center
 signal request_close_notification_center
