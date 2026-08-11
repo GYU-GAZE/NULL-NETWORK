@@ -1,8 +1,8 @@
 extends MarginContainer
 class_name KubuchanPostCard
 
-
 signal link_requested(url: String)
+signal local_reference_requested(reference: String)
 
 @export_category("Chan Layout")
 @export var reply_indent: float = 24.0
@@ -19,14 +19,13 @@ signal link_requested(url: String)
 @onready var uid_label: Label = %UidLabel
 @onready var timestamp_label: Label = %TimestampLabel
 @onready var post_number_label: Label = %PostNumberLabel
-@onready var body_label: RichTextLabel = %BodyLabel
+@onready var body_label: SiteRichTextLabel = %BodyLabel
 @onready var link_button: LinkButton = %LinkButton
 
 var _link_url: String = ""
 var _pulse_tween: Tween
 var _is_op: bool = false
 var _raw_body_text: String = ""
-
 
 func _ready() -> void:
 	link_button.pressed.connect(_on_link_pressed)
@@ -35,13 +34,15 @@ func _ready() -> void:
 	body_label.scroll_active = false
 	body_label.bbcode_enabled = true
 
+	if not body_label.local_reference_requested.is_connected(_on_body_local_reference_requested):
+		body_label.local_reference_requested.connect(_on_body_local_reference_requested)
+
 	if not resized.is_connected(_refresh_post_width):
 		resized.connect(_refresh_post_width)
 
 	call_deferred("_refresh_post_width")
 
-
-func configure(post_data: KubuchanPostData) -> void:
+func configure(post_data: KubuchanPostData, resolved_timestamp: String = "") -> void:
 	if post_data == null:
 		return
 
@@ -53,7 +54,7 @@ func configure(post_data: KubuchanPostData) -> void:
 	subject_label.visible = not post_data.subject.strip_edges().is_empty()
 	author_label.text = post_data.author_name
 	uid_label.text = "ID:%s" % post_data.uid
-	timestamp_label.text = post_data.timestamp
+	timestamp_label.text = resolved_timestamp if not resolved_timestamp.is_empty() else post_data.timestamp
 	post_number_label.text = "No.%d" % post_data.post_number
 	body_label.text = _build_body_bbcode(post_data.body_text)
 
@@ -70,22 +71,25 @@ func configure(post_data: KubuchanPostData) -> void:
 	else:
 		_stop_link_pulse()
 
-
 func _build_body_bbcode(raw_text: String) -> String:
 	var rendered_lines := PackedStringArray()
+	var quote_regex := RegEx.new()
+	quote_regex.compile(">>([0-9]+)")
 
 	for line: String in raw_text.split("\n"):
 		var escaped_line: String = line.replace("[", "[lb]")
+		escaped_line = quote_regex.sub(
+			escaped_line,
+			"[url=ref:post:$1]>>$1[/url]",
+			true
+		)
 
-		if line.begins_with(">>"):
-			rendered_lines.append("[color=#4f5b8b]%s[/color]" % escaped_line)
-		elif line.begins_with(">"):
+		if line.begins_with(">") and not line.begins_with(">>"):
 			rendered_lines.append("[color=#4f745f]%s[/color]" % escaped_line)
 		else:
 			rendered_lines.append(escaped_line)
 
 	return "\n".join(rendered_lines)
-
 
 func _apply_post_style() -> void:
 	var style := StyleBoxFlat.new()
@@ -98,9 +102,6 @@ func _apply_post_style() -> void:
 		style.bg_color = Color(0, 0, 0, 0)
 		style.border_color = Color(0, 0, 0, 0)
 	else:
-		# Classic imageboard geometry: OP sits directly on the page while replies
-		# are compact, indented boxes. The palette is KubuOS-specific, but the
-		# spatial language intentionally follows a traditional 4chan thread.
 		style.bg_color = Color("e3e7f0")
 		style.border_color = Color("c0c7d6")
 		style.border_width_left = 1
@@ -110,12 +111,10 @@ func _apply_post_style() -> void:
 
 	post_panel.add_theme_stylebox_override(&"panel", style)
 
-
 func _apply_uid_badge_style(uid: String) -> void:
 	var hash_value: int = absi(uid.hash())
 	var hue: float = float(hash_value % 360) / 360.0
 	var badge_color := Color.from_hsv(hue, 0.34, 0.54)
-
 	var style := StyleBoxFlat.new()
 	style.bg_color = badge_color
 	style.content_margin_left = 3.0
@@ -128,7 +127,6 @@ func _apply_uid_badge_style(uid: String) -> void:
 	style.corner_radius_bottom_left = 1
 	uid_badge.add_theme_stylebox_override(&"panel", style)
 
-
 func _refresh_post_width() -> void:
 	if not is_instance_valid(post_panel) or not is_instance_valid(indent):
 		return
@@ -139,53 +137,30 @@ func _refresh_post_width() -> void:
 		post_panel.custom_minimum_size.x = available_width
 		return
 
-	# 4chan replies are not uniform forum cards: each box grows to fit its own
-	# content, then wraps once it reaches the available/max width. Measuring the
-	# authored lines gives the same irregular silhouette while remaining responsive.
 	var content_width: float = _measure_desired_content_width()
 	post_panel.custom_minimum_size.x = minf(
 		available_width,
 		clampf(content_width, reply_min_width, reply_max_width)
 	)
 
-
 func _measure_desired_content_width() -> float:
-	# MetaRow is part of the authored scene contract, but width measurement must
-	# never make the whole Browser fail if a future visual refactor temporarily
-	# removes/replaces one of its helper nodes.
 	var desired_width: float = reply_min_width
 
 	if is_instance_valid(meta_row):
-		desired_width = maxf(
-			desired_width,
-			meta_row.get_combined_minimum_size().x + 14.0
-		)
+		desired_width = maxf(desired_width, meta_row.get_combined_minimum_size().x + 14.0)
 
 	if is_instance_valid(body_label):
 		var font: Font = body_label.get_theme_font(&"normal_font")
 		var font_size: int = body_label.get_theme_font_size(&"normal_font_size")
-
 		if font != null:
 			for line: String in _raw_body_text.split("\n"):
-				var line_width: float = font.get_string_size(
-					line,
-					HORIZONTAL_ALIGNMENT_LEFT,
-					-1,
-					font_size
-				).x
-				desired_width = maxf(
-					desired_width,
-					line_width + reply_text_padding
-				)
+				var line_width: float = font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+				desired_width = maxf(desired_width, line_width + reply_text_padding)
 
 	if is_instance_valid(link_button) and link_button.visible:
-		desired_width = maxf(
-			desired_width,
-			link_button.get_combined_minimum_size().x + reply_text_padding
-		)
+		desired_width = maxf(desired_width, link_button.get_combined_minimum_size().x + reply_text_padding)
 
 	return desired_width
-
 
 func _start_link_pulse() -> void:
 	_stop_link_pulse()
@@ -193,32 +168,19 @@ func _start_link_pulse() -> void:
 	_pulse_tween = create_tween().set_loops()
 	_pulse_tween.set_trans(Tween.TRANS_SINE)
 	_pulse_tween.set_ease(Tween.EASE_IN_OUT)
-	_pulse_tween.tween_property(
-		link_button,
-		"modulate",
-		Color(0.78, 0.78, 1.0, 1.0),
-		0.9
-	)
-	_pulse_tween.tween_property(
-		link_button,
-		"modulate",
-		Color.WHITE,
-		0.9
-	)
-
+	_pulse_tween.tween_property(link_button, "modulate", Color(0.78, 0.78, 1.0, 1.0), 0.9)
+	_pulse_tween.tween_property(link_button, "modulate", Color.WHITE, 0.9)
 
 func _stop_link_pulse() -> void:
 	if _pulse_tween != null and _pulse_tween.is_valid():
 		_pulse_tween.kill()
-
 	_pulse_tween = null
-
 	if is_instance_valid(link_button):
 		link_button.modulate = Color.WHITE
 
+func _on_body_local_reference_requested(reference: String) -> void:
+	local_reference_requested.emit(reference)
 
 func _on_link_pressed() -> void:
-	if _link_url.is_empty():
-		return
-
-	link_requested.emit(_link_url)
+	if not _link_url.is_empty():
+		link_requested.emit(_link_url)
