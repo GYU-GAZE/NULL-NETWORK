@@ -30,6 +30,7 @@ func _ready() -> void:
 	_register_work_area_reservation()
 	_apply_metrics()
 	_sync_dock()
+	_refresh_notification_badges()
 
 func _connect_global_signals() -> void:
 	if not GlobalSignals.app_opened.is_connected(_on_app_opened):
@@ -48,6 +49,8 @@ func _connect_global_signals() -> void:
 		GlobalSignals.app_badge_dot_changed.connect(set_app_dot_badge)
 	if not GlobalSignals.app_badge_icon_changed.is_connected(set_app_icon_badge):
 		GlobalSignals.app_badge_icon_changed.connect(set_app_icon_badge)
+	if not UniversalNotifications.notifications_changed.is_connected(_refresh_notification_badges):
+		UniversalNotifications.notifications_changed.connect(_refresh_notification_badges)
 	if not CampaignState.app_installed.is_connected(_on_app_installed):
 		CampaignState.app_installed.connect(_on_app_installed)
 	if not CampaignState.campaign_changed.is_connected(_on_campaign_changed):
@@ -102,6 +105,7 @@ func _sync_dock() -> void:
 			item = _create_item(app, index)
 		if item != null and item.get_index() != index:
 			app_container.move_child(item, index)
+	_refresh_notification_badges()
 
 func _create_item(app: AppResource, index: int) -> KubuDockItem:
 	var item := dock_item_scene.instantiate() as KubuDockItem
@@ -249,12 +253,13 @@ func set_app_icon_badge(app_id: String, icon: Texture2D) -> void:
 func clear_app_badge(app_id: String) -> void:
 	var clean_id: String = app_id.strip_edges()
 	_badge_states_by_app_id.erase(clean_id)
-	var item: KubuDockItem = _get_item(clean_id)
-	if item != null:
-		item.clear_badge()
+	_refresh_notification_badge_for_app(clean_id)
 
 func _apply_saved_badge(app_id: String, item: KubuDockItem) -> void:
-	if item == null or not _badge_states_by_app_id.has(app_id):
+	if item == null:
+		return
+	if not _badge_states_by_app_id.has(app_id):
+		_apply_notification_badge(app_id, item, _get_unread_notification_counts())
 		return
 	var state: Dictionary = _badge_states_by_app_id[app_id]
 	var mode: int = int(state.get("mode", KubuDockItem.BadgeMode.NONE))
@@ -267,6 +272,45 @@ func _apply_saved_badge(app_id: String, item: KubuDockItem) -> void:
 			item.set_badge_icon(state.get("icon") as Texture2D)
 		_:
 			item.clear_badge()
+
+func _refresh_notification_badges() -> void:
+	var unread_counts: Dictionary = _get_unread_notification_counts()
+	for raw_app_id: Variant in _items_by_app_id.keys():
+		var app_id: String = str(raw_app_id)
+		if _badge_states_by_app_id.has(app_id):
+			continue
+		var item: KubuDockItem = _get_item(app_id)
+		_apply_notification_badge(app_id, item, unread_counts)
+
+func _refresh_notification_badge_for_app(app_id: String) -> void:
+	var item: KubuDockItem = _get_item(app_id)
+	if item == null:
+		return
+	_apply_notification_badge(app_id, item, _get_unread_notification_counts())
+
+func _get_unread_notification_counts() -> Dictionary:
+	var counts: Dictionary = {}
+	for notification: KubuNotificationData in UniversalNotifications.get_unread_notifications():
+		if notification == null:
+			continue
+		var source_app_id: String = notification.source_app_id.strip_edges()
+		if source_app_id.is_empty():
+			continue
+		counts[source_app_id] = int(counts.get(source_app_id, 0)) + 1
+	return counts
+
+func _apply_notification_badge(
+	app_id: String,
+	item: KubuDockItem,
+	unread_counts: Dictionary
+) -> void:
+	if item == null:
+		return
+	var unread_count: int = int(unread_counts.get(app_id, 0))
+	if unread_count > 0:
+		item.set_badge_count(unread_count)
+	else:
+		item.clear_badge()
 
 func get_lock_reason() -> String:
 	return _dock_lock_reason
