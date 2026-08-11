@@ -322,7 +322,7 @@ theme_override_styles/normal = SubResource("MiniNormal")
 theme_override_styles/hover = SubResource("MiniHover")
 text = "Sign Up"
 script = ExtResource("2_action")
-target_url = "null.net/getstarted"
+target_url = "null.net/register"
 
 [node name="HeroPanel" type="PanelContainer" parent="MasterScroll/PageMargin/PageVBox"]
 layout_mode = 2
