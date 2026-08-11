@@ -79,6 +79,7 @@ func _run_test() -> void:
 
 		await get_tree().process_frame
 		await get_tree().process_frame
+		await get_tree().process_frame
 
 		_check(
 			site.theme != null and site.theme.default_font_size == SILVER_BASE_SIZE,
@@ -106,6 +107,20 @@ func _run_test() -> void:
 			site.find_child("ThreadBar", true, false) == null,
 			"Kubuchan must not regress to a forum-style separate thread title bar."
 		)
+
+		var page_scroll := site.find_child("PageScroll", true, false) as ScrollContainer
+		_check(page_scroll != null, "Kubuchan must scroll as a whole webpage.")
+		_check(
+			site.find_child("ThreadScroll", true, false) == null,
+			"Kubuchan must not put only the post list inside a nested thread scroller."
+		)
+
+		if page_scroll != null:
+			var vertical_bar: VScrollBar = page_scroll.get_v_scroll_bar()
+			_check(
+				vertical_bar != null and vertical_bar.max_value > page_scroll.size.y,
+				"Kubuchan content must exceed the viewport and expose a vertical scroll range."
+			)
 
 		var cards: Array[KubuchanPostCard] = []
 		_collect_cards(site, cards)
