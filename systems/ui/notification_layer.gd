@@ -118,10 +118,11 @@ func _get_toast_final_position(toast: NotificationToast) -> Vector2:
 	if toast_size.x <= 0.0 or toast_size.y <= 0.0:
 		toast_size = toast.get_combined_minimum_size()
 
-	var x: float = layer_size.x - toast_size.x - right_margin
+	var chrome_right: float = KubuOSMetrics.reserved_right_width
+	var x: float = layer_size.x - chrome_right - toast_size.x - right_margin
 	var y: float = taskbar_height + top_gap
 
-	x = clamp(x, 0.0, max(0.0, layer_size.x - toast_size.x))
+	x = clamp(x, 0.0, max(0.0, layer_size.x - chrome_right - toast_size.x))
 	y = clamp(y, taskbar_height, max(taskbar_height, layer_size.y - toast_size.y))
 
 	return Vector2(x, y)
