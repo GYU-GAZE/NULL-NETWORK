@@ -112,34 +112,49 @@ func _run_test() -> void:
 		)
 		_check(
 			item.active_backdrop.custom_minimum_size.is_equal_approx(Vector2(30.0, 30.0)),
-			"Open-state backdrop must expand to 30x30, adding 3px per side over the previous 24x24 highlight."
+			"Open-state backdrop must expand to 30x30."
 		)
 
+		# Reproduce the real open flow: app_opened then app_focused. The highlight
+		# must already be visible while tiny, remain tiny through the focus refresh,
+		# and then visibly grow through intermediate scales before reaching 30x30.
 		item.set_running(true)
 		_check(item.active_backdrop.visible, "Open app did not expose its active backdrop.")
 		_check(
+			item.active_backdrop.modulate.a > 0.99,
+			"Active backdrop starts transparent, hiding the center-out reveal."
+		)
+		_check(
 			item.active_backdrop.scale.is_equal_approx(item.active_hidden_scale),
-			"Open-state backdrop did not begin collapsed at the icon center."
+			"Active backdrop did not begin at its compact center scale."
 		)
 
-		# Real window opening emits app_opened and app_focused back-to-back. The
-		# focus refresh must preserve the in-flight reveal instead of snapping the
-		# backdrop directly to full size.
 		item.set_focused(true)
 		_check(
-			item._state_tween != null and item._state_tween.is_valid(),
-			"Focusing an opening app cancelled the active backdrop reveal tween."
+			item.active_backdrop.scale.is_equal_approx(item.active_hidden_scale),
+			"Focus refresh snapped the active backdrop to full size."
 		)
 		_check(
-			item.active_backdrop.scale.is_equal_approx(item.active_hidden_scale),
-			"Focusing an opening app snapped the active backdrop to full size."
+			item._state_tween != null and item._state_tween.is_valid(),
+			"Focus refresh cancelled the active reveal tween."
+		)
+
+		if item._state_tween != null:
+			item._state_tween.custom_step(item.active_reveal_duration * 0.35)
+		_check(
+			item.active_backdrop.scale.x > item.active_hidden_scale.x
+			and item.active_backdrop.scale.x < 0.98,
+			"Active backdrop skipped the visible intermediate expansion state."
+		)
+		_check(
+			item.active_backdrop.modulate.a > 0.99,
+			"Active backdrop became transparent during its expansion."
 		)
 
 		if item._state_tween != null:
 			item._state_tween.custom_step(1.0)
 		_check(
-			item.active_backdrop.scale.is_equal_approx(Vector2.ONE)
-			and item.active_backdrop.modulate.a > 0.99,
+			item.active_backdrop.scale.is_equal_approx(Vector2.ONE),
 			"Open-state backdrop did not finish expanding from its center."
 		)
 
@@ -189,8 +204,8 @@ func _run_test() -> void:
 			)
 		_check(not item.hover_callout.visible, "Hover callout did not hide after mouse exit.")
 
-		item.set_focused(false)
 		item.set_running(false)
+		item.set_focused(false)
 		if item._state_tween != null:
 			item._state_tween.custom_step(1.0)
 		_check(not item.active_backdrop.visible, "Closed app left its active backdrop visible.")

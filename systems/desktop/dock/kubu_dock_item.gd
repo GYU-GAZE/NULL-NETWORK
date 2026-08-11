@@ -21,8 +21,8 @@ enum BadgeMode {
 @export_category("Open State")
 @export var running_background_color: Color = Color(0.08, 0.20, 0.31, 0.88)
 @export var focused_background_color: Color = Color(0.11, 0.27, 0.40, 0.96)
-@export var active_reveal_duration: float = 0.15
-@export var active_hidden_scale: Vector2 = Vector2(0.12, 0.12)
+@export var active_reveal_duration: float = 0.24
+@export var active_hidden_scale: Vector2 = Vector2(0.08, 0.08)
 
 @export_category("Badge Animation")
 @export var badge_pulse_scale: Vector2 = Vector2(1.18, 1.18)
@@ -74,7 +74,7 @@ func _ready() -> void:
 	locked_overlay.visible = false
 
 	active_backdrop.visible = false
-	active_backdrop.modulate.a = 0.0
+	active_backdrop.modulate.a = 1.0
 	active_backdrop.scale = active_hidden_scale
 
 	call_deferred("_refresh_pivots")
@@ -222,9 +222,11 @@ func _show_active_backdrop(target_color: Color) -> void:
 	active_backdrop.visible = true
 	_refresh_active_backdrop_pivot()
 	active_backdrop.scale = active_hidden_scale
-	active_backdrop.modulate.a = 0.0
+	# The backdrop must be visible while it is still tiny. Fading from alpha 0
+	# hid the first half of the expansion and made the state look instantaneous.
+	active_backdrop.modulate.a = 1.0
 
-	_state_tween = create_tween().set_parallel(true)
+	_state_tween = create_tween()
 	_state_tween.set_trans(Tween.TRANS_CUBIC)
 	_state_tween.set_ease(Tween.EASE_OUT)
 	_state_tween.tween_property(
@@ -232,12 +234,6 @@ func _show_active_backdrop(target_color: Color) -> void:
 		"scale",
 		Vector2.ONE,
 		active_reveal_duration
-	)
-	_state_tween.tween_property(
-		active_backdrop,
-		"modulate:a",
-		1.0,
-		active_reveal_duration * 0.72
 	)
 
 
@@ -249,8 +245,9 @@ func _hide_active_backdrop() -> void:
 	_kill_state_tween()
 	_active_backdrop_is_visible = false
 	_refresh_active_backdrop_pivot()
+	active_backdrop.modulate.a = 1.0
 
-	_state_tween = create_tween().set_parallel(true)
+	_state_tween = create_tween()
 	_state_tween.set_trans(Tween.TRANS_CUBIC)
 	_state_tween.set_ease(Tween.EASE_IN)
 	_state_tween.tween_property(
@@ -258,12 +255,6 @@ func _hide_active_backdrop() -> void:
 		"scale",
 		active_hidden_scale,
 		active_reveal_duration * 0.78
-	)
-	_state_tween.tween_property(
-		active_backdrop,
-		"modulate:a",
-		0.0,
-		active_reveal_duration * 0.62
 	)
 	_state_tween.finished.connect(_on_active_backdrop_hidden, CONNECT_ONE_SHOT)
 
