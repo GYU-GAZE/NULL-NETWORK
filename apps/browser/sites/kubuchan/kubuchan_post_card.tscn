@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://apps/browser/sites/kubuchan/kubuchan_post_card.gd" id="1_script"]
+[ext_resource type="Script" path="res://apps/browser/site_rich_text_label.gd" id="2_rich_text"]
 
 [sub_resource type="StyleBoxFlat" id="PlaceholderPanel"]
 bg_color = Color(0, 0, 0, 0)
@@ -84,7 +85,7 @@ unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.313725, 0.329412, 0.392157, 1)
-text = "08/11/26 22:41"
+text = "08/11/26(Tue)21:18:04"
 
 [node name="PostNumberLabel" type="Label" parent="PostRow/PostPanel/PostMargin/Content/MetaRow"]
 unique_name_in_owner = true
@@ -103,11 +104,12 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 19)
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 2
+mouse_filter = 1
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
 autowrap_mode = 2
+script = ExtResource("2_rich_text")
 
 [node name="LinkMargin" type="MarginContainer" parent="PostRow/PostPanel/PostMargin/Content"]
 layout_mode = 2
