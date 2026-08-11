@@ -37,7 +37,7 @@ func _run_test() -> void:
 	_check(login_button != null, "Guest card must expose Login.")
 	_check(sign_up_button != null, "Guest card must expose Sign Up.")
 	if sign_up_button != null:
-		_check(sign_up_button.target_url == "null.net/getstarted", "Sign Up must preserve the existing onboarding route.")
+		_check(sign_up_button.target_url == "null.net/register", "Sign Up must route directly to operator registration.")
 
 	_check(_button_target(home, "Get Started") == "null.net/getstarted", "Get Started route changed during visual revamp.")
 	_check(_button_target(home, "UpdatesBtn") == "null.net/updates", "Changelog route changed during visual revamp.")
