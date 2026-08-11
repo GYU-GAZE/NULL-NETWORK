@@ -15,7 +15,7 @@ func _ready() -> void:
 
 
 func _run_test() -> void:
-	size = Vector2(1280, 720)
+	var test_size := Vector2(1280, 720)
 	var original_left_width: float = KubuOSMetrics.reserved_left_width
 	var original_right_width: float = KubuOSMetrics.reserved_right_width
 	KubuOSMetrics.reserved_left_width = 0.0
@@ -56,13 +56,13 @@ func _run_test() -> void:
 			"App rail scene width disagrees with its right-side reservation."
 		)
 
-		var work_rect: Rect2 = KubuOSMetrics.get_work_area_rect(size)
+		var work_rect: Rect2 = KubuOSMetrics.get_work_area_rect(test_size)
 		_check(
 			is_zero_approx(work_rect.position.x),
 			"Right app rail incorrectly shifted the workspace origin."
 		)
 		_check(
-			is_equal_approx(work_rect.end.x, size.x - rail.rail_width),
+			is_equal_approx(work_rect.end.x, test_size.x - rail.rail_width),
 			"Workspace did not stop before the right app rail."
 		)
 		_check(
@@ -70,7 +70,7 @@ func _run_test() -> void:
 			"Workspace did not remain below the top taskbar."
 		)
 		_check(
-			is_equal_approx(work_rect.end.y, size.y),
+			is_equal_approx(work_rect.end.y, test_size.y),
 			"Removed bottom dock still reserves vertical workspace."
 		)
 
@@ -100,8 +100,9 @@ func _run_test() -> void:
 		)
 
 		item._on_mouse_entered()
-		await get_tree().create_timer(item.callout_duration + 0.04).timeout
-		_check(item.hover_callout.visible, "Hover callout did not become visible.")
+		_check(item.hover_callout.visible, "Hover callout did not become visible on hover.")
+		if item._hover_tween != null:
+			item._hover_tween.custom_step(1.0)
 		_check(item.app_name_label.text == "TEST APP", "Hover callout lost the app name.")
 		_check(
 			item.hover_line.scale.x > 0.95 and item.hover_line.modulate.a > 0.95,
@@ -109,7 +110,8 @@ func _run_test() -> void:
 		)
 
 		item._on_mouse_exited()
-		await get_tree().create_timer(item.callout_duration + 0.04).timeout
+		if item._hover_tween != null:
+			item._hover_tween.custom_step(1.0)
 		_check(not item.hover_callout.visible, "Hover callout did not hide after mouse exit.")
 
 		item.set_badge_count(3)
