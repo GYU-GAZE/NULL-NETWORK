@@ -1,64 +1,9 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://apps/browser/sites/kubuchan/kubuchan_post_card.gd" id="1_script"]
 
-[sub_resource type="StyleBoxFlat" id="LinkNormal"]
-content_margin_left = 12.0
-content_margin_top = 5.0
-content_margin_right = 12.0
-content_margin_bottom = 5.0
-bg_color = Color(0.145, 0.184, 0.31, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.45, 0.49, 0.72, 1)
-corner_radius_top_left = 1
-corner_radius_top_right = 1
-corner_radius_bottom_right = 1
-corner_radius_bottom_left = 1
-
-[sub_resource type="StyleBoxFlat" id="LinkHover"]
-content_margin_left = 12.0
-content_margin_top = 5.0
-content_margin_right = 12.0
-content_margin_bottom = 5.0
-bg_color = Color(0.205, 0.247, 0.41, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.68, 0.72, 0.96, 1)
-corner_radius_top_left = 1
-corner_radius_top_right = 1
-corner_radius_bottom_right = 1
-corner_radius_bottom_left = 1
-
-[sub_resource type="StyleBoxFlat" id="LinkPressed"]
-content_margin_left = 12.0
-content_margin_top = 6.0
-content_margin_right = 12.0
-content_margin_bottom = 4.0
-bg_color = Color(0.11, 0.13, 0.24, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.56, 0.6, 0.86, 1)
-corner_radius_top_left = 1
-corner_radius_top_right = 1
-corner_radius_bottom_right = 1
-corner_radius_bottom_left = 1
-
-[sub_resource type="StyleBoxEmpty" id="EmptyFocus"]
-
 [sub_resource type="StyleBoxFlat" id="PlaceholderPanel"]
-bg_color = Color(0.89, 0.91, 0.95, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.6, 0.64, 0.72, 1)
+bg_color = Color(0, 0, 0, 0)
 
 [node name="KubuchanPostCard" type="MarginContainer"]
 layout_mode = 3
@@ -70,91 +15,111 @@ size_flags_horizontal = 3
 mouse_filter = 2
 script = ExtResource("1_script")
 
-[node name="PostPanel" type="PanelContainer" parent="."]
+[node name="PostRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Indent" type="Control" parent="PostRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 0)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PostPanel" type="PanelContainer" parent="PostRow"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("PlaceholderPanel")
 
-[node name="Content" type="VBoxContainer" parent="PostPanel"]
+[node name="PostMargin" type="MarginContainer" parent="PostRow/PostPanel"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 5
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 5
 
-[node name="MetaRow" type="HBoxContainer" parent="PostPanel/Content"]
+[node name="Content" type="VBoxContainer" parent="PostRow/PostPanel/PostMargin"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 7
+theme_override_constants/separation = 3
 
-[node name="SubjectLabel" type="Label" parent="PostPanel/Content/MetaRow"]
+[node name="MetaRow" type="HBoxContainer" parent="PostRow/PostPanel/PostMargin/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="SubjectLabel" type="Label" parent="PostRow/PostPanel/PostMargin/Content/MetaRow"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.18, 0.24, 0.4, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.376471, 0.341176, 0.505882, 1)
 text = "SUBJECT"
 
-[node name="AuthorLabel" type="Label" parent="PostPanel/Content/MetaRow"]
+[node name="AuthorLabel" type="Label" parent="PostRow/PostPanel/PostMargin/Content/MetaRow"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.21, 0.37, 0.33, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.27451, 0.403922, 0.34902, 1)
 text = "Anonymous"
 
-[node name="UidLabel" type="Label" parent="PostPanel/Content/MetaRow"]
+[node name="UidBadge" type="PanelContainer" parent="PostRow/PostPanel/PostMargin/Content/MetaRow"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.35, 0.4, 0.5, 1)
-theme_override_font_sizes/font_size = 12
+
+[node name="UidLabel" type="Label" parent="PostRow/PostPanel/PostMargin/Content/MetaRow/UidBadge"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.960784, 0.968627, 0.992157, 1)
 text = "ID:000000"
 
-[node name="MetaSpacer" type="Control" parent="PostPanel/Content/MetaRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-
-[node name="TimestampLabel" type="Label" parent="PostPanel/Content/MetaRow"]
+[node name="TimestampLabel" type="Label" parent="PostRow/PostPanel/PostMargin/Content/MetaRow"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.4, 0.44, 0.52, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.313725, 0.329412, 0.392157, 1)
 text = "08/11/26 22:41"
 
-[node name="PostNumberLabel" type="Label" parent="PostPanel/Content/MetaRow"]
+[node name="PostNumberLabel" type="Label" parent="PostRow/PostPanel/PostMargin/Content/MetaRow"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.26, 0.31, 0.42, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.227451, 0.258824, 0.388235, 1)
 text = "No.000000"
 
-[node name="BodyLabel" type="RichTextLabel" parent="PostPanel/Content"]
+[node name="BodyMargin" type="MarginContainer" parent="PostRow/PostPanel/PostMargin/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 18
+
+[node name="BodyLabel" type="RichTextLabel" parent="PostRow/PostPanel/PostMargin/Content/BodyMargin"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(0, 19)
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
-theme_override_colors/default_color = Color(0.12, 0.16, 0.24, 1)
-theme_override_font_sizes/normal_font_size = 14
-theme_override_font_sizes/bold_font_size = 14
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
 autowrap_mode = 2
 
-[node name="LinkButton" type="Button" parent="PostPanel/Content"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 29)
+[node name="LinkMargin" type="MarginContainer" parent="PostRow/PostPanel/PostMargin/Content"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.93, 0.95, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.86, 0.88, 1, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("LinkNormal")
-theme_override_styles/hover = SubResource("LinkHover")
-theme_override_styles/pressed = SubResource("LinkPressed")
-theme_override_styles/focus = SubResource("EmptyFocus")
-text = "null.net // CONNECT"
+mouse_filter = 2
+theme_override_constants/margin_left = 18
+
+[node name="LinkButton" type="LinkButton" parent="PostRow/PostPanel/PostMargin/Content/LinkMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+text = "https://null.net/"
+
+[node name="TrailingSpacer" type="Control" parent="PostRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
