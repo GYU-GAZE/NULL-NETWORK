@@ -41,7 +41,11 @@ func _render_thread() -> void:
 	archived_notice_label.text = thread_data.archived_notice
 	archived_notice_label.visible = not thread_data.archived_notice.strip_edges().is_empty()
 
-	for post_data: KubuchanPostData in thread_data.posts:
+	# Godot 4.6 can reject an explicitly typed loop variable when iterating an
+	# exported Array[ResourceScript] loaded from a .tres. Iterate as Variant and
+	# cast each entry so this renderer follows the same parser-safe path as tests.
+	for post_value in thread_data.posts:
+		var post_data := post_value as KubuchanPostData
 		if post_data == null:
 			continue
 
