@@ -117,6 +117,24 @@ func _run_test() -> void:
 
 		item.set_running(true)
 		_check(item.active_backdrop.visible, "Open app did not expose its active backdrop.")
+		_check(
+			item.active_backdrop.scale.is_equal_approx(item.active_hidden_scale),
+			"Open-state backdrop did not begin collapsed at the icon center."
+		)
+
+		# Real window opening emits app_opened and app_focused back-to-back. The
+		# focus refresh must preserve the in-flight reveal instead of snapping the
+		# backdrop directly to full size.
+		item.set_focused(true)
+		_check(
+			item._state_tween != null and item._state_tween.is_valid(),
+			"Focusing an opening app cancelled the active backdrop reveal tween."
+		)
+		_check(
+			item.active_backdrop.scale.is_equal_approx(item.active_hidden_scale),
+			"Focusing an opening app snapped the active backdrop to full size."
+		)
+
 		if item._state_tween != null:
 			item._state_tween.custom_step(1.0)
 		_check(
@@ -171,6 +189,7 @@ func _run_test() -> void:
 			)
 		_check(not item.hover_callout.visible, "Hover callout did not hide after mouse exit.")
 
+		item.set_focused(false)
 		item.set_running(false)
 		if item._state_tween != null:
 			item._state_tween.custom_step(1.0)
