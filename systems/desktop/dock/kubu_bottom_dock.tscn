@@ -3,9 +3,9 @@
 [ext_resource type="Script" uid="uid://74re1a3348oo" path="res://systems/desktop/dock/kubu_bottom_dock.gd" id="1_lf386"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_app_rail"]
-bg_color = Color(0.021, 0.037, 0.061, 0.98)
-border_width_right = 1
-border_color = Color(0.176, 0.345, 0.514, 0.9)
+bg_color = Color(0.035, 0.073, 0.125, 1)
+border_width_left = 1
+border_color = Color(0.176, 0.345, 0.514, 1)
 
 [node name="KubuBottomDock" type="Control" unique_id=1185085997]
 layout_mode = 3
@@ -19,14 +19,17 @@ script = ExtResource("1_lf386")
 
 [node name="SidebarMargin" type="MarginContainer" parent="."]
 layout_mode = 1
+anchor_left = 1.0
 anchor_bottom = 1.0
+anchor_right = 1.0
+offset_left = -30.0
 offset_top = 19.0
-offset_right = 40.0
+grow_horizontal = 0
 grow_vertical = 2
 mouse_filter = 2
 
 [node name="DockPanel" type="PanelContainer" parent="SidebarMargin" unique_id=1899037788]
-custom_minimum_size = Vector2(40, 0)
+custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 0
@@ -34,13 +37,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_app_rail")
 
 [node name="DockMargin" type="MarginContainer" parent="SidebarMargin/DockPanel" unique_id=98814161]
 layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 6
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 4
 
 [node name="AppContainer" type="VBoxContainer" parent="SidebarMargin/DockPanel/DockMargin" unique_id=1849414833]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 2
 alignment = 0
