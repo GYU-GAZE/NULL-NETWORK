@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="KubuchanThreadData" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="KubuchanThreadData" load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://data/templates/browser/kubuchan_thread_data.gd" id="1_thread"]
 [ext_resource type="Script" path="res://data/templates/browser/kubuchan_post_data.gd" id="2_post"]
