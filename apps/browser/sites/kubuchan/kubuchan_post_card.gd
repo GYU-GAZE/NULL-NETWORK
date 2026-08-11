@@ -6,12 +6,13 @@ signal link_requested(url: String)
 
 @export_category("Chan Layout")
 @export var reply_indent: float = 24.0
-@export var reply_width_ratio: float = 0.76
-@export var reply_min_width: float = 420.0
-@export var reply_max_width: float = 860.0
+@export var reply_min_width: float = 320.0
+@export var reply_max_width: float = 900.0
+@export var reply_text_padding: float = 34.0
 
 @onready var indent: Control = %Indent
 @onready var post_panel: PanelContainer = %PostPanel
+@onready var meta_row: HBoxContainer = %MetaRow
 @onready var subject_label: Label = %SubjectLabel
 @onready var author_label: Label = %AuthorLabel
 @onready var uid_badge: PanelContainer = %UidBadge
@@ -24,6 +25,7 @@ signal link_requested(url: String)
 var _link_url: String = ""
 var _pulse_tween: Tween
 var _is_op: bool = false
+var _raw_body_text: String = ""
 
 
 func _ready() -> void:
@@ -44,6 +46,7 @@ func configure(post_data: KubuchanPostData) -> void:
 		return
 
 	_is_op = post_data.is_op
+	_raw_body_text = post_data.body_text
 	indent.custom_minimum_size.x = 0.0 if _is_op else reply_indent
 
 	subject_label.text = post_data.subject
@@ -136,12 +139,38 @@ func _refresh_post_width() -> void:
 		post_panel.custom_minimum_size.x = available_width
 		return
 
-	var target_width: float = clampf(
-		available_width * reply_width_ratio,
-		reply_min_width,
-		reply_max_width
+	# 4chan replies are not uniform forum cards: each box grows to fit its own
+	# content, then wraps once it reaches the available/max width. Measuring the
+	# authored lines gives the same irregular silhouette while remaining responsive.
+	var content_width: float = _measure_desired_content_width()
+	post_panel.custom_minimum_size.x = minf(
+		available_width,
+		clampf(content_width, reply_min_width, reply_max_width)
 	)
-	post_panel.custom_minimum_size.x = minf(target_width, available_width)
+
+
+func _measure_desired_content_width() -> float:
+	var desired_width: float = meta_row.get_combined_minimum_size().x + 14.0
+	var font: Font = body_label.get_theme_font(&"normal_font")
+	var font_size: int = body_label.get_theme_font_size(&"normal_font_size")
+
+	if font != null:
+		for line: String in _raw_body_text.split("\n"):
+			var line_width: float = font.get_string_size(
+				line,
+				HORIZONTAL_ALIGNMENT_LEFT,
+				-1,
+				font_size
+			).x
+			desired_width = maxf(desired_width, line_width + reply_text_padding)
+
+	if link_button.visible:
+		desired_width = maxf(
+			desired_width,
+			link_button.get_combined_minimum_size().x + reply_text_padding
+		)
+
+	return desired_width
 
 
 func _start_link_pulse() -> void:
