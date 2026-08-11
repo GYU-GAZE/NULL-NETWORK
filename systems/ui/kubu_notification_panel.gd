@@ -132,11 +132,17 @@ func _apply_layout(animated: bool) -> void:
 
 func _get_open_position(runtime_panel_size: Vector2) -> Vector2:
 	var root_size: Vector2 = _get_root_size()
+	var chrome_right: float = KubuOSMetrics.reserved_right_width
 
-	var x: float = root_size.x - runtime_panel_size.x - right_margin
+	var x: float = (
+		root_size.x
+		- chrome_right
+		- runtime_panel_size.x
+		- right_margin
+	)
 	var y: float = taskbar_height + top_gap
 
-	x = clamp(x, 0.0, max(0.0, root_size.x - runtime_panel_size.x))
+	x = clamp(x, 0.0, max(0.0, root_size.x - chrome_right - runtime_panel_size.x))
 
 	return Vector2(x, y)
 
