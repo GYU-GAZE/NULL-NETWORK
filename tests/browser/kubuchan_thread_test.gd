@@ -21,13 +21,17 @@ func _run_test() -> void:
 	_check(THREAD_DATA.posts.size() >= 10, "Kubuchan prologue thread lost its authored conversation.")
 
 	var human_uids := {}
-	var spam_posts: Array[KubuchanPostData] = []
+	var spam_posts: Array = []
 	var human_mentions_wewere: bool = false
 	var human_mentions_missing_people: bool = false
 	var human_mentions_scrapped_origin: bool = false
 	var human_calls_it_admin_bot: bool = false
 
-	for post: KubuchanPostData in THREAD_DATA.posts:
+	# Godot 4.6 can reject an explicitly typed loop variable when iterating an
+	# exported typed Resource array loaded from a .tres, even though every element
+	# is the expected script class. Iterate as Variant, then cast explicitly.
+	for post_value in THREAD_DATA.posts:
+		var post := post_value as KubuchanPostData
 		if post == null:
 			continue
 
@@ -54,13 +58,16 @@ func _run_test() -> void:
 	_check(spam_posts.size() == 1, "Kubuchan thread must contain exactly one Null Network system spam post.")
 
 	if spam_posts.size() == 1:
-		_check(spam_posts[0].link_url == "null.net", "System spam must route only to null.net.")
-		_check(
-			not spam_posts[0].body_text.to_lower().contains("admin")
-			and not spam_posts[0].body_text.to_lower().contains("wewere")
-			and not spam_posts[0].body_text.to_lower().contains("missing"),
-			"System spam must remain an ambiguous lure; human posters own the Null Network rumors."
-		)
+		var spam_post := spam_posts[0] as KubuchanPostData
+		_check(spam_post != null, "Kubuchan spam post must resolve as KubuchanPostData.")
+		if spam_post != null:
+			_check(spam_post.link_url == "null.net", "System spam must route only to null.net.")
+			_check(
+				not spam_post.body_text.to_lower().contains("admin")
+				and not spam_post.body_text.to_lower().contains("wewere")
+				and not spam_post.body_text.to_lower().contains("missing"),
+				"System spam must remain an ambiguous lure; human posters own the Null Network rumors."
+			)
 
 	_check(human_mentions_wewere, "Human posters must surface the WEWERE rumor.")
 	_check(human_mentions_missing_people, "Human posters must surface the recent disappearances rumor.")
