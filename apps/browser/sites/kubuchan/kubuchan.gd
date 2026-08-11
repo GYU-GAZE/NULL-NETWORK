@@ -84,7 +84,8 @@ func _build_runtime_timestamps(post_count: int) -> Array[String]:
 
 	var anchor_minutes: int = (current_hour * 60) + rng.randi_range(20, 59)
 	var gap_count: int = maxi(1, post_count - 1)
-	var maximum_gap: int = maxi(1, mini(8, anchor_minutes / gap_count))
+	var available_gap: int = int(anchor_minutes / gap_count)
+	var maximum_gap: int = maxi(1, mini(8, available_gap))
 	var post_minutes: Array[int] = []
 	post_minutes.resize(post_count)
 	var cursor_minutes: int = anchor_minutes
@@ -100,7 +101,7 @@ func _build_runtime_timestamps(post_count: int) -> Array[String]:
 	var day: int = TimeManager.current_calendar_day
 
 	for minutes_since_midnight: int in post_minutes:
-		var hour: int = minutes_since_midnight / 60
+		var hour: int = int(minutes_since_midnight / 60)
 		var minute: int = minutes_since_midnight % 60
 		var second: int = rng.randi_range(0, 59)
 		timestamps.append(
