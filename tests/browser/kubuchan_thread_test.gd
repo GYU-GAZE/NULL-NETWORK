@@ -48,7 +48,7 @@ func _run_test() -> void:
 		human_calls_it_admin_bot = (
 			human_calls_it_admin_bot
 			or (lowered.contains("admin") and lowered.contains("bot"))
-	)
+		)
 
 	_check(human_uids.size() == 6, "Kubuchan thread must keep six recurring human UIDs.")
 	_check(spam_posts.size() == 1, "Kubuchan thread must contain exactly one Null Network system spam post.")
@@ -107,26 +107,30 @@ func _run_test() -> void:
 		)
 
 		var cards: Array[KubuchanPostCard] = []
-		for child: Node in site.find_children("*", "KubuchanPostCard", true, false):
-			var card := child as KubuchanPostCard
-			if card != null:
-				cards.append(card)
-
+		_collect_cards(site, cards)
 		_check(cards.size() == THREAD_DATA.posts.size(), "Kubuchan did not render every authored post.")
 
 		if cards.size() >= 2:
 			var op_panel := cards[0].find_child("PostPanel", true, false) as PanelContainer
 			var reply_panel := cards[1].find_child("PostPanel", true, false) as PanelContainer
 			var reply_indent := cards[1].find_child("Indent", true, false) as Control
+			var op_style := (
+				op_panel.get_theme_stylebox(&"panel") as StyleBoxFlat
+				if op_panel != null
+				else null
+			)
+			var reply_style := (
+				reply_panel.get_theme_stylebox(&"panel") as StyleBoxFlat
+				if reply_panel != null
+				else null
+			)
 
 			_check(
-				op_panel != null
-				and op_panel.get_theme_stylebox(&"panel").get_bg_color().a == 0.0,
+				op_style != null and op_style.bg_color.a == 0.0,
 				"Classic imageboard OP must sit directly on the page instead of inside a forum card."
 			)
 			_check(
-				reply_panel != null
-				and reply_panel.get_theme_stylebox(&"panel").get_bg_color().a > 0.0,
+				reply_style != null and reply_style.bg_color.a > 0.0,
 				"Imageboard replies must use compact tinted reply boxes."
 			)
 			_check(
@@ -153,6 +157,14 @@ func _run_test() -> void:
 		site.queue_free()
 
 	_finish_test()
+
+
+func _collect_cards(root: Node, output: Array[KubuchanPostCard]) -> void:
+	if root is KubuchanPostCard:
+		output.append(root as KubuchanPostCard)
+
+	for child: Node in root.get_children():
+		_collect_cards(child, output)
 
 
 func _collect_visible_clickables(root: Node, output: Array[BaseButton]) -> void:
