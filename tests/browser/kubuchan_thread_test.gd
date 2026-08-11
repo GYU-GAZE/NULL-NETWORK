@@ -71,6 +71,7 @@ func _run_test() -> void:
 	_check(site != null, "Kubuchan scene failed to instantiate as KubuchanSite.")
 
 	if site != null:
+		site.size = Vector2(1000, 700)
 		add_child(site)
 
 		if not site.browser_navigation_requested.is_connected(_on_navigation_requested):
@@ -136,6 +137,12 @@ func _run_test() -> void:
 			_check(
 				reply_indent != null and reply_indent.custom_minimum_size.x > 0.0,
 				"Imageboard replies must be indented relative to the OP."
+			)
+			_check(
+				op_panel != null
+				and reply_panel != null
+				and reply_panel.custom_minimum_size.x < op_panel.custom_minimum_size.x,
+				"Replies must remain content-sized boxes instead of full-width forum cards."
 			)
 
 		var visible_clickables: Array[BaseButton] = []
