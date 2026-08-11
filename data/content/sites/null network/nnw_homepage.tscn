@@ -307,8 +307,10 @@ theme_override_constants/separation = 3
 custom_minimum_size = Vector2(52, 19)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_disabled_color = Color(0.352941, 0.486275, 0.580392, 0.9)
 theme_override_styles/normal = SubResource("MiniNormal")
 theme_override_styles/hover = SubResource("MiniHover")
+theme_override_styles/disabled = SubResource("MiniNormal")
 text = "Login"
 disabled = true
 
