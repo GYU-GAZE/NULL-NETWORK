@@ -4,6 +4,9 @@ class_name KubuBottomDock
 @export_category("Dock Scenes")
 @export var dock_item_scene: PackedScene
 
+@export_category("App Rail")
+@export var rail_width: float = 40.0
+
 @export_category("Boot Animation")
 @export var item_spawn_delay: float = 0.06
 @export var item_fade_duration: float = 0.18
@@ -24,6 +27,7 @@ func _ready() -> void:
 	_connect_global_signals()
 	if not KubuOSMetrics.metrics_changed.is_connected(_apply_metrics):
 		KubuOSMetrics.metrics_changed.connect(_apply_metrics)
+	_register_work_area_reservation()
 	_apply_metrics()
 	_sync_dock()
 
@@ -51,17 +55,24 @@ func _connect_global_signals() -> void:
 	if not ContentRegistry.registry_rebuilt.is_connected(_on_registry_rebuilt):
 		ContentRegistry.registry_rebuilt.connect(_on_registry_rebuilt)
 
+func _register_work_area_reservation() -> void:
+	var desired_width: float = maxf(32.0, rail_width)
+	if is_equal_approx(KubuOSMetrics.reserved_left_width, desired_width):
+		return
+	KubuOSMetrics.reserved_left_width = desired_width
+	KubuOSMetrics.emit_changed()
+
 func _apply_metrics() -> void:
-	var rail_width: float = maxf(32.0, KubuOSMetrics.reserved_left_width)
+	var rail_width_from_metrics: float = maxf(32.0, KubuOSMetrics.reserved_left_width)
 	sidebar_margin.anchor_left = 0.0
 	sidebar_margin.anchor_top = 0.0
 	sidebar_margin.anchor_right = 0.0
 	sidebar_margin.anchor_bottom = 1.0
 	sidebar_margin.offset_left = 0.0
 	sidebar_margin.offset_top = KubuOSMetrics.taskbar_height
-	sidebar_margin.offset_right = rail_width
+	sidebar_margin.offset_right = rail_width_from_metrics
 	sidebar_margin.offset_bottom = 0.0
-	dock_panel.custom_minimum_size = Vector2(rail_width, 0.0)
+	dock_panel.custom_minimum_size = Vector2(rail_width_from_metrics, 0.0)
 
 func _sync_dock() -> void:
 	if dock_item_scene == null:
