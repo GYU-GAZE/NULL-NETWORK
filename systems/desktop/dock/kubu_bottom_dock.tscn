@@ -1,6 +1,11 @@
-[gd_scene format=3 uid="uid://bsm16kkm5j4eu"]
+[gd_scene load_steps=3 format=3 uid="uid://bsm16kkm5j4eu"]
 
 [ext_resource type="Script" uid="uid://74re1a3348oo" path="res://systems/desktop/dock/kubu_bottom_dock.gd" id="1_lf386"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_app_rail"]
+bg_color = Color(0.021, 0.037, 0.061, 0.98)
+border_width_right = 1
+border_color = Color(0.176, 0.345, 0.514, 0.9)
 
 [node name="KubuBottomDock" type="Control" unique_id=1185085997]
 layout_mode = 3
@@ -12,37 +17,30 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_lf386")
 
-[node name="BottomMargin" type="MarginContainer" parent="." unique_id=1369808385]
+[node name="SidebarMargin" type="MarginContainer" parent="."]
 layout_mode = 1
-anchors_preset = -1
-anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -54.0
-offset_bottom = -6.0
-grow_horizontal = 2
-grow_vertical = 0
-mouse_filter = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_right = 6
-
-[node name="DockCenter" type="CenterContainer" parent="BottomMargin" unique_id=454933231]
-layout_mode = 2
+offset_top = 19.0
+offset_right = 40.0
+grow_vertical = 2
 mouse_filter = 2
 
-[node name="DockPanel" type="PanelContainer" parent="BottomMargin/DockCenter" unique_id=1899037788]
-custom_minimum_size = Vector2(0, 46)
+[node name="DockPanel" type="PanelContainer" parent="SidebarMargin" unique_id=1899037788]
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
+size_flags_vertical = 3
 mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_app_rail")
 
-[node name="DockMargin" type="MarginContainer" parent="BottomMargin/DockCenter/DockPanel" unique_id=98814161]
+[node name="DockMargin" type="MarginContainer" parent="SidebarMargin/DockPanel" unique_id=98814161]
 layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 2
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 6
 
-[node name="AppContainer" type="HBoxContainer" parent="BottomMargin/DockCenter/DockPanel/DockMargin" unique_id=1849414833]
+[node name="AppContainer" type="VBoxContainer" parent="SidebarMargin/DockPanel/DockMargin" unique_id=1849414833]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 4
+alignment = 0

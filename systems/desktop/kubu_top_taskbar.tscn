@@ -46,7 +46,7 @@ theme_override_constants/separation = 4
 
 [node name="MenuButton" type="Button" parent="MarginContainer/ContentRoot/LeftHBox" unique_id=740875205]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(58, 0)
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 text = "Menu"
 flat = true
@@ -111,73 +111,50 @@ layout_mode = 2
 
 [node name="KubuActionPip" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=499583230 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip2" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1072617752 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip3" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=2063661907 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip4" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=730442374 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip5" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=725360401 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip6" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=968344807 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip7" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1708828972 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip8" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1904771323 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip9" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=803288499 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip10" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1643806711 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip11" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1389360433 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip12" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1756388800 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip13" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=2130226006 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip14" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1630731797 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip15" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1669250791 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip16" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=307720823 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip17" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1714191202 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip18" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1254773440 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip19" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1431757605 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip20" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=148494543 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip21" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1154246325 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip22" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1337558743 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip23" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1550069258 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
-
 [node name="KubuActionPip24" parent="MarginContainer/ContentRoot/RightHBox/ActionPipHBox" unique_id=1878010277 instance=ExtResource("2_ofqvs")]
 layout_mode = 2
 
@@ -254,9 +231,9 @@ vertical_alignment = 1
 unique_name_in_owner = true
 z_index = 30
 layout_mode = 1
-offset_left = 4.0
+offset_left = 0.0
 offset_top = 24.0
-offset_right = 236.0
+offset_right = 232.0
 offset_bottom = 150.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_system_menu")
 

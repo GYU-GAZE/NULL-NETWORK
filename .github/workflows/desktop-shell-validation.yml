@@ -1,0 +1,145 @@
+name: Desktop Shell Validation
+
+on:
+  push:
+    branches:
+      - main
+      - ui/vertical-app-sidebar
+  pull_request:
+    paths:
+      - "systems/desktop/**"
+      - "systems/window_manager/**"
+      - "systems/workspace/**"
+      - "core/autoloads/kubu_os_metrics.gd"
+      - "core/autoloads/global_signals.gd"
+      - "data/content/desktop/**"
+      - "tests/desktop/**"
+      - "tests/window_manager/**"
+      - ".github/workflows/desktop-shell-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-desktop-shell:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare CI-only asset placeholders
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp project.godot /tmp/project.godot.original
+
+          while IFS= read -r -d '' import_file; do
+            source_file="${import_file%.import}"
+
+            if [ ! -f "$source_file" ]; then
+              extension="${source_file##*.}"
+
+              case "$extension" in
+                png)
+                  printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4////fwAJ+wP9KobjigAAAABJRU5ErkJggg==' \
+                    | base64 --decode > "$source_file"
+                  ;;
+                ttf)
+                  cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf "$source_file"
+                  ;;
+                svg)
+                  printf '%s' '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><rect width="1" height="1" fill="white"/></svg>' \
+                    > "$source_file"
+                  ;;
+                *)
+                  echo "Unsupported missing asset type: $source_file"
+                  exit 1
+                  ;;
+              esac
+            fi
+
+            rm -f "$import_file"
+          done < <(find data -type f -name '*.import' -print0)
+
+          sed -i '/^theme\/custom=/d' project.godot
+
+      - name: Download Godot 4.6.3
+        run: |
+          curl --fail --location --retry 3 \
+            --output godot.zip \
+            https://godot-releases.nbg1.your-objectstorage.com/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip
+          unzip -q godot.zip
+          chmod +x Godot_v4.6.3-stable_linux.x86_64
+
+      - name: Import project
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --editor --path . --import \
+            2>&1 | tee desktop-shell-import.log
+
+      - name: Run app rail test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/desktop/kubu_app_rail_test.tscn \
+            2>&1 | tee desktop-app-rail-test.log
+          grep -q "KUBU_APP_RAIL_TEST: PASS" desktop-app-rail-test.log
+
+      - name: Run shell presentation test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/desktop/kubu_shell_presentation_test.tscn \
+            2>&1 | tee desktop-shell-presentation-test.log
+          grep -q "KUBU_SHELL_PRESENTATION_TEST: PASS" desktop-shell-presentation-test.log
+
+      - name: Run work area test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/window_manager/window_work_area_test.tscn \
+            2>&1 | tee desktop-work-area-test.log
+          grep -q "WINDOW_WORK_AREA_TEST: PASS" desktop-work-area-test.log
+
+      - name: Reject shell script errors
+        shell: bash
+        run: |
+          cat \
+            desktop-shell-import.log \
+            desktop-app-rail-test.log \
+            desktop-shell-presentation-test.log \
+            desktop-work-area-test.log \
+            > desktop-shell-validation.log
+
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL" desktop-shell-validation.log; then
+            echo "Desktop shell validation reported an error."
+            exit 1
+          fi
+
+      - name: Restore project settings
+        if: always()
+        run: cp /tmp/project.godot.original project.godot
+
+      - name: Upload desktop shell validation log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-shell-validation-log
+          path: |
+            desktop-shell-import.log
+            desktop-app-rail-test.log
+            desktop-shell-presentation-test.log
+            desktop-work-area-test.log
+            desktop-shell-validation.log
+          if-no-files-found: ignore
