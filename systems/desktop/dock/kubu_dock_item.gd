@@ -21,8 +21,10 @@ enum BadgeMode {
 @export_category("Open State")
 @export var running_background_color: Color = Color(0.08, 0.20, 0.31, 0.88)
 @export var focused_background_color: Color = Color(0.11, 0.27, 0.40, 0.96)
-@export var active_reveal_duration: float = 0.24
-@export var active_hidden_scale: Vector2 = Vector2(0.08, 0.08)
+@export var active_hidden_size: Vector2 = Vector2(4.0, 4.0)
+@export var active_full_size: Vector2 = Vector2(30.0, 30.0)
+@export var active_reveal_duration: float = 0.22
+@export var active_reveal_hold_duration: float = 0.04
 
 @export_category("Badge Animation")
 @export var badge_pulse_scale: Vector2 = Vector2(1.18, 1.18)
@@ -53,6 +55,7 @@ var _icon_hover_tween: Tween
 var _badge_tween: Tween
 var _state_tween: Tween
 var _active_backdrop_is_visible: bool = false
+var _active_reveal_progress: float = 0.0
 var _line_reveal_progress: float = 0.0
 var _label_reveal_progress: float = 0.0
 var _callout_icon_left_x: float = 0.0
@@ -75,7 +78,7 @@ func _ready() -> void:
 
 	active_backdrop.visible = false
 	active_backdrop.modulate.a = 1.0
-	active_backdrop.scale = active_hidden_scale
+	_set_active_backdrop_reveal_progress(0.0)
 
 	call_deferred("_refresh_pivots")
 
@@ -210,9 +213,9 @@ func _refresh_visual_state() -> void:
 func _show_active_backdrop(target_color: Color) -> void:
 	active_backdrop.color = target_color
 
-	# Opening a window normally produces app_opened and app_focused back-to-back.
-	# If the reveal is already in progress, a focus refresh must only update the
-	# color; snapping scale to ONE here would erase the center-out animation.
+	# app_opened and app_focused arrive back-to-back. Once the active target is
+	# established, later state refreshes must only update the color and leave the
+	# geometric reveal in flight.
 	if _active_backdrop_is_visible:
 		active_backdrop.visible = true
 		return
@@ -220,47 +223,96 @@ func _show_active_backdrop(target_color: Color) -> void:
 	_kill_state_tween()
 	_active_backdrop_is_visible = true
 	active_backdrop.visible = true
-	_refresh_active_backdrop_pivot()
-	active_backdrop.scale = active_hidden_scale
-	# The backdrop must be visible while it is still tiny. Fading from alpha 0
-	# hid the first half of the expansion and made the state look instantaneous.
 	active_backdrop.modulate.a = 1.0
 
-	_state_tween = create_tween()
-	_state_tween.set_trans(Tween.TRANS_CUBIC)
-	_state_tween.set_ease(Tween.EASE_OUT)
-	_state_tween.tween_property(
-		active_backdrop,
-		"scale",
-		Vector2.ONE,
-		active_reveal_duration
+	var start_progress: float = (
+		_active_reveal_progress
+		if _active_reveal_progress > 0.0
+		else 0.0
 	)
+	_set_active_backdrop_reveal_progress(start_progress)
+
+	_state_tween = create_tween()
+
+	# Keep the tiny center square on-screen for a couple of display frames. This
+	# makes the origin of the reveal readable and prevents the first rendered
+	# frame from already being halfway through the expansion.
+	if start_progress <= 0.001 and active_reveal_hold_duration > 0.0:
+		_state_tween.tween_interval(active_reveal_hold_duration)
+
+	var reveal_duration: float = maxf(
+		0.01,
+		active_reveal_duration * (1.0 - start_progress)
+	)
+	_state_tween.tween_method(
+		_set_active_backdrop_reveal_progress,
+		start_progress,
+		1.0,
+		reveal_duration
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 func _hide_active_backdrop() -> void:
 	if not _active_backdrop_is_visible:
-		active_backdrop.visible = false
+		if _active_reveal_progress <= 0.001:
+			active_backdrop.visible = false
 		return
 
 	_kill_state_tween()
 	_active_backdrop_is_visible = false
-	_refresh_active_backdrop_pivot()
 	active_backdrop.modulate.a = 1.0
 
+	var start_progress: float = clampf(_active_reveal_progress, 0.0, 1.0)
+
+	if start_progress <= 0.001:
+		_set_active_backdrop_reveal_progress(0.0)
+		active_backdrop.visible = false
+		return
+
 	_state_tween = create_tween()
-	_state_tween.set_trans(Tween.TRANS_CUBIC)
-	_state_tween.set_ease(Tween.EASE_IN)
-	_state_tween.tween_property(
-		active_backdrop,
-		"scale",
-		active_hidden_scale,
-		active_reveal_duration * 0.78
-	)
+	_state_tween.tween_method(
+		_set_active_backdrop_reveal_progress,
+		start_progress,
+		0.0,
+		maxf(0.01, active_reveal_duration * start_progress * 0.78)
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	_state_tween.finished.connect(_on_active_backdrop_hidden, CONNECT_ONE_SHOT)
+
+
+func _set_active_backdrop_reveal_progress(value: float) -> void:
+	_active_reveal_progress = clampf(value, 0.0, 1.0)
+
+	var raw_size: Vector2 = active_hidden_size.lerp(
+		active_full_size,
+		_active_reveal_progress
+	)
+	var resolved_size := Vector2(
+		_snap_even_dimension(raw_size.x),
+		_snap_even_dimension(raw_size.y)
+	)
+	var half_size: Vector2 = resolved_size * 0.5
+
+	# ActiveBackdrop is anchored at the exact center of VisualRoot. Updating the
+	# four offsets changes the actual drawn rectangle instead of relying on a
+	# CanvasItem transform, so the UI really is 4x4 -> ... -> 30x30.
+	active_backdrop.offset_left = -half_size.x
+	active_backdrop.offset_top = -half_size.y
+	active_backdrop.offset_right = half_size.x
+	active_backdrop.offset_bottom = half_size.y
+
+
+func _snap_even_dimension(value: float) -> float:
+	var snapped: int = maxi(2, roundi(value))
+
+	if snapped % 2 != 0:
+		snapped += 1
+
+	return float(snapped)
 
 
 func _on_active_backdrop_hidden() -> void:
 	if not _active_backdrop_is_visible:
+		_set_active_backdrop_reveal_progress(0.0)
 		active_backdrop.visible = false
 
 
@@ -457,17 +509,4 @@ func _refresh_pivots() -> void:
 	if is_instance_valid(visual_root):
 		visual_root.pivot_offset = visual_root.size / 2.0
 
-	_refresh_active_backdrop_pivot()
 	_refresh_callout_geometry()
-
-
-func _refresh_active_backdrop_pivot() -> void:
-	if not is_instance_valid(active_backdrop):
-		return
-
-	var backdrop_size: Vector2 = active_backdrop.size
-
-	if backdrop_size.x <= 0.0 or backdrop_size.y <= 0.0:
-		backdrop_size = active_backdrop.custom_minimum_size
-
-	active_backdrop.pivot_offset = backdrop_size / 2.0

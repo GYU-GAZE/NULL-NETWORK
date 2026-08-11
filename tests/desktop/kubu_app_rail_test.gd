@@ -100,39 +100,43 @@ func _run_test() -> void:
 			"App-name callout must stay at the native 6px logical font size so 2x display scaling renders it at 12 physical pixels."
 		)
 
-		var item_center_x: float = item.get_global_rect().get_center().x
-		var icon_center_x: float = item.icon_button.get_global_rect().get_center().x
+		var item_center: Vector2 = item.get_global_rect().get_center()
+		var icon_center: Vector2 = item.icon_button.get_global_rect().get_center()
 		_check(
-			is_equal_approx(item_center_x, icon_center_x),
-			"App icon is not centered horizontally in the 30px rail."
+			item_center.is_equal_approx(icon_center),
+			"App icon is not centered in the 30px rail item."
 		)
 		_check(
 			item.custom_minimum_size.is_equal_approx(Vector2(30.0, 30.0)),
 			"App rail item is not using the 30x30 cell required by the expanded active highlight."
 		)
 		_check(
-			item.active_backdrop.custom_minimum_size.is_equal_approx(Vector2(30.0, 30.0)),
-			"Open-state backdrop must expand to 30x30."
+			item.active_full_size.is_equal_approx(Vector2(30.0, 30.0)),
+			"Open-state backdrop final geometry is not 30x30."
+		)
+		_check(
+			item.active_backdrop.get_parent() == item.visual_root,
+			"Active backdrop is still container-managed instead of using direct centered geometry."
 		)
 
-		# Reproduce the real open flow: app_opened then app_focused. The highlight
-		# must already be visible while tiny, remain tiny through the focus refresh,
-		# and then visibly grow through intermediate scales before reaching 30x30.
+		# Reproduce the real open flow: app_opened then app_focused. This test now
+		# inspects the actual Control rectangle, not CanvasItem.scale. It therefore
+		# fails if the player would see a full 30x30 block immediately.
 		item.set_running(true)
 		_check(item.active_backdrop.visible, "Open app did not expose its active backdrop.")
 		_check(
-			item.active_backdrop.modulate.a > 0.99,
-			"Active backdrop starts transparent, hiding the center-out reveal."
+			item.active_backdrop.size.is_equal_approx(item.active_hidden_size),
+			"Active backdrop did not begin as a real compact center rectangle."
 		)
 		_check(
-			item.active_backdrop.scale.is_equal_approx(item.active_hidden_scale),
-			"Active backdrop did not begin at its compact center scale."
+			item.active_backdrop.get_global_rect().get_center().is_equal_approx(item_center),
+			"Compact active backdrop is not centered on the app icon."
 		)
 
 		item.set_focused(true)
 		_check(
-			item.active_backdrop.scale.is_equal_approx(item.active_hidden_scale),
-			"Focus refresh snapped the active backdrop to full size."
+			item.active_backdrop.size.is_equal_approx(item.active_hidden_size),
+			"Focus refresh snapped the real active backdrop geometry to full size."
 		)
 		_check(
 			item._state_tween != null and item._state_tween.is_valid(),
@@ -140,22 +144,30 @@ func _run_test() -> void:
 		)
 
 		if item._state_tween != null:
-			item._state_tween.custom_step(item.active_reveal_duration * 0.35)
+			item._state_tween.custom_step(
+				item.active_reveal_hold_duration
+				+ item.active_reveal_duration * 0.35
+			)
+
 		_check(
-			item.active_backdrop.scale.x > item.active_hidden_scale.x
-			and item.active_backdrop.scale.x < 0.98,
-			"Active backdrop skipped the visible intermediate expansion state."
+			item.active_backdrop.size.x > item.active_hidden_size.x
+			and item.active_backdrop.size.x < item.active_full_size.x,
+			"Active backdrop skipped the real intermediate geometry during expansion."
 		)
 		_check(
-			item.active_backdrop.modulate.a > 0.99,
-			"Active backdrop became transparent during its expansion."
+			item.active_backdrop.get_global_rect().get_center().is_equal_approx(item_center),
+			"Active backdrop drifted away from the icon center while expanding."
 		)
 
 		if item._state_tween != null:
 			item._state_tween.custom_step(1.0)
 		_check(
-			item.active_backdrop.scale.is_equal_approx(Vector2.ONE),
-			"Open-state backdrop did not finish expanding from its center."
+			item.active_backdrop.size.is_equal_approx(item.active_full_size),
+			"Open-state backdrop did not finish at its real 30x30 geometry."
+		)
+		_check(
+			item.active_backdrop.get_global_rect().get_center().is_equal_approx(item_center),
+			"Full active backdrop is not centered on the app icon."
 		)
 
 		item._on_mouse_entered()
@@ -206,6 +218,12 @@ func _run_test() -> void:
 
 		item.set_running(false)
 		item.set_focused(false)
+		if item._state_tween != null:
+			item._state_tween.custom_step(item.active_reveal_duration * 0.30)
+		_check(
+			item.active_backdrop.size.x < item.active_full_size.x,
+			"Closing active backdrop did not begin shrinking toward the center."
+		)
 		if item._state_tween != null:
 			item._state_tween.custom_step(1.0)
 		_check(not item.active_backdrop.visible, "Closed app left its active backdrop visible.")
