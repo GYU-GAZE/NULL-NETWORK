@@ -11,9 +11,11 @@ enum BadgeMode {
 }
 
 @export_category("Hover Animation")
-@export var hover_scale: Vector2 = Vector2(1.08, 1.08)
-@export var hover_offset_x: float = 2.0
+@export var hover_scale: Vector2 = Vector2(1.06, 1.06)
+@export var hover_offset_x: float = -1.0
 @export var hover_duration: float = 0.12
+@export var callout_duration: float = 0.16
+@export_range(0.5, 1.0, 0.01) var callout_label_start_scale_x: float = 0.92
 
 @export_category("State Visuals")
 @export var idle_modulate: Color = Color.WHITE
@@ -26,7 +28,10 @@ enum BadgeMode {
 
 @onready var visual_root: Control = %VisualRoot
 @onready var icon_button: Button = %IconButton
+@onready var hover_callout: Control = %HoverCallout
+@onready var hover_label_panel: PanelContainer = %HoverLabelPanel
 @onready var app_name_label: Label = %AppNameLabel
+@onready var hover_line: ColorRect = %HoverLine
 @onready var state_indicator: ColorRect = %StateIndicator
 @onready var badge_panel: PanelContainer = %BadgePanel
 @onready var badge_label: Label = %BadgeLabel
@@ -38,21 +43,25 @@ var app_data: AppResource
 var _is_running: bool = false
 var _is_focused: bool = false
 var _is_locked: bool = false
+var _is_hovered: bool = false
 var _badge_mode: int = BadgeMode.NONE
 var _hover_tween: Tween
 var _badge_tween: Tween
+
 
 func _ready() -> void:
 	icon_button.gui_input.connect(_on_icon_button_pressed)
 	icon_button.mouse_entered.connect(_on_mouse_entered)
 	icon_button.mouse_exited.connect(_on_mouse_exited)
-	app_name_label.visible = false
+	hover_callout.visible = false
+	app_name_label.visible = true
 	badge_panel.visible = false
 	badge_dot.visible = false
 	badge_icon.visible = false
 	state_indicator.visible = false
 	locked_overlay.visible = false
-	call_deferred("_refresh_pivot")
+	call_deferred("_refresh_pivots")
+
 
 func setup(app: AppResource) -> void:
 	app_data = app
@@ -61,17 +70,23 @@ func setup(app: AppResource) -> void:
 		app_name_label.text = "INVALID"
 		return
 	icon_button.icon = app_data.app_icon
-	icon_button.tooltip_text = app_data.app_name
+	# The custom callout is the app-name affordance; suppress the generic tooltip
+	# so both systems never compete on hover.
+	icon_button.tooltip_text = ""
 	app_name_label.text = app_data.app_name.to_upper()
 	_refresh_visual_state()
+	call_deferred("_refresh_pivots")
+
 
 func set_running(running: bool) -> void:
 	_is_running = running
 	_refresh_visual_state()
 
+
 func set_focused(focused: bool) -> void:
 	_is_focused = focused
 	_refresh_visual_state()
+
 
 func set_locked(locked: bool) -> void:
 	_is_locked = locked
@@ -85,6 +100,7 @@ func set_locked(locked: bool) -> void:
 		_reset_hover_immediately()
 	_refresh_visual_state()
 
+
 func set_badge_count(count: int) -> void:
 	var sanitized_count: int = maxi(0, count)
 	if sanitized_count <= 0:
@@ -94,9 +110,11 @@ func set_badge_count(count: int) -> void:
 	badge_label.text = "99+" if sanitized_count > 99 else str(sanitized_count)
 	_refresh_badge_state(true)
 
+
 func set_badge_dot() -> void:
 	_badge_mode = BadgeMode.DOT
 	_refresh_badge_state(true)
+
 
 func set_badge_icon(icon: Texture2D) -> void:
 	if icon == null:
@@ -106,11 +124,13 @@ func set_badge_icon(icon: Texture2D) -> void:
 	badge_icon.texture = icon
 	_refresh_badge_state(true)
 
+
 func clear_badge() -> void:
 	_badge_mode = BadgeMode.NONE
 	badge_label.text = ""
 	badge_icon.texture = null
 	_refresh_badge_state(false)
+
 
 func _refresh_badge_state(animate: bool) -> void:
 	badge_panel.visible = _badge_mode in [BadgeMode.COUNT, BadgeMode.ICON]
@@ -123,6 +143,7 @@ func _refresh_badge_state(animate: bool) -> void:
 		_pulse_badge(badge_dot)
 	elif badge_panel.visible:
 		_pulse_badge(badge_panel)
+
 
 func _pulse_badge(target: Control) -> void:
 	if target == null:
@@ -139,23 +160,25 @@ func _pulse_badge(target: Control) -> void:
 		badge_pulse_duration
 	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
+
 func _refresh_visual_state() -> void:
 	if not is_instance_valid(visual_root):
 		return
 	if _is_focused:
 		visual_root.modulate = focused_modulate
 		state_indicator.color = focused_indicator_color
-		state_indicator.custom_minimum_size = Vector2(2.0, 20.0)
+		state_indicator.custom_minimum_size = Vector2(2.0, 18.0)
 		state_indicator.visible = true
 		return
 	if _is_running:
 		visual_root.modulate = running_modulate
 		state_indicator.color = running_indicator_color
-		state_indicator.custom_minimum_size = Vector2(2.0, 8.0)
+		state_indicator.custom_minimum_size = Vector2(2.0, 7.0)
 		state_indicator.visible = true
 		return
 	visual_root.modulate = idle_modulate
 	state_indicator.visible = false
+
 
 func _on_icon_button_pressed(event: InputEvent) -> void:
 	if not event is InputEventMouseButton:
@@ -170,10 +193,14 @@ func _on_icon_button_pressed(event: InputEvent) -> void:
 		return
 	activated.emit(app_data)
 
+
 func _on_mouse_entered() -> void:
 	if icon_button.disabled:
 		return
+	_is_hovered = true
 	_kill_hover_tween()
+	_prepare_callout_for_entry()
+
 	_hover_tween = create_tween()
 	_hover_tween.set_parallel(true)
 	_hover_tween.set_trans(Tween.TRANS_BACK)
@@ -185,8 +212,34 @@ func _on_mouse_entered() -> void:
 		hover_offset_x,
 		hover_duration
 	)
+	_hover_tween.tween_property(
+		hover_label_panel,
+		"modulate:a",
+		1.0,
+		callout_duration * 0.78
+	).set_trans(Tween.TRANS_CUBIC)
+	_hover_tween.tween_property(
+		hover_label_panel,
+		"scale:x",
+		1.0,
+		callout_duration
+	)
+	_hover_tween.tween_property(
+		hover_line,
+		"modulate:a",
+		1.0,
+		callout_duration * 0.55
+	).set_trans(Tween.TRANS_CUBIC)
+	_hover_tween.tween_property(
+		hover_line,
+		"scale:x",
+		1.0,
+		callout_duration * 0.9
+	).set_trans(Tween.TRANS_CUBIC)
+
 
 func _on_mouse_exited() -> void:
+	_is_hovered = false
 	_kill_hover_tween()
 	_hover_tween = create_tween()
 	_hover_tween.set_parallel(true)
@@ -194,18 +247,75 @@ func _on_mouse_exited() -> void:
 	_hover_tween.set_ease(Tween.EASE_OUT)
 	_hover_tween.tween_property(visual_root, "scale", Vector2.ONE, hover_duration)
 	_hover_tween.tween_property(visual_root, "position:x", 0.0, hover_duration)
+	_hover_tween.tween_property(
+		hover_label_panel,
+		"modulate:a",
+		0.0,
+		callout_duration * 0.72
+	)
+	_hover_tween.tween_property(
+		hover_label_panel,
+		"scale:x",
+		callout_label_start_scale_x,
+		callout_duration
+	)
+	_hover_tween.tween_property(
+		hover_line,
+		"modulate:a",
+		0.0,
+		callout_duration * 0.5
+	)
+	_hover_tween.tween_property(
+		hover_line,
+		"scale:x",
+		0.01,
+		callout_duration * 0.8
+	)
+	_hover_tween.finished.connect(_on_hover_exit_finished, CONNECT_ONE_SHOT)
+
+
+func _prepare_callout_for_entry() -> void:
+	hover_callout.visible = true
+	_refresh_pivots()
+	hover_label_panel.modulate.a = 0.0
+	hover_label_panel.scale = Vector2(callout_label_start_scale_x, 1.0)
+	hover_line.modulate.a = 0.0
+	hover_line.scale = Vector2(0.01, 1.0)
+
+
+func _on_hover_exit_finished() -> void:
+	if not _is_hovered:
+		hover_callout.visible = false
+
 
 func _reset_hover_immediately() -> void:
+	_is_hovered = false
 	_kill_hover_tween()
 	visual_root.scale = Vector2.ONE
 	visual_root.position.x = 0.0
+	hover_label_panel.modulate.a = 0.0
+	hover_label_panel.scale = Vector2(callout_label_start_scale_x, 1.0)
+	hover_line.modulate.a = 0.0
+	hover_line.scale = Vector2(0.01, 1.0)
+	hover_callout.visible = false
+
 
 func _kill_hover_tween() -> void:
 	if _hover_tween != null and _hover_tween.is_valid():
 		_hover_tween.kill()
 	_hover_tween = null
 
-func _refresh_pivot() -> void:
-	if not is_instance_valid(visual_root):
-		return
-	visual_root.pivot_offset = visual_root.size / 2.0
+
+func _refresh_pivots() -> void:
+	if is_instance_valid(visual_root):
+		visual_root.pivot_offset = visual_root.size / 2.0
+	if is_instance_valid(hover_label_panel):
+		hover_label_panel.pivot_offset = Vector2(
+			hover_label_panel.size.x,
+			hover_label_panel.size.y * 0.5
+		)
+	if is_instance_valid(hover_line):
+		hover_line.pivot_offset = Vector2(
+			hover_line.size.x,
+			hover_line.size.y * 0.5
+		)

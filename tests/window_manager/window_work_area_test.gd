@@ -2,8 +2,10 @@ extends Node
 
 var _failures := PackedStringArray()
 
+
 func _ready() -> void:
 	call_deferred("_run_test")
+
 
 func _run_test() -> void:
 	var manager := WindowManager.new()
@@ -22,19 +24,26 @@ func _run_test() -> void:
 	)
 	_check(
 		is_equal_approx(window_work_rect.position.x, KubuOSMetrics.reserved_left_width),
-		"Window work area must begin to the right of the app rail."
+		"Window work area origin must respect only left-side OS chrome."
+	)
+	_check(
+		is_equal_approx(window_work_rect.end.x, manager.size.x - KubuOSMetrics.reserved_right_width),
+		"Window work area must stop before right-side OS chrome."
 	)
 	_check(
 		is_equal_approx(window_work_rect.end.y, manager.size.y),
 		"Window work area must reach the viewport bottom."
 	)
 	_check(
-		is_equal_approx(window_work_rect.size.x, manager.size.x - KubuOSMetrics.reserved_left_width - KubuOSMetrics.reserved_right_width),
-		"Window work area width must reserve the app rail."
+		is_equal_approx(
+			window_work_rect.size.x,
+			manager.size.x - KubuOSMetrics.reserved_left_width - KubuOSMetrics.reserved_right_width
+		),
+		"Window work area width must reserve both horizontal OS chrome sides."
 	)
 	_check(
 		window_work_rect.is_equal_approx(workspace_work_rect),
-		"Window and workspace geometry must share the same top and left OS chrome reservation."
+		"Window and workspace geometry must share the same OS chrome reservation."
 	)
 	_check(
 		is_zero_approx(KubuOSMetrics.dock_height),
@@ -44,9 +53,11 @@ func _run_test() -> void:
 	manager.free()
 	_finish_test()
 
+
 func _check(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
+
 
 func _finish_test() -> void:
 	if _failures.is_empty():

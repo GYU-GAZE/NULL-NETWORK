@@ -37,7 +37,7 @@ size_flags_vertical = 0
 [node name="NotificationLayer" parent="OSChromeLayer" unique_id=1039715699 instance=ExtResource("8_notification_layer")]
 
 [node name="KubuTopTaskbar" parent="OSChromeLayer" unique_id=614386726 instance=ExtResource("6_taskbar")]
-custom_minimum_size = Vector2(0, 22)
+custom_minimum_size = Vector2(0, 19)
 
 [node name="KubuBottomDock" parent="OSChromeLayer" unique_id=1185085997 instance=ExtResource("6_kagtj")]
 dock_item_scene = ExtResource("10_xhu5d")
