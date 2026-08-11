@@ -208,15 +208,16 @@ func _refresh_visual_state() -> void:
 
 
 func _show_active_backdrop(target_color: Color) -> void:
-	_kill_state_tween()
 	active_backdrop.color = target_color
 
+	# Opening a window normally produces app_opened and app_focused back-to-back.
+	# If the reveal is already in progress, a focus refresh must only update the
+	# color; snapping scale to ONE here would erase the center-out animation.
 	if _active_backdrop_is_visible:
 		active_backdrop.visible = true
-		active_backdrop.scale = Vector2.ONE
-		active_backdrop.modulate.a = 1.0
 		return
 
+	_kill_state_tween()
 	_active_backdrop_is_visible = true
 	active_backdrop.visible = true
 	_refresh_active_backdrop_pivot()
