@@ -1,60 +1,21 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://apps/browser/sites/kubuchan/kubuchan.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://apps/browser/sites/kubuchan/kubuchan_post_card.tscn" id="2_post_scene"]
 [ext_resource type="Resource" path="res://apps/browser/sites/kubuchan/kubuchan_thread.tres" id="3_thread"]
-
-[sub_resource type="StyleBoxFlat" id="HeaderPanel"]
-bg_color = Color(0.11, 0.137, 0.225, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.42, 0.46, 0.64, 1)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
-
-[sub_resource type="StyleBoxFlat" id="BoardPanel"]
-bg_color = Color(0.945, 0.959, 0.984, 0.98)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.56, 0.61, 0.71, 1)
-corner_radius_top_left = 1
-corner_radius_top_right = 1
-corner_radius_bottom_right = 1
-corner_radius_bottom_left = 1
-
-[sub_resource type="StyleBoxFlat" id="ThreadBarPanel"]
-bg_color = Color(0.82, 0.85, 0.91, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.48, 0.53, 0.64, 1)
-
-[sub_resource type="StyleBoxFlat" id="ScrollPanel"]
-bg_color = Color(0.965, 0.973, 0.988, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.66, 0.7, 0.78, 1)
-
-[sub_resource type="StyleBoxFlat" id="NoticePanel"]
-bg_color = Color(0.902, 0.914, 0.949, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.56, 0.56, 0.68, 1)
+[ext_resource type="Theme" path="res://data/assets/themes/kubuchan_theme.tres" id="4_theme"]
 
 [sub_resource type="StyleBoxLine" id="SeparatorLine"]
-color = Color(0.48, 0.53, 0.65, 1)
+color = Color(0.494118, 0.521569, 0.611765, 1)
 thickness = 1
+
+[sub_resource type="StyleBoxFlat" id="ArchivePanel"]
+bg_color = Color(0.87451, 0.886275, 0.92549, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.666667, 0.686275, 0.756863, 1)
 
 [node name="Kubuchan" type="Control"]
 layout_mode = 3
@@ -66,6 +27,7 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 mouse_filter = 2
+theme = ExtResource("4_theme")
 script = ExtResource("1_script")
 thread_data = ExtResource("3_thread")
 post_card_scene = ExtResource("2_post_scene")
@@ -79,16 +41,16 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.935, 0.949, 0.974, 1)
+color = Color(0.952941, 0.960784, 0.980392, 1)
 
 [node name="TopTint" type="ColorRect" parent="PageRoot"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 118.0
+offset_bottom = 132.0
 grow_horizontal = 2
 mouse_filter = 2
-color = Color(0.22, 0.25, 0.39, 0.085)
+color = Color(0.839216, 0.858824, 0.913725, 0.68)
 
 [node name="Margin" type="MarginContainer" parent="PageRoot"]
 layout_mode = 1
@@ -98,182 +60,108 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
 
 [node name="RootVBox" type="VBoxContainer" parent="PageRoot/Margin"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 7
+theme_override_constants/separation = 4
+
+[node name="TopNavRow" type="HBoxContainer" parent="PageRoot/Margin/RootVBox"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="BoardListLabel" type="Label" parent="PageRoot/Margin/RootVBox/TopNavRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.211765, 0.254902, 0.411765, 1)
+text = "[ dev / hw / kg / net / os / soft / tech / wall ]"
+clip_text = true
+
+[node name="UtilityLabel" type="Label" parent="PageRoot/Margin/RootVBox/TopNavRow"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.211765, 0.254902, 0.411765, 1)
+text = "[Settings] [Home]"
+horizontal_alignment = 2
 
 [node name="BrandBlock" type="VBoxContainer" parent="PageRoot/Margin/RootVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="HeaderPanel" type="PanelContainer" parent="PageRoot/Margin/RootVBox/BrandBlock"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("HeaderPanel")
-
-[node name="HeaderMargin" type="MarginContainer" parent="PageRoot/Margin/RootVBox/BrandBlock/HeaderPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 8
-
-[node name="HeaderRow" type="HBoxContainer" parent="PageRoot/Margin/RootVBox/BrandBlock/HeaderPanel/HeaderMargin"]
-layout_mode = 2
-
-[node name="LogoStack" type="VBoxContainer" parent="PageRoot/Margin/RootVBox/BrandBlock/HeaderPanel/HeaderMargin/HeaderRow"]
-layout_mode = 2
-theme_override_constants/separation = -2
-
-[node name="SiteTitle" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock/HeaderPanel/HeaderMargin/HeaderRow/LogoStack"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.965, 0.975, 1, 1)
-theme_override_font_sizes/font_size = 30
-text = "KUBUCHAN"
-
-[node name="SiteSubtitle" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock/HeaderPanel/HeaderMargin/HeaderRow/LogoStack"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.75, 0.88, 1)
-theme_override_font_sizes/font_size = 12
-text = "ANONYMOUS IMAGEBOARD FOR OFFICIAL KUBUOS USERS"
-
-[node name="HeaderSpacer" type="Control" parent="PageRoot/Margin/RootVBox/BrandBlock/HeaderPanel/HeaderMargin/HeaderRow"]
-layout_mode = 2
-size_flags_horizontal = 3
 mouse_filter = 2
-
-[node name="HeaderStatus" type="VBoxContainer" parent="PageRoot/Margin/RootVBox/BrandBlock/HeaderPanel/HeaderMargin/HeaderRow"]
-layout_mode = 2
+theme_override_constants/separation = 0
 alignment = 1
 
-[node name="StatusTop" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock/HeaderPanel/HeaderMargin/HeaderRow/HeaderStatus"]
+[node name="SiteTitle" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.78, 0.82, 0.94, 1)
-theme_override_font_sizes/font_size = 11
-text = "KUBU NET // PUBLIC BOARD"
-horizontal_alignment = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.329412, 0.34902, 0.47451, 1)
+text = "KUBUCHAN"
+horizontal_alignment = 1
 
-[node name="StatusBottom" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock/HeaderPanel/HeaderMargin/HeaderRow/HeaderStatus"]
+[node name="BoardTitleLabel" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.56, 0.63, 0.78, 1)
-theme_override_font_sizes/font_size = 11
-text = "DEVICE ACCESS: VERIFIED"
-horizontal_alignment = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.172549, 0.2, 0.321569, 1)
+theme_override_font_sizes/font_size = 38
+text = "/kg/ - Kubu Gaming"
+horizontal_alignment = 1
 
-[node name="NavStrip" type="HBoxContainer" parent="PageRoot/Margin/RootVBox/BrandBlock"]
+[node name="BoardTaglineLabel" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 9
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.411765, 0.439216, 0.533333, 1)
+text = "Games, software toys and network play on KubuOS"
+horizontal_alignment = 1
 
-[node name="NavLeft" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock/NavStrip"]
+[node name="HeaderSeparator" type="HSeparator" parent="PageRoot/Margin/RootVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.28, 0.42, 1)
-theme_override_font_sizes/font_size = 12
-text = "[Home]  [Boards]  [Catalog]"
+mouse_filter = 2
+theme_override_styles/separator = SubResource("SeparatorLine")
 
-[node name="NavSpacer" type="Control" parent="PageRoot/Margin/RootVBox/BrandBlock/NavStrip"]
+[node name="ThreadTools" type="HBoxContainer" parent="PageRoot/Margin/RootVBox"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ThreadToolsLeft" type="Label" parent="PageRoot/Margin/RootVBox/ThreadTools"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.211765, 0.254902, 0.411765, 1)
+text = "[Return] [Catalog]"
+
+[node name="ThreadToolsSpacer" type="Control" parent="PageRoot/Margin/RootVBox/ThreadTools"]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="NavRight" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock/NavStrip"]
+[node name="ThreadToolsRight" type="Label" parent="PageRoot/Margin/RootVBox/ThreadTools"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.42, 0.46, 0.58, 1)
-theme_override_font_sizes/font_size = 11
-text = "anonymous // local time"
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.211765, 0.254902, 0.411765, 1)
+text = "[Bottom] [Refresh]"
 horizontal_alignment = 2
 
-[node name="Separator" type="HSeparator" parent="PageRoot/Margin/RootVBox/BrandBlock"]
+[node name="PostReplyLabel" type="Label" parent="PageRoot/Margin/RootVBox"]
+unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.376471, 0.341176, 0.505882, 1)
+text = "[Post a Reply]"
+horizontal_alignment = 1
+
+[node name="ThreadSeparator" type="HSeparator" parent="PageRoot/Margin/RootVBox"]
+layout_mode = 2
+mouse_filter = 2
 theme_override_styles/separator = SubResource("SeparatorLine")
 
-[node name="BoardPanel" type="PanelContainer" parent="PageRoot/Margin/RootVBox/BrandBlock"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("BoardPanel")
-
-[node name="BoardMargin" type="MarginContainer" parent="PageRoot/Margin/RootVBox/BrandBlock/BoardPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 6
-
-[node name="BoardRow" type="HBoxContainer" parent="PageRoot/Margin/RootVBox/BrandBlock/BoardPanel/BoardMargin"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="BoardCodeLabel" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock/BoardPanel/BoardMargin/BoardRow"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.14, 0.2, 0.34, 1)
-theme_override_font_sizes/font_size = 22
-text = "/kg/"
-
-[node name="BoardText" type="VBoxContainer" parent="PageRoot/Margin/RootVBox/BrandBlock/BoardPanel/BoardMargin/BoardRow"]
-layout_mode = 2
-
-[node name="BoardNameLabel" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock/BoardPanel/BoardMargin/BoardRow/BoardText"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.18, 0.24, 0.38, 1)
-theme_override_font_sizes/font_size = 16
-text = "Kubu Gaming"
-
-[node name="BoardTaglineLabel" type="Label" parent="PageRoot/Margin/RootVBox/BrandBlock/BoardPanel/BoardMargin/BoardRow/BoardText"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.42, 0.47, 0.58, 1)
-theme_override_font_sizes/font_size = 12
-text = "Games, software toys and network play on KubuOS"
-
-[node name="ThreadBar" type="PanelContainer" parent="PageRoot/Margin/RootVBox"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("ThreadBarPanel")
-
-[node name="ThreadBarMargin" type="MarginContainer" parent="PageRoot/Margin/RootVBox/ThreadBar"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 4
-
-[node name="ThreadBarRow" type="HBoxContainer" parent="PageRoot/Margin/RootVBox/ThreadBar/ThreadBarMargin"]
-layout_mode = 2
-
-[node name="ThreadTitleLabel" type="Label" parent="PageRoot/Margin/RootVBox/ThreadBar/ThreadBarMargin/ThreadBarRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.16, 0.2, 0.31, 1)
-theme_override_font_sizes/font_size = 14
-text = "multiplayer recs for a new kubuos owner?"
-
-[node name="ThreadIdLabel" type="Label" parent="PageRoot/Margin/RootVBox/ThreadBar/ThreadBarMargin/ThreadBarRow"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.35, 0.39, 0.48, 1)
-theme_override_font_sizes/font_size = 12
-text = "Thread No.000000"
-
-[node name="ThreadPanel" type="PanelContainer" parent="PageRoot/Margin/RootVBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("ScrollPanel")
-
-[node name="ThreadMargin" type="MarginContainer" parent="PageRoot/Margin/RootVBox/ThreadPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 7
-theme_override_constants/margin_top = 7
-theme_override_constants/margin_right = 7
-theme_override_constants/margin_bottom = 7
-
-[node name="ThreadScroll" type="ScrollContainer" parent="PageRoot/Margin/RootVBox/ThreadPanel/ThreadMargin"]
+[node name="ThreadScroll" type="ScrollContainer" parent="PageRoot/Margin/RootVBox"]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
@@ -282,27 +170,40 @@ size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
-[node name="ThreadVBox" type="VBoxContainer" parent="PageRoot/Margin/RootVBox/ThreadPanel/ThreadMargin/ThreadScroll"]
+[node name="ThreadVBox" type="VBoxContainer" parent="PageRoot/Margin/RootVBox/ThreadScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 5
 
+[node name="BottomSeparator" type="HSeparator" parent="PageRoot/Margin/RootVBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/separator = SubResource("SeparatorLine")
+
 [node name="ArchivedNotice" type="PanelContainer" parent="PageRoot/Margin/RootVBox"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("NoticePanel")
+mouse_filter = 2
+theme_override_styles/panel = SubResource("ArchivePanel")
 
 [node name="ArchivedNoticeLabel" type="Label" parent="PageRoot/Margin/RootVBox/ArchivedNotice"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.38, 0.39, 0.5, 1)
-theme_override_font_sizes/font_size = 11
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.392157, 0.4, 0.486275, 1)
 text = "KUBUCHAN // read-only thread view"
 horizontal_alignment = 1
 
-[node name="Footer" type="Label" parent="PageRoot/Margin/RootVBox"]
+[node name="FooterNav" type="Label" parent="PageRoot/Margin/RootVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.49, 0.53, 0.62, 1)
-theme_override_font_sizes/font_size = 10
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.211765, 0.254902, 0.411765, 1)
+text = "[Home] [News] [FAQ] [Rules] [Support]"
+horizontal_alignment = 1
+
+[node name="FooterLegal" type="Label" parent="PageRoot/Margin/RootVBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.478431, 0.494118, 0.572549, 1)
 text = "KUBUCHAN is an unofficial user board. Posts belong to their respective posters. KubuOS and KUBUSU are trademarks of Kubu Corporation."
 horizontal_alignment = 1
