@@ -82,6 +82,7 @@ func _run_test() -> void:
 
 	if item != null:
 		add_child(item)
+		item.size = item.custom_minimum_size
 		await get_tree().process_frame
 
 		var app := AppResource.new()
@@ -95,24 +96,81 @@ func _run_test() -> void:
 			"Generic tooltip still competes with the custom app-name callout."
 		)
 		_check(
-			item.hover_callout.position.x < item.position.x,
-			"Hover callout is not positioned to the left of the right-side app icon."
+			item.app_name_label.get_theme_font_size("font_size") == 12,
+			"App-name callout is not using the intended 12px font size."
+		)
+
+		var item_center_x: float = item.get_global_rect().get_center().x
+		var icon_center_x: float = item.icon_button.get_global_rect().get_center().x
+		_check(
+			is_equal_approx(item_center_x, icon_center_x),
+			"App icon is not centered horizontally in the 30px rail."
+		)
+		_check(
+			is_equal_approx(item.active_backdrop.custom_minimum_size.x, 24.0),
+			"Open-state backdrop no longer keeps a 3px inset on each rail side."
+		)
+
+		item.set_running(true)
+		_check(item.active_backdrop.visible, "Open app did not expose its active backdrop.")
+		if item._state_tween != null:
+			item._state_tween.custom_step(1.0)
+		_check(
+			item.active_backdrop.scale.is_equal_approx(Vector2.ONE)
+			and item.active_backdrop.modulate.a > 0.99,
+			"Open-state backdrop did not finish expanding from its center."
 		)
 
 		item._on_mouse_entered()
 		_check(item.hover_callout.visible, "Hover callout did not become visible on hover.")
+		_check(
+			is_zero_approx(item.hover_line.size.x)
+			and is_zero_approx(item.hover_label_clip.size.x),
+			"Hover callout did not begin from a fully collapsed state."
+		)
+
 		if item._hover_tween != null:
-			item._hover_tween.custom_step(1.0)
+			item._hover_tween.custom_step(item.callout_line_duration)
+
+		_check(
+			is_equal_approx(item.hover_line.size.x, item.callout_line_width),
+			"Hover connector line did not finish before the app name reveal."
+		)
+		_check(
+			is_zero_approx(item.hover_label_clip.size.x),
+			"App name started revealing before the connector line finished."
+		)
+
+		var line_right_x: float = item.hover_line.get_global_rect().end.x
+		var icon_left_x: float = item.icon_button.get_global_rect().position.x
+		_check(
+			is_equal_approx(line_right_x, icon_left_x),
+			"Hover connector line does not terminate directly beside the icon."
+		)
+
+		if item._hover_tween != null:
+			item._hover_tween.custom_step(item.callout_label_duration)
+
 		_check(item.app_name_label.text == "TEST APP", "Hover callout lost the app name.")
 		_check(
-			item.hover_line.scale.x > 0.95 and item.hover_line.modulate.a > 0.95,
-			"Hover connector line did not finish its reveal animation."
+			is_equal_approx(
+				item.hover_label_clip.size.x,
+				item.hover_label_panel.size.x
+			),
+			"App-name mask did not progressively reveal the full label."
 		)
 
 		item._on_mouse_exited()
 		if item._hover_tween != null:
-			item._hover_tween.custom_step(1.0)
+			item._hover_tween.custom_step(
+				item.callout_label_duration + item.callout_line_duration
+			)
 		_check(not item.hover_callout.visible, "Hover callout did not hide after mouse exit.")
+
+		item.set_running(false)
+		if item._state_tween != null:
+			item._state_tween.custom_step(1.0)
+		_check(not item.active_backdrop.visible, "Closed app left its active backdrop visible.")
 
 		item.set_badge_count(3)
 		_check(item.badge_panel.visible, "Count badge did not become visible.")
@@ -157,7 +215,9 @@ func _finish_test() -> void:
 		print("KUBU_APP_RAIL_TEST: PASS")
 		get_tree().quit(0)
 		return
+
 	for failure: String in _failures:
 		push_error(failure)
+
 	print("KUBU_APP_RAIL_TEST: FAIL (%d)" % _failures.size())
 	get_tree().quit(1)

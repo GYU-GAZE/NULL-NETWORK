@@ -1,45 +1,22 @@
-[gd_scene load_steps=7 format=3 uid="uid://w14nl6xxwxew"]
+[gd_scene load_steps=5 format=3 uid="uid://w14nl6xxwxew"]
 
 [ext_resource type="Script" uid="uid://pkinehbwooc0" path="res://systems/desktop/dock/kubu_dock_item.gd" id="1_autvx"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_icon_normal"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_icon_clear"]
 bg_color = Color(0, 0, 0, 0)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_icon_hover"]
-bg_color = Color(0.065, 0.12, 0.19, 0.78)
-border_width_left = 1
-border_color = Color(0.392, 0.718, 1, 0.75)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_icon_pressed"]
-bg_color = Color(0.055, 0.08, 0.15, 0.92)
-border_width_left = 1
-border_color = Color(1, 0.12, 0.65, 0.85)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hover_label"]
-content_margin_left = 5.0
-content_margin_top = 2.0
-content_margin_right = 5.0
-content_margin_bottom = 2.0
-bg_color = Color(0.018, 0.035, 0.058, 0.94)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.72, 0.86, 1, 0.52)
+content_margin_left = 3.0
+content_margin_top = 1.0
+content_margin_right = 3.0
+content_margin_bottom = 1.0
+bg_color = Color(0.018, 0.035, 0.058, 0.92)
 corner_radius_top_left = 1
 corner_radius_top_right = 1
 corner_radius_bottom_right = 1
 corner_radius_bottom_left = 1
-shadow_color = Color(0, 0, 0, 0.4)
-shadow_size = 2
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 1
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_badge"]
 content_margin_left = 2.0
@@ -58,7 +35,7 @@ corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 
 [node name="KubuDockItem" type="Control" unique_id=744712914]
-custom_minimum_size = Vector2(26, 28)
+custom_minimum_size = Vector2(30, 28)
 layout_mode = 3
 anchors_preset = 0
 mouse_filter = 1
@@ -74,6 +51,22 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="ActiveBackdropCenter" type="CenterContainer" parent="VisualRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ActiveBackdrop" type="ColorRect" parent="VisualRoot/ActiveBackdropCenter"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.08, 0.2, 0.31, 0.88)
+mouse_filter = 2
+
 [node name="IconCenter" type="CenterContainer" parent="VisualRoot"]
 layout_mode = 1
 anchors_preset = 15
@@ -87,42 +80,17 @@ mouse_filter = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
-theme_override_constants/icon_max_width = 20
-theme_override_styles/normal = SubResource("StyleBoxFlat_icon_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_icon_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_icon_pressed")
-theme_override_styles/focus = SubResource("StyleBoxFlat_icon_normal")
+theme_override_constants/icon_max_width = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_icon_clear")
+theme_override_styles/hover = SubResource("StyleBoxFlat_icon_clear")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_icon_clear")
+theme_override_styles/focus = SubResource("StyleBoxFlat_icon_clear")
 expand_icon = true
-
-[node name="IndicatorSlot" type="CenterContainer" parent="VisualRoot"]
-layout_mode = 1
-anchor_bottom = 1.0
-offset_right = 3.0
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="StateIndicator" type="ColorRect" parent="VisualRoot/IndicatorSlot" unique_id=80536475]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(2, 7)
-layout_mode = 2
-color = Color(0.24313726, 1, 0.16862746, 1)
-mouse_filter = 2
 
 [node name="HoverCallout" type="Control" parent="." unique_id=2000001001]
 unique_name_in_owner = true
 visible = false
 z_index = 40
-layout_mode = 1
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = -150.0
-offset_top = -10.0
-offset_right = -2.0
-offset_bottom = 10.0
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="CalloutRow" type="HBoxContainer" parent="HoverCallout" unique_id=2000001002]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -130,29 +98,33 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/separation = 3
-alignment = 2
 
-[node name="HoverLabelPanel" type="PanelContainer" parent="HoverCallout/CalloutRow" unique_id=2000001003]
+[node name="HoverLabelClip" type="Control" parent="HoverCallout" unique_id=2000001002]
 unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 0
+clip_contents = true
+mouse_filter = 2
+
+[node name="HoverLabelPanel" type="PanelContainer" parent="HoverCallout/HoverLabelClip" unique_id=2000001003]
+unique_name_in_owner = true
+layout_mode = 0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_hover_label")
 
-[node name="AppNameLabel" type="Label" parent="HoverCallout/CalloutRow/HoverLabelPanel" unique_id=1383873989]
+[node name="AppNameLabel" type="Label" parent="HoverCallout/HoverLabelClip/HoverLabelPanel" unique_id=1383873989]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.94, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 12
 text = "APP"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HoverLine" type="ColorRect" parent="HoverCallout/CalloutRow" unique_id=2000001004]
+[node name="HoverLine" type="ColorRect" parent="HoverCallout" unique_id=2000001004]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(13, 1)
-layout_mode = 2
-size_flags_vertical = 4
-color = Color(1, 1, 1, 0.92)
+layout_mode = 0
+size = Vector2(0, 1)
+color = Color(1, 1, 1, 0.94)
 mouse_filter = 2
 
 [node name="BadgePanel" type="PanelContainer" parent="." unique_id=1218588458]
@@ -226,6 +198,7 @@ mouse_filter = 2
 
 [node name="Label" type="Label" parent="LockedOverlay/LockCenter" unique_id=391036010]
 layout_mode = 2
+theme_override_font_sizes/font_size = 12
 text = "×"
 horizontal_alignment = 1
 vertical_alignment = 1
