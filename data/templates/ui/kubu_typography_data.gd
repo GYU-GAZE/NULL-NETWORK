@@ -8,6 +8,9 @@ class_name KubuTypographyData
 ## text Resource in version control while still producing a real FontFile at runtime.
 @export_multiline var embedded_font_base64: String = ""
 @export var fallback_font: Font
+## Pixel fonts with different native grids must never be mixed at the same nominal
+## size. Keep this disabled unless the fallback was authored for the same pixel grid.
+@export var use_fallback_font: bool = false
 
 @export_category("Pixel Rendering")
 ## Native design size of the typeface. Unstyled text uses this exact size.
@@ -53,10 +56,10 @@ func get_font() -> Font:
 	var variation := FontVariation.new()
 	variation.base_font = source_font
 
-	# KubuOS Micro only carries the compact Latin/ASCII face. Silver remains the
-	# explicit fallback for any glyph the system font does not contain, preventing
-	# arbitrary host-OS fonts from entering the game's presentation.
-	if fallback_font != null:
+	# Silver's native readable grid starts at 19 px, while KubuOS Micro is 6 px.
+	# Rendering Silver as a 6/12/18 px fallback deforms it, so fallback use is
+	# explicitly opt-in instead of silently combining incompatible pixel grids.
+	if use_fallback_font and fallback_font != null:
 		var fallback_list: Array[Font] = []
 		fallback_list.append(fallback_font)
 		variation.fallbacks = fallback_list
@@ -86,5 +89,8 @@ func validate_data() -> PackedStringArray:
 
 	if oversampling < 1.0:
 		errors.append("oversampling must be at least 1.0 for pixel typography.")
+
+	if use_fallback_font and fallback_font == null:
+		errors.append("fallback_font is required when use_fallback_font is enabled.")
 
 	return errors
