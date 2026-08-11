@@ -140,7 +140,7 @@ func _scroll_to_control(target: Control) -> void:
 
 func _scroll_to_y(target_y: int) -> void:
 	var vertical_bar := page_scroll.get_v_scroll_bar()
-	var maximum_scroll: int = maxi(0, int(vertical_bar.max_value - page_scroll.size.y))
+	var maximum_scroll: int = maxi(0, int(vertical_bar.max_value - vertical_bar.page))
 	var clamped_target: int = clampi(target_y, 0, maximum_scroll)
 
 	if _scroll_tween != null and _scroll_tween.is_valid():
