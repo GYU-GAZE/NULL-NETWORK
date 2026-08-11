@@ -1,116 +1,399 @@
-[gd_scene format=3 uid="uid://dfghm5hb81mbt"]
+[gd_scene load_steps=13 format=3 uid="uid://dfghm5hb81mbt"]
 
-[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_ocl2t"]
-[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="2_7d4j3"]
+[ext_resource type="Texture2D" path="res://data/assets/icons/nnwicon.png" id="1_logo"]
+[ext_resource type="Script" path="res://apps/browser/site_action_button.gd" id="2_action"]
+[ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="3_theme"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_egev0"]
-font_size = 42
+[sub_resource type="StyleBoxFlat" id="GlassPanel"]
+bg_color = Color(0.972549, 0.992157, 1, 0.93)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.360784, 0.698039, 0.870588, 0.72)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0.109804, 0.360784, 0.560784, 0.14)
+shadow_size = 7
 
-[node name="NnwHomepage" type="PanelContainer" unique_id=1533622385]
+[sub_resource type="StyleBoxFlat" id="HeroPanel"]
+bg_color = Color(0.984314, 0.996078, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.435294, 0.768627, 0.905882, 0.72)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0.0745098, 0.305882, 0.501961, 0.12)
+shadow_size = 9
+
+[sub_resource type="StyleBoxFlat" id="GuestPanel"]
+bg_color = Color(0.913725, 0.968627, 1, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.290196, 0.65098, 0.85098, 0.88)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="AvatarPanel"]
+bg_color = Color(0.760784, 0.909804, 0.976471, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.247059, 0.603922, 0.819608, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="PrimaryNormal"]
+content_margin_left = 16.0
+content_margin_top = 7.0
+content_margin_right = 16.0
+content_margin_bottom = 7.0
+bg_color = Color(0.176471, 0.654902, 0.901961, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.0745098, 0.458824, 0.721569, 1)
+corner_radius_top_left = 11
+corner_radius_top_right = 11
+corner_radius_bottom_right = 11
+corner_radius_bottom_left = 11
+shadow_color = Color(0.0941176, 0.470588, 0.705882, 0.2)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="PrimaryHover"]
+content_margin_left = 16.0
+content_margin_top = 7.0
+content_margin_right = 16.0
+content_margin_bottom = 7.0
+bg_color = Color(0.286275, 0.760784, 0.94902, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.113725, 0.52549, 0.784314, 1)
+corner_radius_top_left = 11
+corner_radius_top_right = 11
+corner_radius_bottom_right = 11
+corner_radius_bottom_left = 11
+shadow_color = Color(0.0941176, 0.470588, 0.705882, 0.26)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="PrimaryPressed"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 6.0
+bg_color = Color(0.12549, 0.533333, 0.8, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.054902, 0.376471, 0.631373, 1)
+corner_radius_top_left = 11
+corner_radius_top_right = 11
+corner_radius_bottom_right = 11
+corner_radius_bottom_left = 11
+
+[sub_resource type="StyleBoxFlat" id="MiniNormal"]
+content_margin_left = 4.0
+content_margin_top = 2.0
+content_margin_right = 4.0
+content_margin_bottom = 2.0
+bg_color = Color(0.952941, 0.988235, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.356863, 0.686275, 0.85098, 0.82)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="MiniHover"]
+content_margin_left = 4.0
+content_margin_top = 2.0
+content_margin_right = 4.0
+content_margin_bottom = 2.0
+bg_color = Color(0.827451, 0.945098, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.176471, 0.596078, 0.831373, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="NnwHomepage" type="Control"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("3_theme")
 
-[node name="MasterScroll" type="ScrollContainer" parent="." unique_id=566420815]
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.894118, 0.968627, 1, 1)
+
+[node name="TopGlow" type="ColorRect" parent="Background"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 138.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.521569, 0.815686, 0.968627, 0.34)
+
+[node name="HorizonLine" type="ColorRect" parent="Background"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 138.0
+offset_bottom = 140.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.321569, 0.682353, 0.878431, 0.55)
+
+[node name="BottomGlow" type="ColorRect" parent="Background"]
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -112.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.709804, 0.886275, 0.972549, 0.34)
+
+[node name="MasterScroll" type="ScrollContainer" parent="."]
 unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
 
-[node name="PageVBox" type="VBoxContainer" parent="MasterScroll" unique_id=721925602]
+[node name="PageMargin" type="MarginContainer" parent="MasterScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 24
+
+[node name="PageVBox" type="VBoxContainer" parent="MasterScroll/PageMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="MainHeader" type="PanelContainer" parent="MasterScroll/PageMargin/PageVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 94)
+layout_mode = 2
+theme_override_styles/panel = SubResource("GlassPanel")
+
+[node name="HeaderMargin" type="MarginContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="HeaderHBox" type="HBoxContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LogoBlock" type="HBoxContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
 theme_override_constants/separation = 10
 
-[node name="MainHeader" type="PanelContainer" parent="MasterScroll/PageVBox" unique_id=518152830]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 95)
+[node name="LogoIcon" type="TextureRect" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock"]
+custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-
-[node name="HeaderMargin" type="MarginContainer" parent="MasterScroll/PageVBox/MainHeader" unique_id=78195232]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
-
-[node name="HeaderHBox" type="HBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin" unique_id=436731104]
-layout_mode = 2
-
-[node name="LogoBlock" type="VBoxContainer" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox" unique_id=1903811266]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="TextureRect" type="TextureRect" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=445857204]
-layout_mode = 2
-texture = ExtResource("1_ocl2t")
+texture = ExtResource("1_logo")
+expand_mode = 1
 stretch_mode = 5
 
-[node name="NullChannelTitle" type="Label" parent="MasterScroll/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock" unique_id=1245775031]
+[node name="NullChannelTitle" type="Label" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.0901961, 0.301961, 0.505882, 1)
+theme_override_font_sizes/font_size = 38
 text = "null NETWORK"
-label_settings = SubResource("LabelSettings_egev0")
-horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="ContentArea" type="MarginContainer" parent="MasterScroll/PageVBox" unique_id=1615245422]
+[node name="GuestCard" type="PanelContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox"]
+custom_minimum_size = Vector2(128, 72)
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/margin_left = 100
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 100
-theme_override_constants/margin_bottom = 50
+size_flags_horizontal = 8
+theme_override_styles/panel = SubResource("GuestPanel")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MasterScroll/PageVBox/ContentArea" unique_id=86437627]
+[node name="GuestMargin" type="MarginContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 4
 
-[node name="Label" type="Label" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=316809722]
+[node name="GuestVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin"]
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/line_spacing = 3
-text = "In the lead-up to the devastating Y2K virus, a mass purge of data opened a rift between the world of man and computers. Now, electronic specters from the digital realm are trying to invade the world of the living!
+theme_override_constants/separation = 3
 
-Gear up with futuristic goggles and photon weaponry that lets you do battle with vicious viruses, woeful worms and apocalyptic A.I. — each one hellbent on overwriting humanity.
+[node name="GuestTop" type="HBoxContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox"]
+layout_mode = 2
+theme_override_constants/separation = 5
 
-Using the latest innovations in augmented reality, take the fight from your screen straight into your home! A gaming experience like nothing you've seen before!
+[node name="GuestAvatar" type="PanelContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/GuestTop"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+theme_override_styles/panel = SubResource("AvatarPanel")
 
-From the brilliant mind of Tarou Yamada.
-
-コバルトブルー
-© 2000"
+[node name="GuestAvatarLabel" type="Label" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/GuestTop/GuestAvatar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.145098, 0.466667, 0.67451, 1)
+text = "?"
 horizontal_alignment = 1
 vertical_alignment = 1
-autowrap_mode = 2
 
-[node name="Get Started" type="Button" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=1065679730]
-unique_name_in_owner = true
+[node name="GuestInfo" type="VBoxContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/GuestTop"]
 layout_mode = 2
-text = "Get Started"
-script = ExtResource("2_7d4j3")
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="GuestName" type="Label" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/GuestTop/GuestInfo"]
+layout_mode = 2
+text = "GUEST"
+clip_text = true
+
+[node name="GuestRank" type="Label" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/GuestTop/GuestInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.352941, 0.486275, 0.580392, 1)
+text = "RANK --"
+clip_text = true
+
+[node name="AuthRow" type="HBoxContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="LoginButton" type="Button" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/AuthRow"]
+custom_minimum_size = Vector2(52, 19)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("MiniNormal")
+theme_override_styles/hover = SubResource("MiniHover")
+text = "Login"
+disabled = true
+
+[node name="SignUpButton" type="Button" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/AuthRow"]
+custom_minimum_size = Vector2(62, 19)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("MiniNormal")
+theme_override_styles/hover = SubResource("MiniHover")
+text = "Sign Up"
+script = ExtResource("2_action")
 target_url = "null.net/getstarted"
 
-[node name="UpdatesBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=914620269]
-unique_name_in_owner = true
+[node name="HeroPanel" type="PanelContainer" parent="MasterScroll/PageMargin/PageVBox"]
 layout_mode = 2
-text = "Changelog
-"
-script = ExtResource("2_7d4j3")
+theme_override_styles/panel = SubResource("HeroPanel")
+
+[node name="HeroMargin" type="MarginContainer" parent="MasterScroll/PageMargin/PageVBox/HeroPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="HeroVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/PageVBox/HeroPanel/HeroMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="HeroMark" type="TextureRect" parent="MasterScroll/PageMargin/PageVBox/HeroPanel/HeroMargin/HeroVBox"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+texture = ExtResource("1_logo")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DescriptionLabel" type="Label" parent="MasterScroll/PageMargin/PageVBox/HeroPanel/HeroMargin/HeroVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.105882, 0.211765, 0.301961, 1)
+theme_override_constants/line_spacing = 4
+text = "In the lead-up to the devastating Y2K virus, a mass purge of data opened a rift between the world of man and computers. Now, electronic specters from the digital realm are trying to invade the world of the living!\n\nGear up with futuristic goggles and photon weaponry that lets you do battle with vicious viruses, woeful worms and apocalyptic A.I. — each one hellbent on overwriting humanity.\n\nUsing the latest innovations in augmented reality, take the fight from your screen straight into your home! A gaming experience like nothing you've seen before!\n\nFrom the brilliant mind of Tarou Yamada.\n\nコバルトブルー\n© 2000"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Get Started" type="Button" parent="MasterScroll/PageMargin/PageVBox/HeroPanel/HeroMargin/HeroVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.972549, 0.996078, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(0.941176, 0.984314, 1, 1)
+theme_override_styles/normal = SubResource("PrimaryNormal")
+theme_override_styles/hover = SubResource("PrimaryHover")
+theme_override_styles/pressed = SubResource("PrimaryPressed")
+text = "Get Started"
+script = ExtResource("2_action")
+target_url = "null.net/getstarted"
+
+[node name="PortalLinks" type="HFlowContainer" parent="MasterScroll/PageMargin/PageVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 8
+
+[node name="UpdatesBtn" type="Button" parent="MasterScroll/PageMargin/PageVBox/PortalLinks"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(174, 38)
+layout_mode = 2
+text = "Changelog"
+script = ExtResource("2_action")
 target_url = "null.net/updates"
 
-[node name="ThreadsBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=921583470]
+[node name="ThreadsBtn" type="Button" parent="MasterScroll/PageMargin/PageVBox/PortalLinks"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(174, 38)
 layout_mode = 2
-text = "Message Board
-"
-script = ExtResource("2_7d4j3")
+text = "Message Board"
+script = ExtResource("2_action")
 target_url = "null.net/forums"
 
-[node name="RankingsBtn" type="Button" parent="MasterScroll/PageVBox/ContentArea/VBoxContainer" unique_id=180985698]
+[node name="RankingsBtn" type="Button" parent="MasterScroll/PageMargin/PageVBox/PortalLinks"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(174, 38)
 layout_mode = 2
 text = "Player Rankings"
-script = ExtResource("2_7d4j3")
+script = ExtResource("2_action")
 target_url = "null.net/playerrankings"
