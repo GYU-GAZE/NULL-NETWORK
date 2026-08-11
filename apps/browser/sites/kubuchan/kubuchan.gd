@@ -71,34 +71,22 @@ func _play_initial_reveal() -> void:
 		return
 
 	brand_block.modulate.a = 0.0
-	brand_block.position.y -= 4.0
-
-	for card: KubuchanPostCard in _rendered_cards:
-		if not is_instance_valid(card):
-			continue
-		card.modulate.a = 0.0
-		card.position.y += 5.0
-
 	var header_tween := create_tween()
-	header_tween.set_parallel(true)
 	header_tween.set_trans(Tween.TRANS_QUAD)
 	header_tween.set_ease(Tween.EASE_OUT)
 	header_tween.tween_property(brand_block, "modulate:a", 1.0, 0.2)
-	header_tween.tween_property(brand_block, "position:y", brand_block.position.y + 4.0, 0.2)
 
 	for index in range(_rendered_cards.size()):
 		var card: KubuchanPostCard = _rendered_cards[index]
 		if not is_instance_valid(card):
 			continue
 
-		var final_y: float = card.position.y - 5.0
+		card.modulate.a = 0.0
+		var delay: float = float(index) * post_stagger_seconds
 		var tween := create_tween()
-		tween.set_parallel(true)
 		tween.set_trans(Tween.TRANS_QUAD)
 		tween.set_ease(Tween.EASE_OUT)
-		tween.tween_interval(float(index) * post_stagger_seconds)
-		tween.tween_property(card, "modulate:a", 1.0, post_reveal_seconds)
-		tween.tween_property(card, "position:y", final_y, post_reveal_seconds)
+		tween.tween_property(card, "modulate:a", 1.0, post_reveal_seconds).set_delay(delay)
 
 
 func _on_link_requested(url: String) -> void:
