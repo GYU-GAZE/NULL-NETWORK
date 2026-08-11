@@ -1,61 +1,59 @@
 extends Node
 
-
 var _failures := PackedStringArray()
-
 
 func _ready() -> void:
 	call_deferred("_run_test")
-
 
 func _run_test() -> void:
 	var manager := WindowManager.new()
 	manager.size = Vector2(960, 540)
 	manager.reserved_top_height = KubuOSMetrics.taskbar_height
 	manager.reserved_bottom_height = 0.0
-	manager.reserved_left_width = 0.0
-	manager.reserved_right_width = 0.0
+	manager.reserved_left_width = KubuOSMetrics.reserved_left_width
+	manager.reserved_right_width = KubuOSMetrics.reserved_right_width
 
 	var window_work_rect: Rect2 = manager.get_work_area_rect()
 	var workspace_work_rect: Rect2 = KubuOSMetrics.get_work_area_rect(manager.size)
 
 	_check(
 		is_equal_approx(window_work_rect.position.y, KubuOSMetrics.taskbar_height),
-		"Window work area must still begin below the top taskbar."
+		"Window work area must begin below the top taskbar."
+	)
+	_check(
+		is_equal_approx(window_work_rect.position.x, KubuOSMetrics.reserved_left_width),
+		"Window work area must begin to the right of the app rail."
 	)
 	_check(
 		is_equal_approx(window_work_rect.end.y, manager.size.y),
-		"Window work area must reach the viewport bottom instead of reserving the dock."
+		"Window work area must reach the viewport bottom."
 	)
 	_check(
-		window_work_rect.size.y > workspace_work_rect.size.y,
-		"Window geometry must no longer inherit the workspace dock reservation."
+		is_equal_approx(window_work_rect.size.x, manager.size.x - KubuOSMetrics.reserved_left_width - KubuOSMetrics.reserved_right_width),
+		"Window work area width must reserve the app rail."
 	)
 	_check(
-		is_equal_approx(
-			window_work_rect.size.y - workspace_work_rect.size.y,
-			KubuOSMetrics.dock_height
-		),
-		"The removed window-only bottom reservation must equal the floating dock height."
+		window_work_rect.is_equal_approx(workspace_work_rect),
+		"Window and workspace geometry must share the same top and left OS chrome reservation."
+	)
+	_check(
+		is_zero_approx(KubuOSMetrics.dock_height),
+		"The removed bottom dock must not reserve vertical workspace height."
 	)
 
 	manager.free()
 	_finish_test()
 
-
 func _check(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
-
 
 func _finish_test() -> void:
 	if _failures.is_empty():
 		print("WINDOW_WORK_AREA_TEST: PASS")
 		get_tree().quit(0)
 		return
-
 	for failure: String in _failures:
 		push_error(failure)
-
 	print("WINDOW_WORK_AREA_TEST: FAIL (%d)" % _failures.size())
 	get_tree().quit(1)
