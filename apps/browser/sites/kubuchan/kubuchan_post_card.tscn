@@ -73,19 +73,23 @@ script = ExtResource("1_script")
 [node name="PostPanel" type="PanelContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 theme_override_styles/panel = SubResource("PlaceholderPanel")
 
 [node name="Content" type="VBoxContainer" parent="PostPanel"]
 layout_mode = 2
+mouse_filter = 2
 theme_override_constants/separation = 5
 
 [node name="MetaRow" type="HBoxContainer" parent="PostPanel/Content"]
 layout_mode = 2
+mouse_filter = 2
 theme_override_constants/separation = 7
 
 [node name="SubjectLabel" type="Label" parent="PostPanel/Content/MetaRow"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 theme_override_colors/font_color = Color(0.18, 0.24, 0.4, 1)
 theme_override_font_sizes/font_size = 14
 text = "SUBJECT"
@@ -93,6 +97,7 @@ text = "SUBJECT"
 [node name="AuthorLabel" type="Label" parent="PostPanel/Content/MetaRow"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 theme_override_colors/font_color = Color(0.21, 0.37, 0.33, 1)
 theme_override_font_sizes/font_size = 13
 text = "Anonymous"
@@ -100,6 +105,7 @@ text = "Anonymous"
 [node name="UidLabel" type="Label" parent="PostPanel/Content/MetaRow"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 theme_override_colors/font_color = Color(0.35, 0.4, 0.5, 1)
 theme_override_font_sizes/font_size = 12
 text = "ID:000000"
@@ -112,6 +118,7 @@ mouse_filter = 2
 [node name="TimestampLabel" type="Label" parent="PostPanel/Content/MetaRow"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 theme_override_colors/font_color = Color(0.4, 0.44, 0.52, 1)
 theme_override_font_sizes/font_size = 12
 text = "08/11/26 22:41"
@@ -119,6 +126,7 @@ text = "08/11/26 22:41"
 [node name="PostNumberLabel" type="Label" parent="PostPanel/Content/MetaRow"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 theme_override_colors/font_color = Color(0.26, 0.31, 0.42, 1)
 theme_override_font_sizes/font_size = 12
 text = "No.000000"
@@ -128,6 +136,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 theme_override_colors/default_color = Color(0.12, 0.16, 0.24, 1)
 theme_override_font_sizes/normal_font_size = 14
 theme_override_font_sizes/bold_font_size = 14
