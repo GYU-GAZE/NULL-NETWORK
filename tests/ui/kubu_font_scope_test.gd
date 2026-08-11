@@ -19,11 +19,15 @@ func _run_test() -> void:
 	_check(TYPOGRAPHY.font_size == 6, "KubuOS Micro must remain authored at 6 px.")
 	_check(
 		TYPOGRAPHY.get_pixel_aligned_size(19) == 18,
-		"Explicit font sizes must snap to the six-pixel design grid."
+		"Explicit KubuOS font sizes must snap to the six-pixel design grid."
 	)
 	_check(
 		TYPOGRAPHY.get_pixel_aligned_size(24) == 24,
 		"Valid integer multiples of six must retain their hierarchy."
+	)
+	_check(
+		not TYPOGRAPHY.use_fallback_font,
+		"KubuOS Micro must not mix Silver's incompatible 19 px grid as a fallback."
 	)
 
 	var resolved_font: Font = TYPOGRAPHY.get_font()
@@ -33,6 +37,10 @@ func _run_test() -> void:
 		var variation := resolved_font as FontVariation
 		var source := variation.base_font as FontFile
 		_check(source != null, "KubuOS Micro must resolve through a FontFile source.")
+		_check(
+			variation.fallbacks.is_empty(),
+			"KubuOS Micro must not render Silver at 6/12/18 px as a glyph fallback."
+		)
 
 		if source != null:
 			_check(
@@ -61,6 +69,9 @@ func _run_test() -> void:
 	var label := Label.new()
 	label.name = "InitialLabel"
 	label.text = "KUBUOS"
+	label.add_theme_color_override(&"font_shadow_color", Color(0, 0, 0, 1))
+	label.add_theme_constant_override(&"shadow_offset_x", 1)
+	label.add_theme_constant_override(&"shadow_offset_y", 1)
 	root.add_child(label)
 
 	var large_label := Label.new()
@@ -70,6 +81,8 @@ func _run_test() -> void:
 
 	var rich_text := RichTextLabel.new()
 	rich_text.name = "CombatLog"
+	rich_text.add_theme_color_override(&"font_outline_color", Color(0, 0, 0, 1))
+	rich_text.add_theme_constant_override(&"outline_size", 1)
 	root.add_child(rich_text)
 
 	var scope := FONT_SCOPE_SCENE.instantiate() as KubuFontScope
@@ -83,6 +96,15 @@ func _run_test() -> void:
 	_check(
 		label.get_theme_font_size(&"font_size") == 6,
 		"Font scope did not apply the 6 px size to Label."
+	)
+	_check(
+		label.get_theme_color(&"font_shadow_color").a == 0.0,
+		"KubuOS Micro must clear inherited Silver font shadow color."
+	)
+	_check(
+		label.get_theme_constant(&"shadow_offset_x") == 0
+		and label.get_theme_constant(&"shadow_offset_y") == 0,
+		"KubuOS Micro must clear inherited Silver shadow offsets."
 	)
 	_check(
 		large_label.get_theme_font(&"font") == resolved_font,
@@ -99,6 +121,11 @@ func _run_test() -> void:
 	_check(
 		rich_text.get_theme_font_size(&"normal_font_size") == 6,
 		"Font scope did not apply the 6 px size to RichTextLabel variants."
+	)
+	_check(
+		rich_text.get_theme_color(&"font_outline_color").a == 0.0
+		and rich_text.get_theme_constant(&"outline_size") == 0,
+		"KubuOS Micro must clear inherited RichText outline rendering."
 	)
 
 	var dynamic_label := Label.new()
