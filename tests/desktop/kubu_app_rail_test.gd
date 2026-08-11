@@ -96,8 +96,8 @@ func _run_test() -> void:
 			"Generic tooltip still competes with the custom app-name callout."
 		)
 		_check(
-			item.app_name_label.get_theme_font_size("font_size") == 12,
-			"App-name callout is not using the intended 12px font size."
+			item.app_name_label.get_theme_font_size("font_size") == 6,
+			"App-name callout must stay at the native 6px logical font size so 2x display scaling renders it at 12 physical pixels."
 		)
 
 		var item_center_x: float = item.get_global_rect().get_center().x
@@ -107,8 +107,12 @@ func _run_test() -> void:
 			"App icon is not centered horizontally in the 30px rail."
 		)
 		_check(
-			is_equal_approx(item.active_backdrop.custom_minimum_size.x, 24.0),
-			"Open-state backdrop no longer keeps a 3px inset on each rail side."
+			item.custom_minimum_size.is_equal_approx(Vector2(30.0, 30.0)),
+			"App rail item is not using the 30x30 cell required by the expanded active highlight."
+		)
+		_check(
+			item.active_backdrop.custom_minimum_size.is_equal_approx(Vector2(30.0, 30.0)),
+			"Open-state backdrop must expand to 30x30, adding 3px per side over the previous 24x24 highlight."
 		)
 
 		item.set_running(true)

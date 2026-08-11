@@ -35,7 +35,7 @@ corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 
 [node name="KubuDockItem" type="Control" unique_id=744712914]
-custom_minimum_size = Vector2(30, 28)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 3
 anchors_preset = 0
 mouse_filter = 1
@@ -62,7 +62,7 @@ mouse_filter = 2
 
 [node name="ActiveBackdrop" type="ColorRect" parent="VisualRoot/ActiveBackdropCenter"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(24, 24)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 color = Color(0.08, 0.2, 0.31, 0.88)
 mouse_filter = 2
@@ -115,7 +115,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_hover_label")
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.97, 1, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 6
 text = "APP"
 horizontal_alignment = 1
 vertical_alignment = 1
