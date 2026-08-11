@@ -5,7 +5,7 @@ class_name KubuBottomDock
 @export var dock_item_scene: PackedScene
 
 @export_category("App Rail")
-@export var rail_width: float = 40.0
+@export var rail_width: float = 30.0
 
 @export_category("Boot Animation")
 @export var item_spawn_delay: float = 0.06
@@ -23,6 +23,7 @@ var _dock_locked: bool = false
 var _dock_lock_reason: String = ""
 var _shell_reveal_tween: Tween
 
+
 func _ready() -> void:
 	_connect_global_signals()
 	if not KubuOSMetrics.metrics_changed.is_connected(_apply_metrics):
@@ -31,6 +32,7 @@ func _ready() -> void:
 	_apply_metrics()
 	_sync_dock()
 	_refresh_notification_badges()
+
 
 func _connect_global_signals() -> void:
 	if not GlobalSignals.app_opened.is_connected(_on_app_opened):
@@ -58,24 +60,37 @@ func _connect_global_signals() -> void:
 	if not ContentRegistry.registry_rebuilt.is_connected(_on_registry_rebuilt):
 		ContentRegistry.registry_rebuilt.connect(_on_registry_rebuilt)
 
+
 func _register_work_area_reservation() -> void:
-	var desired_width: float = maxf(32.0, rail_width)
-	if is_equal_approx(KubuOSMetrics.reserved_left_width, desired_width):
-		return
-	KubuOSMetrics.reserved_left_width = desired_width
-	KubuOSMetrics.emit_changed()
+	var desired_width: float = maxf(24.0, rail_width)
+	var changed := false
+
+	# Migration from the previous left-side rail. This component owned that
+	# reservation, so the right-side presentation must release it.
+	if not is_zero_approx(KubuOSMetrics.reserved_left_width):
+		KubuOSMetrics.reserved_left_width = 0.0
+		changed = true
+
+	if not is_equal_approx(KubuOSMetrics.reserved_right_width, desired_width):
+		KubuOSMetrics.reserved_right_width = desired_width
+		changed = true
+
+	if changed:
+		KubuOSMetrics.emit_changed()
+
 
 func _apply_metrics() -> void:
-	var rail_width_from_metrics: float = maxf(32.0, KubuOSMetrics.reserved_left_width)
-	sidebar_margin.anchor_left = 0.0
+	var rail_width_from_metrics: float = maxf(24.0, KubuOSMetrics.reserved_right_width)
+	sidebar_margin.anchor_left = 1.0
 	sidebar_margin.anchor_top = 0.0
-	sidebar_margin.anchor_right = 0.0
+	sidebar_margin.anchor_right = 1.0
 	sidebar_margin.anchor_bottom = 1.0
-	sidebar_margin.offset_left = 0.0
+	sidebar_margin.offset_left = -rail_width_from_metrics
 	sidebar_margin.offset_top = KubuOSMetrics.taskbar_height
-	sidebar_margin.offset_right = rail_width_from_metrics
+	sidebar_margin.offset_right = 0.0
 	sidebar_margin.offset_bottom = 0.0
 	dock_panel.custom_minimum_size = Vector2(rail_width_from_metrics, 0.0)
+
 
 func _sync_dock() -> void:
 	if dock_item_scene == null:
@@ -107,6 +122,7 @@ func _sync_dock() -> void:
 			app_container.move_child(item, index)
 	_refresh_notification_badges()
 
+
 func _create_item(app: AppResource, index: int) -> KubuDockItem:
 	var item := dock_item_scene.instantiate() as KubuDockItem
 	if item == null:
@@ -124,6 +140,7 @@ func _create_item(app: AppResource, index: int) -> KubuDockItem:
 	_play_item_spawn_animation(item, index)
 	return item
 
+
 func _remove_item(app_id: String) -> void:
 	var item: KubuDockItem = _get_item(app_id)
 	if item == null:
@@ -131,6 +148,7 @@ func _remove_item(app_id: String) -> void:
 	_items_by_app_id.erase(app_id)
 	app_container.remove_child(item)
 	item.queue_free()
+
 
 func get_visible_app_ids() -> PackedStringArray:
 	var result := PackedStringArray()
@@ -140,8 +158,10 @@ func get_visible_app_ids() -> PackedStringArray:
 			result.append(item.app_data.app_id.strip_edges())
 	return result
 
+
 func has_app_item(app_id: String) -> bool:
 	return _items_by_app_id.has(app_id.strip_edges())
+
 
 func _on_item_activated(app: AppResource) -> void:
 	if app == null:
@@ -154,10 +174,12 @@ func _on_item_activated(app: AppResource) -> void:
 		AppResource.PresentationMode.WORKSPACE:
 			GlobalSignals.request_activate_workspace.emit(app)
 
+
 func _on_app_opened(app_id: String) -> void:
 	var item: KubuDockItem = _get_item(app_id)
 	if item != null:
 		item.set_running(true)
+
 
 func _on_app_closed(app_id: String) -> void:
 	var item: KubuDockItem = _get_item(app_id)
@@ -168,6 +190,7 @@ func _on_app_closed(app_id: String) -> void:
 	if _focused_app_id == app_id:
 		_focused_app_id = ""
 
+
 func _on_app_focused(app_id: String) -> void:
 	_focused_app_id = app_id
 	_active_workspace_id = ""
@@ -177,6 +200,7 @@ func _on_app_focused(app_id: String) -> void:
 		item.set_running(true)
 		item.set_focused(true)
 
+
 func _on_workspace_activated(workspace_id: String) -> void:
 	_active_workspace_id = workspace_id
 	_focused_app_id = ""
@@ -185,18 +209,23 @@ func _on_workspace_activated(workspace_id: String) -> void:
 	if item != null:
 		item.set_focused(true)
 
+
 func _on_dock_lock_changed(locked: bool, reason: String) -> void:
 	set_locked(locked, reason)
 
+
 func _on_app_installed(_app_id: String) -> void:
 	_sync_dock()
+
 
 func _on_campaign_changed(section: StringName) -> void:
 	if section in [&"campaign", &"installed_apps"]:
 		_sync_dock()
 
+
 func _on_registry_rebuilt() -> void:
 	_sync_dock()
+
 
 func set_locked(locked: bool, reason: String = "") -> void:
 	_dock_locked = locked
@@ -205,6 +234,7 @@ func set_locked(locked: bool, reason: String = "") -> void:
 		var item := value as KubuDockItem
 		if item != null:
 			item.set_locked(_dock_locked)
+
 
 func set_app_badge(app_id: String, count: int) -> void:
 	var clean_id: String = app_id.strip_edges()
@@ -221,6 +251,7 @@ func set_app_badge(app_id: String, count: int) -> void:
 	if item != null:
 		item.set_badge_count(count)
 
+
 func set_app_dot_badge(app_id: String, visible: bool = true) -> void:
 	var clean_id: String = app_id.strip_edges()
 	if clean_id.is_empty():
@@ -234,6 +265,7 @@ func set_app_dot_badge(app_id: String, visible: bool = true) -> void:
 	var item: KubuDockItem = _get_item(clean_id)
 	if item != null:
 		item.set_badge_dot()
+
 
 func set_app_icon_badge(app_id: String, icon: Texture2D) -> void:
 	var clean_id: String = app_id.strip_edges()
@@ -250,10 +282,12 @@ func set_app_icon_badge(app_id: String, icon: Texture2D) -> void:
 	if item != null:
 		item.set_badge_icon(icon)
 
+
 func clear_app_badge(app_id: String) -> void:
 	var clean_id: String = app_id.strip_edges()
 	_badge_states_by_app_id.erase(clean_id)
 	_refresh_notification_badge_for_app(clean_id)
+
 
 func _apply_saved_badge(app_id: String, item: KubuDockItem) -> void:
 	if item == null:
@@ -273,6 +307,7 @@ func _apply_saved_badge(app_id: String, item: KubuDockItem) -> void:
 		_:
 			item.clear_badge()
 
+
 func _refresh_notification_badges() -> void:
 	var unread_counts: Dictionary = _get_unread_notification_counts()
 	for raw_app_id: Variant in _items_by_app_id.keys():
@@ -282,11 +317,13 @@ func _refresh_notification_badges() -> void:
 		var item: KubuDockItem = _get_item(app_id)
 		_apply_notification_badge(app_id, item, unread_counts)
 
+
 func _refresh_notification_badge_for_app(app_id: String) -> void:
 	var item: KubuDockItem = _get_item(app_id)
 	if item == null:
 		return
 	_apply_notification_badge(app_id, item, _get_unread_notification_counts())
+
 
 func _get_unread_notification_counts() -> Dictionary:
 	var counts: Dictionary = {}
@@ -298,6 +335,7 @@ func _get_unread_notification_counts() -> Dictionary:
 			continue
 		counts[source_app_id] = int(counts.get(source_app_id, 0)) + 1
 	return counts
+
 
 func _apply_notification_badge(
 	app_id: String,
@@ -312,8 +350,10 @@ func _apply_notification_badge(
 	else:
 		item.clear_badge()
 
+
 func get_lock_reason() -> String:
 	return _dock_lock_reason
+
 
 func prepare_shell_reveal(hidden_scale: Vector2 = Vector2(0.2, 1.0)) -> void:
 	_kill_shell_reveal_tween()
@@ -322,10 +362,12 @@ func prepare_shell_reveal(hidden_scale: Vector2 = Vector2(0.2, 1.0)) -> void:
 	dock_panel.modulate.a = 0.0
 	dock_panel.scale = Vector2(clampf(hidden_scale.x, 0.01, 1.0), 1.0)
 
+
 func refresh_shell_reveal_pivot() -> void:
 	if not is_instance_valid(dock_panel):
 		return
-	dock_panel.pivot_offset = Vector2(0.0, dock_panel.size.y * 0.5)
+	dock_panel.pivot_offset = Vector2(dock_panel.size.x, dock_panel.size.y * 0.5)
+
 
 func start_shell_reveal(duration: float) -> void:
 	_kill_shell_reveal_tween()
@@ -343,15 +385,18 @@ func start_shell_reveal(duration: float) -> void:
 		resolved_duration * 0.72
 	).set_trans(Tween.TRANS_CUBIC)
 
+
 func finish_shell_reveal() -> void:
 	_kill_shell_reveal_tween()
 	dock_panel.scale = Vector2.ONE
 	dock_panel.modulate.a = 1.0
 
+
 func _kill_shell_reveal_tween() -> void:
 	if _shell_reveal_tween != null and _shell_reveal_tween.is_valid():
 		_shell_reveal_tween.kill()
 	_shell_reveal_tween = null
+
 
 func _clear_item_focus() -> void:
 	for value: Variant in _items_by_app_id.values():
@@ -359,11 +404,13 @@ func _clear_item_focus() -> void:
 		if item != null:
 			item.set_focused(false)
 
+
 func _get_item(app_id: String) -> KubuDockItem:
 	var clean_id: String = app_id.strip_edges()
 	if not _items_by_app_id.has(clean_id):
 		return null
 	return _items_by_app_id[clean_id] as KubuDockItem
+
 
 func _play_item_spawn_animation(item: KubuDockItem, index: int) -> void:
 	item.modulate.a = 0.0
