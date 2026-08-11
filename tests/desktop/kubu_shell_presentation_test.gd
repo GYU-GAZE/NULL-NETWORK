@@ -1,6 +1,5 @@
 extends Control
 
-
 const TOP_TASKBAR_SCENE: PackedScene = preload(
 	"res://systems/desktop/kubu_top_taskbar.tscn"
 )
@@ -13,10 +12,8 @@ const PRESENTATION_DATA: KubuShellPresentationData = preload(
 
 var _failures := PackedStringArray()
 
-
 func _ready() -> void:
 	call_deferred("_run_test")
-
 
 func _run_test() -> void:
 	size = Vector2(1280, 720)
@@ -26,7 +23,7 @@ func _run_test() -> void:
 	var top := TOP_TASKBAR_SCENE.instantiate() as KubuTopTaskbar
 	var bottom := BOTTOM_DOCK_SCENE.instantiate() as KubuBottomDock
 	_check(top != null, "Top taskbar failed to instantiate.")
-	_check(bottom != null, "Bottom dock failed to instantiate.")
+	_check(bottom != null, "App rail failed to instantiate.")
 
 	if top != null and bottom != null:
 		add_child(top)
@@ -42,13 +39,14 @@ func _run_test() -> void:
 		)
 		_check(
 			bottom.dock_panel.modulate.a == 0.0,
-			"Prepared bottom dock is not visually hidden."
+			"Prepared app rail is not visually hidden."
 		)
 		_check(
-			bottom.dock_panel.scale.is_equal_approx(
-				PRESENTATION_DATA.first_run_bottom_hidden_scale
-			),
-			"Prepared bottom dock lost its authored reveal scale."
+			bottom.dock_panel.scale.is_equal_approx(Vector2(
+				PRESENTATION_DATA.first_run_bottom_hidden_scale.x,
+				1.0
+			)),
+			"Prepared app rail lost its authored horizontal reveal scale."
 		)
 
 		top.start_shell_reveal(0.05)
@@ -63,7 +61,7 @@ func _run_test() -> void:
 		_check(
 			bottom.dock_panel.scale.is_equal_approx(Vector2.ONE)
 			and is_equal_approx(bottom.dock_panel.modulate.a, 1.0),
-			"Bottom dock reveal did not settle at its stable transform."
+			"App rail reveal did not settle at its stable transform."
 		)
 
 		top.queue_free()
@@ -72,20 +70,16 @@ func _run_test() -> void:
 	await get_tree().process_frame
 	_finish_test()
 
-
 func _check(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
-
 
 func _finish_test() -> void:
 	if _failures.is_empty():
 		print("KUBU_SHELL_PRESENTATION_TEST: PASS")
 		get_tree().quit(0)
 		return
-
 	for failure: String in _failures:
 		push_error(failure)
-
 	print("KUBU_SHELL_PRESENTATION_TEST: FAIL (%d)" % _failures.size())
 	get_tree().quit(1)
