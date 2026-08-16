@@ -382,6 +382,10 @@ custom_minimum_size = Vector2(174, 38)
 layout_mode = 2
 text = "Changelog"
 script = ExtResource("2_action")
+required_flag_name = "operator.registered"
+show_alert_on_failed_condition = true
+failed_alert_title = "ACCOUNT REQUIRED"
+failed_alert_message = "You must have an account to access this area."
 target_url = "null.net/updates"
 
 [node name="ThreadsBtn" type="Button" parent="MasterScroll/PageMargin/PageVBox/PortalLinks"]
@@ -390,6 +394,10 @@ custom_minimum_size = Vector2(174, 38)
 layout_mode = 2
 text = "Message Board"
 script = ExtResource("2_action")
+required_flag_name = "operator.registered"
+show_alert_on_failed_condition = true
+failed_alert_title = "ACCOUNT REQUIRED"
+failed_alert_message = "You must have an account to access this area."
 target_url = "null.net/forums"
 
 [node name="RankingsBtn" type="Button" parent="MasterScroll/PageMargin/PageVBox/PortalLinks"]
@@ -398,4 +406,8 @@ custom_minimum_size = Vector2(174, 38)
 layout_mode = 2
 text = "Player Rankings"
 script = ExtResource("2_action")
+required_flag_name = "operator.registered"
+show_alert_on_failed_condition = true
+failed_alert_title = "ACCOUNT REQUIRED"
+failed_alert_message = "You must have an account to access this area."
 target_url = "null.net/playerrankings"
