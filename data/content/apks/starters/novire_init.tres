@@ -63,7 +63,7 @@ active_module_ids = PackedStringArray("basic_heal")
 [resource]
 script = ExtResource("1_apk")
 apk_id = "novire_init"
-display_name = "NOVIRE"
+display_name = "REVQUIRE"
 species_line_id = "novire"
 form_id = "novire.init"
 form_type = 0
