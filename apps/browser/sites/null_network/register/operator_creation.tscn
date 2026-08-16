@@ -1,7 +1,59 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/register/operator_creation.gd" id="1_page"]
-[ext_resource type="Script" path="res://apps/browser/layout/adaptive_browser_page_layout.gd" id="2_adaptive"]
+[ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="2_theme"]
+[ext_resource type="Resource" path="res://data/content/onboarding/compatibility_assessment_v1_1.tres" id="3_assessment"]
+[ext_resource type="Resource" path="res://data/content/operator/default_appearance_catalog.tres" id="4_appearance"]
+[ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/register/partner_preview_panel.tscn" id="5_partner_preview"]
+
+[sub_resource type="StyleBoxFlat" id="MainPanel"]
+bg_color = Color(0.965, 0.99, 1, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.34, 0.69, 0.88, 0.76)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0.08, 0.29, 0.51, 0.12)
+shadow_size = 7
+
+[sub_resource type="StyleBoxFlat" id="SoftPanel"]
+bg_color = Color(0.91, 0.97, 1, 0.78)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.39, 0.72, 0.9, 0.64)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="DarkStrip"]
+bg_color = Color(0.08, 0.22, 0.39, 0.94)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="PreviewFrame"]
+bg_color = Color(0.82, 0.94, 0.99, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.27, 0.62, 0.84, 0.9)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [node name="OperatorCreation" type="PanelContainer"]
 anchors_preset = 15
@@ -10,333 +62,659 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 clip_contents = true
+theme = ExtResource("2_theme")
 script = ExtResource("1_page")
-gender_ids = PackedStringArray("male", "female", "other")
-gender_labels = PackedStringArray("M", "F", "Other")
-pronoun_set_ids = PackedStringArray("he_him", "she_her", "they_them")
-pronoun_labels = PackedStringArray("He / Him", "She / Her", "They / Them")
-avatar_ids = PackedStringArray("avatar_01", "avatar_02", "avatar_03", "avatar_04", "avatar_05", "avatar_06")
-avatar_labels = PackedStringArray("Avatar 01", "Avatar 02", "Avatar 03", "Avatar 04", "Avatar 05", "Avatar 06")
-body_type_ids = PackedStringArray("body_01", "body_02", "body_03", "body_04")
-face_ids = PackedStringArray("face_01", "face_02", "face_03", "face_04")
-eye_ids = PackedStringArray("eyes_01", "eyes_02", "eyes_03", "eyes_04")
-outer_layer_ids = PackedStringArray("outer_01", "outer_02", "outer_03")
-middle_layer_ids = PackedStringArray("middle_01", "middle_02", "middle_03")
-lower_layer_ids = PackedStringArray("lower_01", "lower_02", "lower_03")
-hat_ids = PackedStringArray("hat_01", "hat_02", "hat_03")
-facial_accessory_ids = PackedStringArray("facial_accessory_01", "facial_accessory_02", "facial_accessory_03")
+assessment_data = ExtResource("3_assessment")
+appearance_catalog = ExtResource("4_appearance")
+partner_preview_scene = ExtResource("5_partner_preview")
 
-[node name="AdaptiveBrowserLayout" type="Node" parent="."]
-script = ExtResource("2_adaptive")
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.87, 0.955, 1, 1)
+
+[node name="BackdropAccent" type="ColorRect" parent="Background"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 104.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0.43, 0.78, 0.96, 0.36)
 
 [node name="MasterScroll" type="ScrollContainer" parent="."]
+unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
 
 [node name="PageMargin" type="MarginContainer" parent="MasterScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 22
 
 [node name="Page" type="VBoxContainer" parent="MasterScroll/PageMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="MasterScroll/PageMargin/Page"]
+[node name="HeaderPanel" type="PanelContainer" parent="MasterScroll/PageMargin/Page"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "OPERATOR REGISTRATION"
-horizontal_alignment = 1
+theme_override_styles/panel = SubResource("MainPanel")
 
-[node name="Intro" type="Label" parent="MasterScroll/PageMargin/Page"]
+[node name="HeaderMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/HeaderPanel"]
 layout_mode = 2
-text = "Create the physical identity bound to this NULL NETWORK account. This registration cannot be overwritten while the Operator remains active."
-horizontal_alignment = 1
-autowrap_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
 
-[node name="Form" type="VBoxContainer" parent="MasterScroll/PageMargin/Page"]
+[node name="HeaderVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/HeaderPanel/HeaderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HeaderRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/HeaderPanel/HeaderMargin/HeaderVBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="MasterScroll/PageMargin/Page/HeaderPanel/HeaderMargin/HeaderVBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.06, 0.27, 0.49, 1)
+theme_override_font_sizes/font_size = 38
+text = "NULL NETWORK REGISTRATION"
+
+[node name="PageCounter" type="Label" parent="MasterScroll/PageMargin/Page/HeaderPanel/HeaderMargin/HeaderVBox/HeaderRow"]
 unique_name_in_owner = true
 layout_mode = 2
+text = "01 / 03"
+vertical_alignment = 1
+
+[node name="HeaderSubtitle" type="Label" parent="MasterScroll/PageMargin/Page/HeaderPanel/HeaderMargin/HeaderVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.29, 0.43, 0.55, 1)
+text = "ACCOUNT PROFILE"
+autowrap_mode = 2
+
+[node name="ProgressStrip" type="PanelContainer" parent="MasterScroll/PageMargin/Page"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("DarkStrip")
+
+[node name="ProgressLabel" type="Label" parent="MasterScroll/PageMargin/Page/ProgressStrip"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.95, 1, 1)
+text = "ACCOUNT  •  APPEARANCE  •  COMPATIBILITY"
+horizontal_alignment = 1
+
+[node name="BodyPanel" type="PanelContainer" parent="MasterScroll/PageMargin/Page"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("MainPanel")
+
+[node name="BodyMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/BodyPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="PageHost" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="IdentityTitle" type="Label" parent="MasterScroll/PageMargin/Page/Form"]
+[node name="AccountPage" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "IDENTITY"
+theme_override_constants/separation = 12
 
-[node name="IdentityGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/Form"]
+[node name="AccountColumns" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage"]
 layout_mode = 2
-columns = 2
-theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 8
+theme_override_constants/separation = 14
 
-[node name="FirstNameLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+[node name="AvatarPanel" type="PanelContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns"]
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("SoftPanel")
+
+[node name="AvatarMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="AvatarVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel/AvatarMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AvatarTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel/AvatarMargin/AvatarVBox"]
+layout_mode = 2
+text = "FORUM AVATAR"
+
+[node name="AvatarPreviewFrame" type="PanelContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel/AvatarMargin/AvatarVBox"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+theme_override_styles/panel = SubResource("PreviewFrame")
+
+[node name="AvatarPreviewLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel/AvatarMargin/AvatarVBox/AvatarPreviewFrame"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "A01"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AvatarGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel/AvatarMargin/AvatarVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 3
+
+[node name="AvatarHint" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel/AvatarMargin/AvatarVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.33, 0.46, 0.56, 1)
+text = "Choose the image displayed beside your NULL CHANNEL posts."
+autowrap_mode = 2
+
+[node name="AccountForm" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="AccountTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "ACCOUNT"
+
+[node name="UsernameRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+layout_mode = 2
+[node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/UsernameRow"]
+layout_mode = 2
+text = "Username"
+[node name="Info" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/UsernameRow"]
+layout_mode = 2
+mouse_filter = 0
+text = " ?"
+tooltip_text = "Your public NULL NETWORK account name. This is shown on the NULL CHANNEL and ranking pages."
+[node name="UsernameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+unique_name_in_owner = true
+layout_mode = 2
+max_length = 24
+placeholder_text = "username"
+
+[node name="ServerRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+layout_mode = 2
+[node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/ServerRow"]
+layout_mode = 2
+text = "Physical Server"
+[node name="Info" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/ServerRow"]
+layout_mode = 2
+mouse_filter = 0
+text = " ?"
+tooltip_text = "The physical NULL NETWORK server your account is assigned to. This build is bound to TOKYO, JAPAN."
+[node name="ServerOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+
+[node name="WritingRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+layout_mode = 2
+[node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/WritingRow"]
+layout_mode = 2
+text = "How do you express yourself?"
+[node name="Info" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/WritingRow"]
+layout_mode = 2
+mouse_filter = 0
+text = " ?"
+tooltip_text = "Controls the presentation of Operator-authored digital messages: capitalization, punctuation and tone formatting. It does not change what you chose to say."
+[node name="WritingStyleOptions" type="HFlowContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 6
+
+[node name="KaomojiRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+layout_mode = 2
+[node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/KaomojiRow"]
+layout_mode = 2
+text = "Do you like to use Kaomojis?"
+[node name="Info" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/KaomojiRow"]
+layout_mode = 2
+mouse_filter = 0
+text = " ?"
+tooltip_text = "Controls how often authored Operator messages may decorate text with kaomojis."
+[node name="KaomojiOptions" type="HFlowContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 6
+
+[node name="PersonalSeparator" type="HSeparator" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+layout_mode = 2
+
+[node name="PersonalTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "PERSONAL INFORMATION"
+
+[node name="PersonalGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 7
+
+[node name="FirstLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/PersonalGrid"]
 layout_mode = 2
 text = "First name"
-
-[node name="FirstNameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+[node name="FirstInfo" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/PersonalGrid"]
+layout_mode = 2
+mouse_filter = 0
+text = "?"
+tooltip_text = "Your Operator's legal or everyday first name. NPCs may use it depending on context."
+[node name="FirstNameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/PersonalGrid"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
 max_length = 32
-
-[node name="LastNameLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+[node name="LastLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/PersonalGrid"]
 layout_mode = 2
-text = "Last name"
-
-[node name="LastNameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+text = "Second name"
+[node name="LastInfo" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/PersonalGrid"]
+layout_mode = 2
+mouse_filter = 0
+text = "?"
+tooltip_text = "Your Operator's family or second name."
+[node name="LastNameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/PersonalGrid"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
 max_length = 32
-
-[node name="NicknameLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+[node name="NickLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/PersonalGrid"]
 layout_mode = 2
-text = "IRL nickname"
-
-[node name="NicknameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+text = "Nickname"
+[node name="NickInfo" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/PersonalGrid"]
+layout_mode = 2
+mouse_filter = 0
+text = "?"
+tooltip_text = "What people who know your Operator personally tend to call them."
+[node name="NicknameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/PersonalGrid"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
 max_length = 32
-
-[node name="UsernameLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
-layout_mode = 2
-text = "NULL NETWORK username"
-
-[node name="UsernameEdit" type="LineEdit" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-max_length = 24
-
-[node name="ServerLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
-layout_mode = 2
-text = "Physical server"
-
-[node name="ServerOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="OccupationLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
-layout_mode = 2
-text = "Occupation"
-
-[node name="OccupationOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="GenderLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+[node name="GenderLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/PersonalGrid"]
 layout_mode = 2
 text = "Gender"
-
-[node name="GenderOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+[node name="GenderInfo" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/PersonalGrid"]
+layout_mode = 2
+mouse_filter = 0
+text = "?"
+tooltip_text = "Used by authored dialogue to derive the appropriate third-person pronoun set. Pronouns are not a separate profile field."
+[node name="GenderOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/PersonalGrid"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
 
-[node name="PronounsLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+[node name="OccupationRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
 layout_mode = 2
-text = "Pronouns"
-
-[node name="PronounOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+[node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/OccupationRow"]
+layout_mode = 2
+text = "Occupation"
+[node name="Info" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm/OccupationRow"]
+layout_mode = 2
+mouse_filter = 0
+text = " ?"
+tooltip_text = "Defines your Operator's daily routine, free action blocks, starting economy and everyday opportunities."
+[node name="OccupationOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="AvatarLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
-layout_mode = 2
-text = "Forum avatar"
-
-[node name="AvatarOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/IdentityGrid"]
+[node name="OccupationSummary" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="OccupationSummary" type="Label" parent="MasterScroll/PageMargin/Page/Form"]
-unique_name_in_owner = true
-layout_mode = 2
+theme_override_colors/font_color = Color(0.31, 0.44, 0.54, 1)
 autowrap_mode = 2
 
-[node name="AppearanceTitle" type="Label" parent="MasterScroll/PageMargin/Page/Form"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "APPEARANCE"
-
-[node name="AppearanceGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/Form"]
-layout_mode = 2
-columns = 2
-theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 8
-
-[node name="BodyLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-layout_mode = 2
-text = "Body"
-
-[node name="BodyOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="FaceLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-layout_mode = 2
-text = "Face"
-
-[node name="FaceOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="EyesLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-layout_mode = 2
-text = "Eyes"
-
-[node name="EyeOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="OuterLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-layout_mode = 2
-text = "Outer"
-
-[node name="OuterOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="MiddleLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-layout_mode = 2
-text = "Middle"
-
-[node name="MiddleOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="LowerLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-layout_mode = 2
-text = "Lower"
-
-[node name="LowerOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="HatLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-layout_mode = 2
-text = "Hat"
-
-[node name="HatOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="AccessoryLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-layout_mode = 2
-text = "Face accessory"
-
-[node name="AccessoryOption" type="OptionButton" parent="MasterScroll/PageMargin/Page/Form/AppearanceGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="TendenciesTitle" type="Label" parent="MasterScroll/PageMargin/Page/Form"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "INITIAL TENDENCIES"
-
-[node name="TendencyGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/Form"]
-layout_mode = 2
-columns = 2
-theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 8
-
-[node name="ValourLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
-layout_mode = 2
-text = "VALOUR"
-
-[node name="ValourSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 15.0
-value = 4.0
-
-[node name="LogicLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
-layout_mode = 2
-text = "LOGIC"
-
-[node name="LogicSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 15.0
-value = 4.0
-
-[node name="SyncLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
-layout_mode = 2
-text = "SYNC"
-
-[node name="SyncSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 15.0
-value = 4.0
-
-[node name="SelfLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
-layout_mode = 2
-text = "SELF"
-
-[node name="SelfSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/Form/TendencyGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-max_value = 15.0
-value = 3.0
-
-[node name="TotalLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "15 / 15 POINTS"
-horizontal_alignment = 2
-
-[node name="ErrorLabel" type="Label" parent="MasterScroll/PageMargin/Page/Form"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.35, 0.32, 1)
-autowrap_mode = 2
-
-[node name="SubmitButton" type="Button" parent="MasterScroll/PageMargin/Page/Form"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 38)
-layout_mode = 2
-text = "REGISTER OPERATOR"
-
-[node name="RegisteredPanel" type="VBoxContainer" parent="MasterScroll/PageMargin/Page"]
+[node name="AppearancePage" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 10
-
-[node name="RegisteredLabel" type="Label" parent="MasterScroll/PageMargin/Page/RegisteredPanel"]
+[node name="AppearanceTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "CREATE YOUR APPEARANCE"
+[node name="AppearanceSubtitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage"]
+layout_mode = 2
+text = "Select a category, then choose a visual part. Your choices are layered into the portrait and overworld previews."
+autowrap_mode = 2
+[node name="AppearanceColumns" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage"]
+layout_mode = 2
+theme_override_constants/separation = 14
+[node name="PreviewColumn" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+theme_override_constants/separation = 8
+[node name="PortraitFrame" type="PanelContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn"]
+custom_minimum_size = Vector2(0, 210)
+layout_mode = 2
+theme_override_styles/panel = SubResource("PreviewFrame")
+[node name="PortraitLayers" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn/PortraitFrame"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "OPERATOR REGISTERED"
+[node name="PortraitPlaceholder" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn/PortraitFrame/PortraitLayers"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "PORTRAIT PREVIEW\nASSET LAYERS READY"
 horizontal_alignment = 1
-
-[node name="RegisteredBody" type="Label" parent="MasterScroll/PageMargin/Page/RegisteredPanel"]
+vertical_alignment = 1
+[node name="OverworldFrame" type="PanelContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn"]
+custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
-text = "Your physical identity, appearance, occupation and initial tendencies are synchronized with this campaign."
+theme_override_styles/panel = SubResource("PreviewFrame")
+[node name="OverworldLayers" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn/OverworldFrame"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="OverworldPlaceholder" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn/OverworldFrame/OverworldLayers"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "OVERWORLD PREVIEW\nFRONT"
+horizontal_alignment = 1
+vertical_alignment = 1
+[node name="DirectionRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn"]
+layout_mode = 2
+alignment = 1
+[node name="DirectionLeft" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn/DirectionRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "←"
+[node name="DirectionFront" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn/DirectionRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "↓"
+[node name="DirectionRight" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn/DirectionRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "→"
+[node name="DirectionBack" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn/DirectionRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "↑"
+[node name="SelectionSummary" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.44, 0.54, 1)
+autowrap_mode = 2
+
+[node name="AppearanceOptions" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 9
+[node name="CategoryTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/AppearanceOptions"]
+layout_mode = 2
+text = "CATEGORY"
+[node name="AppearanceCategories" type="HFlowContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/AppearanceOptions"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 5
+[node name="OptionTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/AppearanceOptions"]
+layout_mode = 2
+text = "OPTIONS"
+[node name="AppearanceGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/AppearanceOptions"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 3
+theme_override_constants/h_separation = 7
+theme_override_constants/v_separation = 7
+
+[node name="MethodPage" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 14
+[node name="MethodTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "COMPATIBILITY ASSESSMENT"
+horizontal_alignment = 1
+[node name="MethodBody" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
+layout_mode = 2
+text = "NULL NETWORK can perform an extended compatibility assessment before synchronizing your initial APK. The process evaluates declared preferences and answer consistency to establish an initial profile.\n\nParticipation is optional. Manual allocation remains available if you prefer to configure your Tendencies and choose from the Standard Compatibility roster directly."
 horizontal_alignment = 1
 autowrap_mode = 2
+[node name="MethodButtons" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 12
+[node name="ParticipateButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage/MethodButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 56)
+layout_mode = 2
+text = "PARTICIPATE"
+[node name="ManualAllocationButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage/MethodButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 56)
+layout_mode = 2
+text = "MANUAL ALLOCATION"
+
+[node name="ManualPage" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+[node name="ManualTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "MANUAL SYNCHRONIZATION"
+[node name="ManualBody" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage"]
+layout_mode = 2
+text = "Allocate exactly 15 initial Tendency points and select one Standard Compatibility APK. Extended Compatibility APKs are reserved for Assessment matching."
+autowrap_mode = 2
+[node name="ManualTendencyGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage"]
+layout_mode = 2
+columns = 4
+theme_override_constants/h_separation = 8
+[node name="ValourBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage/ManualTendencyGrid"]
+layout_mode = 2
+[node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage/ManualTendencyGrid/ValourBox"]
+layout_mode = 2
+text = "VALOUR"
+[node name="ManualValourSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage/ManualTendencyGrid/ValourBox"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 15.0
+value = 4.0
+[node name="LogicBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage/ManualTendencyGrid"]
+layout_mode = 2
+[node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage/ManualTendencyGrid/LogicBox"]
+layout_mode = 2
+text = "LOGIC"
+[node name="ManualLogicSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage/ManualTendencyGrid/LogicBox"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 15.0
+value = 4.0
+[node name="SyncBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage/ManualTendencyGrid"]
+layout_mode = 2
+[node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage/ManualTendencyGrid/SyncBox"]
+layout_mode = 2
+text = "SYNC"
+[node name="ManualSyncSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage/ManualTendencyGrid/SyncBox"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 15.0
+value = 4.0
+[node name="SelfBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage/ManualTendencyGrid"]
+layout_mode = 2
+[node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage/ManualTendencyGrid/SelfBox"]
+layout_mode = 2
+text = "SELF"
+[node name="ManualSelfSpin" type="SpinBox" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage/ManualTendencyGrid/SelfBox"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 15.0
+value = 3.0
+[node name="ManualTotalLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "15 / 15 POINTS"
+horizontal_alignment = 2
+[node name="CandidateLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage"]
+layout_mode = 2
+text = "STANDARD COMPATIBILITY APK"
+[node name="ManualCandidateGrid" type="HFlowContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 7
+theme_override_constants/v_separation = 7
+[node name="ManualPartnerPreviewHost" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="ManualSynchronizeButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "SYNCHRONIZE"
+
+[node name="AssessmentPage" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 11
+[node name="AssessmentHeaderRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage"]
+layout_mode = 2
+[node name="AssessmentCategory" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentHeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "EVERYDAY"
+[node name="AssessmentCounter" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentHeaderRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "01 / 18"
+[node name="QuestionPrompt" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "QUESTION"
+autowrap_mode = 2
+[node name="AnswerContainer" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="ResultPage" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+[node name="ResultLoading" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="LoadingSpacer" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultLoading"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+[node name="LoadingLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultLoading"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "CALCULATING COMPATIBILITY..."
+horizontal_alignment = 1
+[node name="LoadingPulse" type="ProgressBar" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultLoading"]
+unique_name_in_owner = true
+layout_mode = 2
+value = 35.0
+show_percentage = false
+[node name="ResultContent" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+[node name="ResultTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "YOUR STARTING PARTNER IS..."
+horizontal_alignment = 1
+[node name="ResultTendencies" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "VALOUR --  LOGIC --  SYNC --  SELF --"
+horizontal_alignment = 1
+[node name="ResultPartnerPreviewHost" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent"]
+unique_name_in_owner = true
+layout_mode = 2
+[node name="ResultActions" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+[node name="AcceptResultButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent/ResultActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 44)
+layout_mode = 2
+text = "ACCEPT"
+[node name="RetakeAssessmentButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent/ResultActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 44)
+layout_mode = 2
+text = "RETAKE ASSESSMENT"
+[node name="ResultManualButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent/ResultActions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 44)
+layout_mode = 2
+text = "MANUAL ALLOCATION"
+
+[node name="RegisteredPanel" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+[node name="CompleteSpacer" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/RegisteredPanel"]
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+[node name="RegisteredLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/RegisteredPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "SYNCHRONIZATION COMPLETE"
+horizontal_alignment = 1
+[node name="CompleteBody" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/RegisteredPanel"]
+layout_mode = 2
+text = "Your account and partner binding have been registered. Restricted NULL NETWORK areas are now available."
+horizontal_alignment = 1
+autowrap_mode = 2
+[node name="OpenChannelButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/RegisteredPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "OPEN NULL CHANNEL"
+
+[node name="ErrorLabel" type="Label" parent="MasterScroll/PageMargin/Page"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.18, 0.22, 1)
+autowrap_mode = 2
+
+[node name="NavigationRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+[node name="BackButton" type="Button" parent="MasterScroll/PageMargin/Page/NavigationRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 42)
+layout_mode = 2
+text = "BACK"
+[node name="NavSpacer" type="Control" parent="MasterScroll/PageMargin/Page/NavigationRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="NextButton" type="Button" parent="MasterScroll/PageMargin/Page/NavigationRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 42)
+layout_mode = 2
+text = "NEXT"
