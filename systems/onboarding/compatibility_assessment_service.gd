@@ -18,7 +18,8 @@ static func get_or_create_visual_order(
 	if existing.size() == question.answers.size():
 		return existing
 	var ids := PackedStringArray()
-	for answer: CompatibilityAnswerData in question.answers:
+	for answer_value in question.answers:
+		var answer := answer_value as CompatibilityAnswerData
 		if answer != null:
 			ids.append(answer.answer_id)
 	if question.shuffle_answers:
@@ -83,7 +84,8 @@ static func _calculate_raw_axes(
 	var result := {}
 	for axis: String in AXES:
 		result[axis] = 0
-	for question: CompatibilityQuestionData in assessment.questions:
+	for question_value in assessment.questions:
+		var question := question_value as CompatibilityQuestionData
 		if question == null:
 			continue
 		var answer := question.get_answer(str(session.final_answer_by_question.get(question.question_id, "")))
@@ -110,7 +112,8 @@ static func _calculate_confidence(
 	for axis: String in AXES:
 		var confidence := 1.0
 		var dominant_hits_on_axis := 0
-		for question: CompatibilityQuestionData in assessment.questions:
+		for question_value in assessment.questions:
+			var question := question_value as CompatibilityQuestionData
 			if question == null or not question.measured_axes.has(axis):
 				continue
 			var qid := question.question_id
@@ -136,7 +139,8 @@ static func _calculate_rush_state(
 	session: CompatibilitySessionData
 ) -> Dictionary:
 	var position_counts := [0, 0, 0, 0]
-	for question: CompatibilityQuestionData in assessment.questions:
+	for question_value in assessment.questions:
+		var question := question_value as CompatibilityQuestionData
 		if question == null:
 			continue
 		var position := int(session.selected_visual_position_by_question.get(question.question_id, -1))
@@ -163,7 +167,8 @@ static func _calculate_candidate_scores(
 	confidence: Dictionary
 ) -> Dictionary:
 	var scores := {}
-	for candidate: CompatibilityCandidateData in assessment.candidates:
+	for candidate_value in assessment.candidates:
+		var candidate := candidate_value as CompatibilityCandidateData
 		if candidate == null:
 			continue
 		var numerator := 0.0
@@ -173,7 +178,11 @@ static func _calculate_candidate_scores(
 			var axis_confidence := float(confidence.get(axis, 1.0))
 			if importance <= 0.0:
 				continue
-			numerator += absf(float(axis_values.get(axis, 0)) - float(candidate.axis_targets.get(axis, 0))) * importance * axis_confidence
+			numerator += (
+				absf(float(axis_values.get(axis, 0)) - float(candidate.axis_targets.get(axis, 0)))
+				* importance
+				* axis_confidence
+			)
 			denominator += importance * axis_confidence
 		var weighted_difference := numerator / denominator if denominator > 0.0 else 200.0
 		scores[candidate.candidate_id] = 100.0 - (weighted_difference / 2.0)
@@ -185,7 +194,8 @@ static func _highest_candidate(
 ) -> CompatibilityCandidateData:
 	var selected: CompatibilityCandidateData = null
 	var selected_score := -INF
-	for candidate: CompatibilityCandidateData in assessment.candidates:
+	for candidate_value in assessment.candidates:
+		var candidate := candidate_value as CompatibilityCandidateData
 		if candidate == null:
 			continue
 		var score := float(scores.get(candidate.candidate_id, -INF))
@@ -203,7 +213,8 @@ static func _calculate_tendencies(
 	var contributing_questions := {
 		"valour": {}, "logic": {}, "sync": {}, "self": {}
 	}
-	for question: CompatibilityQuestionData in assessment.questions:
+	for question_value in assessment.questions:
+		var question := question_value as CompatibilityQuestionData
 		if question == null:
 			continue
 		var answer := question.get_answer(str(session.final_answer_by_question.get(question.question_id, "")))
@@ -213,7 +224,8 @@ static func _calculate_tendencies(
 			var amount := float(answer.tendency_weights.get(tendency, 0.0))
 			raw[tendency] = float(raw[tendency]) + amount
 			if amount > 0.0:
-				(contributing_questions[tendency] as Dictionary)[question.question_id] = true
+				var question_set := contributing_questions[tendency] as Dictionary
+				question_set[question.question_id] = true
 			if is_equal_approx(amount, 2.0):
 				plus_two_events[tendency] = int(plus_two_events[tendency]) + 1
 
@@ -238,7 +250,9 @@ static func _calculate_tendencies(
 		allocated += floor_value
 
 	var remaining := 15 - allocated
-	var order: Array[String] = Array(TENDENCIES)
+	var order: Array[String] = []
+	for tendency: String in TENDENCIES:
+		order.append(tendency)
 	order.sort_custom(func(left: String, right: String) -> bool:
 		var left_rem := float(remainders[left])
 		var right_rem := float(remainders[right])
@@ -270,7 +284,8 @@ static func _calculate_variant_placeholder(
 	var quiz_affinity := {}
 	for variant: String in VARIANTS:
 		quiz_affinity[variant] = 0
-	for question: CompatibilityQuestionData in assessment.questions:
+	for question_value in assessment.questions:
+		var question := question_value as CompatibilityQuestionData
 		if question == null:
 			continue
 		var answer := question.get_answer(str(session.final_answer_by_question.get(question.question_id, "")))
@@ -280,10 +295,16 @@ static func _calculate_variant_placeholder(
 	var registration_bonus := {}
 	for variant: String in VARIANTS:
 		var bonus := 0
-		var writing_variants: Variant = assessment.writing_style_variant_affinity.get(writing_style_id.strip_edges().to_lower(), PackedStringArray())
+		var writing_variants: Variant = assessment.writing_style_variant_affinity.get(
+			writing_style_id.strip_edges().to_lower(),
+			PackedStringArray()
+		)
 		if _variant_list_has(writing_variants, variant):
 			bonus += 1
-		var kaomoji_variants: Variant = assessment.kaomoji_variant_affinity.get(kaomoji_preference_id.strip_edges().to_lower(), PackedStringArray())
+		var kaomoji_variants: Variant = assessment.kaomoji_variant_affinity.get(
+			kaomoji_preference_id.strip_edges().to_lower(),
+			PackedStringArray()
+		)
 		if _variant_list_has(kaomoji_variants, variant):
 			bonus += 1
 		if avatar_variant_hint.strip_edges().to_upper() == variant:
@@ -340,14 +361,23 @@ static func _matches_behavior_key(session: CompatibilitySessionData, key: String
 	match kind:
 		"UNCHANGED_FINAL":
 			var expected := parts[2]
-			return str(session.final_answer_by_question.get(qid, "")) == expected and int(session.answer_change_count_by_question.get(qid, 0)) == 0
+			return (
+				str(session.final_answer_by_question.get(qid, "")) == expected
+				and int(session.answer_change_count_by_question.get(qid, 0)) == 0
+			)
 		"REVISITED_KEPT":
 			var expected := parts[2]
-			return bool(session.revisited_and_kept.get(qid, false)) and str(session.final_answer_by_question.get(qid, "")) == expected
+			return (
+				bool(session.revisited_and_kept.get(qid, false))
+				and str(session.final_answer_by_question.get(qid, "")) == expected
+			)
 		"CHANGED_FROM_TO":
 			if parts.size() < 4:
 				return false
-			return str(session.first_answer_by_question.get(qid, "")) == parts[2] and str(session.final_answer_by_question.get(qid, "")) == parts[3]
+			return (
+				str(session.first_answer_by_question.get(qid, "")) == parts[2]
+				and str(session.final_answer_by_question.get(qid, "")) == parts[3]
+			)
 	return false
 
 static func _variant_list_has(value: Variant, variant: String) -> bool:
