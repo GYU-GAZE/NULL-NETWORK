@@ -46,7 +46,7 @@ func _run_test() -> void:
 	var registration_errors: PackedStringArray = OperatorService.register_operator(
 		_make_profile(),
 		_make_appearance(),
-		{"valour": 4, "logic": 4, "sync": 4, "self": 3}
+		{"valour": 4, "logic": 4, "sync": 4, "self": 4}
 	)
 	_check(
 		registration_errors.is_empty(),
