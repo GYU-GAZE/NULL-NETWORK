@@ -3,10 +3,10 @@ extends Node
 const DATA: CompatibilityAssessmentData = preload(
 	"res://data/content/onboarding/compatibility_assessment_v1_1.tres"
 )
-const AXES := PackedStringArray(["INI", "STR", "SOC", "EXP", "ATT", "CUR", "ASP"])
-const EXPECTED_MANUAL := PackedStringArray([
+const AXES := ["INI", "STR", "SOC", "EXP", "ATT", "CUR", "ASP"]
+const EXPECTED_MANUAL := [
 	"REVQUIRE", "VOCALYTE", "WIZIP", "PABUBU", "TROJAW"
-])
+]
 
 var _failures := PackedStringArray()
 
@@ -23,7 +23,7 @@ func _run_test() -> void:
 	_check(validation_errors.is_empty(), "Assessment data validation failed: %s" % validation_errors)
 	_check(DATA.questions.size() == 18, "Assessment must contain exactly 18 questions.")
 	_check(DATA.candidates.size() == 11, "Current Assessment must contain the eleven START-COMPATIBLE candidate profiles.")
-	_check(DATA.manual_candidate_ids == EXPECTED_MANUAL, "Manual Allocation roster changed.")
+	_check(Array(DATA.manual_candidate_ids) == EXPECTED_MANUAL, "Manual Allocation roster changed.")
 
 	_check_axis_measurement_balance()
 	_check_per_question_axis_distribution()
