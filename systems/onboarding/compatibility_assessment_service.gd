@@ -1,12 +1,12 @@
 extends RefCounted
 class_name CompatibilityAssessmentService
 
-const AXES := PackedStringArray(["INI", "STR", "SOC", "EXP", "ATT", "CUR", "ASP"])
-const TENDENCIES := PackedStringArray(["valour", "logic", "sync", "self"])
-const VARIANTS := PackedStringArray([
+const AXES := ["INI", "STR", "SOC", "EXP", "ATT", "CUR", "ASP"]
+const TENDENCIES := ["valour", "logic", "sync", "self"]
+const VARIANTS := [
 	"COMBUSTIVE", "CRYOSIVE", "CONDUCTIVE", "CORROSIVE",
 	"DEFENSIVE", "DESTRUCTIVE", "DEPLETIVE", "DECEPTIVE"
-])
+]
 
 static func get_or_create_visual_order(
 	question: CompatibilityQuestionData,
