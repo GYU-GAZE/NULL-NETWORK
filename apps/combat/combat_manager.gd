@@ -1078,7 +1078,8 @@ func preview_action(
 					module,
 					effect,
 					context,
-					virtual_barriers
+					virtual_barriers,
+					targets.size()
 				)
 
 				if not entry.is_empty():
@@ -2045,7 +2046,8 @@ func _execute_effects(
 				effect,
 				context,
 				holder,
-				status_instance
+				status_instance,
+				targets.size()
 			)
 
 
@@ -2172,7 +2174,8 @@ func _execute_effect_on_target(
 	effect: CombatEffectData,
 	context: CombatEventContext,
 	holder: Dictionary,
-	status_instance: CombatStatusInstance
+	status_instance: CombatStatusInstance,
+	resolved_target_count: int = 1
 ) -> void:
 	var amount := _evaluate_formula(
 		effect.value_formula,
@@ -2199,7 +2202,8 @@ func _execute_effect_on_target(
 				effect,
 				amount,
 				context,
-				status_instance
+				status_instance,
+				resolved_target_count
 			)
 
 		CombatEffectData.EffectType.HEAL:
@@ -2284,7 +2288,8 @@ func _apply_damage(
 	effect: CombatEffectData,
 	raw_amount: float,
 	parent_context: CombatEventContext,
-	status_instance: CombatStatusInstance = null
+	status_instance: CombatStatusInstance = null,
+	resolved_target_count: int = 1
 ) -> void:
 	var target: Variant = _resolve_redirect_target(
 		original_target
@@ -2345,7 +2350,8 @@ func _apply_damage(
 		caster,
 		target,
 		effect,
-		raw_amount
+		raw_amount,
+		resolved_target_count
 	)
 	var did_crit := (
 		effect.can_crit
@@ -3278,20 +3284,57 @@ func _calculate_damage(
 	caster: Dictionary,
 	target: Dictionary,
 	effect: CombatEffectData,
-	raw_amount: float
+	raw_amount: float,
+	resolved_target_count: int = 1
 ) -> int:
-	var damage := maxf(
-		0.0,
-		raw_amount
-	)
+	var damage: float = 0.0
 
-	if not effect.ignore_defense:
-		damage -= get_effective_stat(
+	if effect.damage_formula != null:
+		var formula: CombatDamageFormulaData = effect.damage_formula
+		var offense: float = _base_stat(
+			caster,
+			formula.offense_stat
+		)
+		var defense: float = _base_stat(
 			target,
-			effect.defense_stat
+			formula.defense_stat
 		)
 
-	damage = maxf(1.0, damage)
+		if formula.use_effective_offense:
+			offense = get_effective_stat(
+				caster,
+				formula.offense_stat
+			)
+
+		if formula.use_effective_defense:
+			defense = get_effective_stat(
+				target,
+				formula.defense_stat
+			)
+
+		damage = float(formula.calculate_base_damage(
+			int(caster.get("level", 1)),
+			offense,
+			defense
+		))
+		damage *= formula.get_target_multiplier(
+			resolved_target_count
+		)
+		damage *= formula.special_multiplier
+	else:
+		damage = maxf(
+			0.0,
+			raw_amount
+		)
+
+		if not effect.ignore_defense:
+			damage -= get_effective_stat(
+				target,
+				effect.defense_stat
+			)
+
+		damage = maxf(1.0, damage)
+
 	damage *= _continuous_multiplier(
 		caster,
 		CombatEffectData.EffectType.MODIFY_DAMAGE_DEALT
@@ -3441,6 +3484,37 @@ func _evaluate_formula(
 			* formula.stat_multiplier
 		)
 
+	var secondary_reference_actor: Variant = _resolve_formula_actor(
+		formula.secondary_stat_reference,
+		caster,
+		target,
+		holder,
+		context
+	)
+
+	if (
+		secondary_reference_actor != null
+		and not is_zero_approx(
+			formula.secondary_stat_multiplier
+		)
+	):
+		var secondary_stat_value := _base_stat(
+			secondary_reference_actor,
+			formula.secondary_stat
+		)
+
+		if formula.secondary_use_effective_stat:
+			secondary_stat_value = _get_effective_stat(
+				secondary_reference_actor,
+				formula.secondary_stat,
+				stat_depth + 1
+			)
+
+		value += (
+			secondary_stat_value
+			* formula.secondary_stat_multiplier
+		)
+
 	if (
 		status_instance != null
 		and not is_zero_approx(
@@ -3521,7 +3595,8 @@ func _preview_effect(
 	module: ModuleData,
 	effect: CombatEffectData,
 	context: CombatEventContext,
-	virtual_barriers: Dictionary
+	virtual_barriers: Dictionary,
+	resolved_target_count: int = 1
 ) -> Dictionary:
 	var amount := _evaluate_formula(
 		effect.value_formula,
@@ -3575,7 +3650,8 @@ func _preview_effect(
 				caster,
 				target,
 				effect,
-				amount
+				amount,
+				resolved_target_count
 			)
 			entry["hp_delta"] = -damage
 			entry["summary"] = "%s: -%d HP" % [
