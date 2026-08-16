@@ -695,26 +695,27 @@ custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "OPEN NULL CHANNEL"
 
-[node name="ErrorLabel" type="Label" parent="MasterScroll/PageMargin/Page"]
+[node name="ErrorLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.18, 0.22, 1)
 autowrap_mode = 2
 
-[node name="NavigationRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page"]
+[node name="NavigationRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
-theme_override_constants/separation = 8
-[node name="BackButton" type="Button" parent="MasterScroll/PageMargin/Page/NavigationRow"]
+theme_override_constants/separation = 12
+[node name="BackButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 42)
+custom_minimum_size = Vector2(160, 44)
 layout_mode = 2
 text = "BACK"
-[node name="NavSpacer" type="Control" parent="MasterScroll/PageMargin/Page/NavigationRow"]
+[node name="NavSpacer" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-[node name="NextButton" type="Button" parent="MasterScroll/PageMargin/Page/NavigationRow"]
+[node name="NextButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 42)
+custom_minimum_size = Vector2(160, 44)
 layout_mode = 2
 text = "NEXT"
