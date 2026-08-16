@@ -146,8 +146,10 @@ var _manual_candidate_id: String = ""
 var _manual_preview: PartnerPreviewPanel
 var _result_preview: PartnerPreviewPanel
 var _loading_tween: Tween
+var _assessment_auto_advance_pending: bool = false
 
 func _ready() -> void:
+	_apply_compact_registration_layout()
 	_validate_dependencies()
 	_configure_account_page()
 	_configure_appearance_page()
@@ -159,6 +161,53 @@ func _ready() -> void:
 		_show_page(FlowPage.COMPLETE)
 	else:
 		_show_page(FlowPage.ACCOUNT)
+
+func _apply_compact_registration_layout() -> void:
+	var header_panel := find_child("HeaderPanel", true, false) as Control
+	if header_panel != null:
+		header_panel.hide()
+	var progress_strip := find_child("ProgressStrip", true, false) as Control
+	if progress_strip != null:
+		progress_strip.hide()
+
+	var page_margin := find_child("PageMargin", true, false) as MarginContainer
+	if page_margin != null:
+		page_margin.add_theme_constant_override("margin_left", 44)
+		page_margin.add_theme_constant_override("margin_top", 28)
+		page_margin.add_theme_constant_override("margin_right", 44)
+		page_margin.add_theme_constant_override("margin_bottom", 30)
+
+	var body_margin := find_child("BodyMargin", true, false) as MarginContainer
+	if body_margin != null:
+		body_margin.add_theme_constant_override("margin_left", 18)
+		body_margin.add_theme_constant_override("margin_top", 14)
+		body_margin.add_theme_constant_override("margin_right", 18)
+		body_margin.add_theme_constant_override("margin_bottom", 14)
+
+	var avatar_panel := find_child("AvatarPanel", true, false) as Control
+	if avatar_panel != null:
+		avatar_panel.custom_minimum_size.x = 190.0
+	var avatar_preview_frame := find_child("AvatarPreviewFrame", true, false) as Control
+	if avatar_preview_frame != null:
+		avatar_preview_frame.custom_minimum_size.y = 112.0
+	var account_columns := find_child("AccountColumns", true, false) as BoxContainer
+	if account_columns != null:
+		account_columns.add_theme_constant_override("separation", 10)
+	var account_form := find_child("AccountForm", true, false) as BoxContainer
+	if account_form != null:
+		account_form.add_theme_constant_override("separation", 6)
+
+	var preview_column := find_child("PreviewColumn", true, false) as Control
+	if preview_column != null:
+		preview_column.custom_minimum_size.x = 230.0
+	var portrait_frame := find_child("PortraitFrame", true, false) as Control
+	if portrait_frame != null:
+		portrait_frame.custom_minimum_size.y = 164.0
+	var overworld_frame := find_child("OverworldFrame", true, false) as Control
+	if overworld_frame != null:
+		overworld_frame.custom_minimum_size.y = 130.0
+	if appearance_grid != null:
+		appearance_grid.columns = 2
 
 func _validate_dependencies() -> void:
 	if assessment_data == null:
@@ -186,7 +235,7 @@ func _configure_account_page() -> void:
 	_add_option(gender_option, "Other", "other")
 	_configure_occupations()
 
-	_render_choice_group(
+	_render_dropdown_choice(
 		writing_style_options,
 		[
 			{"id": "normal", "label": "Normal", "tooltip": "Standard capitalization and punctuation."},
@@ -197,7 +246,7 @@ func _configure_account_page() -> void:
 		_selected_writing_style,
 		_on_writing_style_selected
 	)
-	_render_choice_group(
+	_render_dropdown_choice(
 		kaomoji_options,
 		[
 			{"id": "frequent", "label": "Often", "tooltip": "Authored Operator messages may use kaomojis frequently."},
@@ -232,7 +281,7 @@ func _render_avatar_grid() -> void:
 		var button := Button.new()
 		button.toggle_mode = true
 		button.button_group = group
-		button.custom_minimum_size = Vector2(60, 44)
+		button.custom_minimum_size = Vector2(48, 38)
 		button.text = "%02d" % (index + 1)
 		button.tooltip_text = avatar_labels[index] if index < avatar_labels.size() else avatar_id
 		button.button_pressed = avatar_id == _selected_avatar_id
@@ -240,27 +289,37 @@ func _render_avatar_grid() -> void:
 		avatar_grid.add_child(button)
 	_refresh_avatar_preview()
 
-func _render_choice_group(
+func _render_dropdown_choice(
 	container: Container,
 	choices: Array,
 	selected_id: String,
 	callback: Callable
 ) -> void:
 	_clear_container(container)
-	var group := ButtonGroup.new()
+	var option := OptionButton.new()
+	option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	option.custom_minimum_size = Vector2(250, 0)
+	var selected_index := 0
 	for raw_choice: Variant in choices:
 		if raw_choice is not Dictionary:
 			continue
 		var choice: Dictionary = raw_choice
 		var id := str(choice.get("id", ""))
-		var button := Button.new()
-		button.toggle_mode = true
-		button.button_group = group
-		button.text = str(choice.get("label", id))
-		button.tooltip_text = str(choice.get("tooltip", ""))
-		button.button_pressed = id == selected_id
-		button.pressed.connect(callback.bind(id))
-		container.add_child(button)
+		var item_index := option.item_count
+		option.add_item(str(choice.get("label", id)))
+		option.set_item_metadata(item_index, id)
+		option.set_item_tooltip(item_index, str(choice.get("tooltip", "")))
+		if id == selected_id:
+			selected_index = item_index
+	if option.item_count > 0:
+		option.select(clampi(selected_index, 0, option.item_count - 1))
+	option.item_selected.connect(
+		func(index: int) -> void:
+			if index < 0 or index >= option.item_count:
+				return
+			callback.call(str(option.get_item_metadata(index)))
+	)
+	container.add_child(option)
 
 func _configure_appearance_page() -> void:
 	_build_preview_layers()
@@ -330,7 +389,7 @@ func _render_appearance_options() -> void:
 		var none_button := Button.new()
 		none_button.toggle_mode = true
 		none_button.button_group = group
-		none_button.custom_minimum_size = Vector2(150, 68)
+		none_button.custom_minimum_size = Vector2(132, 60)
 		none_button.text = "NONE"
 		none_button.button_pressed = selected_id.is_empty()
 		none_button.pressed.connect(
@@ -344,7 +403,7 @@ func _render_appearance_options() -> void:
 		var button := Button.new()
 		button.toggle_mode = true
 		button.button_group = group
-		button.custom_minimum_size = Vector2(150, 68)
+		button.custom_minimum_size = Vector2(132, 60)
 		button.text = option.display_name
 		button.icon = option.thumbnail
 		button.button_pressed = option.option_id == selected_id
@@ -405,6 +464,7 @@ func _connect_static_controls() -> void:
 
 func _show_page(page: int, scroll_to_top: bool = true) -> void:
 	_current_page = page
+	_assessment_auto_advance_pending = false
 	for control_value in [
 		account_page,
 		appearance_page,
@@ -535,6 +595,7 @@ func _on_manual_allocation_pressed() -> void:
 	_refresh_manual_state()
 
 func _render_assessment_question(track_visit: bool) -> void:
+	_assessment_auto_advance_pending = false
 	_clear_container(answer_container)
 	if assessment_data == null or assessment_data.questions.is_empty():
 		_show_errors(PackedStringArray(["Compatibility Assessment data is unavailable."]))
@@ -590,8 +651,37 @@ func _on_assessment_answer_selected(
 	answer_id: String,
 	visual_position: int
 ) -> void:
+	var previous_answer := str(
+		_assessment_session.final_answer_by_question.get(question_id, "")
+	)
+	var confirmed_existing_answer := previous_answer == answer_id
 	_assessment_session.record_answer(question_id, answer_id, visual_position)
 	_refresh_assessment_next_state()
+	if confirmed_existing_answer and not _assessment_auto_advance_pending:
+		_assessment_auto_advance_pending = true
+		call_deferred(
+			"_advance_assessment_after_confirmation",
+			question_id,
+			_question_index
+		)
+
+func _advance_assessment_after_confirmation(
+	question_id: String,
+	expected_question_index: int
+) -> void:
+	_assessment_auto_advance_pending = false
+	if (
+		_current_page != FlowPage.ASSESSMENT
+		or assessment_data == null
+		or expected_question_index != _question_index
+		or _question_index < 0
+		or _question_index >= assessment_data.questions.size()
+	):
+		return
+	var question := assessment_data.questions[_question_index] as CompatibilityQuestionData
+	if question == null or question.question_id != question_id:
+		return
+	_advance_assessment_question()
 
 func _refresh_assessment_next_state() -> void:
 	if (
