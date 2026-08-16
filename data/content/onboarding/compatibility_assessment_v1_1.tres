@@ -1,0 +1,727 @@
+[gd_resource type="Resource" script_class="CompatibilityAssessmentData" load_steps=106 format=3]
+
+[ext_resource type="Script" path="res://data/templates/onboarding/compatibility_assessment_data.gd" id="1_assessment"]
+[ext_resource type="Script" path="res://data/templates/onboarding/compatibility_question_data.gd" id="2_question"]
+[ext_resource type="Script" path="res://data/templates/onboarding/compatibility_answer_data.gd" id="3_answer"]
+[ext_resource type="Script" path="res://data/templates/onboarding/compatibility_candidate_data.gd" id="4_candidate"]
+
+[sub_resource type="Resource" id="Q01A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I make a short list and use the time on something I've been putting off."
+axis_weights = {"INI": 1, "STR": 2, "ASP": 2}
+[sub_resource type="Resource" id="Q01B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I pick somewhere to go and leave before I overthink it."
+axis_weights = {"INI": 2, "STR": -1, "ASP": -1}
+variant_key = "COMBUSTIVE"
+[sub_resource type="Resource" id="Q01C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I keep the afternoon open and follow whatever seems interesting at the time."
+axis_weights = {"INI": -1, "STR": -2, "ASP": 1}
+[sub_resource type="Resource" id="Q01D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I rest. If nothing needs doing today, I don't invent work for myself."
+axis_weights = {"INI": -2, "STR": 1, "ASP": -2}
+[sub_resource type="Resource" id="Q01"]
+script = ExtResource("2_question")
+question_id = "Q01"
+category = 0
+prompt = "You unexpectedly get an entire afternoon with nothing planned. What do you do?"
+measured_axes = PackedStringArray("INI", "STR", "ASP")
+answers = Array[ExtResource("3_answer")]([SubResource("Q01A"), SubResource("Q01B"), SubResource("Q01C"), SubResource("Q01D")])
+
+[sub_resource type="Resource" id="Q02A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I find a beginner course or guide and work through it properly."
+axis_weights = {"INI": 1, "STR": 2, "CUR": -1, "ASP": 2}
+[sub_resource type="Resource" id="Q02B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I start messing with it immediately and learn from whatever happens."
+axis_weights = {"INI": 2, "STR": -2, "CUR": 2, "ASP": -1}
+variant_key = "COMBUSTIVE"
+[sub_resource type="Resource" id="Q02C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I find people who already do it, ask what they wish they knew at the beginning, and decide how deep I want to go."
+axis_weights = {"INI": -1, "STR": 1, "CUR": 1, "ASP": 1}
+variant_key = "CONDUCTIVE"
+[sub_resource type="Resource" id="Q02D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I try it casually with whatever I already have. It doesn't need to become a whole project."
+axis_weights = {"INI": -2, "STR": -1, "CUR": -2, "ASP": -2}
+[sub_resource type="Resource" id="Q02"]
+script = ExtResource("2_question")
+question_id = "Q02"
+category = 0
+prompt = "You decide to try a hobby you know almost nothing about. How do you start?"
+measured_axes = PackedStringArray("INI", "STR", "CUR", "ASP")
+answers = Array[ExtResource("3_answer")]([SubResource("Q02A"), SubResource("Q02B"), SubResource("Q02C"), SubResource("Q02D")])
+
+[sub_resource type="Resource" id="Q03A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I ask them directly if something is going on."
+axis_weights = {"SOC": 1, "EXP": 1, "ATT": 2}
+variant_key = "CONDUCTIVE"
+[sub_resource type="Resource" id="Q03B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I say it's fine and wait for them to reach out next time."
+axis_weights = {"SOC": -1, "EXP": -1, "ATT": -1}
+variant_key = "DECEPTIVE"
+[sub_resource type="Resource" id="Q03C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I tell them that it's starting to bother me and ask if they still want to make plans together."
+axis_weights = {"SOC": 2, "EXP": 2, "ATT": 1}
+variant_key = "COMBUSTIVE"
+[sub_resource type="Resource" id="Q03D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I stop inviting them for a while. No confrontation necessary."
+axis_weights = {"SOC": -2, "EXP": -2, "ATT": -2}
+variant_key = "DEFENSIVE"
+[sub_resource type="Resource" id="Q03"]
+script = ExtResource("2_question")
+question_id = "Q03"
+category = 0
+prompt = "A friend cancels plans with you at the last minute. It's the third time recently."
+measured_axes = PackedStringArray("SOC", "EXP", "ATT")
+answers = Array[ExtResource("3_answer")]([SubResource("Q03A"), SubResource("Q03B"), SubResource("Q03C"), SubResource("Q03D")])
+
+[sub_resource type="Resource" id="Q04A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I help stabilize the injury and return together with the others using the route we already know."
+axis_weights = {"INI": -1, "STR": 2, "ATT": 1, "CUR": -2}
+tendency_weights = {"logic": 2, "sync": 1}
+variant_key = "DEFENSIVE"
+[sub_resource type="Resource" id="Q04B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I stay sheltered with the injured person while one of the others goes ahead to look for help."
+axis_weights = {"INI": -2, "STR": 1, "ATT": 2, "CUR": -1}
+tendency_weights = {"sync": 2, "logic": 1}
+variant_key = "CONDUCTIVE"
+[sub_resource type="Resource" id="Q04C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I leave the others somewhere sheltered and take a shorter route back to look for help, even though none of us have taken it before."
+axis_weights = {"INI": 2, "STR": -2, "ATT": -1, "CUR": 2}
+tendency_weights = {"valour": 2, "logic": 1}
+variant_key = "DESTRUCTIVE"
+[sub_resource type="Resource" id="Q04D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I leave the injured person with the others and search the nearby area for somewhere with signal, better shelter or another route."
+axis_weights = {"INI": 1, "STR": -1, "ATT": -2, "CUR": 1}
+tendency_weights = {"logic": 2, "valour": 1}
+variant_key = "CORROSIVE"
+[sub_resource type="Resource" id="Q04"]
+script = ExtResource("2_question")
+question_id = "Q04"
+category = 1
+prompt = "You're hiking with three other people when one of them badly injures their ankle. There's no phone signal, and a storm is getting closer. What do you do?"
+measured_axes = PackedStringArray("INI", "STR", "ATT", "CUR")
+answers = Array[ExtResource("3_answer")]([SubResource("Q04A"), SubResource("Q04B"), SubResource("Q04C"), SubResource("Q04D")])
+
+[sub_resource type="Resource" id="Q05A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "“Sure. Call me when you can.”"
+axis_weights = {"INI": 2, "SOC": 2, "EXP": -1, "ATT": 2}
+variant_key = "CONDUCTIVE"
+[sub_resource type="Resource" id="Q05B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "“What is this about?”"
+axis_weights = {"INI": 1, "SOC": -1, "EXP": 1, "ATT": -1}
+variant_key = "CORROSIVE"
+[sub_resource type="Resource" id="Q05C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "“We haven't spoken in years. Tell me why you're reaching out first.”"
+axis_weights = {"INI": -1, "SOC": 1, "EXP": 2, "ATT": 1}
+variant_key = "CRYOSIVE"
+[sub_resource type="Resource" id="Q05D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I leave it unanswered. If it's important, they'll explain."
+axis_weights = {"INI": -2, "SOC": -2, "EXP": -2, "ATT": -2}
+[sub_resource type="Resource" id="Q05"]
+script = ExtResource("2_question")
+question_id = "Q05"
+category = 0
+prompt = "Someone you haven't spoken to in years suddenly messages you: “hey. can we talk?”"
+measured_axes = PackedStringArray("INI", "SOC", "EXP", "ATT")
+answers = Array[ExtResource("3_answer")]([SubResource("Q05A"), SubResource("Q05B"), SubResource("Q05C"), SubResource("Q05D")])
+
+[sub_resource type="Resource" id="Q06A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I go to them and start telling specific people to call emergency services and get station staff."
+axis_weights = {"INI": 2, "STR": -1, "EXP": 2}
+tendency_weights = {"valour": 2, "sync": 1}
+variant_key = "COMBUSTIVE"
+[sub_resource type="Resource" id="Q06B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I call emergency services myself and follow whatever instructions they give me."
+axis_weights = {"INI": 1, "STR": 2, "EXP": 1}
+tendency_weights = {"logic": 2, "valour": 1}
+variant_key = "CRYOSIVE"
+[sub_resource type="Resource" id="Q06C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I get station staff and stay clear so people who know what they're doing have room."
+axis_weights = {"INI": -1, "STR": 1, "EXP": -1}
+tendency_weights = {"sync": 2, "logic": 1}
+variant_key = "DEFENSIVE"
+[sub_resource type="Resource" id="Q06D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I stay nearby but avoid interfering unless somebody asks me to do something."
+axis_weights = {"INI": -2, "STR": -2, "EXP": -2}
+tendency_weights = {"self": 1, "logic": 1}
+[sub_resource type="Resource" id="Q06"]
+script = ExtResource("2_question")
+question_id = "Q06"
+category = 1
+prompt = "Someone suddenly collapses in a crowded train station. For a few seconds, everyone around them just freezes."
+measured_axes = PackedStringArray("INI", "STR", "EXP")
+answers = Array[ExtResource("3_answer")]([SubResource("Q06A"), SubResource("Q06B"), SubResource("Q06C"), SubResource("Q06D")])
+
+[sub_resource type="Resource" id="Q07A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I help them fix as much as possible and give them one chance to disclose the problem themselves."
+axis_weights = {"EXP": 1, "ATT": 2, "CUR": 1, "ASP": -1}
+tendency_weights = {"sync": 2, "logic": 1}
+variant_key = "DEPLETIVE"
+[sub_resource type="Resource" id="Q07B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I report what I know immediately, even though I know what it will cost them."
+axis_weights = {"EXP": 2, "ATT": -2, "CUR": -2, "ASP": 2}
+tendency_weights = {"logic": 2, "valour": 1}
+variant_key = "DESTRUCTIVE"
+[sub_resource type="Resource" id="Q07C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I secretly investigate the damage first. I want to know exactly how dangerous the situation is before deciding."
+axis_weights = {"EXP": -2, "ATT": -1, "CUR": 2, "ASP": 1}
+tendency_weights = {"logic": 2, "self": 1}
+variant_key = "CORROSIVE"
+[sub_resource type="Resource" id="Q07D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I help them conceal the mistake while we correct it. If we can undo the damage, nobody else needs to know."
+axis_weights = {"EXP": -1, "ATT": 1, "CUR": -1, "ASP": -2}
+tendency_weights = {"self": 2, "sync": 1}
+variant_key = "DECEPTIVE"
+[sub_resource type="Resource" id="Q07"]
+script = ExtResource("2_question")
+question_id = "Q07"
+category = 1
+prompt = "Someone you work or study with privately admits they've been hiding serious mistakes for weeks. If the problem is discovered, they'll almost certainly lose their job or be expelled. If it continues unnoticed, however, other people may eventually be seriously harmed by the consequences. They beg you to help them fix it without telling anyone. What do you do?"
+measured_axes = PackedStringArray("EXP", "ATT", "CUR", "ASP")
+answers = Array[ExtResource("3_answer")]([SubResource("Q07A"), SubResource("Q07B"), SubResource("Q07C"), SubResource("Q07D")])
+
+[sub_resource type="Resource" id="Q08A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I look up the model and find the instructions online before starting."
+axis_weights = {"INI": 1, "STR": 2, "CUR": -1}
+variant_key = "CRYOSIVE"
+[sub_resource type="Resource" id="Q08B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I start assembling it and correct things as I figure out how it works."
+axis_weights = {"INI": 2, "STR": -2, "CUR": 2}
+variant_key = "COMBUSTIVE"
+[sub_resource type="Resource" id="Q08C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I lay everything out and try to infer the intended order from the pieces."
+axis_weights = {"INI": -1, "STR": 1, "CUR": 1}
+variant_key = "CORROSIVE"
+[sub_resource type="Resource" id="Q08D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I leave it alone until I can ask someone who knows what they're doing."
+axis_weights = {"INI": -2, "STR": -1, "CUR": -2}
+variant_key = "DEFENSIVE"
+[sub_resource type="Resource" id="Q08"]
+script = ExtResource("2_question")
+question_id = "Q08"
+category = 0
+prompt = "You need to assemble something, but the instructions are missing."
+measured_axes = PackedStringArray("INI", "STR", "CUR")
+answers = Array[ExtResource("3_answer")]([SubResource("Q08A"), SubResource("Q08B"), SubResource("Q08C"), SubResource("Q08D")])
+
+[sub_resource type="Resource" id="Q09A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I accept it. Opportunities like this don't wait forever."
+axis_weights = {"SOC": -2, "EXP": -1, "ATT": -2, "ASP": 2}
+variant_key = "DESTRUCTIVE"
+[sub_resource type="Resource" id="Q09B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I talk it through with the people closest to me before deciding."
+axis_weights = {"SOC": 2, "EXP": 1, "ATT": 2, "ASP": -1}
+variant_key = "CONDUCTIVE"
+[sub_resource type="Resource" id="Q09C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I try to negotiate some middle ground first — a delay, temporary arrangement, remote option, anything that lets me test it before committing."
+axis_weights = {"SOC": 1, "EXP": 2, "ATT": -1, "ASP": 1}
+variant_key = "CORROSIVE"
+[sub_resource type="Resource" id="Q09D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I lean toward staying. A better opportunity isn't automatically a better life."
+axis_weights = {"SOC": -1, "EXP": -2, "ATT": 1, "ASP": -2}
+variant_key = "DEPLETIVE"
+[sub_resource type="Resource" id="Q09"]
+script = ExtResource("2_question")
+question_id = "Q09"
+category = 0
+prompt = "You're offered a very good opportunity, but accepting it would require moving far away from the people and routine you currently have."
+measured_axes = PackedStringArray("SOC", "EXP", "ATT", "ASP")
+answers = Array[ExtResource("3_answer")]([SubResource("Q09A"), SubResource("Q09B"), SubResource("Q09C"), SubResource("Q09D")])
+
+[sub_resource type="Resource" id="Q10A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I abandon what I had planned and go help them."
+axis_weights = {"INI": 2, "SOC": 2, "ASP": -2}
+tendency_weights = {"sync": 2, "valour": 1}
+variant_key = "CONDUCTIVE"
+[sub_resource type="Resource" id="Q10B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I verify their location and gather whatever information I can before deciding whether the rescue is realistic."
+axis_weights = {"INI": 1, "SOC": 1, "ASP": -1}
+tendency_weights = {"logic": 2, "sync": 1}
+variant_key = "CRYOSIVE"
+[sub_resource type="Resource" id="Q10C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I forward the situation to players already nearby and continue with my plans."
+axis_weights = {"INI": -1, "SOC": -1, "ASP": 1}
+tendency_weights = {"self": 1, "logic": 1, "sync": 1}
+[sub_resource type="Resource" id="Q10D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I continue with my plans. I won't risk my partner because a stranger got themselves into trouble."
+axis_weights = {"INI": -2, "SOC": -2, "ASP": 2}
+tendency_weights = {"self": 2, "logic": 1}
+variant_key = "DEFENSIVE"
+[sub_resource type="Resource" id="Q10"]
+script = ExtResource("2_question")
+question_id = "Q10"
+category = 1
+prompt = "You have time for only one more action today. A stranger messages you saying their partner is trapped inside a Data Center and needs rescuing. You had planned to use this time on investigating a rare signal that will disappear tonight. Entering the Data Center also carries real risk to your own partner."
+measured_axes = PackedStringArray("INI", "SOC", "ASP")
+answers = Array[ExtResource("3_answer")]([SubResource("Q10A"), SubResource("Q10B"), SubResource("Q10C"), SubResource("Q10D")])
+
+[sub_resource type="Resource" id="Q11A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I turn back with them. Whatever is in the core isn't worth risking their partner's life."
+axis_weights = {"SOC": 2, "ATT": 2, "CUR": -2, "ASP": -2}
+tendency_weights = {"sync": 2, "logic": 1}
+variant_key = "DEFENSIVE"
+[sub_resource type="Resource" id="Q11B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I tell them to leave while I continue toward the core alone."
+axis_weights = {"SOC": -2, "ATT": -1, "CUR": 1, "ASP": 2}
+tendency_weights = {"self": 2, "valour": 1}
+variant_key = "DESTRUCTIVE"
+[sub_resource type="Resource" id="Q11C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I use whatever resources I have to stabilize their partner, then continue together if it looks survivable."
+axis_weights = {"SOC": 1, "ATT": 1, "CUR": -1, "ASP": 1}
+tendency_weights = {"logic": 2, "sync": 1}
+variant_key = "DEPLETIVE"
+[sub_resource type="Resource" id="Q11D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "They're aware of the risk. If they still want to continue, I continue with them."
+axis_weights = {"SOC": -1, "ATT": -2, "CUR": 2, "ASP": -1}
+tendency_weights = {"valour": 1, "self": 1}
+variant_key = "COMBUSTIVE"
+[sub_resource type="Resource" id="Q11"]
+script = ExtResource("2_question")
+question_id = "Q11"
+category = 1
+prompt = "You're exploring a Data Center with another player when their partner is badly injured. One more serious hit could kill it permanently. The route back is still open, but the Data Center core ahead is beginning to collapse. If you leave now, whatever is inside will probably be lost permanently. Your teammate insists they can keep going. What do you do?"
+measured_axes = PackedStringArray("SOC", "ATT", "CUR", "ASP")
+answers = Array[ExtResource("3_answer")]([SubResource("Q11A"), SubResource("Q11B"), SubResource("Q11C"), SubResource("Q11D")])
+
+[sub_resource type="Resource" id="Q12A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I post everything publicly under my own username."
+axis_weights = {"INI": 2, "SOC": 2, "EXP": 2, "ASP": -2}
+tendency_weights = {"valour": 2, "sync": 1}
+variant_key = "DEPLETIVE"
+[sub_resource type="Resource" id="Q12B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I send the evidence privately to a moderator and keep a copy."
+axis_weights = {"INI": 1, "SOC": 1, "EXP": -1, "ASP": 1}
+tendency_weights = {"logic": 2, "sync": 1}
+variant_key = "CRYOSIVE"
+[sub_resource type="Resource" id="Q12C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I warn the affected newcomers individually without revealing where my information came from."
+axis_weights = {"INI": -1, "SOC": -1, "EXP": 1, "ASP": -1}
+tendency_weights = {"sync": 2, "self": 1}
+variant_key = "DECEPTIVE"
+[sub_resource type="Resource" id="Q12D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I keep it. Picking a fight with someone that powerful could ruin my own campaign."
+axis_weights = {"INI": -2, "SOC": -2, "EXP": -2, "ASP": 2}
+tendency_weights = {"self": 2, "logic": 1}
+variant_key = "DEFENSIVE"
+[sub_resource type="Resource" id="Q12"]
+script = ExtResource("2_question")
+question_id = "Q12"
+category = 1
+prompt = "You obtain clear evidence that a highly ranked player has been baiting newcomers into encounters deliberately designed to kill their partners. Exposing them publicly would also make you an obvious target."
+measured_axes = PackedStringArray("INI", "SOC", "EXP", "ASP")
+answers = Array[ExtResource("3_answer")]([SubResource("Q12A"), SubResource("Q12B"), SubResource("Q12C"), SubResource("Q12D")])
+
+[sub_resource type="Resource" id="Q13A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I tell my friend they need to confess and give up the scholarship themselves."
+axis_weights = {"SOC": -1, "EXP": 2, "ATT": -1}
+tendency_weights = {"valour": 1, "sync": 1}
+variant_key = "CRYOSIVE"
+[sub_resource type="Resource" id="Q13B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I keep their secret. They're my friend, and destroying their future won't automatically fix anyone else's life."
+axis_weights = {"SOC": -2, "EXP": -2, "ATT": 2}
+tendency_weights = {"self": 2, "sync": 1}
+variant_key = "DECEPTIVE"
+[sub_resource type="Resource" id="Q13C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I confront my friend and give them a deadline to correct the application before I act myself."
+axis_weights = {"SOC": 1, "EXP": 1, "ATT": 1}
+tendency_weights = {"valour": 2, "logic": 1}
+variant_key = "COMBUSTIVE"
+[sub_resource type="Resource" id="Q13D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I report the fraud anonymously so the scholarship can be reconsidered without involving myself publicly."
+axis_weights = {"SOC": 2, "EXP": -1, "ATT": -2}
+tendency_weights = {"logic": 2, "sync": 1}
+variant_key = "CORROSIVE"
+[sub_resource type="Resource" id="Q13"]
+script = ExtResource("2_question")
+question_id = "Q13"
+category = 2
+prompt = "A close friend receives a scholarship that will completely cover their university expenses. Later, they admit that several parts of their application were fabricated, including achievements they never completed. You also know the runner-up personally. Their family cannot afford tuition, they work part-time while caring for a younger sibling, and without the scholarship they will probably have to abandon university entirely. Your friend tells you that losing the scholarship would ruin their future too. Nobody else knows they lied."
+measured_axes = PackedStringArray("SOC", "EXP", "ATT")
+answers = Array[ExtResource("3_answer")]([SubResource("Q13A"), SubResource("Q13B"), SubResource("Q13C"), SubResource("Q13D")])
+
+[sub_resource type="Resource" id="Q14A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I authorize the seal."
+axis_weights = {"INI": 1, "STR": 2, "SOC": 2}
+tendency_weights = {"logic": 2, "sync": 1}
+variant_key = "DEPLETIVE"
+[sub_resource type="Resource" id="Q14B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I override the system and keep the corridor open so the worker can escape."
+axis_weights = {"INI": 2, "STR": -2, "SOC": -2}
+tendency_weights = {"valour": 2, "sync": 1}
+variant_key = "COMBUSTIVE"
+[sub_resource type="Resource" id="Q14C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I warn the worker and give them a few seconds to run before authorizing the seal."
+axis_weights = {"INI": -1, "STR": -1, "SOC": 1}
+tendency_weights = {"sync": 2, "logic": 1}
+variant_key = "CRYOSIVE"
+[sub_resource type="Resource" id="Q14D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I don't issue either command and allow the emergency system's default procedure to take over."
+axis_weights = {"INI": -2, "STR": 1, "SOC": -1}
+tendency_weights = {"logic": 1, "self": 1}
+variant_key = "DECEPTIVE"
+[sub_resource type="Resource" id="Q14"]
+script = ExtResource("2_question")
+question_id = "Q14"
+category = 2
+prompt = "You are the emergency operator controlling the fire-suppression system of a hospital. A fire has reached a corridor that can be permanently sealed by the system. One maintenance worker is still inside. Sealing the corridor will almost certainly kill them, but it will prevent smoke and fire from reaching a ward containing dozens of patients. The automatic system is waiting for your authorization. You have twenty seconds to decide."
+measured_axes = PackedStringArray("INI", "STR", "SOC")
+answers = Array[ExtResource("3_answer")]([SubResource("Q14A"), SubResource("Q14B"), SubResource("Q14C"), SubResource("Q14D")])
+
+[sub_resource type="Resource" id="Q15A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I deploy it immediately. Finding the missing teenager comes first."
+axis_weights = {"STR": -2, "SOC": -2, "EXP": -1, "CUR": -2}
+tendency_weights = {"valour": 2, "sync": 1}
+variant_key = "DESTRUCTIVE"
+[sub_resource type="Resource" id="Q15B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I refuse to deploy it. Hundreds of uninvolved people did not consent to having their lives exposed."
+axis_weights = {"STR": 1, "SOC": 1, "EXP": 1, "CUR": -1}
+tendency_weights = {"sync": 2, "logic": 1}
+variant_key = "DEFENSIVE"
+[sub_resource type="Resource" id="Q15C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I explain exactly what the exploit will expose and require the investigators to formally authorize its use before I proceed."
+axis_weights = {"STR": 2, "SOC": -1, "EXP": 2, "CUR": 1}
+tendency_weights = {"logic": 2, "self": 1}
+variant_key = "DECEPTIVE"
+[sub_resource type="Resource" id="Q15D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I keep searching for another method, even knowing that every hour lowers the chance of finding the teenager alive."
+axis_weights = {"STR": -1, "SOC": 2, "EXP": -2, "CUR": 2}
+tendency_weights = {"logic": 2, "sync": 1}
+variant_key = "CORROSIVE"
+[sub_resource type="Resource" id="Q15"]
+script = ExtResource("2_question")
+question_id = "Q15"
+category = 2
+prompt = "You're the cybersecurity specialist assisting investigators searching for a missing teenager who may still be alive. You discover that their location may be hidden inside an encrypted account. You are the only person on the team capable of deploying an exploit that can open it. The problem is that the exploit cannot target a single account. Using it will permanently expose private messages, photographs and records belonging to hundreds of unrelated people. What do you do?"
+measured_axes = PackedStringArray("STR", "SOC", "EXP", "CUR")
+answers = Array[ExtResource("3_answer")]([SubResource("Q15A"), SubResource("Q15B"), SubResource("Q15C"), SubResource("Q15D")])
+
+[sub_resource type="Resource" id="Q16A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I use the material to treat the four children who are dying now."
+axis_weights = {"STR": -1, "CUR": -1, "ASP": -2}
+tendency_weights = {"sync": 2, "valour": 1}
+variant_key = "CONDUCTIVE"
+[sub_resource type="Resource" id="Q16B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I use it to calibrate the system for the future patients."
+axis_weights = {"STR": 1, "CUR": 1, "ASP": 2}
+tendency_weights = {"logic": 2}
+variant_key = "DESTRUCTIVE"
+[sub_resource type="Resource" id="Q16C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I refuse to make the decision alone and require the hospital's ethics board to decide, even though the delay risks making the material unusable in time for the children."
+axis_weights = {"STR": 2, "CUR": -2, "ASP": -1}
+tendency_weights = {"logic": 1, "sync": 1}
+variant_key = "CRYOSIVE"
+[sub_resource type="Resource" id="Q16D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I attempt an unauthorized partial calibration and use the remainder for the children, despite knowing that both procedures may fail."
+axis_weights = {"STR": -2, "CUR": 2, "ASP": 1}
+tendency_weights = {"valour": 2, "logic": 1}
+variant_key = "DEPLETIVE"
+[sub_resource type="Resource" id="Q16"]
+script = ExtResource("2_question")
+question_id = "Q16"
+category = 2
+prompt = "A hospital possesses enough of an extremely rare biological substrate for only one use. It can be used immediately to print compatible organs for four critically ill children currently hospitalized. All four are expected to die within weeks without transplantation. Alternatively, the entire supply can be consumed calibrating a new fabrication system. Doctors estimate that, if calibration succeeds, the system could produce compatible organs for around twenty patients over the next year. The four children will not survive long enough to benefit from it."
+measured_axes = PackedStringArray("STR", "CUR", "ASP")
+answers = Array[ExtResource("3_answer")]([SubResource("Q16A"), SubResource("Q16B"), SubResource("Q16C"), SubResource("Q16D")])
+
+[sub_resource type="Resource" id="Q17A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "I create it, but make absolutely clear to the child that it is only a simulation."
+axis_weights = {"EXP": 2, "ATT": 1, "CUR": 1, "ASP": -1}
+tendency_weights = {"sync": 2, "logic": 1}
+variant_key = "DESTRUCTIVE"
+[sub_resource type="Resource" id="Q17B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "I respect the mother's decision. The simulation is not created."
+axis_weights = {"EXP": 1, "ATT": -1, "CUR": -2, "ASP": -2}
+tendency_weights = {"logic": 2, "sync": 1}
+variant_key = "DEPLETIVE"
+[sub_resource type="Resource" id="Q17C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "I allow researchers to create the model only for clinical study first, without letting the child interact with it yet."
+axis_weights = {"EXP": -1, "ATT": -2, "CUR": 2, "ASP": 2}
+tendency_weights = {"logic": 2, "self": 1}
+variant_key = "CORROSIVE"
+[sub_resource type="Resource" id="Q17D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "I create it and allow the child to believe they are speaking to their mother until they stabilize."
+axis_weights = {"EXP": -2, "ATT": 2, "CUR": -1, "ASP": 1}
+tendency_weights = {"sync": 2, "self": 1}
+variant_key = "DECEPTIVE"
+[sub_resource type="Resource" id="Q17"]
+script = ExtResource("2_question")
+question_id = "Q17"
+category = 2
+prompt = "A twelve-year-old has deteriorated severely after the death of their mother. Every conventional treatment attempted so far has failed. Doctors believe a conversational simulation built from the mother's private messages, recordings and behavioral data has a high chance of stabilizing the child. Before dying, the mother explicitly requested that no simulation of her ever be created."
+measured_axes = PackedStringArray("EXP", "ATT", "CUR", "ASP")
+answers = Array[ExtResource("3_answer")]([SubResource("Q17A"), SubResource("Q17B"), SubResource("Q17C"), SubResource("Q17D")])
+
+[sub_resource type="Resource" id="Q18A"]
+script = ExtResource("3_answer")
+answer_id = "A"
+text = "Preserve the human mind and restore them to their biological body. What kind of person they were doesn't make their life less real."
+axis_weights = {"STR": 1, "ATT": -1, "CUR": -1}
+tendency_weights = {"logic": 1}
+variant_key = "DEPLETIVE"
+[sub_resource type="Resource" id="Q18B"]
+script = ExtResource("3_answer")
+answer_id = "B"
+text = "Preserve the APK-derived mind. Consciousness doesn't become less valuable because it originated digitally, and someone still deeply cares about it."
+axis_weights = {"STR": -1, "ATT": 2, "CUR": 1}
+tendency_weights = {"sync": 2, "logic": 1}
+variant_key = "CONDUCTIVE"
+[sub_resource type="Resource" id="Q18C"]
+script = ExtResource("3_answer")
+answer_id = "C"
+text = "Attempt to preserve both with what is available, knowing the resulting minds are going to be incomplete and faulty."
+axis_weights = {"STR": -2, "ATT": 1, "CUR": 2}
+tendency_weights = {"valour": 2, "sync": 1}
+variant_key = "DESTRUCTIVE"
+[sub_resource type="Resource" id="Q18D"]
+script = ExtResource("3_answer")
+answer_id = "D"
+text = "Refuse to decide which consciousness is worth more and allow the server's existing priority system to choose."
+axis_weights = {"STR": 2, "ATT": -2, "CUR": -2}
+tendency_weights = {"logic": 1, "self": 1}
+variant_key = "DECEPTIVE"
+[sub_resource type="Resource" id="Q18"]
+script = ExtResource("2_question")
+question_id = "Q18"
+category = 2
+prompt = "A catastrophic failure leaves a medical reconstruction server with enough capacity to preserve only one conscious mind. Whatever is preserved can later continue living. Whatever is lost will be permanently destroyed.\n\nThe first mind belongs to a living person whose brain was irreversibly damaged in an accident. A recent neural backup can be restored into their repaired biological body, effectively bringing them back. Before the accident, this person had a long history of abusing and exploiting people around them. Their family had cut contact with them years ago, and nobody close to them is asking for their return.\n\nThe second mind originated from an APK. It has never possessed a biological body, but it is fully conscious, remembers years of experiences and has developed a close relationship with an orphaned child who became deeply attached to it after losing their parents. The child is begging you not to erase it.\n\nBoth minds are currently conscious. Both understand what is happening. Both ask you to save them. You must allocate the remaining capacity."
+measured_axes = PackedStringArray("STR", "ATT", "CUR")
+answers = Array[ExtResource("3_answer")]([SubResource("Q18A"), SubResource("Q18B"), SubResource("Q18C"), SubResource("Q18D")])
+
+[sub_resource type="Resource" id="Candidate_REVQUIRE"]
+script = ExtResource("4_candidate")
+candidate_id = "REVQUIRE"
+display_name = "REVQUIRE"
+apk_id = "novire_init"
+candidate_class = 0
+axis_targets = {"INI": 35, "STR": 10, "SOC": 10, "EXP": 15, "ATT": 25, "CUR": 0, "ASP": 30}
+axis_importance = {"INI": 2, "STR": 1, "SOC": 1, "EXP": 1, "ATT": 2, "CUR": 0, "ASP": 2}
+compatibility_fantasy = "Agency, commitment/attachment and forward drive are defining."
+[sub_resource type="Resource" id="Candidate_PABUBU"]
+script = ExtResource("4_candidate")
+candidate_id = "PABUBU"
+display_name = "PABUBU"
+apk_id = "pabubu_init"
+candidate_class = 0
+axis_targets = {"INI": -5, "STR": -25, "SOC": 0, "EXP": -10, "ATT": 0, "CUR": 40, "ASP": -20}
+axis_importance = {"INI": 1, "STR": 2, "SOC": 0, "EXP": 1, "ATT": 0, "CUR": 2, "ASP": 1}
+compatibility_fantasy = "Improvisation and curiosity matter more than sociability."
+[sub_resource type="Resource" id="Candidate_VOCALYTE"]
+script = ExtResource("4_candidate")
+candidate_id = "VOCALYTE"
+display_name = "VOCALYTE"
+apk_id = "vocalyte_init"
+candidate_class = 0
+axis_targets = {"INI": 10, "STR": 0, "SOC": 40, "EXP": 40, "ATT": 25, "CUR": 5, "ASP": 15}
+axis_importance = {"INI": 0, "STR": 0, "SOC": 2, "EXP": 2, "ATT": 2, "CUR": 0, "ASP": 1}
+compatibility_fantasy = "Collective orientation, expression and attachment define the match."
+[sub_resource type="Resource" id="Candidate_WIZIP"]
+script = ExtResource("4_candidate")
+candidate_id = "WIZIP"
+display_name = "WIZIP"
+apk_id = "wizip_init"
+candidate_class = 0
+axis_targets = {"INI": -15, "STR": 35, "SOC": -20, "EXP": -30, "ATT": -5, "CUR": 35, "ASP": 10}
+axis_importance = {"INI": 1, "STR": 2, "SOC": 1, "EXP": 2, "ATT": 0, "CUR": 2, "ASP": 1}
+compatibility_fantasy = "Structure, investigation and inward/reserved temperament."
+[sub_resource type="Resource" id="Candidate_TROJAW"]
+script = ExtResource("4_candidate")
+candidate_id = "TROJAW"
+display_name = "TROJAW"
+apk_id = "trojaw_init"
+candidate_class = 0
+axis_targets = {"INI": 30, "STR": -20, "SOC": -35, "EXP": 15, "ATT": -35, "CUR": 5, "ASP": 20}
+axis_importance = {"INI": 2, "STR": 1, "SOC": 2, "EXP": 0, "ATT": 2, "CUR": 0, "ASP": 1}
+compatibility_fantasy = "Proactive, self-reliant and survival-oriented."
+[sub_resource type="Resource" id="Candidate_GOTSUMIMI"]
+script = ExtResource("4_candidate")
+candidate_id = "GOTSUMIMI"
+display_name = "GOTSUMIMI"
+apk_id = "gotsumimi_init"
+candidate_class = 1
+axis_targets = {"INI": 0, "STR": 25, "SOC": -10, "EXP": -35, "ATT": 50, "CUR": -15, "ASP": -5}
+axis_importance = {"INI": 1, "STR": 1, "SOC": 1, "EXP": 2, "ATT": 2, "CUR": 1, "ASP": 0}
+compatibility_fantasy = "Reserved, strongly protective and comparatively stable."
+[sub_resource type="Resource" id="Candidate_NEKIDDO"]
+script = ExtResource("4_candidate")
+candidate_id = "NEKIDDO"
+display_name = "NEKIDDO"
+apk_id = "nekiddo_init"
+candidate_class = 1
+axis_targets = {"INI": 0, "STR": 0, "SOC": 10, "EXP": 0, "ATT": 15, "CUR": 10, "ASP": 60}
+axis_importance = {"INI": 1, "STR": 1, "SOC": 1, "EXP": 1, "ATT": 1, "CUR": 1, "ASP": 2}
+compatibility_fantasy = "Future orientation / who the Operator wants to become is the defining dimension."
+[sub_resource type="Resource" id="Candidate_KERATON"]
+script = ExtResource("4_candidate")
+candidate_id = "KERATON"
+display_name = "KERATON"
+apk_id = "keraton_init"
+candidate_class = 1
+axis_targets = {"INI": 30, "STR": 45, "SOC": 20, "EXP": 5, "ATT": 45, "CUR": -30, "ASP": -20}
+axis_importance = {"INI": 1, "STR": 2, "SOC": 1, "EXP": 0, "ATT": 2, "CUR": 2, "ASP": 1}
+compatibility_fantasy = "Grounded, dependable and protective."
+[sub_resource type="Resource" id="Candidate_GUROTON"]
+script = ExtResource("4_candidate")
+candidate_id = "GUROTON"
+display_name = "GUROTON"
+apk_id = "guroton_init"
+candidate_class = 1
+axis_targets = {"INI": 30, "STR": -40, "SOC": -40, "EXP": -25, "ATT": 10, "CUR": 35, "ASP": 0}
+axis_importance = {"INI": 1, "STR": 2, "SOC": 2, "EXP": 1, "ATT": 0, "CUR": 2, "ASP": 0}
+compatibility_fantasy = "Instinctive, self-reliant and exploratory."
+[sub_resource type="Resource" id="Candidate_GANTET"]
+script = ExtResource("4_candidate")
+candidate_id = "GANTET"
+display_name = "GANTET"
+apk_id = "gantet_init"
+candidate_class = 1
+axis_targets = {"INI": 30, "STR": 50, "SOC": 0, "EXP": -40, "ATT": -25, "CUR": -20, "ASP": 30}
+axis_importance = {"INI": 1, "STR": 2, "SOC": 0, "EXP": 2, "ATT": 1, "CUR": 1, "ASP": 1}
+compatibility_fantasy = "Execution, procedure and restraint define the industrial machine match."
+[sub_resource type="Resource" id="Candidate_VEILUM"]
+script = ExtResource("4_candidate")
+candidate_id = "VEILUM"
+display_name = "VEILUM"
+apk_id = "veilum_init"
+candidate_class = 1
+axis_targets = {"INI": -30, "STR": -5, "SOC": -20, "EXP": -45, "ATT": 45, "CUR": 25, "ASP": -35}
+axis_importance = {"INI": 1, "STR": 0, "SOC": 1, "EXP": 2, "ATT": 2, "CUR": 1, "ASP": 1}
+compatibility_fantasy = "Quiet, contemplative and attached to what it values."
+
+[resource]
+script = ExtResource("1_assessment")
+questions = Array[ExtResource("2_question")]([SubResource("Q01"), SubResource("Q02"), SubResource("Q03"), SubResource("Q04"), SubResource("Q05"), SubResource("Q06"), SubResource("Q07"), SubResource("Q08"), SubResource("Q09"), SubResource("Q10"), SubResource("Q11"), SubResource("Q12"), SubResource("Q13"), SubResource("Q14"), SubResource("Q15"), SubResource("Q16"), SubResource("Q17"), SubResource("Q18")])
+candidates = Array[ExtResource("4_candidate")]([SubResource("Candidate_REVQUIRE"), SubResource("Candidate_PABUBU"), SubResource("Candidate_VOCALYTE"), SubResource("Candidate_WIZIP"), SubResource("Candidate_TROJAW"), SubResource("Candidate_GOTSUMIMI"), SubResource("Candidate_NEKIDDO"), SubResource("Candidate_KERATON"), SubResource("Candidate_GUROTON"), SubResource("Candidate_GANTET"), SubResource("Candidate_VEILUM")])
