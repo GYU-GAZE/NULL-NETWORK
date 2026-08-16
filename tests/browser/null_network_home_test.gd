@@ -2,6 +2,7 @@ extends Node
 
 const HOME_SCENE: PackedScene = preload("res://data/content/sites/null network/nnw_homepage.tscn")
 const SILVER_BASE_SIZE: int = 19
+const ACCOUNT_REQUIRED_MESSAGE: String = "You must have an account to access this area."
 
 var _failures := PackedStringArray()
 
@@ -44,6 +45,10 @@ func _run_test() -> void:
 	_check(_button_target(home, "ThreadsBtn") == "null.net/forums", "Message Board route changed during visual revamp.")
 	_check(_button_target(home, "RankingsBtn") == "null.net/playerrankings", "Player Rankings route changed during visual revamp.")
 
+	_check_account_gate(home, "UpdatesBtn")
+	_check_account_gate(home, "ThreadsBtn")
+	_check_account_gate(home, "RankingsBtn")
+
 	var description := home.find_child("DescriptionLabel", true, false) as Label
 	_check(description != null, "Null Network home description was lost.")
 	if description != null:
@@ -53,6 +58,17 @@ func _run_test() -> void:
 
 	home.queue_free()
 	_finish_test()
+
+func _check_account_gate(root: Node, node_name: String) -> void:
+	var button := root.find_child(node_name, true, false) as SiteActionButton
+	_check(button != null, "%s must use SiteActionButton." % node_name)
+	if button == null:
+		return
+	_check(button.required_flag_name == "operator.registered", "%s must gate on operator.registered." % node_name)
+	_check(button.required_flag_value, "%s must unlock when operator.registered is true." % node_name)
+	_check(button.show_alert_on_failed_condition, "%s must pop an alert while the account gate fails." % node_name)
+	_check(button.failed_alert_message == ACCOUNT_REQUIRED_MESSAGE, "%s account-required alert copy changed." % node_name)
+	_check(button.failed_condition_behavior == SiteActionButton.FailedConditionBehavior.DO_NOTHING, "%s must stay clickable so its failed click can open the alert." % node_name)
 
 func _button_target(root: Node, node_name: String) -> String:
 	var button := root.find_child(node_name, true, false) as SiteActionButton
