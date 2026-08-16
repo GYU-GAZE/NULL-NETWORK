@@ -29,6 +29,11 @@ func note_question_visit(question_id: String) -> void:
 		return
 	if bool(visited_questions.get(id, false)):
 		revisited_questions[id] = true
+		# Merely returning to an answered question and leaving its final answer
+		# untouched is canonical REVISITED_KEPT behavior. If the player changes it
+		# afterward, record_answer() converts this state to REVISITED_CHANGED.
+		if final_answer_by_question.has(id):
+			revisited_and_kept[id] = true
 	visited_questions[id] = true
 
 func set_visual_order(question_id: String, order: PackedStringArray) -> void:
@@ -52,9 +57,14 @@ func record_answer(question_id: String, answer_id: String, visual_position: int)
 		answer_change_count_by_question[qid] = int(answer_change_count_by_question.get(qid, 0)) + 1
 		if bool(revisited_questions.get(qid, false)):
 			revisited_and_changed[qid] = true
+			revisited_and_kept.erase(qid)
 	final_answer_by_question[qid] = aid
 	selected_visual_position_by_question[qid] = visual_position
-	if bool(revisited_questions.get(qid, false)) and previous == aid:
+	if (
+		bool(revisited_questions.get(qid, false))
+		and previous == aid
+		and not bool(revisited_and_changed.get(qid, false))
+	):
 		revisited_and_kept[qid] = true
 
 func is_complete(question_count: int) -> bool:
