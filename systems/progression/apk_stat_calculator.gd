@@ -4,6 +4,7 @@ class_name APKStatCalculator
 
 const MAX_STABILITY: int = 100
 const LINEAGE_WEIGHT: float = 0.25
+const HP_PER_ALLOCATION_POINT: int = 4
 
 # HP uses a dedicated survivability curve instead of the generic linear stat curve.
 # The curve is authored around the game's numerical targets:
@@ -44,7 +45,9 @@ static func calculate_stats(
 		"dodge": apk.dodge_chance,
 		"crit": apk.crit_chance
 	}
-	stats["max_hp"] = int(stats["max_hp"]) + partner.get_allocated_stat("hp") * 2
+	stats["max_hp"] = int(stats["max_hp"]) + (
+		partner.get_allocated_stat("hp") * HP_PER_ALLOCATION_POINT
+	)
 	stats["atk"] = int(stats["atk"]) + partner.get_allocated_stat("atk")
 	stats["def"] = int(stats["def"]) + partner.get_allocated_stat("def")
 	stats["matk"] = int(stats["matk"]) + partner.get_allocated_stat("matk")
