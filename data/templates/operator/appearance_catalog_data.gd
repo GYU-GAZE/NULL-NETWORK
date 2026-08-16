@@ -3,7 +3,7 @@ class_name AppearanceCatalogData
 
 @export var options: Array[AppearanceOptionData] = []
 
-func get_options(category: AppearanceOptionData.Category) -> Array[AppearanceOptionData]:
+func get_options(category: int) -> Array[AppearanceOptionData]:
 	var result: Array[AppearanceOptionData] = []
 	for option_value in options:
 		var option := option_value as AppearanceOptionData
