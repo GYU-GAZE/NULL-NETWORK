@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://data/templates/module_data.gd" id="1_module"]
 [ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
 [ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="3_target"]
-[ext_resource type="Script" path="res://data/templates/combat_value_formula.gd" id="4_formula"]
+[ext_resource type="Script" path="res://data/templates/combat_damage_formula_data.gd" id="4_damage"]
 [ext_resource type="Script" path="res://data/templates/combat/combat_tendency_gain_data.gd" id="5_gain"]
 
 [sub_resource type="Resource" id="Gain_valour"]
@@ -16,22 +16,22 @@ script = ExtResource("3_target")
 target_kind = 1
 
 [sub_resource type="Resource" id="Formula_damage"]
-script = ExtResource("4_formula")
-base_value = 50.0
-stat = 5
-stat_multiplier = 1.5
+script = ExtResource("4_damage")
+power = 100
+offense_stat = 5
+defense_stat = 6
 
 [sub_resource type="Resource" id="Effect_damage"]
 script = ExtResource("2_effect")
 target_selector = SubResource("Target_direct")
-value_formula = SubResource("Formula_damage")
+damage_formula = SubResource("Formula_damage")
 
 [resource]
 script = ExtResource("1_module")
 module_id = &"heavy_attack"
 module_name = "Break"
 classification = &"physical_attack"
-description = "A costly strike with high ATK scaling."
+description = "A costly high-Power physical strike."
 stability_cost = 35
 module_tags = 1
 combat_effects = Array[ExtResource("2_effect")]([SubResource("Effect_damage")])
