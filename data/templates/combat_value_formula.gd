@@ -22,11 +22,17 @@ enum RoundMode {
 @export_category("Base")
 @export var base_value: float = 0.0
 
-@export_category("Stat Scaling")
+@export_category("Primary Stat Scaling")
 @export var stat_reference: ReferenceActor = ReferenceActor.CASTER
 @export var stat: CombatConstants.Stat = CombatConstants.Stat.ATK
 @export var stat_multiplier: float = 0.0
 @export var use_effective_stat: bool = false
+
+@export_category("Secondary Stat Scaling")
+@export var secondary_stat_reference: ReferenceActor = ReferenceActor.CASTER
+@export var secondary_stat: CombatConstants.Stat = CombatConstants.Stat.MATK
+@export var secondary_stat_multiplier: float = 0.0
+@export var secondary_use_effective_stat: bool = false
 
 @export_category("Stack Scaling")
 @export var stack_multiplier: float = 0.0
@@ -45,15 +51,16 @@ func describe() -> String:
 	if not is_zero_approx(base_value):
 		pieces.append(_format_number(base_value))
 
-	if not is_zero_approx(stat_multiplier):
-		pieces.append(
-			"%s%s × %s"
-			% [
-				"+" if stat_multiplier > 0.0 and not pieces.is_empty() else "",
-				CombatConstants.stat_label(stat),
-				_format_percent(stat_multiplier)
-			]
-		)
+	_append_stat_piece(
+		pieces,
+		stat,
+		stat_multiplier
+	)
+	_append_stat_piece(
+		pieces,
+		secondary_stat,
+		secondary_stat_multiplier
+	)
 
 	if not is_zero_approx(stack_multiplier):
 		pieces.append(
@@ -68,6 +75,24 @@ func describe() -> String:
 		return "0"
 
 	return " ".join(pieces)
+
+
+func _append_stat_piece(
+	pieces: Array[String],
+	stat_id: CombatConstants.Stat,
+	multiplier: float
+) -> void:
+	if is_zero_approx(multiplier):
+		return
+
+	pieces.append(
+		"%s%s × %s"
+		% [
+			"+" if multiplier > 0.0 and not pieces.is_empty() else "",
+			CombatConstants.stat_label(stat_id),
+			_format_percent(multiplier)
+		]
+	)
 
 
 func _format_number(value: float) -> String:

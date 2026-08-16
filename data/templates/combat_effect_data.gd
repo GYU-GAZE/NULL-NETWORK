@@ -36,10 +36,11 @@ enum SpawnSlotRule {
 @export var value_formula: CombatValueFormula
 
 @export_category("Damage and Healing")
+@export var damage_formula: CombatDamageFormulaData
 @export var defense_stat: CombatConstants.Stat = CombatConstants.Stat.DEF
 @export var ignore_defense: bool = false
 @export var can_crit: bool = true
-@export var crit_multiplier: float = 3.0
+@export var crit_multiplier: float = 1.5
 @export var applies_unstability_on_crit: bool = true
 @export_range(-1.0, 1.0, 0.01) var accuracy_override: float = -1.0
 
@@ -86,7 +87,22 @@ func validate_data() -> PackedStringArray:
 			% effect_type
 		)
 
-	if _requires_value_formula() and value_formula == null:
+	if effect_type == EffectType.DAMAGE:
+		if damage_formula == null and value_formula == null:
+			errors.append(
+				"DAMAGE effect requires either CombatDamageFormulaData or CombatValueFormula."
+			)
+		elif damage_formula != null and value_formula != null:
+			errors.append(
+				"DAMAGE effect cannot use Power damage and ValueFormula at the same time."
+			)
+		elif damage_formula != null:
+			errors.append_array(damage_formula.validate_data())
+			if ignore_defense:
+				errors.append(
+					"Power damage already defines a DefenseStat. Use ValueFormula + ignore_defense for true/fixed damage."
+				)
+	elif _requires_value_formula() and value_formula == null:
 		errors.append(
 			"CombatEffectData type %d has no value formula."
 			% effect_type
@@ -116,11 +132,13 @@ func validate_data() -> PackedStringArray:
 		else:
 			errors.append_array(dummy_data.validate_data())
 
-	if effect_type in [
-		EffectType.SET_SLOT_ENABLED,
-		EffectType.MOVE_ACTOR,
-		EffectType.MOVE_ACTION_SLOT
-	]:
+	if (
+		effect_type in [
+			EffectType.SET_SLOT_ENABLED,
+			EffectType.MOVE_ACTOR,
+			EffectType.MOVE_ACTION_SLOT
+		]
+	):
 		if slot_selector == null:
 			errors.append(
 				"Slot mutation effect type %d has no "
@@ -178,6 +196,8 @@ func describe() -> String:
 
 	match effect_type:
 		EffectType.DAMAGE:
+			if damage_formula != null:
+				value_text = damage_formula.describe()
 			return "Damage %s to %s" % [value_text, target_text]
 		EffectType.HEAL:
 			return "Heal %s on %s" % [value_text, target_text]
@@ -257,7 +277,6 @@ func describe() -> String:
 
 func _requires_value_formula() -> bool:
 	return effect_type in [
-		EffectType.DAMAGE,
 		EffectType.HEAL,
 		EffectType.MODIFY_STABILITY,
 		EffectType.APPLY_STATUS,

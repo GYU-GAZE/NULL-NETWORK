@@ -17,7 +17,16 @@ target_kind = 0
 
 [sub_resource type="Resource" id="Formula_heal"]
 script = ExtResource("4_formula")
-base_value = 15.0
+stat_reference = 1
+stat = 1
+stat_multiplier = 0.15
+use_effective_stat = true
+secondary_stat_reference = 0
+secondary_stat = 7
+secondary_stat_multiplier = 0.1
+secondary_use_effective_stat = true
+use_minimum = true
+minimum_value = 2.0
 
 [sub_resource type="Resource" id="Effect_heal"]
 script = ExtResource("2_effect")
@@ -31,7 +40,7 @@ script = ExtResource("1_module")
 module_id = &"basic_heal"
 module_name = "Heal"
 classification = &"healing"
-description = "Restores HP to the user."
+description = "Restores HP using the target's Max HP and a configurable caster stat."
 module_tags = 2
 combat_effects = Array[ExtResource("2_effect")]([SubResource("Effect_heal")])
 combat_tendency_gains = Array[ExtResource("5_gain")]([SubResource("Gain_sync")])
