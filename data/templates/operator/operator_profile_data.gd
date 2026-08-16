@@ -1,12 +1,12 @@
 extends Resource
 class_name OperatorProfileData
 
-const WRITING_STYLE_IDS: PackedStringArray = PackedStringArray([
+const WRITING_STYLE_IDS := [
 	"normal", "cute", "lazy", "formal"
-])
-const KAOMOJI_PREFERENCE_IDS: PackedStringArray = PackedStringArray([
+]
+const KAOMOJI_PREFERENCE_IDS := [
 	"frequent", "occasional", "never"
-])
+]
 
 @export_category("Personal Identity")
 @export var first_name: String = ""
