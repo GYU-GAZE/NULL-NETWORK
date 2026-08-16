@@ -95,11 +95,18 @@ func _check_evaluation_contract() -> void:
 		"never",
 		""
 	)
+	var errors := PackedStringArray()
 	var errors_value: Variant = result.get("errors", PackedStringArray())
-	var errors := errors_value as PackedStringArray if errors_value is PackedStringArray else PackedStringArray(["Evaluator returned an invalid errors payload."])
+	if errors_value is PackedStringArray:
+		errors = errors_value
+	else:
+		errors.append("Evaluator returned an invalid errors payload.")
 	_check(errors.is_empty(), "Assessment evaluator returned errors: %s" % errors)
+
+	var tendencies := {}
 	var tendencies_value: Variant = result.get("tendencies", {})
-	var tendencies := tendencies_value as Dictionary if tendencies_value is Dictionary else {}
+	if tendencies_value is Dictionary:
+		tendencies = tendencies_value
 	var total := (
 		int(tendencies.get("valour", 0))
 		+ int(tendencies.get("logic", 0))
@@ -109,8 +116,11 @@ func _check_evaluation_contract() -> void:
 	_check(total == 15, "Assessment Tendencies must normalize to exactly 15 points.")
 	_check(not str(result.get("candidate_id", "")).is_empty(), "Assessment must resolve one compatibility candidate.")
 	_check(bool(result.get("rush_detected", false)), "The deliberate same-position test corpus should trigger Rush Detection.")
+
+	var variant := {}
 	var variant_value: Variant = result.get("variant_placeholder", {})
-	var variant := variant_value as Dictionary if variant_value is Dictionary else {}
+	if variant_value is Dictionary:
+		variant = variant_value
 	_check(bool(variant.get("rush_blocked", false)), "Rush Detection must block Variant Node eligibility.")
 	_check(not bool(variant.get("integration_ready", true)), "Variant Node application must remain on hold until runtime Variant content exists.")
 
