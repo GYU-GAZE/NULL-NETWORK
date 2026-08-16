@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=6 format=3]
+[gd_resource type="Theme" load_steps=10 format=3]
 
 [ext_resource type="FontVariation" path="res://data/assets/fonts/silver_ui_font.tres" id="1_font"]
 
@@ -68,6 +68,61 @@ corner_radius_bottom_left = 9
 
 [sub_resource type="StyleBoxEmpty" id="Focus"]
 
+[sub_resource type="StyleBoxFlat" id="InputNormal"]
+content_margin_left = 9.0
+content_margin_top = 6.0
+content_margin_right = 9.0
+content_margin_bottom = 6.0
+bg_color = Color(0.976471, 0.992157, 1, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.407843, 0.682353, 0.835294, 0.82)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="InputFocus"]
+content_margin_left = 9.0
+content_margin_top = 6.0
+content_margin_right = 9.0
+content_margin_bottom = 6.0
+bg_color = Color(0.988235, 0.996078, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.176471, 0.647059, 0.901961, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+shadow_color = Color(0.176471, 0.647059, 0.901961, 0.12)
+shadow_size = 3
+
+[sub_resource type="StyleBoxFlat" id="ProgressBackground"]
+bg_color = Color(0.815686, 0.913725, 0.968627, 0.7)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.345098, 0.65098, 0.839216, 0.72)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="ProgressFill"]
+bg_color = Color(0.180392, 0.670588, 0.913725, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.180392, 0.670588, 0.913725, 0.18)
+shadow_size = 3
+
 [resource]
 default_font = ExtResource("1_font")
 default_font_size = 19
@@ -88,3 +143,12 @@ Button/styles/hover = SubResource("ButtonHover")
 Button/styles/pressed = SubResource("ButtonPressed")
 Button/styles/disabled = SubResource("ButtonDisabled")
 Button/styles/focus = SubResource("Focus")
+LineEdit/colors/font_color = Color(0.105882, 0.235294, 0.341176, 1)
+LineEdit/colors/font_placeholder_color = Color(0.376471, 0.494118, 0.584314, 0.72)
+LineEdit/colors/caret_color = Color(0.0784314, 0.505882, 0.768627, 1)
+LineEdit/font_sizes/font_size = 19
+LineEdit/styles/normal = SubResource("InputNormal")
+LineEdit/styles/focus = SubResource("InputFocus")
+LineEdit/styles/read_only = SubResource("InputNormal")
+ProgressBar/styles/background = SubResource("ProgressBackground")
+ProgressBar/styles/fill = SubResource("ProgressFill")
