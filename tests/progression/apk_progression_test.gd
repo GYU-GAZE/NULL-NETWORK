@@ -1,6 +1,5 @@
 extends Node
 
-
 const TEST_ENCOUNTER: CombatEncounter = preload(
 	"res://data/content/combat/1v1.tres"
 )
@@ -8,10 +7,8 @@ const TEST_ENCOUNTER: CombatEncounter = preload(
 var _failures := PackedStringArray()
 var _test_root: String
 
-
 func _ready() -> void:
 	call_deferred("_run_test")
-
 
 func _run_test() -> void:
 	_test_root = "user://null_network/tests/progression_%d" % Time.get_ticks_usec()
@@ -35,7 +32,6 @@ func _run_test() -> void:
 	_test_save_restart()
 	_finish_test()
 
-
 func _test_canonical_formulas() -> void:
 	_check(
 		APKProgressionService.get_exp_for_next_level(1) == 7
@@ -58,7 +54,6 @@ func _test_canonical_formulas() -> void:
 		"NOVIRE level-100 stats do not match the GDD profile."
 	)
 
-
 func _test_starter_selection() -> void:
 	var errors: PackedStringArray = APKProgressionService.select_starter(
 		"novire_init",
@@ -76,14 +71,17 @@ func _test_starter_selection() -> void:
 		and CampaignState.partner.address_term_id == "boss"
 		and term != null
 		and term.resolve_text(CampaignState.operator.profile) == "Boss"
-		and CampaignState.partner.active_module_ids.size() == 4,
-		"Controlled personality, address term or starter Modules were not generated."
+		and CampaignState.partner.active_module_ids.size() == 4
+		and CampaignState.partner.level == APKProgressionService.ONBOARDING_STARTER_LEVEL
+		and CampaignState.partner.current_exp == APKProgressionService.get_total_exp_for_level(3)
+		and CampaignState.partner.allocation_points == 2
+		and CampaignState.partner.known_active_module_ids.has("basic_heal"),
+		"Controlled personality, address term, level-3 state or starter Modules were not generated."
 	)
 	_check(
 		not APKProgressionService.select_starter("novire_init").is_empty(),
 		"A second starter replaced the active partner."
 	)
-
 
 func _test_inventory_entries() -> void:
 	CampaignState.grant_item("healing_patch", 3)
@@ -95,18 +93,13 @@ func _test_inventory_entries() -> void:
 		"Typed inventory entry was not created or resolved."
 	)
 
-
 func _test_combat_snapshot_and_progression() -> void:
 	CampaignState.partner.affinity = 7
 	var hp_before: int = CampaignState.partner.current_hp
 	var stability_before: int = CampaignState.partner.current_stability
-	_check(
-		CombatManager.load_encounter(TEST_ENCOUNTER),
-		"CombatManager rejected the PLAYER_PARTNER encounter."
-	)
+	_check(CombatManager.load_encounter(TEST_ENCOUNTER), "CombatManager rejected the PLAYER_PARTNER encounter.")
 	var actor: Variant = CombatManager.get_player_actor()
 	_check(actor is Dictionary, "PLAYER_PARTNER did not create a combat actor.")
-
 	if actor is not Dictionary:
 		return
 
@@ -128,40 +121,37 @@ func _test_combat_snapshot_and_progression() -> void:
 	var commit_errors: PackedStringArray = CombatManager.commit_player_partner_state(7)
 	_check(commit_errors.is_empty(), "Partner write-back failed: %s" % commit_errors)
 	_check(
-		CampaignState.partner.level == 2
-		and CampaignState.partner.current_exp == 7
-		and CampaignState.partner.allocation_points == 1
+		CampaignState.partner.level == 3
+		and CampaignState.partner.current_exp == 33
+		and CampaignState.partner.allocation_points == 2
 		and CampaignState.partner.current_stability == 43
 		and CampaignState.partner.affinity == 7
 		and CampaignState.partner.active_module_ids[3] == "basic_dodge"
 		and CampaignState.partner.known_active_module_ids.has("basic_heal"),
-		"HP/Stability/EXP/affinity/Modules did not return to PartnerState."
+		"HP/Stability/EXP/affinity/Modules did not return to the level-3 PartnerState."
 	)
 	_check(
 		CombatManager.commit_player_partner_state(7).is_empty()
-		and CampaignState.partner.current_exp == 7,
+		and CampaignState.partner.current_exp == 33,
 		"Partner write-back was not idempotent."
 	)
 	var allocation_errors: PackedStringArray = APKProgressionService.allocate_stat("atk", 1)
 	_check(
 		allocation_errors.is_empty()
-		and CampaignState.partner.allocation_points == 0
+		and CampaignState.partner.allocation_points == 1
 		and CampaignState.partner.get_allocated_stat("atk") == 1,
-		"Allocation Point was not distributed."
+		"One of the starter's two initial Allocation Points was not distributed."
 	)
 	_check(
-		not APKProgressionService.allocate_stat("atk", 1).is_empty(),
-		"Allocation exceeded the available point budget."
+		not APKProgressionService.allocate_stat("atk", 1).is_empty()
+		and CampaignState.partner.allocation_points == 1,
+		"Level-3 per-stat concentration limit was not enforced."
 	)
 	CombatManager.reset_encounter()
 
-
 func _test_save_restart() -> void:
 	var expected: Dictionary = CampaignState.partner.to_save_data()
-	_check(
-		SaveManager.save_checkpoint(&"phase9.partner", true),
-		"Could not save the Phase 9 partner checkpoint."
-	)
+	_check(SaveManager.save_checkpoint(&"phase9.partner", true), "Could not save the Phase 9 partner checkpoint.")
 	CampaignState.reset_campaign()
 	CombatManager.reset_encounter()
 	var load_errors: PackedStringArray = SaveManager.load_campaign("phase9_partner_progression")
@@ -171,21 +161,10 @@ func _test_save_restart() -> void:
 		and CampaignState.inventory.get_item_count("healing_patch") == 3,
 		"Partner or inventory did not survive save/restart exactly."
 	)
-	_check(
-		CombatManager.load_encounter(TEST_ENCOUNTER),
-		"Restored partner could not re-enter combat."
-	)
+	_check(CombatManager.load_encounter(TEST_ENCOUNTER), "Restored partner could not re-enter combat.")
 	var restored_actor: Variant = CombatManager.get_player_actor()
-	var restored_modules: Array = (
-		restored_actor.get("modules", [])
-		if restored_actor is Dictionary
-		else []
-	)
-	var restored_module: ModuleData = (
-		restored_modules[3] as ModuleData
-		if restored_modules.size() > 3
-		else null
-	)
+	var restored_modules: Array = restored_actor.get("modules", []) if restored_actor is Dictionary else []
+	var restored_module: ModuleData = restored_modules[3] as ModuleData if restored_modules.size() > 3 else null
 	_check(
 		restored_actor is Dictionary
 		and int(restored_actor.get("hp", -1)) == CampaignState.partner.current_hp
@@ -208,48 +187,36 @@ func _test_save_restart() -> void:
 		"Legacy partner_id did not migrate to a valid PartnerStateData."
 	)
 
-
 func _check(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
-
 
 func _finish_test() -> void:
 	CombatManager.reset_encounter()
 	CampaignState.reset_campaign()
 	SaveManager.configure_storage_root(SaveConstants.DEFAULT_STORAGE_ROOT)
 	_remove_directory_recursive(_test_root)
-
 	if _failures.is_empty():
 		print("APK_PROGRESSION_TEST: PASS")
 		get_tree().quit(0)
 		return
-
 	for failure: String in _failures:
 		push_error(failure)
-
 	print("APK_PROGRESSION_TEST: FAIL (%d)" % _failures.size())
 	get_tree().quit(1)
 
-
 func _remove_directory_recursive(path: String) -> void:
 	var directory := DirAccess.open(path)
-
 	if directory == null:
 		return
-
 	directory.list_dir_begin()
 	var entry: String = directory.get_next()
-
 	while not entry.is_empty():
 		var child_path: String = "%s/%s" % [path, entry]
-
 		if directory.current_is_dir():
 			_remove_directory_recursive(child_path)
 		else:
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(child_path))
-
 		entry = directory.get_next()
-
 	directory.list_dir_end()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
