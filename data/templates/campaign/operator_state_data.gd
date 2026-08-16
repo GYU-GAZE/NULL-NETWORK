@@ -1,11 +1,11 @@
 extends Resource
 class_name OperatorStateData
 
-
 var operator_id: String = ""
 var profile: OperatorProfileData = OperatorProfileData.new()
 var appearance: AppearanceData = AppearanceData.new()
 var partner_continuity: PartnerContinuityStateData = PartnerContinuityStateData.new()
+var onboarding_metadata: Dictionary = {}
 var level: int = 1
 var experience: int = 0
 var registration_day: int = 1
@@ -28,22 +28,20 @@ var appearance_part_ids: PackedStringArray:
 	get:
 		return appearance.get_appearance_part_ids()
 
-
 func reset() -> void:
 	operator_id = ""
 	profile = OperatorProfileData.new()
 	appearance = AppearanceData.new()
 	partner_continuity = PartnerContinuityStateData.new()
+	onboarding_metadata = {}
 	level = 1
 	experience = 0
 	registration_day = 1
 	last_income_day = 1
 	archived = false
 
-
 func is_empty() -> bool:
 	return operator_id.strip_edges().is_empty()
-
 
 func to_save_data() -> Dictionary:
 	return {
@@ -54,6 +52,7 @@ func to_save_data() -> Dictionary:
 		"appearance": appearance.to_save_data(),
 		"appearance_part_ids": Array(appearance_part_ids),
 		"partner_continuity": partner_continuity.to_save_data(),
+		"onboarding_metadata": onboarding_metadata.duplicate(true),
 		"level": level,
 		"experience": experience,
 		"registration_day": registration_day,
@@ -61,46 +60,32 @@ func to_save_data() -> Dictionary:
 		"archived": archived
 	}
 
-
 func load_save_data(data: Dictionary) -> void:
 	reset()
 	operator_id = str(data.get("operator_id", "")).strip_edges()
-
 	var profile_value: Variant = data.get("profile", {})
-
 	if profile_value is Dictionary and not (profile_value as Dictionary).is_empty():
 		profile.load_save_data(profile_value as Dictionary)
 	else:
 		profile.nickname = str(data.get("display_name", "")).strip_edges()
 		profile.username = operator_id
-		profile.occupation_id = str(
-			data.get("occupation_id", "")
-		).strip_edges()
-
+		profile.occupation_id = str(data.get("occupation_id", "")).strip_edges()
 	var appearance_value: Variant = data.get("appearance", {})
-
-	if appearance_value is Dictionary \
-		and not (appearance_value as Dictionary).is_empty():
+	if appearance_value is Dictionary and not (appearance_value as Dictionary).is_empty():
 		appearance.load_save_data(appearance_value as Dictionary)
 	else:
-		appearance.load_save_data({
-			"appearance_part_ids": data.get("appearance_part_ids", [])
-		})
-
+		appearance.load_save_data({"appearance_part_ids": data.get("appearance_part_ids", [])})
 	var continuity_value: Variant = data.get("partner_continuity", {})
-
 	if continuity_value is Dictionary:
 		partner_continuity.load_save_data(continuity_value as Dictionary)
-
+	var onboarding_value: Variant = data.get("onboarding_metadata", {})
+	if onboarding_value is Dictionary:
+		onboarding_metadata = (onboarding_value as Dictionary).duplicate(true)
 	level = maxi(1, int(data.get("level", 1)))
 	experience = maxi(0, int(data.get("experience", 0)))
 	registration_day = maxi(1, int(data.get("registration_day", 1)))
-	last_income_day = maxi(
-		registration_day,
-		int(data.get("last_income_day", registration_day))
-	)
+	last_income_day = maxi(registration_day, int(data.get("last_income_day", registration_day)))
 	archived = bool(data.get("archived", false))
-
 
 func set_registration_data(
 	new_profile: OperatorProfileData,
@@ -108,7 +93,6 @@ func set_registration_data(
 ) -> bool:
 	if new_profile == null or new_appearance == null:
 		return false
-
 	profile = new_profile.duplicate_state()
 	appearance = new_appearance.duplicate_state()
 	operator_id = profile.get_operator_id()
