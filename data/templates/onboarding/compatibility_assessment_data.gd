@@ -38,14 +38,16 @@ class_name CompatibilityAssessmentData
 
 func get_question(question_id: String) -> CompatibilityQuestionData:
 	var clean_id := question_id.strip_edges().to_upper()
-	for question: CompatibilityQuestionData in questions:
+	for question_value in questions:
+		var question := question_value as CompatibilityQuestionData
 		if question != null and question.question_id.strip_edges().to_upper() == clean_id:
 			return question
 	return null
 
 func get_candidate(candidate_id: String) -> CompatibilityCandidateData:
 	var clean_id := candidate_id.strip_edges().to_upper()
-	for candidate: CompatibilityCandidateData in candidates:
+	for candidate_value in candidates:
+		var candidate := candidate_value as CompatibilityCandidateData
 		if candidate != null and candidate.candidate_id.strip_edges().to_upper() == clean_id:
 			return candidate
 	return null
@@ -54,14 +56,16 @@ func validate_data() -> PackedStringArray:
 	var errors := PackedStringArray()
 	if questions.size() != 18:
 		errors.append("Compatibility Assessment must contain exactly 18 questions.")
-	for question: CompatibilityQuestionData in questions:
+	for question_value in questions:
+		var question := question_value as CompatibilityQuestionData
 		if question == null:
 			errors.append("Compatibility Assessment contains a null question.")
 		else:
 			errors.append_array(question.validate_data())
 	if candidates.is_empty():
 		errors.append("Compatibility Assessment requires at least one candidate.")
-	for candidate: CompatibilityCandidateData in candidates:
+	for candidate_value in candidates:
+		var candidate := candidate_value as CompatibilityCandidateData
 		if candidate == null:
 			errors.append("Compatibility Assessment contains a null candidate.")
 		else:
