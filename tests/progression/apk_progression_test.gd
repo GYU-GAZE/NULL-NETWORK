@@ -42,8 +42,44 @@ func _test_canonical_formulas() -> void:
 	var apk: APKData = ContentRegistry.get_apk("novire_init")
 	var partner := PartnerStateData.new()
 	partner.apk_id = "novire_init"
-	partner.level = 100
+
+	partner.level = 1
 	var stats: Dictionary = APKStatCalculator.calculate_stats(apk, partner)
+	_check(
+		int(stats.get("max_hp", 0)) == 9,
+		"NOVIRE level-1 HP does not use the early-game survival curve."
+	)
+
+	partner.level = 3
+	stats = APKStatCalculator.calculate_stats(apk, partner)
+	_check(
+		int(stats.get("max_hp", 0)) == 12,
+		"NOVIRE level-3 HP does not match the onboarding survival target."
+	)
+
+	partner.level = 15
+	stats = APKStatCalculator.calculate_stats(apk, partner)
+	_check(
+		int(stats.get("max_hp", 0)) == 26,
+		"NOVIRE level-15 HP does not match the first HP progression anchor."
+	)
+
+	partner.level = 40
+	stats = APKStatCalculator.calculate_stats(apk, partner)
+	_check(
+		int(stats.get("max_hp", 0)) == 69,
+		"NOVIRE level-40 HP does not match the midgame HP progression anchor."
+	)
+
+	partner.level = 80
+	stats = APKStatCalculator.calculate_stats(apk, partner)
+	_check(
+		int(stats.get("max_hp", 0)) == 176,
+		"NOVIRE level-80 HP does not match the practical-cap HP progression anchor."
+	)
+
+	partner.level = 100
+	stats = APKStatCalculator.calculate_stats(apk, partner)
 	_check(
 		int(stats.get("max_hp", 0)) == 240
 		and int(stats.get("atk", 0)) == 70
@@ -74,9 +110,10 @@ func _test_starter_selection() -> void:
 		and CampaignState.partner.active_module_ids.size() == 4
 		and CampaignState.partner.level == APKProgressionService.ONBOARDING_STARTER_LEVEL
 		and CampaignState.partner.current_exp == APKProgressionService.get_total_exp_for_level(3)
+		and CampaignState.partner.current_hp == 12
 		and CampaignState.partner.allocation_points == 2
 		and CampaignState.partner.known_active_module_ids.has("basic_heal"),
-		"Controlled personality, address term, level-3 state or starter Modules were not generated."
+		"Controlled personality, address term, level-3 state, HP or starter Modules were not generated."
 	)
 	_check(
 		not APKProgressionService.select_starter("novire_init").is_empty(),
