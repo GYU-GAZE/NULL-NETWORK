@@ -34,6 +34,9 @@ func _ready() -> void:
 
 	GlobalSignals.request_open_app.connect(_on_request_open_app)
 	GlobalSignals.request_close_app.connect(close_window)
+	GlobalSignals.request_open_system_settings.connect(
+		_on_request_open_system_settings
+	)
 
 	var registration_errors: PackedStringArray = (
 		SaveManager.register_save_section(self)
@@ -195,6 +198,10 @@ func _on_request_open_app(app: AppResource) -> void:
 				app_control.custom_minimum_size = Vector2.ZERO
 				app_control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				app_control.size_flags_vertical = Control.SIZE_EXPAND_FILL
+				var juice := PixelUIJuice.new()
+				juice.name = "PixelUIJuice"
+				app_control.add_child(juice)
+				juice.install(app_control)
 
 			_bind_app_pixel_density_breakpoint(
 				new_window,
@@ -216,6 +223,14 @@ func _on_request_open_app(app: AppResource) -> void:
 
 	GlobalSignals.app_opened.emit(app_id)
 	focus_window(app_id)
+
+
+func _on_request_open_system_settings() -> void:
+	var settings_app: AppResource = ContentRegistry.get_app("system_settings")
+	if settings_app == null:
+		push_error("WindowManager: System Settings app is not registered.")
+		return
+	_on_request_open_app(settings_app)
 
 
 func focus_window(app_id: String) -> void:

@@ -1,22 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://b65wapqwc7vgi"]
+[gd_scene load_steps=5 format=3 uid="uid://b65wapqwc7vgi"]
 
 [ext_resource type="Script" uid="uid://cxk7wbhj63ywr" path="res://systems/desktop/kubu_top_taskbar.gd" id="1_fh3bs"]
 [ext_resource type="Theme" uid="uid://b7gxuuxwdgv0u" path="res://data/assets/themes/kubuOS.tres" id="1_p0iwt"]
 [ext_resource type="PackedScene" uid="uid://de6bco5bmfe1v" path="res://systems/desktop/kubu_action_pip.tscn" id="2_ofqvs"]
 [ext_resource type="Texture2D" uid="uid://c8fmqahig64mp" path="res://data/assets/ui/bellz icon.png" id="4_7d4ja"]
 [ext_resource type="PackedScene" path="res://systems/desktop/kubu_battery_indicator.tscn" id="5_battery"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_system_menu"]
-bg_color = Color(0.035, 0.055, 0.08, 0.97)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.2, 0.32, 0.43, 0.92)
-corner_radius_bottom_left = 5
-corner_radius_bottom_right = 5
-shadow_color = Color(0, 0, 0, 0.35)
-shadow_size = 4
 
 [node name="KubuTopTaskbar" type="PanelContainer" unique_id=614386726]
 custom_minimum_size = Vector2(0, 19)
@@ -226,52 +214,3 @@ custom_minimum_size = Vector2(34, 0)
 layout_mode = 2
 text = "100%"
 vertical_alignment = 1
-
-[node name="SystemMenuPanel" type="PanelContainer" parent="MarginContainer/ContentRoot"]
-unique_name_in_owner = true
-z_index = 30
-layout_mode = 1
-offset_left = 4.0
-offset_top = 24.0
-offset_right = 236.0
-offset_bottom = 150.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_system_menu")
-
-[node name="Margin" type="MarginContainer" parent="MarginContainer/ContentRoot/SystemMenuPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="Options" type="VBoxContainer" parent="MarginContainer/ContentRoot/SystemMenuPanel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="SystemSettingsButton" type="Button" parent="MarginContainer/ContentRoot/SystemMenuPanel/Margin/Options"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-text = "System Settings"
-alignment = 0
-flat = true
-
-[node name="DesktopVisualButton" type="Button" parent="MarginContainer/ContentRoot/SystemMenuPanel/Margin/Options"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-text = "Desktop Visual"
-alignment = 0
-flat = true
-
-[node name="Separator" type="HSeparator" parent="MarginContainer/ContentRoot/SystemMenuPanel/Margin/Options"]
-layout_mode = 2
-modulate = Color(0.55, 0.68, 0.8, 0.35)
-
-[node name="LogoutButton" type="Button" parent="MarginContainer/ContentRoot/SystemMenuPanel/Margin/Options"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-text = "Logout"
-alignment = 0
-flat = true

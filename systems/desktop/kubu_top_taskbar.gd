@@ -2,9 +2,6 @@ extends PanelContainer
 class_name KubuTopTaskbar
 
 
-const SYSTEM_MENU_HEIGHT: float = 126.0
-const SYSTEM_MENU_GAP: float = 2.0
-
 @export_category("Fake OS Status")
 @export var location_label_text: String = "TOKYO - SHIBUYA"
 @export var temperature_label_text: String = "23°C"
@@ -31,8 +28,6 @@ const SYSTEM_MENU_GAP: float = 2.0
 @export_category("Animation")
 @export var pulse_scale: Vector2 = Vector2(1.05, 1.05)
 @export var pulse_duration: float = 0.18
-@export var system_menu_open_seconds: float = 0.18
-@export var system_menu_close_seconds: float = 0.12
 
 @onready var time_label: Label = %TimeLabel
 @onready var temperature_label: Label = %TemperatureLabel
@@ -45,10 +40,6 @@ const SYSTEM_MENU_GAP: float = 2.0
 @onready var menu_button: Button = %MenuButton
 @onready var action_pip_hbox: HBoxContainer = %ActionPipHBox
 @onready var notification_badge: Label = %NotificationBadge
-@onready var system_menu_panel: PanelContainer = %SystemMenuPanel
-@onready var system_settings_button: Button = %SystemSettingsButton
-@onready var desktop_visual_button: Button = %DesktopVisualButton
-@onready var logout_button: Button = %LogoutButton
 @onready var left_context_separator: Label = $MarginContainer/ContentRoot/LeftHBox/SepA
 @onready var center_hbox: HBoxContainer = $MarginContainer/ContentRoot/CenterHBox
 @onready var action_date_separator: Label = $MarginContainer/ContentRoot/RightHBox/SepB
@@ -57,8 +48,6 @@ const SYSTEM_MENU_GAP: float = 2.0
 var action_pips: Array[KubuActionPip] = []
 
 var _last_date_text: String = ""
-var _system_menu_open: bool = false
-var _system_menu_tween: Tween
 var _shell_reveal_tween: Tween
 
 
@@ -91,19 +80,8 @@ func _ready() -> void:
 	if not menu_button.pressed.is_connected(_on_menu_button_pressed):
 		menu_button.pressed.connect(_on_menu_button_pressed)
 
-	if not system_settings_button.pressed.is_connected(_on_system_settings_pressed):
-		system_settings_button.pressed.connect(_on_system_settings_pressed)
-
-	if not logout_button.pressed.is_connected(_on_logout_pressed):
-		logout_button.pressed.connect(_on_logout_pressed)
-
-	# Desktop Visual intentionally remains a visible placeholder until the
-	# appearance-customization surface is implemented.
-	desktop_visual_button.tooltip_text = "Desktop appearance customization is not available yet."
-
 	_collect_action_pips()
 	_setup_action_pips()
-	_prepare_system_menu()
 	_refresh_from_time_manager()
 	_refresh_notification_badge()
 	_refresh_context_visibility()
@@ -114,10 +92,6 @@ func _apply_metrics() -> void:
 	size = Vector2(size.x, KubuOSMetrics.taskbar_height)
 	offset_top = 0.0
 	offset_bottom = KubuOSMetrics.taskbar_height
-
-	if system_menu_panel != null:
-		system_menu_panel.offset_top = KubuOSMetrics.taskbar_height + SYSTEM_MENU_GAP
-		system_menu_panel.offset_bottom = system_menu_panel.offset_top + SYSTEM_MENU_HEIGHT
 
 
 func _collect_action_pips() -> void:
@@ -325,100 +299,14 @@ func _refresh_notification_badge() -> void:
 	notification_badge.text = str(unread_count)
 
 
-func _prepare_system_menu() -> void:
-	_system_menu_open = false
-	system_menu_panel.hide()
-	system_menu_panel.scale = Vector2.ONE
-	system_menu_panel.modulate.a = 1.0
-	_apply_metrics()
-
-
 func _on_notification_button_pressed() -> void:
-	_close_system_menu(false)
 	GlobalSignals.request_toggle_notification_center.emit()
 
 
 func _on_menu_button_pressed() -> void:
-	if _system_menu_open:
-		_close_system_menu()
-	else:
-		_open_system_menu()
-
-
-func _open_system_menu() -> void:
-	if _system_menu_open:
-		return
-
-	if _system_menu_tween != null and _system_menu_tween.is_valid():
-		_system_menu_tween.kill()
-
-	_system_menu_open = true
-	system_menu_panel.show()
-	system_menu_panel.pivot_offset = Vector2.ZERO
-	system_menu_panel.scale = Vector2(1.0, 0.04)
-	system_menu_panel.modulate.a = 0.55
-
-	_system_menu_tween = create_tween()
-	_system_menu_tween.set_trans(Tween.TRANS_CUBIC)
-	_system_menu_tween.set_ease(Tween.EASE_OUT)
-	_system_menu_tween.tween_property(
-		system_menu_panel,
-		"scale:y",
-		1.0,
-		system_menu_open_seconds
-	)
-	_system_menu_tween.parallel().tween_property(
-		system_menu_panel,
-		"modulate:a",
-		1.0,
-		system_menu_open_seconds * 0.75
-	)
-
-
-func _close_system_menu(animated: bool = true) -> void:
-	if not _system_menu_open and not system_menu_panel.visible:
-		return
-
-	if _system_menu_tween != null and _system_menu_tween.is_valid():
-		_system_menu_tween.kill()
-
-	_system_menu_open = false
-
-	if not animated:
-		system_menu_panel.hide()
-		system_menu_panel.scale = Vector2.ONE
-		system_menu_panel.modulate.a = 1.0
-		return
-
-	_system_menu_tween = create_tween()
-	_system_menu_tween.set_trans(Tween.TRANS_QUAD)
-	_system_menu_tween.set_ease(Tween.EASE_IN)
-	_system_menu_tween.tween_property(
-		system_menu_panel,
-		"scale:y",
-		0.04,
-		system_menu_close_seconds
-	)
-	_system_menu_tween.parallel().tween_property(
-		system_menu_panel,
-		"modulate:a",
-		0.0,
-		system_menu_close_seconds * 0.8
-	)
-	await _system_menu_tween.finished
-	system_menu_panel.hide()
-	system_menu_panel.scale = Vector2.ONE
-	system_menu_panel.modulate.a = 1.0
-
-
-func _on_system_settings_pressed() -> void:
-	_close_system_menu(false)
+	# KubuOS no longer opens a detached floating menu. The system button routes
+	# directly to the window-managed Control Deck; logout lives inside it.
 	GlobalSignals.request_open_system_settings.emit()
-
-
-func _on_logout_pressed() -> void:
-	_close_system_menu(false)
-	GlobalSignals.request_logout.emit()
 
 
 func prepare_shell_reveal(hidden_scale_y: float = 0.2) -> void:

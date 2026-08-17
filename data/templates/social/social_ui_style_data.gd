@@ -3,8 +3,8 @@ class_name SocialUIStyleData
 
 
 @export_category("Typography")
-@export_range(19, 76, 19) var font_size: int = 19
-@export_range(19, 76, 19) var compact_font_size: int = 19
+@export_range(14, 56, 14) var font_size: int = 14
+@export_range(14, 56, 14) var compact_font_size: int = 14
 
 @export_category("Layout")
 @export var contact_list_min_width: float = 190.0

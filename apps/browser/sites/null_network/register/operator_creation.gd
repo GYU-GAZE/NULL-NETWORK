@@ -166,8 +166,17 @@ var _manual_preview: PartnerPreviewPanel
 var _result_preview: PartnerPreviewPanel
 var _loading_tween: Tween
 var _assessment_auto_advance_pending: bool = false
+var _assessment_typewriter: TypewriterReveal
+var _assessment_reveal_generation: int = 0
 
 func _ready() -> void:
+	_assessment_typewriter = TypewriterReveal.new()
+	_assessment_typewriter.name = "AssessmentTypewriter"
+	_assessment_typewriter.characters_per_second = 46.0
+	add_child(_assessment_typewriter)
+	_assessment_typewriter.reveal_completed.connect(
+		_on_assessment_prompt_revealed
+	)
 	_apply_compact_registration_layout()
 	_organize_account_form()
 	_apply_reference_button_frames()
@@ -836,6 +845,7 @@ func _update_assessment_section_chrome() -> void:
 	_update_assessment_progress_pips()
 
 func _render_assessment_question(track_visit: bool) -> void:
+	_assessment_reveal_generation += 1
 	_assessment_auto_advance_pending = false
 	_clear_container(answer_container)
 	if assessment_data == null or assessment_data.questions.is_empty():
@@ -853,7 +863,6 @@ func _render_assessment_question(track_visit: bool) -> void:
 		assessment_data.questions.size()
 	]
 	assessment_category.text = CompatibilityQuestionData.Category.keys()[question.category].replace("_", " ")
-	question_prompt.text = question.prompt
 	_update_assessment_section_chrome()
 	var order := CompatibilityAssessmentService.get_or_create_visual_order(
 		question,
@@ -879,6 +888,10 @@ func _render_assessment_question(track_visit: bool) -> void:
 			ASSESSMENT_ACCENTS[visual_position % ASSESSMENT_ACCENTS.size()]
 		)
 		button.set_selected(answer.answer_id == selected_id)
+		button.disabled = true
+		button.pivot_offset = button.size * 0.5
+		button.scale = Vector2(0.84, 0.68)
+		button.modulate.a = 0.0
 		button.pressed.connect(
 			_on_assessment_answer_selected.bind(
 				question.question_id,
@@ -887,8 +900,28 @@ func _render_assessment_question(track_visit: bool) -> void:
 			)
 		)
 	_refresh_assessment_next_state()
+	_assessment_typewriter.play(question_prompt, question.prompt)
 	_update_page_chrome()
 	master_scroll.set_deferred("scroll_vertical", 0)
+
+
+func _on_assessment_prompt_revealed() -> void:
+	_assessment_reveal_generation += 1
+	var generation := _assessment_reveal_generation
+	for child: Node in answer_container.get_children():
+		if generation != _assessment_reveal_generation:
+			return
+		var button := child as AssessmentAnswerButton
+		if button == null:
+			continue
+		button.disabled = false
+		button.pivot_offset = button.size * 0.5
+		var tween := create_tween().set_parallel(true)
+		tween.set_trans(Tween.TRANS_BACK)
+		tween.set_ease(Tween.EASE_OUT)
+		tween.tween_property(button, "scale", Vector2.ONE, 0.2)
+		tween.tween_property(button, "modulate:a", 1.0, 0.12)
+		await get_tree().create_timer(0.07).timeout
 
 func _on_assessment_answer_selected(
 	question_id: String,

@@ -560,7 +560,7 @@ func _rebuild_alerts_page() -> void:
 	var title_label := Label.new()
 	title_label.text = "ALERTS"
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_label.add_theme_font_size_override("font_size", 24)
+	title_label.add_theme_font_size_override("font_size", 28)
 	alerts_page.add_child(title_label)
 
 	var description_label := Label.new()

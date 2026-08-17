@@ -18,7 +18,7 @@ theme_override_constants/separation = 10
 
 [node name="Title" type="Label" parent="Margin/Content"]
 text = "NEW CAMPAIGN"
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 
 [node name="Divider" type="HSeparator" parent="Margin/Content"]
 

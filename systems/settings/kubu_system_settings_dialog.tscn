@@ -1,97 +1,133 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://systems/settings/kubu_system_settings_dialog.gd" id="1_script"]
-[ext_resource type="PackedScene" path="res://systems/ui/kubu_font_scope.tscn" id="2_font_scope"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.045, 0.055, 0.085, 0.98)
+[sub_resource type="StyleBoxFlat" id="Panel"]
+bg_color = Color(0.018, 0.035, 0.075, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.27, 0.25, 0.36, 0.95)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
+border_color = Color(0.16, 0.58, 0.88, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
 
-[node name="KubuSystemSettingsDialog" type="CanvasLayer"]
-layer = 100
+[sub_resource type="StyleBoxFlat" id="Section"]
+bg_color = Color(0.025, 0.065, 0.12, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.1, 0.34, 0.58, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="Status"]
+bg_color = Color(0.015, 0.16, 0.19, 0.85)
+border_width_left = 2
+border_color = Color(0.2, 0.9, 0.78, 1)
+
+[node name="SystemSettings" type="PanelContainer"]
+clip_contents = true
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("Panel")
 script = ExtResource("1_script")
 
-[node name="Root" type="Control" parent="."]
-unique_name_in_owner = true
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Shade" type="ColorRect" parent="Root"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.64)
-
-[node name="Center" type="CenterContainer" parent="Root"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Panel" type="PanelContainer" parent="Root/Center"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(460, 240)
+[node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
 
-[node name="Margin" type="MarginContainer" parent="Root/Center/Panel"]
+[node name="Content" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/margin_left = 22
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 22
-theme_override_constants/margin_bottom = 20
+theme_override_constants/separation = 7
 
-[node name="Content" type="VBoxContainer" parent="Root/Center/Panel/Margin"]
+[node name="Eyebrow" type="Label" parent="Margin/Content"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_colors/font_color = Color(0.25, 0.75, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "KUBU CONTROL DECK  //  VIDEO OUTPUT"
 
-[node name="Title" type="Label" parent="Root/Center/Panel/Margin/Content"]
+[node name="Title" type="Label" parent="Margin/Content"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.88, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 28
 text = "SYSTEM SETTINGS"
 
-[node name="DisplayLabel" type="Label" parent="Root/Center/Panel/Margin/Content"]
-layout_mode = 2
-text = "Display mode"
-
-[node name="DisplayModeSelect" type="OptionButton" parent="Root/Center/Panel/Margin/Content"]
+[node name="StatusLabel" type="Label" parent="Margin/Content"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 1, 0.78, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("Status")
+text = "LOCKED INTEGER PIPELINE  //  2×  //  NEAREST FILTER"
+horizontal_alignment = 1
 
-[node name="Spacer" type="Control" parent="Root/Center/Panel/Margin/Content"]
+[node name="DisplaySection" type="PanelContainer" parent="Margin/Content"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("Section")
 
-[node name="Actions" type="HBoxContainer" parent="Root/Center/Panel/Margin/Content"]
+[node name="DisplayMargin" type="MarginContainer" parent="Margin/Content/DisplaySection"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 7
+
+[node name="DisplayForm" type="VBoxContainer" parent="Margin/Content/DisplaySection/DisplayMargin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="ModeLabel" type="Label" parent="Margin/Content/DisplaySection/DisplayMargin/DisplayForm"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "01  DISPLAY MODE"
+
+[node name="DisplayModeSelect" type="OptionButton" parent="Margin/Content/DisplaySection/DisplayMargin/DisplayForm"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="SizeLabel" type="Label" parent="Margin/Content/DisplaySection/DisplayMargin/DisplayForm"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "02  WINDOW SIZE"
+
+[node name="WindowSizeSelect" type="OptionButton" parent="Margin/Content/DisplaySection/DisplayMargin/DisplayForm"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="Hint" type="Label" parent="Margin/Content/DisplaySection/DisplayMargin/DisplayForm"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.66, 0.8, 1)
+theme_override_font_sizes/font_size = 14
+text = "Internal windows switch between 2× and 1× density without fractional pixels."
+autowrap_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
 alignment = 2
-theme_override_constants/separation = 8
 
-[node name="CloseButton" type="Button" parent="Root/Center/Panel/Margin/Content/Actions"]
+[node name="LogoutButton" type="Button" parent="Margin/Content/Actions"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 28)
 layout_mode = 2
-text = "CLOSE"
+theme_override_colors/font_color = Color(1, 0.45, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "LOG OUT"
 
-[node name="ApplyButton" type="Button" parent="Root/Center/Panel/Margin/Content/Actions"]
+[node name="ApplyButton" type="Button" parent="Margin/Content/Actions"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 28)
 layout_mode = 2
-text = "APPLY"
-
-[node name="SystemFontScope" parent="." instance=ExtResource("2_font_scope")]
+theme_override_font_sizes/font_size = 14
+text = "APPLY  ▶"

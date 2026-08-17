@@ -40,8 +40,8 @@ content_margin_bottom = 4.0
 
 [resource]
 script = ExtResource("1_style")
-font_size = 19
-compact_font_size = 19
+font_size = 14
+compact_font_size = 14
 contact_list_min_width = 190.0
 contact_avatar_size = Vector2(38, 38)
 header_avatar_size = Vector2(48, 48)

@@ -56,7 +56,7 @@ func get_font() -> Font:
 	var variation := FontVariation.new()
 	variation.base_font = source_font
 
-	# Silver's native readable grid starts at 19 px, while KubuOS Micro is 6 px.
+	# Silver's native readable grid starts at 14 px, while KubuOS Micro is 6 px.
 	# Rendering Silver as a 6/12/18 px fallback deforms it, so fallback use is
 	# explicitly opt-in instead of silently combining incompatible pixel grids.
 	if use_fallback_font and fallback_font != null:

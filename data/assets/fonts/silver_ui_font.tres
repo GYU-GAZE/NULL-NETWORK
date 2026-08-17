@@ -1,6 +1,6 @@
 [gd_resource type="FontVariation" format=3 uid="uid://dbfkky14b821p"]
 
-[ext_resource type="FontFile" uid="uid://bo4cx0klyua2y" path="res://data/assets/fonts/Silver.ttf" id="1_71a83"]
+[ext_resource type="FontFile" uid="uid://b6bfr8wcjaveh" path="res://data/assets/fonts/Silver.ttf" id="1_71a83"]
 
 [resource]
 base_font = ExtResource("1_71a83")

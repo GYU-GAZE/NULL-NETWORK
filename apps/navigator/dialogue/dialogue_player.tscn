@@ -137,7 +137,7 @@ theme_override_constants/separation = 1
 [node name="SpeakerLabel" type="Label" parent="DialoguePanel/Margin/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 14
 text = "SPEAKER"
 
 [node name="DialogueText" type="RichTextLabel" parent="DialoguePanel/Margin/Content"]
@@ -146,7 +146,7 @@ custom_minimum_size = Vector2(0, 19)
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 1
-theme_override_font_sizes/normal_font_size = 19
+theme_override_font_sizes/normal_font_size = 14
 bbcode_enabled = true
 fit_content = false
 scroll_active = true

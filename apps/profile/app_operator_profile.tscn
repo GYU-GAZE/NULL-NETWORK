@@ -12,7 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 14
 script = ExtResource("1_app")
 
 [node name="RootMargin" type="MarginContainer" parent="."]
@@ -62,7 +62,7 @@ theme_override_constants/separation = 1
 [node name="OperatorName" type="Label" parent="RootMargin/ProfileScroll/Content/OperatorHeader/HeaderMargin/HeaderHBox/IdentityVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 28
 text = "NO ACTIVE OPERATOR"
 text_overrun_behavior = 3
 
@@ -107,7 +107,7 @@ theme_override_constants/separation = 4
 
 [node name="TendencyTitle" type="Label" parent="RootMargin/ProfileScroll/Content/TendencyPanel/TendencyMargin/TendencyVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 28
 text = "OPERATOR TENDENCIES"
 
 [node name="TendencyList" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/TendencyPanel/TendencyMargin/TendencyVBox"]
@@ -132,7 +132,7 @@ theme_override_constants/separation = 5
 
 [node name="PartnerTitle" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 28
 text = "REGISTERED PARTNER"
 
 [node name="PartnerHeader" type="HBoxContainer" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox"]
@@ -151,7 +151,7 @@ theme_override_constants/separation = 1
 [node name="PartnerName" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader/PartnerIdentityVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 28
 text = "PARTNER"
 
 [node name="PartnerSpecies" type="Label" parent="RootMargin/ProfileScroll/Content/PartnerPanel/PartnerMargin/PartnerVBox/PartnerHeader/PartnerIdentityVBox"]
@@ -239,7 +239,7 @@ theme_override_constants/separation = 4
 
 [node name="EquippedTitle" type="Label" parent="RootMargin/ProfileScroll/Content/ModulesPanel/ModulesMargin/ModulesVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 28
 text = "EQUIPPED MODULES"
 
 [node name="EquippedModuleList" type="VBoxContainer" parent="RootMargin/ProfileScroll/Content/ModulesPanel/ModulesMargin/ModulesVBox"]
@@ -279,7 +279,7 @@ layout_mode = 2
 [node name="InventoryTitle" type="Label" parent="RootMargin/ProfileScroll/Content/InventoryPanel/InventoryMargin/InventoryVBox/InventoryHeader"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 28
 text = "INVENTORY"
 
 [node name="MoneyLabel" type="Label" parent="RootMargin/ProfileScroll/Content/InventoryPanel/InventoryMargin/InventoryVBox/InventoryHeader"]

@@ -11,7 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 14
 script = ExtResource("1_app")
 
 [node name="RootMargin" type="MarginContainer" parent="."]
@@ -44,7 +44,7 @@ theme_override_constants/separation = 4
 
 [node name="IndexTitle" type="Label" parent="RootMargin/MainSplit/IndexPanel/IndexMargin/IndexVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 21
+theme_override_font_sizes/font_size = 28
 text = "ENCYCLOPEDIA"
 
 [node name="SearchInput" type="LineEdit" parent="RootMargin/MainSplit/IndexPanel/IndexMargin/IndexVBox"]
@@ -128,7 +128,7 @@ theme_override_constants/separation = 1
 [node name="EntryName" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/EntryHeader/HeaderText"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "UNKNOWN"
 
 [node name="EntrySubtitle" type="Label" parent="RootMargin/MainSplit/DetailPanel/DetailMargin/DetailScroll/DetailVBox/EntryHeader/HeaderText"]

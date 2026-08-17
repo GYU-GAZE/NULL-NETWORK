@@ -60,7 +60,7 @@ theme_override_constants/separation = 10
 [node name="ListTitle" type="Label" parent="Margin/Root/Body/CampaignColumn"]
 layout_mode = 2
 text = "CAMPAIGNS"
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 14
 
 [node name="CampaignList" type="ItemList" parent="Margin/Root/Body/CampaignColumn"]
 unique_name_in_owner = true
@@ -90,7 +90,7 @@ theme_override_constants/separation = 12
 unique_name_in_owner = true
 layout_mode = 2
 text = "NO CAMPAIGN SELECTED"
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 28
 
 [node name="ModeLabel" type="Label" parent="Margin/Root/Body/Details"]
 unique_name_in_owner = true

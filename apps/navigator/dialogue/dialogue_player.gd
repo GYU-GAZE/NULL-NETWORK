@@ -5,7 +5,9 @@ class_name DialoguePlayer
 const NAVIGATOR_APP_ID: String = "navigator"
 const ADVANCE_ACTION: StringName = &"local_area_interact"
 
-const DIALOGUE_FONT_SIZE: int = 19
+const SILVER_TYPOGRAPHY: SilverTypographyData = preload(
+	"res://data/content/ui/silver_typography.tres"
+)
 const CHOICE_BUTTON_HEIGHT: float = 21.0
 const MULTI_COLUMN_CHOICE_THRESHOLD: int = 4
 const MULTI_COLUMN_CHOICE_COUNT: int = 2
@@ -31,11 +33,18 @@ var _rendered_choice_ids: PackedStringArray = PackedStringArray()
 var _input_enabled: bool = false
 var _workspace_active: bool = false
 var _focused_window_app_id: String = ""
+var _typewriter: TypewriterReveal
+var _choice_reveal_generation: int = 0
 
 
 func _ready() -> void:
 	_left_slots = [%Left1, %Left2, %Left3]
 	_right_slots = [%Right1, %Right2, %Right3]
+	_typewriter = TypewriterReveal.new()
+	_typewriter.name = "DialogueTypewriter"
+	_typewriter.characters_per_second = 38.0
+	add_child(_typewriter)
+	_typewriter.reveal_completed.connect(_on_dialogue_reveal_completed)
 	_connect_signals()
 
 	if DialogueManager.is_dialogue_active():
@@ -147,6 +156,12 @@ func is_text_scroll_visible() -> bool:
 
 
 func try_advance_from_navigator_input() -> bool:
+	if _can_receive_navigator_input() \
+	and _typewriter != null \
+	and _typewriter.is_running():
+		_typewriter.complete()
+		return true
+
 	if not _can_advance_from_navigator_input():
 		return false
 
@@ -163,10 +178,11 @@ func _render_current_node() -> void:
 
 	show()
 	speaker_label.text = speaker.get_display_name()
-	dialogue_text.text = node.text
 	_render_portraits(node)
 	_render_choices()
-	_set_input_enabled(true)
+	_set_input_enabled(false)
+	choice_container.hide()
+	_typewriter.play(dialogue_text, node.text)
 	call_deferred("_reset_text_scroll")
 
 
@@ -206,6 +222,7 @@ func _clear_portrait_slots() -> void:
 
 
 func _render_choices() -> void:
+	_choice_reveal_generation += 1
 	for child: Node in choice_container.get_children():
 		choice_container.remove_child(child)
 		child.queue_free()
@@ -232,7 +249,7 @@ func _render_choices() -> void:
 		button.clip_text = true
 		button.add_theme_font_size_override(
 			"font_size",
-			DIALOGUE_FONT_SIZE
+			SILVER_TYPOGRAPHY.body_size
 		)
 		_apply_compact_choice_styles(button)
 		button.pressed.connect(
@@ -245,8 +262,40 @@ func _render_choices() -> void:
 			choice.get_display_id()
 		)
 
-	choice_container.visible = not choices.is_empty()
+	choice_container.hide()
 	call_deferred("_reset_text_scroll")
+
+
+func _on_dialogue_reveal_completed() -> void:
+	_set_input_enabled(true)
+	call_deferred("_reset_text_scroll")
+	_reveal_choices_sequentially()
+
+
+func _reveal_choices_sequentially() -> void:
+	_choice_reveal_generation += 1
+	var generation := _choice_reveal_generation
+	var buttons: Array[Button] = []
+	for child: Node in choice_container.get_children():
+		if child is Button:
+			buttons.append(child as Button)
+	if buttons.is_empty():
+		choice_container.hide()
+		return
+	choice_container.show()
+	for button: Button in buttons:
+		button.pivot_offset = button.size * 0.5
+		button.scale = Vector2(0.88, 0.72)
+		button.modulate.a = 0.0
+	for button: Button in buttons:
+		if generation != _choice_reveal_generation:
+			return
+		var tween := create_tween().set_parallel(true)
+		tween.set_trans(Tween.TRANS_BACK)
+		tween.set_ease(Tween.EASE_OUT)
+		tween.tween_property(button, "scale", Vector2.ONE, 0.16)
+		tween.tween_property(button, "modulate:a", 1.0, 0.11)
+		await get_tree().create_timer(0.055).timeout
 
 
 func _apply_compact_choice_styles(button: Button) -> void:
@@ -322,15 +371,21 @@ func _set_input_enabled(enabled: bool) -> void:
 
 func _can_advance_from_navigator_input() -> bool:
 	return (
-		visible
+		_can_receive_navigator_input()
 		and _input_enabled
+		and DialogueManager.is_dialogue_active()
+		and _rendered_choice_ids.is_empty()
+	)
+
+
+func _can_receive_navigator_input() -> bool:
+	return (
+		visible
 		and _workspace_active
 		and (
 			_focused_window_app_id.is_empty()
 			or _focused_window_app_id == NAVIGATOR_APP_ID
 		)
-		and DialogueManager.is_dialogue_active()
-		and _rendered_choice_ids.is_empty()
 	)
 
 

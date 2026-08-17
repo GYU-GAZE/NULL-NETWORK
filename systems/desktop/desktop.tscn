@@ -46,7 +46,7 @@ alignment = 1
 [node name="PeriodLabel" type="Label" parent="TopBarHBox/ClockContainer/TopRow" unique_id=1752006140]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 80
+theme_override_font_sizes/font_size = 84
 text = "OVOXCELENTE"
 
 [node name="Spacer" type="Control" parent="TopBarHBox/ClockContainer/TopRow" unique_id=3276150]
@@ -60,13 +60,13 @@ theme_override_constants/separation = -4
 [node name="DayLabel" type="Label" parent="TopBarHBox/ClockContainer/TopRow/DateStack" unique_id=1972762778]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 42
 text = "mondo"
 
 [node name="MonthLabel" type="Label" parent="TopBarHBox/ClockContainer/TopRow/DateStack" unique_id=112264624]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 42
 text = "grosso"
 
 [node name="BottomRow" type="HBoxContainer" parent="TopBarHBox/ClockContainer" unique_id=477191052]
@@ -77,7 +77,7 @@ alignment = 1
 [node name="DaysPassedLabel" type="Label" parent="TopBarHBox/ClockContainer/BottomRow" unique_id=1190002433]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "Eu sou"
 
 [node name="DebugTimeButton" type="Button" parent="TopBarHBox" unique_id=1918941758]

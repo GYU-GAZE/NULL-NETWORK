@@ -1,6 +1,10 @@
 extends PanelContainer
 class_name NullNetworkPortalHeader
 
+const SILVER_TYPOGRAPHY: SilverTypographyData = preload(
+	"res://data/content/ui/silver_typography.tres"
+)
+
 @export var title_text: String = "NULL NETWORK"
 @export var subtitle_text: String = ""
 @export var sign_up_target: String = "null.net/register"
@@ -24,10 +28,10 @@ func _ready() -> void:
 
 func set_assessment_mode(enabled: bool) -> void:
 	assessment_progress.visible = enabled
-	title_label.add_theme_font_size_override("font_size", 14 if enabled else 16)
-	subtitle_label.add_theme_font_size_override("font_size", 8 if enabled else 9)
+	title_label.add_theme_font_size_override("font_size", SILVER_TYPOGRAPHY.body_size)
+	subtitle_label.add_theme_font_size_override("font_size", SILVER_TYPOGRAPHY.body_size)
 	for stage_label: Label in [everyday_label, critical_label, dilemma_label]:
-		stage_label.add_theme_font_size_override("font_size", 8 if enabled else 9)
+		stage_label.add_theme_font_size_override("font_size", SILVER_TYPOGRAPHY.body_size)
 	if enabled:
 		title_label.text = "NULL NETWORK"
 		subtitle_label.text = "COMPATIBILITY ASSESSMENT"

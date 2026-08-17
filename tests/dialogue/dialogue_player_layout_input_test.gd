@@ -80,22 +80,17 @@ func _run_test() -> void:
 	_check(
 		player.speaker_label.get_theme_font_size(
 			"font_size"
-		) == 19 \
+		) == 14 \
 		and player.dialogue_text.get_theme_font_size(
 			"normal_font_size"
-		) == 19,
-		"Dialogue typography is not locked to the 19 px base grid."
+		) == 14,
+		"Dialogue typography is not locked to the native 14 px Silver grid."
 	)
 	_check(
 		not player.dialogue_text.fit_content \
 		and player.dialogue_text.scroll_active,
 		"Dialogue text is not constrained to a scrollable region."
 	)
-	_check(
-		player.is_text_scroll_visible(),
-		"Six-line showcase text did not overflow the compact four-line frame."
-	)
-
 	GlobalSignals.app_focused.emit("browser")
 	_check(
 		not player.try_advance_from_navigator_input() \
@@ -106,7 +101,16 @@ func _run_test() -> void:
 	GlobalSignals.app_focused.emit("")
 	_check(
 		player.try_advance_from_navigator_input(),
-		"Navigator-owned input did not advance a choice-free node."
+		"Navigator-owned input did not complete the active typewriter."
+	)
+	_check(
+		DialogueManager.current_node_id == "intro",
+		"Completing the typewriter also advanced the dialogue node."
+	)
+	await get_tree().process_frame
+	_check(
+		player.try_advance_from_navigator_input(),
+		"Second Navigator input did not advance the revealed node."
 	)
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -135,6 +139,11 @@ func _run_test() -> void:
 		"Choice separators were not removed."
 	)
 	_check(
+		player.try_advance_from_navigator_input(),
+		"Navigator input did not complete the decision prompt typewriter."
+	)
+	await get_tree().process_frame
+	_check(
 		player.is_text_scroll_visible(),
 		"Choice overflow did not move the main text into scrolling."
 	)
@@ -151,7 +160,7 @@ func _run_test() -> void:
 	)
 	_check(
 		first_choice != null \
-		and first_choice.get_theme_font_size("font_size") == 19 \
+		and first_choice.get_theme_font_size("font_size") == 14 \
 		and is_equal_approx(
 			first_choice.custom_minimum_size.y,
 			21.0
@@ -161,7 +170,7 @@ func _run_test() -> void:
 		and first_choice_style.border_width_top == 1 \
 		and first_choice_style.border_width_right == 1 \
 		and first_choice_style.border_width_bottom == 1,
-		"Choice buttons do not use the compact 19 px / 1 px-border specification."
+		"Choice buttons do not use the native 14 px / 1 px-border specification."
 	)
 	_check(
 		not player.try_advance_from_navigator_input() \

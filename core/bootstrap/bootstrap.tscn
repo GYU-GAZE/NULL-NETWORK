@@ -1,9 +1,8 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://core/bootstrap/bootstrap.gd" id="1"]
 [ext_resource type="PackedScene" path="res://systems/startup/startup_presentation.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://systems/startup/startup_menu.tscn" id="3"]
-[ext_resource type="PackedScene" path="res://systems/settings/kubu_system_settings_dialog.tscn" id="4_settings"]
 
 [node name="Bootstrap" type="Node"]
 script = ExtResource("1")
@@ -11,10 +10,12 @@ script = ExtResource("1")
 [node name="RuntimeRoot" type="Node" parent="."]
 unique_name_in_owner = true
 
+[node name="SettingsWindowLayer" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+layer = 110
+
 [node name="StartupPresentation" parent="." instance=ExtResource("2")]
 unique_name_in_owner = true
 
 [node name="StartupMenu" parent="." instance=ExtResource("3")]
 unique_name_in_owner = true
-
-[node name="KubuSystemSettingsDialog" parent="." instance=ExtResource("4_settings")]

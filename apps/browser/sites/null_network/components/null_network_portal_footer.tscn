@@ -20,7 +20,7 @@ draw_corner_marks = false
 [node name="FooterLabel" type="Label" parent="."]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.43, 0.69, 0.9)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 14
 text = "▪▪▪▪▪   NULL NETWORK  //  v2.000  //  STAY CONNECTED   ▪▪▪▪▪"
 horizontal_alignment = 1
 vertical_alignment = 1

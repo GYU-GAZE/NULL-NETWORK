@@ -27,7 +27,7 @@ func _run_test() -> void:
 	)
 	_check(
 		not TYPOGRAPHY.use_fallback_font,
-		"KubuOS Micro must not mix Silver's incompatible 19 px grid as a fallback."
+		"KubuOS Micro must not mix Silver's incompatible 14 px grid as a fallback."
 	)
 
 	var resolved_font: Font = TYPOGRAPHY.get_font()

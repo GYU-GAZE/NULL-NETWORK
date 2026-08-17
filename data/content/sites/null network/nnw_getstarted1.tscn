@@ -89,14 +89,14 @@ texture_filter = 1
 [node name="WelcomeTitle" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/WelcomeBlock"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.98, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 14
 text = "hello, world"
 horizontal_alignment = 1
 
 [node name="WelcomeRule" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/WelcomeBlock"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.04, 0.55, 0.92, 0.9)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 14
 text = "+ ───── + ▪▪▪ ───── +"
 horizontal_alignment = 1
 
@@ -126,7 +126,7 @@ theme_override_constants/separation = 5
 [node name="RailTitle" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.66, 1, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 14
 text = "NEW HERE? FOLLOW THE PATH."
 horizontal_alignment = 1
 
@@ -143,7 +143,7 @@ draw_scanlines = true
 unique_name_in_owner = true
 layout_mode = 2
 toggle_mode = true
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("Transparent")
 theme_override_styles/hover = SubResource("Transparent")
 theme_override_styles/pressed = SubResource("Transparent")
@@ -164,7 +164,7 @@ draw_inner_border = false
 unique_name_in_owner = true
 layout_mode = 2
 toggle_mode = true
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("Transparent")
 theme_override_styles/hover = SubResource("Transparent")
 theme_override_styles/pressed = SubResource("Transparent")
@@ -185,7 +185,7 @@ draw_inner_border = false
 unique_name_in_owner = true
 layout_mode = 2
 toggle_mode = true
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("Transparent")
 theme_override_styles/hover = SubResource("Transparent")
 theme_override_styles/pressed = SubResource("Transparent")
@@ -197,7 +197,7 @@ alignment = 0
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.55, 0.69, 0.81, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 14
 text = "★  Follow the path to get the most\n     out of NULL NETWORK."
 vertical_alignment = 2
 
@@ -241,7 +241,7 @@ size_flags_horizontal = 3
 [node name="IntroductionLabel" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll/ArticleContent"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 14
 text = "Hello Cobalt community,\n\nMy name is Morris and this is a fan project I began back in college in the mid 2000s. Piecing together the source code of Cobalt Blue from decompiled scraps has been one of the most challenging but rewarding experiences of my life. It’s been a lot of help from all of you along the way, and while it can’t be called a 1 to 1 recreation, I believe we’ve expanded upon Cobalt’s vision in a meaningful way.\n\nAs you may know, I’ve started my own gaming studio, M8Goods. This means I’ve had less time to dedicate to updating the game. This site is solely run by volunteer staff, the players, and unpaid organizers who help keep the app functioning on iOS and Android out of love. Due to copyright issues, we’ve never been able to monetize this project or secure an official release. It’s thanks to your generous donations that this website stays afloat.\n\nGoing forward, the moderation team will be taking the reins on this project and I’m sure they’ll do the community justice! For now, consider this the definitive version of the game and the last patch (r1) I’ll be taking part in.\n\nThank you all for playing and keeping the world safe.\n\nMorris_the_Worm8"
 autowrap_mode = 2
 
@@ -249,7 +249,7 @@ autowrap_mode = 2
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 14
 text = "1  Upon starting the game, you will be prompted to enter a player name that is bound to your account. Choose wisely, as this cannot be changed later.\n\n2  The creatures you will encounter are APKs: living programs whose Integrity and behaviour are shaped by their data.\n\n3  NULL NETWORK is a game about making a memorable companion. Your Compatibility Assessment can match you with a partner, while Manual Allocation lets you select from the standard roster.\n\n4  Your Tendencies — VALOUR, LOGIC, SYNC and SELF — grow through decisions and combat behaviour. They shape evolution without replacing your direct tactical choices.\n\n5  During combat, SCAN, PURGE, PURIFY and TAME occupy Timeline slots. Each action changes the reward and the relationship you form with the target.\n\n6  Always be on guard. APK loss is permanent, and a careless Operator can leave more behind than progress."
 autowrap_mode = 2
 
@@ -257,7 +257,7 @@ autowrap_mode = 2
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 14
 text = "ADMINISTRATOR  A player who controls the majority of an area’s Data Centers.\n\nAGGRO LOCK  A state where an Operator is inside an enemy’s range and cannot safely exit.\n\nBLACKHAT  A playstyle centered on consumption, exploitation and forbidden systems.\n\nDATA CENTER  A fixed stronghold protected by a powerful APK.\n\nDEAD ZONE  A location with no active Operators and an unusually dense program ecosystem.\n\nINDEX  The act of gathering complete map information about an area.\n\nWHITEHAT  A purification-focused playstyle chosen after learning that other paths exist."
 autowrap_mode = 2
 

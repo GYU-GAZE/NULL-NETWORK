@@ -592,7 +592,7 @@ func _rebuild_trail(current_day: int) -> void:
 		label.custom_minimum_size = Vector2(54.0, 34.0)
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		label.add_theme_font_size_override("font_size", 18)
+		label.add_theme_font_size_override("font_size", 14)
 
 		if day_number < current_day:
 			label.text = "✓%02d" % day_number
