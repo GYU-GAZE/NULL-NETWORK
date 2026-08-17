@@ -43,6 +43,10 @@ func _test_registration_route() -> void:
 		return
 
 	var page_instance: Node = page.site_scene.instantiate()
+	var page_control := page_instance as Control
+	if page_control != null:
+		page_control.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		page_control.size = Vector2(832, 393)
 	add_child(page_instance)
 	await _wait_frames(3)
 	_check(page_instance is OperatorCreationPage, "Registration route did not instantiate OperatorCreationPage.")
@@ -69,8 +73,30 @@ func _test_registration_route() -> void:
 	_check(page_instance.find_child("ResultPage", true, false) != null, "Registration lost its Assessment result page.")
 	_check(page_instance.find_child("RetakeAssessmentButton", true, false) != null, "Assessment result must expose Retake Assessment.")
 	_check(page_instance.find_child("ResultManualButton", true, false) != null, "Assessment result must expose Manual Allocation fallback.")
+	_check(page_instance.find_child("BodyPanel", true, false) is NullNetworkFrame, "Registration body must use the stepped NULL NETWORK frame renderer.")
+	_check(page_instance.find_child("StepAccount", true, false) is NullNetworkFrame, "Registration stepper must use the stepped NULL NETWORK frame renderer.")
+	var operator_page := page_instance as OperatorCreationPage
+	if operator_page != null:
+		_check_layout_fits_canvas(operator_page, "account")
+		operator_page._show_page(OperatorCreationPage.FlowPage.METHOD)
+		await _wait_frames(2)
+		_check_layout_fits_canvas(operator_page, "compatibility method")
+		operator_page._on_participate_pressed()
+		await _wait_frames(2)
+		_check_layout_fits_canvas(operator_page, "assessment")
 	page_instance.queue_free()
 	await _wait_frames(2)
+
+func _check_layout_fits_canvas(page: OperatorCreationPage, state_name: String) -> void:
+	var footer := page.find_child("PortalFooter", true, false) as Control
+	_check(footer != null, "%s page lost the shared portal footer." % state_name)
+	if footer == null:
+		return
+	var footer_bottom: float = footer.position.y + footer.size.y
+	_check(
+		footer_bottom <= page.size.y + 0.5,
+		"%s layout overflows the canonical 832x393 browser canvas." % state_name
+	)
 
 func _test_assessment_contract() -> void:
 	_check(ASSESSMENT_DATA != null, "Canonical Compatibility Assessment resource is missing.")

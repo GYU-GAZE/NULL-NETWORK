@@ -7,6 +7,11 @@ extends Control
 @onready var get_started_label: Label = %GetStartedLabel
 @onready var glossary_label: Label = %GlossaryLabel
 @onready var article_title: Label = %ArticleTitle
+@onready var section_frames: Array[NullNetworkFrame] = [
+	%IntroductionFrame,
+	%GetStartedFrame,
+	%GlossaryFrame,
+]
 
 func _ready() -> void:
 	introduction_button.pressed.connect(_show_section.bind(0))
@@ -21,4 +26,9 @@ func _show_section(section_index: int) -> void:
 	for index: int in range(buttons.size()):
 		buttons[index].button_pressed = index == section_index
 		labels[index].visible = index == section_index
+		section_frames[index].tone = (
+			NullNetworkFrame.FrameTone.SELECTED
+			if index == section_index
+			else NullNetworkFrame.FrameTone.QUIET
+		)
 	article_title.text = titles[section_index]

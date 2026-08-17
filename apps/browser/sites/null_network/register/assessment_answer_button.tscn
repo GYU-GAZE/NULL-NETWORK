@@ -1,12 +1,35 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/register/assessment_answer_button.gd" id="1_script"]
+[ext_resource type="Script" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="2_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="Transparent"]
 
 [node name="AssessmentAnswerButton" type="Button"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 39)
 toggle_mode = true
+theme_override_styles/normal = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
+theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/hover_pressed = SubResource("Transparent")
+theme_override_styles/disabled = SubResource("Transparent")
+theme_override_styles/focus = SubResource("Transparent")
 text = ""
 script = ExtResource("1_script")
+
+[node name="AnswerFrame" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_frame")
+tone = 0
+corner_cut = 5
+draw_inner_border = false
 
 [node name="ContentMargin" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -16,27 +39,32 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 5
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 3
 
 [node name="ContentRow" type="HBoxContainer" parent="ContentMargin"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 9
+theme_override_constants/separation = 8
 
 [node name="NumberBadge" type="PanelContainer" parent="ContentMargin/ContentRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(38, 32)
+custom_minimum_size = Vector2(34, 30)
 layout_mode = 2
 mouse_filter = 2
+script = ExtResource("2_frame")
+tone = 1
+corner_cut = 4
+draw_inner_border = false
+draw_corner_marks = false
 
 [node name="NumberLabel" type="Label" parent="ContentMargin/ContentRow/NumberBadge"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 14
 text = "01"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -46,7 +74,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 11
 text = "Answer"
 vertical_alignment = 1
 autowrap_mode = 2
@@ -55,6 +83,6 @@ autowrap_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 text = "›"
 vertical_alignment = 1

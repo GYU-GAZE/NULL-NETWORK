@@ -170,6 +170,7 @@ var _assessment_auto_advance_pending: bool = false
 func _ready() -> void:
 	_apply_compact_registration_layout()
 	_organize_account_form()
+	_apply_reference_button_frames()
 	if not resized.is_connected(_update_body_height):
 		resized.connect(_update_body_height)
 	_validate_dependencies()
@@ -191,27 +192,27 @@ func _apply_compact_registration_layout() -> void:
 		page_margin.add_theme_constant_override("margin_left", 6)
 		page_margin.add_theme_constant_override("margin_top", 2)
 		page_margin.add_theme_constant_override("margin_right", 6)
-		page_margin.add_theme_constant_override("margin_bottom", 2)
+		page_margin.add_theme_constant_override("margin_bottom", 1)
 	var page := find_child("Page", true, false) as VBoxContainer
 	if page != null:
 		page.add_theme_constant_override("separation", 4)
 
 	var body_margin := find_child("BodyMargin", true, false) as MarginContainer
 	if body_margin != null:
-		body_margin.add_theme_constant_override("margin_left", 12)
-		body_margin.add_theme_constant_override("margin_top", 6)
-		body_margin.add_theme_constant_override("margin_right", 12)
-		body_margin.add_theme_constant_override("margin_bottom", 6)
+		body_margin.add_theme_constant_override("margin_left", 10)
+		body_margin.add_theme_constant_override("margin_top", 4)
+		body_margin.add_theme_constant_override("margin_right", 10)
+		body_margin.add_theme_constant_override("margin_bottom", 4)
 	var page_host := find_child("PageHost", true, false) as VBoxContainer
 	if page_host != null:
-		page_host.add_theme_constant_override("separation", 6)
+		page_host.add_theme_constant_override("separation", 4)
 
 	var avatar_panel := find_child("AvatarPanel", true, false) as Control
 	if avatar_panel != null:
 		avatar_panel.custom_minimum_size.x = 180.0
 	var avatar_preview_frame := find_child("AvatarPreviewFrame", true, false) as Control
 	if avatar_preview_frame != null:
-		avatar_preview_frame.custom_minimum_size.y = 85.0
+		avatar_preview_frame.custom_minimum_size.y = 70.0
 	avatar_grid.columns = 6
 	var account_columns := find_child("AccountColumns", true, false) as BoxContainer
 	if account_columns != null:
@@ -302,6 +303,56 @@ func _organize_account_form() -> void:
 		info.reparent(label_row)
 		edit.reparent(column)
 	personal_grid.columns = 3
+
+
+func _apply_reference_button_frames() -> void:
+	_wrap_portal_button(
+		participate_button,
+		"ParticipateFrame",
+		NullNetworkFrame.FrameTone.SELECTED
+	)
+	_wrap_portal_button(
+		manual_allocation_button,
+		"ManualAllocationFrame",
+		NullNetworkFrame.FrameTone.STANDARD
+	)
+
+
+func _wrap_portal_button(
+	button: Button,
+	frame_name: String,
+	tone: int
+) -> void:
+	if button == null or button.get_parent() == null:
+		return
+	var parent := button.get_parent() as Container
+	if parent == null:
+		return
+	var original_index: int = button.get_index()
+	var frame := NullNetworkFrame.new()
+	frame.name = frame_name
+	frame.tone = tone
+	frame.corner_cut = 6
+	frame.draw_scanlines = tone == NullNetworkFrame.FrameTone.SELECTED
+	frame.custom_minimum_size = button.custom_minimum_size
+	frame.size_flags_horizontal = button.size_flags_horizontal
+	frame.size_flags_vertical = button.size_flags_vertical
+	parent.add_child(frame)
+	parent.move_child(frame, original_index)
+	button.reparent(frame)
+	button.custom_minimum_size = Vector2.ZERO
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var transparent := StyleBoxEmpty.new()
+	for state: StringName in [
+		&"normal",
+		&"hover",
+		&"pressed",
+		&"hover_pressed",
+		&"disabled",
+		&"focus",
+	]:
+		button.add_theme_stylebox_override(state, transparent)
 
 func _validate_dependencies() -> void:
 	if assessment_data == null:
@@ -661,10 +712,18 @@ func _sync_portal_chrome() -> void:
 			active_step = 0
 	var steps: Array[PanelContainer] = [step_account, step_appearance, step_compatibility]
 	for index: int in range(steps.size()):
+		var frame := steps[index] as NullNetworkFrame
+		if frame != null:
+			frame.tone = (
+				NullNetworkFrame.FrameTone.SELECTED
+				if index == active_step
+				else NullNetworkFrame.FrameTone.QUIET
+			)
+			frame.draw_scanlines = index == active_step
 		steps[index].modulate = (
-			Color(0.82, 0.95, 1.0, 1.0)
+			Color.WHITE
 			if index == active_step
-			else Color(0.38, 0.5, 0.62, 0.72)
+			else Color(0.52, 0.65, 0.76, 0.78)
 		)
 	if assessment_active:
 		_update_assessment_section_chrome()

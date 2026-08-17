@@ -4,82 +4,68 @@
 [ext_resource type="Texture2D" path="res://data/assets/icons/nnwicon.png" id="2_logo"]
 [ext_resource type="Texture2D" path="res://data/assets/icons/nnw_portal_icons.svg" id="3_icons"]
 [ext_resource type="Script" path="res://apps/browser/site_action_button.gd" id="4_action"]
+[ext_resource type="Script" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="5_frame"]
 
 [sub_resource type="AtlasTexture" id="UserIcon"]
 atlas = ExtResource("3_icons")
 region = Rect2(0, 0, 16, 16)
 
-[sub_resource type="StyleBoxFlat" id="HeaderFrame"]
-bg_color = Color(0.012, 0.055, 0.098, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.055, 0.43, 0.72, 0.9)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-shadow_color = Color(0.0, 0.45, 0.85, 0.18)
-shadow_size = 3
-
-[sub_resource type="StyleBoxFlat" id="GuestFrame"]
-bg_color = Color(0.006, 0.033, 0.061, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.07, 0.34, 0.56, 0.95)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
+[sub_resource type="StyleBoxEmpty" id="TransparentPanel"]
 
 [node name="NullNetworkPortalHeader" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 54)
-theme_override_styles/panel = SubResource("HeaderFrame")
+custom_minimum_size = Vector2(0, 48)
+theme_override_styles/panel = SubResource("TransparentPanel")
 script = ExtResource("1_script")
+
+[node name="Frame" type="PanelContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("5_frame")
+tone = 2
+corner_cut = 6
+draw_scanlines = true
 
 [node name="HeaderMargin" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/margin_left = 14
+theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 12
+theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 4
 
 [node name="HeaderRow" type="HBoxContainer" parent="HeaderMargin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="Brand" type="HBoxContainer" parent="HeaderMargin/HeaderRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="Logo" type="TextureRect" parent="HeaderMargin/HeaderRow/Brand"]
-custom_minimum_size = Vector2(42, 42)
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 texture = ExtResource("2_logo")
 expand_mode = 1
 stretch_mode = 5
+texture_filter = 1
 
 [node name="BrandText" type="VBoxContainer" parent="HeaderMargin/HeaderRow/Brand"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 0
+theme_override_constants/separation = -1
 
 [node name="PortalTitle" type="Label" parent="HeaderMargin/HeaderRow/Brand/BrandText"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.93, 0.98, 1, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.94, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 16
 text = "NULL NETWORK"
 
 [node name="PortalSubtitle" type="Label" parent="HeaderMargin/HeaderRow/Brand/BrandText"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.67, 1, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 9
 text = "// COMMUNITY HUB"
 
 [node name="AssessmentProgress" type="HBoxContainer" parent="HeaderMargin/HeaderRow"]
@@ -88,17 +74,17 @@ visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="EverydayStage" type="Label" parent="HeaderMargin/HeaderRow/AssessmentProgress"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "01  EVERYDAY"
+text = "01  EVERYDAY  ─────"
 
 [node name="CriticalStage" type="Label" parent="HeaderMargin/HeaderRow/AssessmentProgress"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "02  CRITICAL"
+text = "02  CRITICAL  ─────"
 
 [node name="DilemmaStage" type="Label" parent="HeaderMargin/HeaderRow/AssessmentProgress"]
 unique_name_in_owner = true
@@ -107,24 +93,33 @@ text = "03  DILEMMA"
 
 [node name="GuestCard" type="PanelContainer" parent="HeaderMargin/HeaderRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(220, 44)
+custom_minimum_size = Vector2(218, 38)
 layout_mode = 2
-theme_override_styles/panel = SubResource("GuestFrame")
+theme_override_styles/panel = SubResource("TransparentPanel")
+
+[node name="GuestFrame" type="PanelContainer" parent="HeaderMargin/HeaderRow/GuestCard"]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("5_frame")
+tone = 1
+corner_cut = 5
+draw_inner_border = false
+draw_corner_marks = false
 
 [node name="GuestMargin" type="MarginContainer" parent="HeaderMargin/HeaderRow/GuestCard"]
 layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 5
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 4
 
 [node name="GuestRow" type="HBoxContainer" parent="HeaderMargin/HeaderRow/GuestCard/GuestMargin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="GuestAvatar" type="PanelContainer" parent="HeaderMargin/HeaderRow/GuestCard/GuestMargin/GuestRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 
 [node name="GuestIcon" type="TextureRect" parent="HeaderMargin/HeaderRow/GuestCard/GuestMargin/GuestRow/GuestAvatar"]
@@ -133,33 +128,38 @@ texture = SubResource("UserIcon")
 expand_mode = 1
 stretch_mode = 5
 modulate = Color(0.05, 0.55, 1, 1)
+texture_filter = 1
 
 [node name="GuestInfo" type="VBoxContainer" parent="HeaderMargin/HeaderRow/GuestCard/GuestMargin/GuestRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
-theme_override_constants/separation = 0
+theme_override_constants/separation = -2
 
 [node name="GuestName" type="Label" parent="HeaderMargin/HeaderRow/GuestCard/GuestMargin/GuestRow/GuestInfo"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 10
 text = "GUEST"
 
 [node name="GuestRank" type="Label" parent="HeaderMargin/HeaderRow/GuestCard/GuestMargin/GuestRow/GuestInfo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.72, 0.82, 1)
+theme_override_font_sizes/font_size = 9
 text = "RANK: ---"
 
 [node name="LoginButton" type="Button" parent="HeaderMargin/HeaderRow/GuestCard/GuestMargin/GuestRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(52, 28)
+custom_minimum_size = Vector2(48, 25)
 layout_mode = 2
+theme_override_font_sizes/font_size = 10
 text = "Login"
 disabled = true
 
 [node name="SignUpButton" type="Button" parent="HeaderMargin/HeaderRow/GuestCard/GuestMargin/GuestRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(58, 28)
+custom_minimum_size = Vector2(54, 25)
 layout_mode = 2
+theme_override_font_sizes/font_size = 10
 text = "Sign Up"
 script = ExtResource("4_action")
 target_url = "null.net/register"

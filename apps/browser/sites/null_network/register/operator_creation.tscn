@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/register/operator_creation.gd" id="1_page"]
 [ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="2_theme"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/components/null_network_portal_footer.tscn" id="8_footer"]
 [ext_resource type="Texture2D" path="res://data/assets/icons/nnw_portal_icons.svg" id="9_icons"]
 [ext_resource type="Texture2D" path="res://data/assets/icons/nnw_mascot.svg" id="10_mascot"]
+[ext_resource type="Script" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="11_frame"]
 
 [sub_resource type="StyleBoxFlat" id="MainPanel"]
 bg_color = Color(0.006, 0.034, 0.062, 0.94)
@@ -142,6 +143,10 @@ custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("DarkStrip")
+script = ExtResource("11_frame")
+tone = 3
+corner_cut = 6
+draw_scanlines = true
 
 [node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/RegistrationStepper/StepAccount"]
 layout_mode = 2
@@ -155,6 +160,10 @@ custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("DarkStrip")
+script = ExtResource("11_frame")
+tone = 0
+corner_cut = 6
+draw_inner_border = false
 
 [node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/RegistrationStepper/StepAppearance"]
 layout_mode = 2
@@ -167,6 +176,10 @@ custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("DarkStrip")
+script = ExtResource("11_frame")
+tone = 0
+corner_cut = 6
+draw_inner_border = false
 
 [node name="CompatibilityRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/RegistrationStepper/StepCompatibility"]
 layout_mode = 2
@@ -201,6 +214,10 @@ text = "ACCOUNT  •  APPEARANCE  •  COMPATIBILITY"
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("MainPanel")
+script = ExtResource("11_frame")
+tone = 1
+corner_cut = 8
+draw_scanlines = true
 
 [node name="BodyMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/BodyPanel"]
 layout_mode = 2
@@ -227,6 +244,9 @@ theme_override_constants/separation = 14
 custom_minimum_size = Vector2(230, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("SoftPanel")
+script = ExtResource("11_frame")
+tone = 0
+corner_cut = 6
 
 [node name="AvatarMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel"]
 layout_mode = 2
@@ -247,11 +267,15 @@ text = "FORUM AVATAR"
 custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 theme_override_styles/panel = SubResource("PreviewFrame")
+script = ExtResource("11_frame")
+tone = 2
+corner_cut = 5
+draw_scanlines = true
 
 [node name="AvatarPreviewLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel/AvatarMargin/AvatarVBox/AvatarPreviewFrame"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 16
 text = "A01"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -273,7 +297,8 @@ layout_mode = 2
 [node name="RegistrationTips" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel/AvatarMargin/AvatarVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.38, 0.66, 0.9, 1)
-text = "☆  REGISTRATION TIPS\n\nChoose a username you'll be proud to use in the community.\n\nYour writing style helps shape your presence here.\n\nMost information can be updated later."
+theme_override_font_sizes/font_size = 9
+text = "☆  REGISTRATION TIPS\n\nChoose a username you'll be proud to use.\nYour writing style shapes your presence.\nMost information can be updated later."
 autowrap_mode = 2
 
 [node name="AccountForm" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns"]
@@ -283,7 +308,7 @@ theme_override_constants/separation = 10
 
 [node name="AccountTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 12
 text = "ACCOUNT"
 
 [node name="UsernameRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
@@ -352,7 +377,7 @@ layout_mode = 2
 
 [node name="PersonalTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 12
 text = "PERSONAL INFORMATION"
 
 [node name="PersonalGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
@@ -424,6 +449,7 @@ unique_name_in_owner = true
 layout_mode = 2
 [node name="OccupationSummary" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.52, 0.66, 0.78, 1)
 autowrap_mode = 2
@@ -435,7 +461,7 @@ layout_mode = 2
 theme_override_constants/separation = 10
 [node name="AppearanceTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 16
 text = "CREATE YOUR APPEARANCE"
 [node name="AppearanceSubtitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage"]
 layout_mode = 2
@@ -452,6 +478,10 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(0, 210)
 layout_mode = 2
 theme_override_styles/panel = SubResource("PreviewFrame")
+script = ExtResource("11_frame")
+tone = 2
+corner_cut = 6
+draw_scanlines = true
 [node name="PortraitLayers" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn/PortraitFrame"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -470,6 +500,10 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
 theme_override_styles/panel = SubResource("PreviewFrame")
+script = ExtResource("11_frame")
+tone = 1
+corner_cut = 6
+draw_scanlines = true
 [node name="OverworldLayers" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn/OverworldFrame"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -535,9 +569,9 @@ theme_override_constants/v_separation = 7
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 4
 [node name="MethodIcon" type="TextureRect" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 texture = SubResource("ClipboardIcon")
 expand_mode = 1
@@ -545,7 +579,7 @@ stretch_mode = 5
 modulate = Color(0.07, 0.58, 1, 1)
 [node name="MethodTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 17
 text = "COMPATIBILITY ASSESSMENT"
 horizontal_alignment = 1
 [node name="MethodRule" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
@@ -555,6 +589,7 @@ text = "────────────── ▪ ◇ ▪ ─────�
 horizontal_alignment = 1
 [node name="MethodBody" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 9
 text = "NULL NETWORK can perform an extended compatibility assessment before synchronizing your initial APK. The process evaluates declared preferences and answer consistency to establish an initial profile.\n\nParticipation is optional. Manual allocation remains available if you prefer to configure your Tendencies and choose from the Standard Compatibility roster directly."
 horizontal_alignment = 1
 autowrap_mode = 2
@@ -564,7 +599,7 @@ alignment = 1
 theme_override_constants/separation = 12
 [node name="ParticipateButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage/MethodButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 96)
+custom_minimum_size = Vector2(240, 76)
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
 icon = SubResource("ClipboardIcon")
@@ -573,7 +608,7 @@ text = "PARTICIPATE\n★ RECOMMENDED\nTake the quiz and receive a matched starte
 alignment = 0
 [node name="ManualAllocationButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage/MethodButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 96)
+custom_minimum_size = Vector2(240, 76)
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
 icon = SubResource("ManualIcon")
@@ -584,6 +619,7 @@ alignment = 0
 [node name="MethodRecommendation" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.19, 0.65, 1, 1)
+theme_override_font_sizes/font_size = 9
 text = "ⓘ  Recommended for first-time operators."
 horizontal_alignment = 1
 
@@ -594,7 +630,7 @@ layout_mode = 2
 theme_override_constants/separation = 10
 [node name="ManualTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 18
 text = "MANUAL SYNCHRONIZATION"
 [node name="ManualBody" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ManualPage"]
 layout_mode = 2
@@ -681,6 +717,9 @@ theme_override_constants/separation = 9
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("SoftPanel")
+script = ExtResource("11_frame")
+tone = 0
+corner_cut = 6
 
 [node name="AboutMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/AssessmentAbout"]
 layout_mode = 2
@@ -733,6 +772,10 @@ modulate = Color(0.3, 0.72, 1, 1)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("MainPanel")
+script = ExtResource("11_frame")
+tone = 1
+corner_cut = 7
+draw_scanlines = true
 
 [node name="QuestionMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel"]
 layout_mode = 2
@@ -793,7 +836,7 @@ layout_mode = 2
 [node name="LoadingLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultLoading"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 16
 text = "CALCULATING COMPATIBILITY..."
 horizontal_alignment = 1
 [node name="LoadingPulse" type="ProgressBar" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultLoading"]
@@ -808,7 +851,7 @@ layout_mode = 2
 theme_override_constants/separation = 10
 [node name="ResultTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 16
 text = "YOUR STARTING PARTNER IS..."
 horizontal_alignment = 1
 [node name="ResultTendencies" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent"]
@@ -850,7 +893,7 @@ layout_mode = 2
 [node name="RegisteredLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/RegisteredPanel"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 18
 text = "SYNCHRONIZATION COMPLETE"
 horizontal_alignment = 1
 [node name="CompleteBody" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/RegisteredPanel"]
@@ -873,14 +916,14 @@ autowrap_mode = 2
 
 [node name="NavigationRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 theme_override_constants/separation = 12
 [node name="BackButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 30)
+custom_minimum_size = Vector2(140, 24)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 text = "BACK"
 [node name="NavSpacerLeft" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
 layout_mode = 2
@@ -899,9 +942,9 @@ size_flags_horizontal = 3
 
 [node name="NextButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 30)
+custom_minimum_size = Vector2(140, 24)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 text = "NEXT"
 
 [node name="PortalFooter" parent="MasterScroll/PageMargin/Page" instance=ExtResource("8_footer")]
