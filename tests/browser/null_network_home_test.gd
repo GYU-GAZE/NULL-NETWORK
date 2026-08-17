@@ -2,7 +2,7 @@ extends Node
 
 const HOME_SCENE: PackedScene = preload("res://data/content/sites/null network/nnw_homepage.tscn")
 const GET_STARTED_SCENE: PackedScene = preload("res://data/content/sites/null network/nnw_getstarted1.tscn")
-const SILVER_BASE_SIZE: int = 14
+const SILVER_BASE_SIZE: int = 11
 const ACCOUNT_REQUIRED_MESSAGE: String = "You must have an account to access this area."
 
 var _failures := PackedStringArray()
@@ -26,7 +26,7 @@ func _run_test() -> void:
 
 	var title := home.find_child("PortalTitle", true, false) as Label
 	_check(title != null and title.text == "null NETWORK", "Null Network home lost its shared portal header title.")
-	_check(title != null and title.get_theme_font_size(&"font_size") == SILVER_BASE_SIZE, "Null Network portal header must use the native Silver 14 px title size.")
+	_check(title != null and title.get_theme_font_size(&"font_size") == 16, "Null Network portal header must use the reference-scaled Silver title size.")
 
 	var background := home.find_child("Background", true, false) as ColorRect
 	_check(background != null and background.material is ShaderMaterial, "Null Network home must use the shared scanline portal background.")
@@ -60,7 +60,7 @@ func _run_test() -> void:
 	_check_account_gate(home, "ThreadsBtn")
 	_check_account_gate(home, "RankingsBtn")
 
-	var description := home.find_child("DescriptionLabel", true, false) as RichTextLabel
+	var description := home.find_child("DescriptionLabel", true, false) as Label
 	_check(description != null, "Null Network home description was lost.")
 	if description != null:
 		_check(description.text.contains("In the lead-up to the devastating Y2K virus"), "Existing intro copy changed during visual-only revamp.")
@@ -91,11 +91,7 @@ func _check_footer_fits_canvas(page: Control, page_name: String) -> void:
 		return
 	_check(
 		footer.position.y + footer.size.y <= page.size.y + 0.5,
-		"%s overflows the canonical 832x393 browser canvas: footer bottom %.1f, page %.1f." % [
-			page_name,
-			footer.position.y + footer.size.y,
-			page.size.y,
-		]
+		"%s overflows the canonical 832x393 browser canvas." % page_name
 	)
 
 func _check_account_gate(root: Node, node_name: String) -> void:

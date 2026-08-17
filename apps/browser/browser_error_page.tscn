@@ -31,7 +31,7 @@ theme_override_constants/separation = 8
 [node name="CodeLabel" type="Label" parent="CenterContainer/ErrorMargin/ErrorVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "403"
 horizontal_alignment = 1
 

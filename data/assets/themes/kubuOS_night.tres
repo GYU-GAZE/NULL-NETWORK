@@ -219,7 +219,7 @@ thickness = 1
 [resource]
 default_base_scale = 1.0
 default_font = ExtResource("1_font")
-default_font_size = 14
+default_font_size = 19
 
 Label/colors/font_color = Color(0.84, 0.84, 0.9, 1)
 Label/colors/font_shadow_color = Color(0, 0, 0, 0.72)

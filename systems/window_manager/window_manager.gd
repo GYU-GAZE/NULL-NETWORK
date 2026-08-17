@@ -198,10 +198,6 @@ func _on_request_open_app(app: AppResource) -> void:
 				app_control.custom_minimum_size = Vector2.ZERO
 				app_control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				app_control.size_flags_vertical = Control.SIZE_EXPAND_FILL
-				var juice := PixelUIJuice.new()
-				juice.name = "PixelUIJuice"
-				app_control.add_child(juice)
-				juice.install(app_control)
 
 			_bind_app_pixel_density_breakpoint(
 				new_window,

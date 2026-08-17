@@ -8,5 +8,5 @@ bg_color = Color(0, 0, 0, 1)
 [resource]
 default_base_scale = 1.0
 default_font = ExtResource("1_rhoty")
-default_font_size = 28
+default_font_size = 38
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_hr6mx")

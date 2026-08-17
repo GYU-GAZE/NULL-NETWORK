@@ -2,7 +2,7 @@ extends Node
 
 const KUBUCHAN_SCENE: PackedScene = preload("res://apps/browser/sites/kubuchan/kubuchan.tscn")
 const THREAD_DATA: KubuchanThreadData = preload("res://apps/browser/sites/kubuchan/kubuchan_thread.tres")
-const SILVER_BASE_SIZE: int = 14
+const SILVER_BASE_SIZE: int = 19
 
 var _failures := PackedStringArray()
 var _navigated_url: String = ""
@@ -69,12 +69,12 @@ func _run_test() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
-	_check(site.theme != null and site.theme.default_font_size == SILVER_BASE_SIZE, "Kubuchan must use Silver on its native 14 px grid.")
+	_check(site.theme != null and site.theme.default_font_size == SILVER_BASE_SIZE, "Kubuchan must use Silver on its native 19 px grid.")
 
 	var board_title := site.find_child("BoardTitleLabel", true, false) as Label
 	_check(board_title != null, "Kubuchan lost its centered imageboard title.")
 	if board_title != null:
-		_check(board_title.get_theme_font_size(&"font_size") == SILVER_BASE_SIZE * 2, "Kubuchan board title must use a clean 28 px Silver multiple.")
+		_check(board_title.get_theme_font_size(&"font_size") == SILVER_BASE_SIZE * 2, "Kubuchan board title must use a clean 38 px Silver multiple.")
 		_check(board_title.get_theme_color(&"font_shadow_color").a == 0.0, "Kubuchan's light theme must not inherit the dark KubuOS Silver shadow.")
 
 	_check(site.find_child("PostReplyLabel", true, false) != null, "Kubuchan must retain the classic centered [Post a Reply] imageboard affordance.")

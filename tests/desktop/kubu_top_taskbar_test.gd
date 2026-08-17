@@ -6,6 +6,7 @@ const TASKBAR_SCENE: PackedScene = preload(
 )
 
 var _failures := PackedStringArray()
+var _logout_requests: int = 0
 var _original_period: int
 var _original_block: int
 
@@ -51,15 +52,19 @@ func _run_test() -> void:
 			and notification_slot.get_index() < taskbar.battery_icon.get_index(),
 			"Battery must be the final status group after notifications."
 		)
-		var settings_requests: Array[int] = [0]
-		var count_settings_request := func() -> void: settings_requests[0] += 1
-		GlobalSignals.request_open_system_settings.connect(count_settings_request)
+		_check(
+			not taskbar.system_menu_panel.visible,
+			"System menu must start closed."
+		)
 		taskbar._on_menu_button_pressed()
 		_check(
-			settings_requests[0] == 1,
-			"Taskbar menu did not route directly to window-managed settings."
+			taskbar.system_menu_panel.visible and taskbar._system_menu_open,
+			"System menu did not open from the taskbar button."
 		)
-		GlobalSignals.request_open_system_settings.disconnect(count_settings_request)
+		_check(
+			taskbar.system_menu_panel.position.x < taskbar.size.x * 0.5,
+			"System menu must open below the left side of the taskbar."
+		)
 
 		_check(
 			taskbar.action_pips.size() == TimeManager.TOTAL_ACTION_BLOCKS_PER_DAY,
@@ -150,11 +155,22 @@ func _run_test() -> void:
 			"2% battery must use the 10% icon state."
 		)
 
+		if not GlobalSignals.request_logout.is_connected(_on_logout_requested):
+			GlobalSignals.request_logout.connect(_on_logout_requested)
+		taskbar._on_logout_pressed()
+		_check(_logout_requests == 1, "Logout menu item did not publish the logout intent.")
 		taskbar.queue_free()
+
+	if GlobalSignals.request_logout.is_connected(_on_logout_requested):
+		GlobalSignals.request_logout.disconnect(_on_logout_requested)
 
 	TimeManager.current_period = _original_period as TimeManager.TimePeriod
 	TimeManager.current_action_block = _original_block
 	_finish_test()
+
+
+func _on_logout_requested() -> void:
+	_logout_requests += 1
 
 
 func _check(condition: bool, message: String) -> void:
