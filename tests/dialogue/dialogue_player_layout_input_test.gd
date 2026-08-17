@@ -91,6 +91,10 @@ func _run_test() -> void:
 		and player.dialogue_text.scroll_active,
 		"Dialogue text is not constrained to a scrollable region."
 	)
+	_check(
+		player.dialogue_text.scale == Vector2.ONE,
+		"Typewriter must animate individual glyphs without scaling the whole text control."
+	)
 	GlobalSignals.app_focused.emit("browser")
 	_check(
 		not player.try_advance_from_navigator_input() \

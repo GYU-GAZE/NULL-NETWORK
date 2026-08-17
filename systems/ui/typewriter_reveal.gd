@@ -6,14 +6,14 @@ signal character_revealed(character_index: int)
 signal reveal_completed
 
 @export_range(1.0, 240.0, 1.0) var characters_per_second: float = 42.0
-@export_range(0.0, 0.2, 0.005) var glyph_pulse_seconds: float = 0.045
-@export_range(0.0, 0.08, 0.005) var glyph_pulse_strength: float = 0.018
+@export_range(0.04, 0.4, 0.005) var glyph_reveal_seconds: float = 0.14
+@export_range(0.0, 0.2, 0.005) var glyph_height_overshoot: float = 0.08
 
 var _target: Control
 var _full_text: String = ""
 var _generation: int = 0
 var _running: bool = false
-var _pulse_tween: Tween
+var _glyph_effect := TypewriterGlyphRevealEffect.new()
 
 
 func is_running() -> bool:
@@ -23,13 +23,10 @@ func is_running() -> bool:
 func play(target: Control, text: String) -> void:
 	_generation += 1
 	var generation := _generation
-	_stop_pulse()
 	_target = target
 	_full_text = text
 	_running = true
-	_set_text(_full_text)
-	_set_visible_characters(0)
-	_target.pivot_offset = _target.size * 0.5
+	_prepare_target_text()
 	_target.scale = Vector2.ONE
 	_target.modulate.a = 1.0
 	reveal_started.emit()
@@ -42,8 +39,8 @@ func play(target: Control, text: String) -> void:
 	for character_index in range(1, character_count + 1):
 		if generation != _generation or not _running:
 			return
-		_set_visible_characters(character_index)
-		_play_glyph_pulse()
+		if not _target is RichTextLabel:
+			_set_visible_characters(character_index)
 		character_revealed.emit(character_index - 1)
 		await get_tree().create_timer(
 			_get_character_delay(character_index - 1),
@@ -51,6 +48,9 @@ func play(target: Control, text: String) -> void:
 			false,
 			true
 		).timeout
+
+	if _target is RichTextLabel and generation == _generation and _running:
+		await get_tree().create_timer(glyph_reveal_seconds, true, false, true).timeout
 
 	if generation == _generation and _running:
 		complete()
@@ -64,7 +64,7 @@ func complete() -> void:
 	var was_running := _running
 	_generation += 1
 	_running = false
-	_stop_pulse()
+	_set_text(_full_text)
 	_set_visible_characters(-1)
 	_target.scale = Vector2.ONE
 	_target.modulate.a = 1.0
@@ -75,13 +75,39 @@ func complete() -> void:
 func cancel(clear_text: bool = false) -> void:
 	_generation += 1
 	_running = false
-	_stop_pulse()
 	if _target != null:
 		_target.scale = Vector2.ONE
 		_target.modulate.a = 1.0
 		if clear_text:
 			_set_text("")
 			_set_visible_characters(0)
+
+
+func _prepare_target_text() -> void:
+	if not _target is RichTextLabel:
+		_set_text(_full_text)
+		_set_visible_characters(0)
+		return
+
+	var rich_label := _target as RichTextLabel
+	var reveal_times := PackedFloat32Array()
+	var elapsed := 0.0
+	for character_index in range(_full_text.length()):
+		reveal_times.append(elapsed)
+		elapsed += _get_character_delay(character_index)
+
+	rich_label.clear()
+	rich_label.push_customfx(
+		_glyph_effect,
+		{
+			"reveal_times": reveal_times,
+			"reveal_seconds": glyph_reveal_seconds,
+			"overshoot": glyph_height_overshoot,
+		}
+	)
+	rich_label.add_text(_full_text)
+	rich_label.pop()
+	rich_label.visible_characters = -1
 
 
 func _set_text(value: String) -> void:
@@ -119,25 +145,3 @@ func _get_character_delay(character_index: int) -> float:
 			return base_delay * 2.8
 		_:
 			return base_delay
-
-
-func _play_glyph_pulse() -> void:
-	if _target == null or glyph_pulse_seconds <= 0.0:
-		return
-	_stop_pulse()
-	_target.scale = Vector2(1.0 + glyph_pulse_strength, 1.0)
-	_pulse_tween = create_tween().set_parallel(true)
-	_pulse_tween.set_trans(Tween.TRANS_QUAD)
-	_pulse_tween.set_ease(Tween.EASE_OUT)
-	_pulse_tween.tween_property(
-		_target,
-		"scale",
-		Vector2.ONE,
-		glyph_pulse_seconds
-	)
-
-
-func _stop_pulse() -> void:
-	if _pulse_tween != null and _pulse_tween.is_valid():
-		_pulse_tween.kill()
-	_pulse_tween = null

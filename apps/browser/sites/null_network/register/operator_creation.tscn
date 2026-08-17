@@ -807,12 +807,15 @@ text = "01 / 18"
 [node name="QuestionRuleTop" type="HSeparator" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel/QuestionMargin/QuestionVBox"]
 layout_mode = 2
 
-[node name="QuestionPrompt" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel/QuestionMargin/QuestionVBox"]
+[node name="QuestionPrompt" type="RichTextLabel" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel/QuestionMargin/QuestionVBox"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 14
 text = "QUESTION"
-autowrap_mode = 2
+fit_content = true
+scroll_active = false
 
 [node name="QuestionRuleBottom" type="HSeparator" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel/QuestionMargin/QuestionVBox"]
 layout_mode = 2
@@ -916,12 +919,12 @@ autowrap_mode = 2
 
 [node name="NavigationRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 theme_override_constants/separation = 12
 [node name="BackButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 24)
+custom_minimum_size = Vector2(140, 32)
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "BACK"
@@ -942,10 +945,15 @@ size_flags_horizontal = 3
 
 [node name="NextButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 24)
+custom_minimum_size = Vector2(140, 32)
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "NEXT"
+
+[node name="FooterClearance" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+mouse_filter = 2
 
 [node name="FooterOverlay" type="Control" parent="."]
 layout_mode = 2

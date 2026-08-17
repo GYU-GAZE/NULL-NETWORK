@@ -78,6 +78,11 @@ func _test_registration_route() -> void:
 	var operator_page := page_instance as OperatorCreationPage
 	if operator_page != null:
 		_check_layout_fits_canvas(operator_page, "account")
+		operator_page._show_page(OperatorCreationPage.FlowPage.APPEARANCE)
+		await _wait_frames(2)
+		operator_page.master_scroll.scroll_vertical = 100000
+		await _wait_frames(2)
+		_check_appearance_navigation_is_clear(operator_page)
 		operator_page._show_page(OperatorCreationPage.FlowPage.METHOD)
 		await _wait_frames(2)
 		_check_layout_fits_canvas(operator_page, "compatibility method")
@@ -86,6 +91,23 @@ func _test_registration_route() -> void:
 		_check_layout_fits_canvas(operator_page, "assessment")
 	page_instance.queue_free()
 	await _wait_frames(2)
+
+func _check_appearance_navigation_is_clear(page: OperatorCreationPage) -> void:
+	var footer := page.find_child("PortalFooter", true, false) as Control
+	var back := page.find_child("BackButton", true, false) as Button
+	var next := page.find_child("NextButton", true, false) as Button
+	_check(footer != null and back != null and next != null, "Appearance navigation controls are incomplete.")
+	if footer == null or back == null or next == null:
+		return
+	for button: Button in [back, next]:
+		_check(
+			button.size.y >= 32.0,
+			"Appearance %s button is shorter than its readable 14 px Silver frame." % button.name
+		)
+		_check(
+			button.get_global_rect().end.y <= footer.get_global_rect().position.y + 0.5,
+			"Appearance %s button is clipped by the fixed portal footer." % button.name
+		)
 
 func _check_layout_fits_canvas(page: OperatorCreationPage, state_name: String) -> void:
 	var footer := page.find_child("PortalFooter", true, false) as Control
