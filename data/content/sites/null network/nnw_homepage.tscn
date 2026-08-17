@@ -112,7 +112,7 @@ theme_override_constants/separation = -2
 [node name="MatrixTop" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.02, 0.35, 0.64, 0.55)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 14
 text = "0  1  0  0  1  1  0  1  0\n  1  1  0  1  0  0  1\n0  0  1  1  0  1  0  0"
 horizontal_alignment = 1
 
@@ -127,7 +127,7 @@ texture_filter = 1
 [node name="MatrixFloor" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.03, 0.42, 0.72, 0.68)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 14
 text = "──────╱╱╱╱╱╱──────"
 horizontal_alignment = 1
 
@@ -139,25 +139,27 @@ theme_override_constants/separation = 3
 [node name="Eyebrow" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.66, 1, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 14
 text = "// ENTER THE DIGITAL FRONTIER //"
 horizontal_alignment = 1
 
 [node name="HeroTitle" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.26, 0.76, 1, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 28
 text = "THE WORLD IS UNDER SIEGE."
 horizontal_alignment = 1
 
-[node name="DescriptionLabel" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy"]
+[node name="DescriptionLabel" type="RichTextLabel" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy"]
+custom_minimum_size = Vector2(0, 92)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 14
 theme_override_constants/line_spacing = 0
 text = "In the lead-up to the devastating Y2K virus, a mass purge of data opened a rift between the world of man and computers. Now, electronic specters from the digital realm are trying to invade the world of the living!\n\nGear up with futuristic goggles and photon weaponry that lets you do battle with vicious viruses, woeful worms and apocalyptic A.I. — each one hellbent on overwriting humanity.\n\nUsing the latest innovations in augmented reality, take the fight from your screen straight into your home! A gaming experience like nothing you've seen before!\n\nFrom the brilliant mind of Tarou Yamada.\n\n                              コバルトブルー     © 2000"
-autowrap_mode = 2
+fit_content = false
+scroll_active = true
 
 [node name="CtaFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox"]
 custom_minimum_size = Vector2(0, 40)
@@ -172,7 +174,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.93, 0.99, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("Transparent")
 theme_override_styles/hover = SubResource("Transparent")
 theme_override_styles/pressed = SubResource("Transparent")

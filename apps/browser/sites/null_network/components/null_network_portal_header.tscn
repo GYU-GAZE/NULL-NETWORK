@@ -58,14 +58,14 @@ theme_override_constants/separation = -1
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.98, 1, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 14
 text = "NULL NETWORK"
 
 [node name="PortalSubtitle" type="Label" parent="HeaderMargin/HeaderRow/Brand/BrandText"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.67, 1, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 14
 text = "// COMMUNITY HUB"
 
 [node name="AssessmentProgress" type="HBoxContainer" parent="HeaderMargin/HeaderRow"]
@@ -138,20 +138,20 @@ theme_override_constants/separation = -2
 
 [node name="GuestName" type="Label" parent="HeaderMargin/HeaderRow/GuestCard/GuestMargin/GuestRow/GuestInfo"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 14
 text = "GUEST"
 
 [node name="GuestRank" type="Label" parent="HeaderMargin/HeaderRow/GuestCard/GuestMargin/GuestRow/GuestInfo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.72, 0.82, 1)
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 14
 text = "RANK: ---"
 
 [node name="LoginButton" type="Button" parent="HeaderMargin/HeaderRow/GuestCard/GuestMargin/GuestRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 25)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 14
 text = "Login"
 disabled = true
 
@@ -159,7 +159,7 @@ disabled = true
 unique_name_in_owner = true
 custom_minimum_size = Vector2(54, 25)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 14
 text = "Sign Up"
 script = ExtResource("4_action")
 target_url = "null.net/register"
