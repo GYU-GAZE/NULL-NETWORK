@@ -1,7 +1,8 @@
 extends Node
 
 const HOME_SCENE: PackedScene = preload("res://data/content/sites/null network/nnw_homepage.tscn")
-const SILVER_BASE_SIZE: int = 19
+const GET_STARTED_SCENE: PackedScene = preload("res://data/content/sites/null network/nnw_getstarted1.tscn")
+const SILVER_BASE_SIZE: int = 11
 const ACCOUNT_REQUIRED_MESSAGE: String = "You must have an account to access this area."
 
 var _failures := PackedStringArray()
@@ -20,18 +21,25 @@ func _run_test() -> void:
 	add_child(home)
 	await get_tree().process_frame
 
-	_check(home.theme != null and home.theme.default_font_size == SILVER_BASE_SIZE, "Null Network home must keep Silver on its native 19 px grid.")
+	_check(home.theme != null and home.theme.default_font_size == SILVER_BASE_SIZE, "Null Network home must keep the compact Silver portal scale.")
 
-	var title := home.find_child("NullChannelTitle", true, false) as Label
-	_check(title != null and title.get_theme_font_size(&"font_size") == 38, "Null Network home title must use the 38 px Silver multiple.")
+	var title := home.find_child("PortalTitle", true, false) as Label
+	_check(title != null and title.text == "null NETWORK", "Null Network home lost its shared portal header title.")
+	_check(title != null and title.get_theme_font_size(&"font_size") == 22, "Null Network portal header must use the compact Silver title scale.")
+
+	var background := home.find_child("Background", true, false) as ColorRect
+	_check(background != null and background.material is ShaderMaterial, "Null Network home must use the shared scanline portal background.")
 
 	var guest_card := home.find_child("GuestCard", true, false) as PanelContainer
 	_check(guest_card != null, "Logged-out user placeholder card is missing.")
 	if guest_card != null:
-		_check(guest_card.custom_minimum_size == Vector2(128, 72), "Guest card must match the Null Channel user block footprint.")
+		_check(guest_card.custom_minimum_size == Vector2(220, 44), "Guest card must match the shared NULL NETWORK portal footprint.")
 
 	var avatar := home.find_child("GuestAvatar", true, false) as PanelContainer
-	_check(avatar != null and avatar.custom_minimum_size == Vector2(32, 32), "Guest avatar placeholder must match the Null Channel avatar size.")
+	_check(avatar != null and avatar.custom_minimum_size == Vector2(32, 32), "Guest avatar placeholder must match the portal header avatar size.")
+
+	var hero_title := home.find_child("HeroTitle", true, false) as Label
+	_check(hero_title != null and hero_title.text == "THE WORLD IS UNDER SIEGE.", "Null Network home lost the supplied hero headline.")
 
 	var login_button := home.find_child("LoginButton", true, false) as Button
 	var sign_up_button := home.find_child("SignUpButton", true, false) as SiteActionButton
@@ -57,6 +65,16 @@ func _run_test() -> void:
 		_check(description.text.contains("コバルトブルー"), "Existing Japanese footer copy changed during visual-only revamp.")
 
 	home.queue_free()
+	var guide := GET_STARTED_SCENE.instantiate() as Control
+	_check(guide != null, "NULL NETWORK Get Started failed to instantiate.")
+	if guide != null:
+		add_child(guide)
+		await get_tree().process_frame
+		_check(guide.theme != null and guide.theme.default_font_size == SILVER_BASE_SIZE, "Get Started must share the NULL NETWORK Silver portal theme.")
+		_check(guide.find_child("PortalHeader", true, false) != null, "Get Started lost the shared portal header.")
+		_check(guide.find_child("PathRail", true, false) != null, "Get Started lost its guided left navigation rail.")
+		_check(guide.find_child("ArticlePanel", true, false) != null, "Get Started lost its framed article reader.")
+		guide.queue_free()
 	_finish_test()
 
 func _check_account_gate(root: Node, node_name: String) -> void:

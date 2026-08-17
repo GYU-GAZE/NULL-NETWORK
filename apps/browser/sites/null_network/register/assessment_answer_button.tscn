@@ -1,0 +1,60 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/browser/sites/null_network/register/assessment_answer_button.gd" id="1_script"]
+
+[node name="AssessmentAnswerButton" type="Button"]
+custom_minimum_size = Vector2(0, 44)
+toggle_mode = true
+text = ""
+script = ExtResource("1_script")
+
+[node name="ContentMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="ContentRow" type="HBoxContainer" parent="ContentMargin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 9
+
+[node name="NumberBadge" type="PanelContainer" parent="ContentMargin/ContentRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(38, 32)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="NumberLabel" type="Label" parent="ContentMargin/ContentRow/NumberBadge"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+text = "01"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AnswerLabel" type="Label" parent="ContentMargin/ContentRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_font_sizes/font_size = 13
+text = "Answer"
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="ArrowLabel" type="Label" parent="ContentMargin/ContentRow"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+text = "›"
+vertical_alignment = 1

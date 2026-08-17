@@ -16,6 +16,15 @@ enum FlowPage {
 
 const NULL_CHANNEL_URL := "null.net/forums"
 const STARTER_LEVEL := 3
+const ASSESSMENT_ANSWER_BUTTON_SCENE: PackedScene = preload(
+	"res://apps/browser/sites/null_network/register/assessment_answer_button.tscn"
+)
+const ASSESSMENT_ACCENTS: Array[Color] = [
+	Color(0.12, 0.55, 1.0, 1.0),
+	Color(0.52, 0.35, 1.0, 1.0),
+	Color(0.04, 0.78, 0.86, 1.0),
+	Color(1.0, 0.34, 0.55, 1.0)
+]
 const REQUIRED_APPEARANCE_CATEGORIES := [
 	AppearanceOptionData.Category.BODY,
 	AppearanceOptionData.Category.FACE,
@@ -65,8 +74,15 @@ const APPEARANCE_LAYER_ORDER := [
 @onready var progress_label: Label = %ProgressLabel
 @onready var error_label: Label = %ErrorLabel
 @onready var navigation_row: HBoxContainer = %NavigationRow
+@onready var body_panel: PanelContainer = find_child("BodyPanel", true, false) as PanelContainer
 @onready var back_button: Button = %BackButton
 @onready var next_button: Button = %NextButton
+@onready var portal_header: NullNetworkPortalHeader = %PortalHeader
+@onready var registration_stepper: HBoxContainer = %RegistrationStepper
+@onready var step_account: PanelContainer = %StepAccount
+@onready var step_appearance: PanelContainer = %StepAppearance
+@onready var step_compatibility: PanelContainer = %StepCompatibility
+@onready var assessment_progress_pips: HBoxContainer = %AssessmentProgressPips
 
 @onready var account_page: VBoxContainer = %AccountPage
 @onready var avatar_preview_label: Label = %AvatarPreviewLabel
@@ -114,6 +130,9 @@ const APPEARANCE_LAYER_ORDER := [
 @onready var assessment_counter: Label = %AssessmentCounter
 @onready var question_prompt: Label = %QuestionPrompt
 @onready var answer_container: VBoxContainer = %AnswerContainer
+@onready var assessment_section_title: Label = %AssessmentSectionTitle
+@onready var assessment_question_count: Label = %AssessmentQuestionCount
+@onready var assessment_section_body: Label = %AssessmentSectionBody
 
 @onready var result_page: VBoxContainer = %ResultPage
 @onready var result_loading: VBoxContainer = %ResultLoading
@@ -150,11 +169,15 @@ var _assessment_auto_advance_pending: bool = false
 
 func _ready() -> void:
 	_apply_compact_registration_layout()
+	_organize_account_form()
+	if not resized.is_connected(_update_body_height):
+		resized.connect(_update_body_height)
 	_validate_dependencies()
 	_configure_account_page()
 	_configure_appearance_page()
 	_configure_manual_page()
 	_connect_static_controls()
+	_build_assessment_progress_pips()
 	if not registration_completed.is_connected(_on_registration_completed):
 		registration_completed.connect(_on_registration_completed)
 	if not CampaignState.operator.is_empty() and not CampaignState.partner.is_empty():
@@ -163,39 +186,46 @@ func _ready() -> void:
 		_show_page(FlowPage.ACCOUNT)
 
 func _apply_compact_registration_layout() -> void:
-	var header_panel := find_child("HeaderPanel", true, false) as Control
-	if header_panel != null:
-		header_panel.hide()
-	var progress_strip := find_child("ProgressStrip", true, false) as Control
-	if progress_strip != null:
-		progress_strip.hide()
-
 	var page_margin := find_child("PageMargin", true, false) as MarginContainer
 	if page_margin != null:
-		page_margin.add_theme_constant_override("margin_left", 44)
-		page_margin.add_theme_constant_override("margin_top", 28)
-		page_margin.add_theme_constant_override("margin_right", 44)
-		page_margin.add_theme_constant_override("margin_bottom", 30)
+		page_margin.add_theme_constant_override("margin_left", 6)
+		page_margin.add_theme_constant_override("margin_top", 2)
+		page_margin.add_theme_constant_override("margin_right", 6)
+		page_margin.add_theme_constant_override("margin_bottom", 2)
+	var page := find_child("Page", true, false) as VBoxContainer
+	if page != null:
+		page.add_theme_constant_override("separation", 4)
 
 	var body_margin := find_child("BodyMargin", true, false) as MarginContainer
 	if body_margin != null:
-		body_margin.add_theme_constant_override("margin_left", 18)
-		body_margin.add_theme_constant_override("margin_top", 14)
-		body_margin.add_theme_constant_override("margin_right", 18)
-		body_margin.add_theme_constant_override("margin_bottom", 14)
+		body_margin.add_theme_constant_override("margin_left", 12)
+		body_margin.add_theme_constant_override("margin_top", 6)
+		body_margin.add_theme_constant_override("margin_right", 12)
+		body_margin.add_theme_constant_override("margin_bottom", 6)
+	var page_host := find_child("PageHost", true, false) as VBoxContainer
+	if page_host != null:
+		page_host.add_theme_constant_override("separation", 6)
 
 	var avatar_panel := find_child("AvatarPanel", true, false) as Control
 	if avatar_panel != null:
-		avatar_panel.custom_minimum_size.x = 190.0
+		avatar_panel.custom_minimum_size.x = 180.0
 	var avatar_preview_frame := find_child("AvatarPreviewFrame", true, false) as Control
 	if avatar_preview_frame != null:
-		avatar_preview_frame.custom_minimum_size.y = 112.0
+		avatar_preview_frame.custom_minimum_size.y = 85.0
+	avatar_grid.columns = 6
 	var account_columns := find_child("AccountColumns", true, false) as BoxContainer
 	if account_columns != null:
-		account_columns.add_theme_constant_override("separation", 10)
+		account_columns.add_theme_constant_override("separation", 12)
 	var account_form := find_child("AccountForm", true, false) as BoxContainer
 	if account_form != null:
-		account_form.add_theme_constant_override("separation", 6)
+		account_form.add_theme_constant_override("separation", 1)
+	var avatar_margin := find_child("AvatarMargin", true, false) as MarginContainer
+	if avatar_margin != null:
+		for margin_name: StringName in [&"margin_left", &"margin_top", &"margin_right", &"margin_bottom"]:
+			avatar_margin.add_theme_constant_override(margin_name, 6)
+	var avatar_vbox := find_child("AvatarVBox", true, false) as VBoxContainer
+	if avatar_vbox != null:
+		avatar_vbox.add_theme_constant_override("separation", 4)
 
 	var preview_column := find_child("PreviewColumn", true, false) as Control
 	if preview_column != null:
@@ -208,6 +238,70 @@ func _apply_compact_registration_layout() -> void:
 		overworld_frame.custom_minimum_size.y = 130.0
 	if appearance_grid != null:
 		appearance_grid.columns = 2
+
+func _organize_account_form() -> void:
+	var account_form := find_child("AccountForm", true, false) as VBoxContainer
+	var writing_row := find_child("WritingRow", true, false) as Control
+	var writing_options := find_child("WritingStyleOptions", true, false) as Control
+	var kaomoji_row := find_child("KaomojiRow", true, false) as Control
+	var kaomoji_options := find_child("KaomojiOptions", true, false) as Control
+	if (
+		account_form != null
+		and writing_row != null
+		and writing_options != null
+		and kaomoji_row != null
+		and kaomoji_options != null
+	):
+		var expression_row := HBoxContainer.new()
+		expression_row.name = "ExpressionRow"
+		expression_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		expression_row.add_theme_constant_override("separation", 8)
+		account_form.add_child(expression_row)
+		account_form.move_child(expression_row, writing_row.get_index())
+		for controls: Array in [
+			[writing_row, writing_options],
+			[kaomoji_row, kaomoji_options]
+		]:
+			var column := VBoxContainer.new()
+			column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			column.add_theme_constant_override("separation", 3)
+			expression_row.add_child(column)
+			for control_value: Variant in controls:
+				var control := control_value as Control
+				if control == null:
+					continue
+				control.reparent(column)
+
+	var personal_grid := find_child("PersonalGrid", true, false) as GridContainer
+	if account_form == null or personal_grid == null:
+		return
+	var names_row := HBoxContainer.new()
+	names_row.name = "NamesRow"
+	names_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	names_row.add_theme_constant_override("separation", 8)
+	account_form.add_child(names_row)
+	account_form.move_child(names_row, personal_grid.get_index())
+	for field_prefix: String in ["First", "Last", "Nick"]:
+		var label := personal_grid.get_node_or_null(field_prefix + "Label") as Control
+		var info := personal_grid.get_node_or_null(field_prefix + "Info") as Control
+		var edit_name := {
+			"First": "FirstNameEdit",
+			"Last": "LastNameEdit",
+			"Nick": "NicknameEdit",
+		}[field_prefix] as String
+		var edit := personal_grid.get_node_or_null(edit_name) as Control
+		if label == null or info == null or edit == null:
+			continue
+		var column := VBoxContainer.new()
+		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		column.add_theme_constant_override("separation", 3)
+		names_row.add_child(column)
+		var label_row := HBoxContainer.new()
+		column.add_child(label_row)
+		label.reparent(label_row)
+		info.reparent(label_row)
+		edit.reparent(column)
+	personal_grid.columns = 3
 
 func _validate_dependencies() -> void:
 	if assessment_data == null:
@@ -281,7 +375,7 @@ func _render_avatar_grid() -> void:
 		var button := Button.new()
 		button.toggle_mode = true
 		button.button_group = group
-		button.custom_minimum_size = Vector2(48, 38)
+		button.custom_minimum_size = Vector2(28, 24)
 		button.text = "%02d" % (index + 1)
 		button.tooltip_text = avatar_labels[index] if index < avatar_labels.size() else avatar_id
 		button.button_pressed = avatar_id == _selected_avatar_id
@@ -487,13 +581,22 @@ func _show_page(page: int, scroll_to_top: bool = true) -> void:
 		FlowPage.COMPLETE: registered_panel.show()
 	_update_page_chrome()
 	if scroll_to_top:
-		master_scroll.set_deferred("scroll_vertical", 0)
+		call_deferred("_reset_scroll_to_top")
+
+func _reset_scroll_to_top() -> void:
+	var focus_owner := get_viewport().gui_get_focus_owner()
+	if focus_owner != null:
+		focus_owner.release_focus()
+	master_scroll.scroll_vertical = 0
+	await get_tree().process_frame
+	master_scroll.scroll_vertical = 0
 
 func _update_page_chrome() -> void:
 	navigation_row.show()
 	back_button.show()
 	next_button.show()
-	next_button.text = "NEXT"
+	back_button.text = "‹  BACK"
+	next_button.text = "NEXT  ›"
 	match _current_page:
 		FlowPage.ACCOUNT:
 			page_counter.text = "01 / 03"
@@ -536,6 +639,42 @@ func _update_page_chrome() -> void:
 			header_subtitle.text = "ACCOUNT ACTIVE"
 			progress_label.text = "OPERATOR REGISTERED // PARTNER SYNCHRONIZED"
 			navigation_row.hide()
+	_sync_portal_chrome()
+
+func _sync_portal_chrome() -> void:
+	var assessment_active: bool = _current_page == FlowPage.ASSESSMENT
+	registration_stepper.visible = _current_page in [
+		FlowPage.ACCOUNT,
+		FlowPage.APPEARANCE,
+		FlowPage.METHOD,
+		FlowPage.MANUAL
+	]
+	assessment_progress_pips.visible = assessment_active
+	portal_header.set_assessment_mode(assessment_active)
+	var active_step: int = 0
+	match _current_page:
+		FlowPage.APPEARANCE:
+			active_step = 1
+		FlowPage.METHOD, FlowPage.MANUAL:
+			active_step = 2
+		_:
+			active_step = 0
+	var steps: Array[PanelContainer] = [step_account, step_appearance, step_compatibility]
+	for index: int in range(steps.size()):
+		steps[index].modulate = (
+			Color(0.82, 0.95, 1.0, 1.0)
+			if index == active_step
+			else Color(0.38, 0.5, 0.62, 0.72)
+		)
+	if assessment_active:
+		_update_assessment_section_chrome()
+	_update_body_height()
+
+func _update_body_height() -> void:
+	if body_panel == null:
+		return
+	var fixed_chrome_height := 88.0 if _current_page == FlowPage.ASSESSMENT else 134.0
+	body_panel.custom_minimum_size.y = maxf(0.0, size.y - fixed_chrome_height)
 
 func _on_next_pressed() -> void:
 	_clear_error()
@@ -594,6 +733,49 @@ func _on_manual_allocation_pressed() -> void:
 	_show_page(FlowPage.MANUAL)
 	_refresh_manual_state()
 
+func _build_assessment_progress_pips() -> void:
+	_clear_container(assessment_progress_pips)
+	for index: int in range(18):
+		var pip := ColorRect.new()
+		pip.name = "QuestionPip%02d" % (index + 1)
+		pip.custom_minimum_size = Vector2(6, 6)
+		pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		assessment_progress_pips.add_child(pip)
+	_update_assessment_progress_pips()
+
+func _update_assessment_progress_pips() -> void:
+	for index: int in range(assessment_progress_pips.get_child_count()):
+		var pip := assessment_progress_pips.get_child(index) as ColorRect
+		if pip == null:
+			continue
+		if index < _question_index:
+			pip.color = Color(0.08, 0.38, 0.66, 1.0)
+		elif index == _question_index:
+			pip.color = Color(0.2, 0.76, 1.0, 1.0)
+		else:
+			pip.color = Color(0.08, 0.16, 0.24, 1.0)
+
+func _update_assessment_section_chrome() -> void:
+	if assessment_data == null or assessment_data.questions.is_empty():
+		return
+	var safe_index: int = clampi(_question_index, 0, assessment_data.questions.size() - 1)
+	var question := assessment_data.questions[safe_index] as CompatibilityQuestionData
+	if question == null:
+		return
+	var category_index: int = int(question.category)
+	var titles := PackedStringArray(["EVERYDAY", "CRITICAL", "DILEMMA"])
+	var descriptions := PackedStringArray([
+		"These questions are about normal, everyday situations.\n\nThere are no right or wrong answers. Choose the option that feels most natural to you.",
+		"These questions place you under pressure.\n\nRespond with the action you would actually take when time, safety or certainty is limited.",
+		"These questions ask what you protect when every available choice has a cost.\n\nChoose the answer you could live with afterward."
+	])
+	category_index = clampi(category_index, 0, titles.size() - 1)
+	assessment_section_title.text = titles[category_index]
+	assessment_question_count.text = "06 QUESTIONS"
+	assessment_section_body.text = descriptions[category_index]
+	portal_header.set_assessment_category(category_index)
+	_update_assessment_progress_pips()
+
 func _render_assessment_question(track_visit: bool) -> void:
 	_assessment_auto_advance_pending = false
 	_clear_container(answer_container)
@@ -613,6 +795,7 @@ func _render_assessment_question(track_visit: bool) -> void:
 	]
 	assessment_category.text = CompatibilityQuestionData.Category.keys()[question.category].replace("_", " ")
 	question_prompt.text = question.prompt
+	_update_assessment_section_chrome()
 	var order := CompatibilityAssessmentService.get_or_create_visual_order(
 		question,
 		_assessment_session
@@ -625,15 +808,18 @@ func _render_assessment_question(track_visit: bool) -> void:
 		var answer := question.get_answer(order[visual_position])
 		if answer == null:
 			continue
-		var button := Button.new()
-		button.toggle_mode = true
+		var button := ASSESSMENT_ANSWER_BUTTON_SCENE.instantiate() as AssessmentAnswerButton
+		if button == null:
+			continue
 		button.button_group = group
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.custom_minimum_size = Vector2(0, 52)
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.text = answer.text
-		button.button_pressed = answer.answer_id == selected_id
+		answer_container.add_child(button)
+		button.configure(
+			visual_position + 1,
+			answer.text,
+			ASSESSMENT_ACCENTS[visual_position % ASSESSMENT_ACCENTS.size()]
+		)
+		button.set_selected(answer.answer_id == selected_id)
 		button.pressed.connect(
 			_on_assessment_answer_selected.bind(
 				question.question_id,
@@ -641,7 +827,6 @@ func _render_assessment_question(track_visit: bool) -> void:
 				visual_position
 			)
 		)
-		answer_container.add_child(button)
 	_refresh_assessment_next_state()
 	_update_page_chrome()
 	master_scroll.set_deferred("scroll_vertical", 0)
@@ -696,9 +881,9 @@ func _refresh_assessment_next_state() -> void:
 		or not _assessment_session.final_answer_by_question.has(question.question_id)
 	)
 	next_button.text = (
-		"CALCULATE"
+		"CALCULATE  ›"
 		if _question_index == assessment_data.questions.size() - 1
-		else "NEXT"
+		else "NEXT  ›"
 	)
 
 func _advance_assessment_question() -> void:
@@ -1138,9 +1323,11 @@ func _get_apk_preview_texture(apk: APKData) -> Texture2D:
 
 func _show_errors(errors: PackedStringArray) -> void:
 	error_label.text = "\n".join(errors)
+	error_label.visible = not errors.is_empty()
 
 func _clear_error() -> void:
 	error_label.text = ""
+	error_label.hide()
 
 func _clear_container(container: Node) -> void:
 	for child: Node in container.get_children():
