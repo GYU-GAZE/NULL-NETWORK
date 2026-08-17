@@ -1,52 +1,17 @@
-[gd_scene load_steps=12 format=3 uid="uid://bgvj70mu5l7r8"]
+[gd_scene load_steps=10 format=3 uid="uid://bgvj70mu5l7r8"]
 
 [ext_resource type="Script" path="res://data/content/sites/null network/nnw_getstarted.gd" id="1_page"]
 [ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="2_theme"]
 [ext_resource type="Shader" path="res://data/assets/shaders/null_network_portal_background.gdshader" id="3_shader"]
 [ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/components/null_network_portal_header.tscn" id="4_header"]
 [ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/components/null_network_portal_footer.tscn" id="5_footer"]
-[ext_resource type="Texture2D" path="res://data/assets/icons/nnw_portal_icons.svg" id="6_icons"]
-[ext_resource type="Script" path="res://apps/browser/site_action_button.gd" id="7_action"]
-[ext_resource type="Texture2D" path="res://data/assets/icons/nnw_mascot.svg" id="8_mascot"]
+[ext_resource type="Texture2D" path="res://data/assets/icons/nnw_mascot.svg" id="6_mascot"]
+[ext_resource type="Script" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="7_frame"]
 
 [sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
 shader = ExtResource("3_shader")
 
-[sub_resource type="StyleBoxFlat" id="ContentFrame"]
-bg_color = Color(0.006, 0.033, 0.061, 0.92)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.055, 0.42, 0.7, 0.95)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-
-[sub_resource type="StyleBoxFlat" id="RailFrame"]
-bg_color = Color(0.005, 0.027, 0.05, 0.94)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.04, 0.29, 0.49, 0.9)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-
-[sub_resource type="StyleBoxFlat" id="ArticleFrame"]
-bg_color = Color(0.008, 0.047, 0.085, 0.94)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.06, 0.45, 0.75, 0.96)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
+[sub_resource type="StyleBoxEmpty" id="Transparent"]
 
 [node name="NnwGetStarted" type="Control"]
 anchors_preset = 15
@@ -72,8 +37,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 1
-grow_vertical = 1
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/margin_left = 6
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 6
@@ -81,7 +46,7 @@ theme_override_constants/margin_bottom = 4
 
 [node name="Page" type="VBoxContainer" parent="PageMargin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="PortalHeader" parent="PageMargin/Page" instance=ExtResource("4_header")]
 layout_mode = 2
@@ -91,42 +56,47 @@ subtitle_text = "// COMMUNITY HUB"
 [node name="ContentFrame" type="PanelContainer" parent="PageMargin/Page"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("ContentFrame")
+script = ExtResource("7_frame")
+tone = 1
+corner_cut = 8
+draw_scanlines = true
 
 [node name="ContentMargin" type="MarginContainer" parent="PageMargin/Page/ContentFrame"]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 6
 
 [node name="ContentVBox" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 5
 
 [node name="WelcomeBlock" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 2
+theme_override_constants/separation = -2
 
 [node name="Mascot" type="TextureRect" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/WelcomeBlock"]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
-texture = ExtResource("8_mascot")
+texture = ExtResource("6_mascot")
 expand_mode = 1
 stretch_mode = 5
 modulate = Color(0.32, 0.72, 1, 1)
+texture_filter = 1
 
 [node name="WelcomeTitle" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/WelcomeBlock"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.98, 1, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 18
 text = "hello, world"
 horizontal_alignment = 1
 
 [node name="WelcomeRule" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/WelcomeBlock"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.04, 0.55, 0.92, 0.9)
+theme_override_font_sizes/font_size = 8
 text = "+ ───── + ▪▪▪ ───── +"
 horizontal_alignment = 1
 
@@ -136,87 +106,124 @@ size_flags_vertical = 3
 theme_override_constants/separation = 10
 
 [node name="PathRail" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody"]
-custom_minimum_size = Vector2(250, 0)
+custom_minimum_size = Vector2(238, 0)
 layout_mode = 2
-theme_override_styles/panel = SubResource("RailFrame")
+script = ExtResource("7_frame")
+tone = 0
+corner_cut = 6
 
 [node name="RailMargin" type="MarginContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail"]
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
 
 [node name="RailVBox" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 5
 
 [node name="RailTitle" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.66, 1, 1)
+theme_override_font_sizes/font_size = 9
 text = "NEW HERE? FOLLOW THE PATH."
 horizontal_alignment = 1
 
-[node name="IntroductionBtn" type="Button" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
+[node name="IntroductionFrame" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+script = ExtResource("7_frame")
+tone = 3
+corner_cut = 6
+draw_scanlines = true
+
+[node name="IntroductionBtn" type="Button" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox/IntroductionFrame"]
+unique_name_in_owner = true
 layout_mode = 2
 toggle_mode = true
-text = "01   ▣   Introduction     ›\n          You are here"
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
+theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/focus = SubResource("Transparent")
+text = "01   ▣   Introduction        ›\n             You are here"
 alignment = 0
 
-[node name="GetStartedBtn" type="Button" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
+[node name="GetStartedFrame" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+script = ExtResource("7_frame")
+tone = 0
+corner_cut = 5
+draw_inner_border = false
+
+[node name="GetStartedBtn" type="Button" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox/GetStartedFrame"]
+unique_name_in_owner = true
 layout_mode = 2
 toggle_mode = true
-text = "02   ↗   Get Started!     ›\n          Recommended next"
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
+theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/focus = SubResource("Transparent")
+text = "02   ↗   Get Started!        ›\n             Recommended next"
 alignment = 0
 
-[node name="GlossaryBtn" type="Button" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
+[node name="GlossaryFrame" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 50)
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+script = ExtResource("7_frame")
+tone = 0
+corner_cut = 5
+draw_inner_border = false
+
+[node name="GlossaryBtn" type="Button" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox/GlossaryFrame"]
+unique_name_in_owner = true
 layout_mode = 2
 toggle_mode = true
-text = "03   ▤   Glossary         ›\n          Reference & terms"
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
+theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/focus = SubResource("Transparent")
+text = "03   ▤   Glossary            ›\n             Reference & terms"
 alignment = 0
 
 [node name="RailHint" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.55, 0.69, 0.81, 1)
-text = "★  Follow the path to get the most out of NULL NETWORK."
+theme_override_font_sizes/font_size = 9
+text = "★  Follow the path to get the most\n     out of NULL NETWORK."
 vertical_alignment = 2
-autowrap_mode = 2
-
-[node name="BackBtn" type="Button" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "‹  RETURN TO HOME"
-script = ExtResource("7_action")
-target_url = "null.net"
 
 [node name="ArticlePanel" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("ArticleFrame")
+script = ExtResource("7_frame")
+tone = 1
+corner_cut = 6
 
 [node name="ArticleMargin" type="MarginContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
 
 [node name="ArticleVBox" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin"]
 layout_mode = 2
-theme_override_constants/separation = 7
+theme_override_constants/separation = 5
 
 [node name="ArticleTitle" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.13, 0.64, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 14
 text = "01  INTRODUCTION"
 
 [node name="ArticleRule" type="HSeparator" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox"]
@@ -234,14 +241,15 @@ size_flags_horizontal = 3
 [node name="IntroductionLabel" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll/ArticleContent"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 9
 text = "Hello Cobalt community,\n\nMy name is Morris and this is a fan project I began back in college in the mid 2000s. Piecing together the source code of Cobalt Blue from decompiled scraps has been one of the most challenging but rewarding experiences of my life. It’s been a lot of help from all of you along the way, and while it can’t be called a 1 to 1 recreation, I believe we’ve expanded upon Cobalt’s vision in a meaningful way.\n\nAs you may know, I’ve started my own gaming studio, M8Goods. This means I’ve had less time to dedicate to updating the game. This site is solely run by volunteer staff, the players, and unpaid organizers who help keep the app functioning on iOS and Android out of love. Due to copyright issues, we’ve never been able to monetize this project or secure an official release. It’s thanks to your generous donations that this website stays afloat.\n\nGoing forward, the moderation team will be taking the reins on this project and I’m sure they’ll do the community justice! For now, consider this the definitive version of the game and the last patch (r1) I’ll be taking part in.\n\nThank you all for playing and keeping the world safe.\n\nMorris_the_Worm8"
-horizontal_alignment = 1
 autowrap_mode = 2
 
 [node name="GetStartedLabel" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll/ArticleContent"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+theme_override_font_sizes/font_size = 9
 text = "1  Upon starting the game, you will be prompted to enter a player name that is bound to your account. Choose wisely, as this cannot be changed later.\n\n2  The creatures you will encounter are APKs: living programs whose Integrity and behaviour are shaped by their data.\n\n3  NULL NETWORK is a game about making a memorable companion. Your Compatibility Assessment can match you with a partner, while Manual Allocation lets you select from the standard roster.\n\n4  Your Tendencies — VALOUR, LOGIC, SYNC and SELF — grow through decisions and combat behaviour. They shape evolution without replacing your direct tactical choices.\n\n5  During combat, SCAN, PURGE, PURIFY and TAME occupy Timeline slots. Each action changes the reward and the relationship you form with the target.\n\n6  Always be on guard. APK loss is permanent, and a careless Operator can leave more behind than progress."
 autowrap_mode = 2
 
@@ -249,6 +257,7 @@ autowrap_mode = 2
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+theme_override_font_sizes/font_size = 9
 text = "ADMINISTRATOR  A player who controls the majority of an area’s Data Centers.\n\nAGGRO LOCK  A state where an Operator is inside an enemy’s range and cannot safely exit.\n\nBLACKHAT  A playstyle centered on consumption, exploitation and forbidden systems.\n\nDATA CENTER  A fixed stronghold protected by a powerful APK.\n\nDEAD ZONE  A location with no active Operators and an unusually dense program ecosystem.\n\nINDEX  The act of gathering complete map information about an area.\n\nWHITEHAT  A purification-focused playstyle chosen after learning that other paths exist."
 autowrap_mode = 2
 

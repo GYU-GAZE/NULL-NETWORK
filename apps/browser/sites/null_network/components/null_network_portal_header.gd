@@ -24,10 +24,10 @@ func _ready() -> void:
 
 func set_assessment_mode(enabled: bool) -> void:
 	assessment_progress.visible = enabled
-	title_label.add_theme_font_size_override("font_size", 16 if enabled else 22)
-	subtitle_label.add_theme_font_size_override("font_size", 9 if enabled else 12)
+	title_label.add_theme_font_size_override("font_size", 14 if enabled else 16)
+	subtitle_label.add_theme_font_size_override("font_size", 8 if enabled else 9)
 	for stage_label: Label in [everyday_label, critical_label, dilemma_label]:
-		stage_label.add_theme_font_size_override("font_size", 9 if enabled else 11)
+		stage_label.add_theme_font_size_override("font_size", 8 if enabled else 9)
 	if enabled:
 		title_label.text = "NULL NETWORK"
 		subtitle_label.text = "COMPATIBILITY ASSESSMENT"

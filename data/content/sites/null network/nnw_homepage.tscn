@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://dfghm5hb81mbt"]
+[gd_scene load_steps=13 format=3 uid="uid://dfghm5hb81mbt"]
 
 [ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="1_theme"]
 [ext_resource type="Shader" path="res://data/assets/shaders/null_network_portal_background.gdshader" id="2_shader"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://data/assets/icons/nnwicon.png" id="5_logo"]
 [ext_resource type="Texture2D" path="res://data/assets/icons/nnw_portal_icons.svg" id="6_icons"]
 [ext_resource type="Script" path="res://apps/browser/site_action_button.gd" id="7_action"]
+[ext_resource type="Script" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="8_frame"]
 
 [sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
 shader = ExtResource("2_shader")
@@ -23,67 +24,7 @@ region = Rect2(32, 0, 16, 16)
 atlas = ExtResource("6_icons")
 region = Rect2(48, 0, 16, 16)
 
-[sub_resource type="StyleBoxFlat" id="HeroFrame"]
-bg_color = Color(0.006, 0.035, 0.064, 0.84)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.06, 0.45, 0.74, 0.95)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-shadow_color = Color(0.0, 0.42, 0.82, 0.2)
-shadow_size = 4
-
-[sub_resource type="StyleBoxFlat" id="VisualFrame"]
-bg_color = Color(0.005, 0.026, 0.047, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.035, 0.24, 0.42, 0.85)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
-
-[sub_resource type="StyleBoxFlat" id="PrimaryNormal"]
-content_margin_left = 20.0
-content_margin_top = 10.0
-content_margin_right = 20.0
-content_margin_bottom = 10.0
-bg_color = Color(0.035, 0.44, 0.77, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.26, 0.87, 1, 1)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
-shadow_color = Color(0.02, 0.62, 1, 0.36)
-shadow_size = 5
-
-[sub_resource type="StyleBoxFlat" id="PrimaryHover"]
-content_margin_left = 20.0
-content_margin_top = 10.0
-content_margin_right = 20.0
-content_margin_bottom = 10.0
-bg_color = Color(0.06, 0.58, 0.95, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.55, 0.95, 1, 1)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
-shadow_color = Color(0.05, 0.72, 1, 0.5)
-shadow_size = 6
+[sub_resource type="StyleBoxEmpty" id="Transparent"]
 
 [node name="NnwHomepage" type="Control"]
 anchors_preset = 15
@@ -104,139 +45,165 @@ mouse_filter = 2
 material = SubResource("BackgroundMaterial")
 color = Color(1, 1, 1, 1)
 
-[node name="MasterScroll" type="ScrollContainer" parent="."]
-unique_name_in_owner = true
+[node name="PageMargin" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-horizontal_scroll_mode = 0
-vertical_scroll_mode = 1
-
-[node name="PageMargin" type="MarginContainer" parent="MasterScroll"]
-layout_mode = 2
-size_flags_horizontal = 3
 theme_override_constants/margin_left = 6
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 4
 
-[node name="Page" type="VBoxContainer" parent="MasterScroll/PageMargin"]
+[node name="Page" type="VBoxContainer" parent="PageMargin"]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
-[node name="PortalHeader" parent="MasterScroll/PageMargin/Page" instance=ExtResource("3_header")]
+[node name="PortalHeader" parent="PageMargin/Page" instance=ExtResource("3_header")]
 layout_mode = 2
 title_text = "null NETWORK"
 subtitle_text = ""
 
-[node name="HeroPanel" type="PanelContainer" parent="MasterScroll/PageMargin/Page"]
-custom_minimum_size = Vector2(0, 300)
-layout_mode = 2
-theme_override_styles/panel = SubResource("HeroFrame")
-
-[node name="HeroMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/HeroPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 16
-
-[node name="HeroVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="HeroContent" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox"]
+[node name="MainFrame" type="PanelContainer" parent="PageMargin/Page"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 20
+script = ExtResource("8_frame")
+tone = 1
+corner_cut = 8
+draw_scanlines = true
 
-[node name="PortalVisual" type="PanelContainer" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent"]
-custom_minimum_size = Vector2(250, 0)
+[node name="MainMargin" type="MarginContainer" parent="PageMargin/Page/MainFrame"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("VisualFrame")
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 8
 
-[node name="VisualVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/PortalVisual"]
+[node name="MainVBox" type="VBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="HeroVBox" type="VBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 7
+
+[node name="HeroContent" type="HBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="PortalVisual" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent"]
+custom_minimum_size = Vector2(252, 0)
+layout_mode = 2
+script = ExtResource("8_frame")
+tone = 0
+corner_cut = 5
+draw_inner_border = false
+draw_corner_marks = false
+
+[node name="VisualVBox" type="VBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual"]
 layout_mode = 2
 alignment = 1
+theme_override_constants/separation = -2
 
-[node name="MatrixTop" type="Label" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
+[node name="MatrixTop" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.02, 0.35, 0.64, 0.62)
+theme_override_colors/font_color = Color(0.02, 0.35, 0.64, 0.55)
+theme_override_font_sizes/font_size = 8
 text = "0  1  0  0  1  1  0  1  0\n  1  1  0  1  0  0  1\n0  0  1  1  0  1  0  0"
 horizontal_alignment = 1
 
-[node name="HeroMark" type="TextureRect" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
-custom_minimum_size = Vector2(0, 108)
+[node name="HeroMark" type="TextureRect" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
+custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 texture = ExtResource("5_logo")
 expand_mode = 1
 stretch_mode = 5
+texture_filter = 1
 
-[node name="MatrixFloor" type="Label" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
+[node name="MatrixFloor" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.03, 0.42, 0.72, 0.72)
-text = "─────╱╱╱╱╱╱╱╱─────"
+theme_override_colors/font_color = Color(0.03, 0.42, 0.72, 0.68)
+theme_override_font_sizes/font_size = 8
+text = "──────╱╱╱╱╱╱──────"
 horizontal_alignment = 1
 
-[node name="HeroCopy" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent"]
+[node name="HeroCopy" type="VBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 3
 
-[node name="Eyebrow" type="Label" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/HeroCopy"]
+[node name="Eyebrow" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.66, 1, 1)
+theme_override_font_sizes/font_size = 9
 text = "// ENTER THE DIGITAL FRONTIER //"
 horizontal_alignment = 1
 
-[node name="HeroTitle" type="Label" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/HeroCopy"]
+[node name="HeroTitle" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.26, 0.76, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 22
 text = "THE WORLD IS UNDER SIEGE."
 horizontal_alignment = 1
 
-[node name="DescriptionLabel" type="Label" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/HeroCopy"]
+[node name="DescriptionLabel" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 10
-theme_override_constants/line_spacing = 2
-text = "In the lead-up to the devastating Y2K virus, a mass purge of data opened a rift between the world of man and computers. Now, electronic specters from the digital realm are trying to invade the world of the living!\n\nGear up with futuristic goggles and photon weaponry that lets you do battle with vicious viruses, woeful worms and apocalyptic A.I. — each one hellbent on overwriting humanity.\n\nUsing the latest innovations in augmented reality, take the fight from your screen straight into your home! A gaming experience like nothing you've seen before!\n\nFrom the brilliant mind of Tarou Yamada.\n\nコバルトブルー\n© 2000"
-horizontal_alignment = 0
+theme_override_font_sizes/font_size = 9
+theme_override_constants/line_spacing = 0
+text = "In the lead-up to the devastating Y2K virus, a mass purge of data opened a rift between the world of man and computers. Now, electronic specters from the digital realm are trying to invade the world of the living!\n\nGear up with futuristic goggles and photon weaponry that lets you do battle with vicious viruses, woeful worms and apocalyptic A.I. — each one hellbent on overwriting humanity.\n\nUsing the latest innovations in augmented reality, take the fight from your screen straight into your home! A gaming experience like nothing you've seen before!\n\nFrom the brilliant mind of Tarou Yamada.\n\n                              コバルトブルー     © 2000"
 autowrap_mode = 2
 
-[node name="Get Started" type="Button" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox"]
+[node name="CtaFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+script = ExtResource("8_frame")
+tone = 3
+corner_cut = 7
+draw_scanlines = true
+
+[node name="Get Started" type="Button" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/CtaFrame"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.93, 0.99, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("PrimaryNormal")
-theme_override_styles/hover = SubResource("PrimaryHover")
-theme_override_styles/pressed = SubResource("PrimaryNormal")
-text = "›     GET STARTED     ‹"
+theme_override_styles/normal = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
+theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/focus = SubResource("Transparent")
+text = "›        GET STARTED        ‹"
 script = ExtResource("7_action")
 target_url = "null.net/getstarted"
 
-[node name="PortalLinks" type="HBoxContainer" parent="MasterScroll/PageMargin/Page"]
+[node name="PortalLinks" type="HBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox"]
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="UpdatesBtn" type="Button" parent="MasterScroll/PageMargin/Page/PortalLinks"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 50)
+[node name="UpdatesFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("8_frame")
+tone = 1
+corner_cut = 5
+draw_inner_border = false
+
+[node name="UpdatesBtn" type="Button" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks/UpdatesFrame"]
+unique_name_in_owner = true
+layout_mode = 2
 icon = SubResource("DocumentIcon")
-icon_max_width = 30
-text = "CHANGELOG       ›"
+icon_max_width = 24
+theme_override_styles/normal = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
+theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/focus = SubResource("Transparent")
+text = "CHANGELOG          ›"
 script = ExtResource("7_action")
 required_flag_name = "operator.registered"
 show_alert_on_failed_condition = true
@@ -244,14 +211,25 @@ failed_alert_title = "ACCOUNT REQUIRED"
 failed_alert_message = "You must have an account to access this area."
 target_url = "null.net/updates"
 
-[node name="ThreadsBtn" type="Button" parent="MasterScroll/PageMargin/Page/PortalLinks"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 50)
+[node name="ThreadsFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("8_frame")
+tone = 1
+corner_cut = 5
+draw_inner_border = false
+
+[node name="ThreadsBtn" type="Button" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks/ThreadsFrame"]
+unique_name_in_owner = true
+layout_mode = 2
 icon = SubResource("MessageIcon")
-icon_max_width = 30
-text = "MESSAGE BOARD       ›"
+icon_max_width = 24
+theme_override_styles/normal = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
+theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/focus = SubResource("Transparent")
+text = "MESSAGE BOARD          ›"
 script = ExtResource("7_action")
 required_flag_name = "operator.registered"
 show_alert_on_failed_condition = true
@@ -259,14 +237,25 @@ failed_alert_title = "ACCOUNT REQUIRED"
 failed_alert_message = "You must have an account to access this area."
 target_url = "null.net/forums"
 
-[node name="RankingsBtn" type="Button" parent="MasterScroll/PageMargin/Page/PortalLinks"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 50)
+[node name="RankingsFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("8_frame")
+tone = 1
+corner_cut = 5
+draw_inner_border = false
+
+[node name="RankingsBtn" type="Button" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks/RankingsFrame"]
+unique_name_in_owner = true
+layout_mode = 2
 icon = SubResource("RankingIcon")
-icon_max_width = 30
-text = "PLAYER RANKINGS       ›"
+icon_max_width = 24
+theme_override_styles/normal = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
+theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/focus = SubResource("Transparent")
+text = "PLAYER RANKINGS          ›"
 script = ExtResource("7_action")
 required_flag_name = "operator.registered"
 show_alert_on_failed_condition = true
@@ -274,5 +263,5 @@ failed_alert_title = "ACCOUNT REQUIRED"
 failed_alert_message = "You must have an account to access this area."
 target_url = "null.net/playerrankings"
 
-[node name="PortalFooter" parent="MasterScroll/PageMargin/Page" instance=ExtResource("4_footer")]
+[node name="PortalFooter" parent="PageMargin/Page" instance=ExtResource("4_footer")]
 layout_mode = 2
