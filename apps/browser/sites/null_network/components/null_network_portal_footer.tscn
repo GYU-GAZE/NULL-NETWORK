@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="StyleBoxFlat" id="FooterFrame"]
+bg_color = Color(0.004, 0.025, 0.046, 0.98)
+border_width_top = 1
+border_color = Color(0.04, 0.25, 0.43, 0.9)
+
+[node name="NullNetworkPortalFooter" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 22)
+theme_override_styles/panel = SubResource("FooterFrame")
+
+[node name="FooterLabel" type="Label" parent="."]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.43, 0.69, 0.9)
+text = "▪▪▪▪▪   NULL NETWORK  //  v2.000  //  STAY CONNECTED   ▪▪▪▪▪"
+horizontal_alignment = 1

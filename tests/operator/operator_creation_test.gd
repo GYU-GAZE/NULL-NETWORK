@@ -9,9 +9,9 @@ const OCCUPATION_IDS: Array[String] = [
 	"high_school_student",
 	"salaryperson"
 ]
-const EXPECTED_MANUAL_CANDIDATES := PackedStringArray([
+const EXPECTED_MANUAL_CANDIDATES: Array[String] = [
 	"REVQUIRE", "VOCALYTE", "WIZIP", "PABUBU", "TROJAW"
-])
+]
 
 var _failures := PackedStringArray()
 var _test_root: String
@@ -46,6 +46,10 @@ func _test_registration_route() -> void:
 	add_child(page_instance)
 	await _wait_frames(3)
 	_check(page_instance is OperatorCreationPage, "Registration route did not instantiate OperatorCreationPage.")
+	_check(page_instance.find_child("PortalHeader", true, false) != null, "Registration lost the shared NULL NETWORK portal header.")
+	_check(page_instance.find_child("RegistrationStepper", true, false) != null, "Registration lost the three-stage visual stepper.")
+	_check(page_instance.find_child("AssessmentAbout", true, false) != null, "Compatibility Assessment lost its category context rail.")
+	_check(page_instance.find_child("AssessmentProgressPips", true, false) != null, "Compatibility Assessment lost its 18-question progress rail.")
 
 	var occupation_option := page_instance.find_child("OccupationOption", true, false) as OptionButton
 	_check(
@@ -74,7 +78,7 @@ func _test_assessment_contract() -> void:
 		return
 	_check(ASSESSMENT_DATA.questions.size() == 18, "Compatibility Assessment must contain exactly 18 questions.")
 	_check(ASSESSMENT_DATA.candidates.size() >= 5, "Compatibility Assessment candidate pool is incomplete.")
-	_check(ASSESSMENT_DATA.manual_candidate_ids == EXPECTED_MANUAL_CANDIDATES, "Manual Allocation must expose exactly REVQUIRE, VOCALYTE, WIZIP, PABUBU and TROJAW in the locked order.")
+	_check(ASSESSMENT_DATA.manual_candidate_ids == PackedStringArray(EXPECTED_MANUAL_CANDIDATES), "Manual Allocation must expose exactly REVQUIRE, VOCALYTE, WIZIP, PABUBU and TROJAW in the locked order.")
 
 func _test_invalid_tendency_total() -> void:
 	var create_errors: PackedStringArray = SaveManager.create_campaign(

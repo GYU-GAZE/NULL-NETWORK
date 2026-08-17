@@ -1,66 +1,87 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/register/operator_creation.gd" id="1_page"]
 [ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="2_theme"]
 [ext_resource type="Resource" path="res://data/content/onboarding/compatibility_assessment_v1_1.tres" id="3_assessment"]
 [ext_resource type="Resource" path="res://data/content/operator/default_appearance_catalog.tres" id="4_appearance"]
 [ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/register/partner_preview_panel.tscn" id="5_partner_preview"]
+[ext_resource type="Shader" path="res://data/assets/shaders/null_network_portal_background.gdshader" id="6_shader"]
+[ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/components/null_network_portal_header.tscn" id="7_header"]
+[ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/components/null_network_portal_footer.tscn" id="8_footer"]
+[ext_resource type="Texture2D" path="res://data/assets/icons/nnw_portal_icons.svg" id="9_icons"]
+[ext_resource type="Texture2D" path="res://data/assets/icons/nnw_mascot.svg" id="10_mascot"]
 
 [sub_resource type="StyleBoxFlat" id="MainPanel"]
-bg_color = Color(0.965, 0.99, 1, 0.94)
+bg_color = Color(0.006, 0.034, 0.062, 0.94)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.34, 0.69, 0.88, 0.76)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0.08, 0.29, 0.51, 0.12)
-shadow_size = 7
+border_color = Color(0.055, 0.43, 0.72, 0.92)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+shadow_color = Color(0.0, 0.43, 0.82, 0.2)
+shadow_size = 4
 
 [sub_resource type="StyleBoxFlat" id="SoftPanel"]
-bg_color = Color(0.91, 0.97, 1, 0.78)
+bg_color = Color(0.008, 0.045, 0.081, 0.9)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.39, 0.72, 0.9, 0.64)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.04, 0.3, 0.52, 0.9)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
 
 [sub_resource type="StyleBoxFlat" id="DarkStrip"]
-bg_color = Color(0.08, 0.22, 0.39, 0.94)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+bg_color = Color(0.006, 0.03, 0.055, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.045, 0.3, 0.51, 0.9)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
 content_margin_left = 10.0
 content_margin_top = 6.0
 content_margin_right = 10.0
 content_margin_bottom = 6.0
 
 [sub_resource type="StyleBoxFlat" id="PreviewFrame"]
-bg_color = Color(0.82, 0.94, 0.99, 0.88)
+bg_color = Color(0.012, 0.075, 0.13, 0.94)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.27, 0.62, 0.84, 0.9)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+border_color = Color(0.09, 0.55, 0.88, 0.96)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
+shader = ExtResource("6_shader")
+
+[sub_resource type="AtlasTexture" id="ClipboardIcon"]
+atlas = ExtResource("9_icons")
+region = Rect2(128, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="ManualIcon"]
+atlas = ExtResource("9_icons")
+region = Rect2(144, 0, 16, 16)
 
 [node name="OperatorCreation" type="PanelContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+grow_horizontal = 1
+grow_vertical = 1
 clip_contents = true
 theme = ExtResource("2_theme")
 script = ExtResource("1_page")
@@ -71,7 +92,8 @@ partner_preview_scene = ExtResource("5_partner_preview")
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 2
 mouse_filter = 2
-color = Color(0.87, 0.955, 1, 1)
+material = SubResource("BackgroundMaterial")
+color = Color(1, 1, 1, 1)
 
 [node name="BackdropAccent" type="ColorRect" parent="Background"]
 layout_mode = 1
@@ -80,7 +102,7 @@ anchor_right = 1.0
 offset_bottom = 104.0
 grow_horizontal = 2
 mouse_filter = 2
-color = Color(0.43, 0.78, 0.96, 0.36)
+color = Color(0.02, 0.28, 0.54, 0.15)
 
 [node name="MasterScroll" type="ScrollContainer" parent="."]
 unique_name_in_owner = true
@@ -99,59 +121,85 @@ theme_override_constants/margin_bottom = 22
 [node name="Page" type="VBoxContainer" parent="MasterScroll/PageMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/separation = 12
 
-[node name="HeaderPanel" type="PanelContainer" parent="MasterScroll/PageMargin/Page"]
+[node name="PortalHeader" parent="MasterScroll/PageMargin/Page" instance=ExtResource("7_header")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-theme_override_styles/panel = SubResource("MainPanel")
+title_text = "NULL NETWORK REGISTRATION"
+subtitle_text = "Create your operator profile"
 
-[node name="HeaderMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/HeaderPanel"]
+[node name="RegistrationStepper" type="HBoxContainer" parent="MasterScroll/PageMargin/Page"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 10
+theme_override_constants/separation = 8
 
-[node name="HeaderVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/HeaderPanel/HeaderMargin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="HeaderRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/HeaderPanel/HeaderMargin/HeaderVBox"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="MasterScroll/PageMargin/Page/HeaderPanel/HeaderMargin/HeaderVBox/HeaderRow"]
+[node name="StepAccount" type="PanelContainer" parent="MasterScroll/PageMargin/Page/RegistrationStepper"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.06, 0.27, 0.49, 1)
-theme_override_font_sizes/font_size = 38
-text = "NULL NETWORK REGISTRATION"
+theme_override_styles/panel = SubResource("DarkStrip")
 
-[node name="PageCounter" type="Label" parent="MasterScroll/PageMargin/Page/HeaderPanel/HeaderMargin/HeaderVBox/HeaderRow"]
+[node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/RegistrationStepper/StepAccount"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.72, 1, 1)
+text = "01   ACCOUNT\n      Create your basic account"
+vertical_alignment = 1
+
+[node name="StepAppearance" type="PanelContainer" parent="MasterScroll/PageMargin/Page/RegistrationStepper"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("DarkStrip")
+
+[node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/RegistrationStepper/StepAppearance"]
+layout_mode = 2
+text = "02   APPEARANCE\n      Customize your identity"
+vertical_alignment = 1
+
+[node name="StepCompatibility" type="PanelContainer" parent="MasterScroll/PageMargin/Page/RegistrationStepper"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("DarkStrip")
+
+[node name="CompatibilityRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/RegistrationStepper/StepCompatibility"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MasterScroll/PageMargin/Page/RegistrationStepper/StepCompatibility/CompatibilityRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "03   COMPATIBILITY\n      Optimize your experience"
+vertical_alignment = 1
+
+[node name="PageCounter" type="Label" parent="MasterScroll/PageMargin/Page/RegistrationStepper/StepCompatibility/CompatibilityRow"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "01 / 03"
 vertical_alignment = 1
 
-[node name="HeaderSubtitle" type="Label" parent="MasterScroll/PageMargin/Page/HeaderPanel/HeaderMargin/HeaderVBox"]
+[node name="StateLabels" type="VBoxContainer" parent="MasterScroll/PageMargin/Page"]
+visible = false
+layout_mode = 2
+
+[node name="HeaderSubtitle" type="Label" parent="MasterScroll/PageMargin/Page/StateLabels"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.29, 0.43, 0.55, 1)
 text = "ACCOUNT PROFILE"
-autowrap_mode = 2
 
-[node name="ProgressStrip" type="PanelContainer" parent="MasterScroll/PageMargin/Page"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("DarkStrip")
-
-[node name="ProgressLabel" type="Label" parent="MasterScroll/PageMargin/Page/ProgressStrip"]
+[node name="ProgressLabel" type="Label" parent="MasterScroll/PageMargin/Page/StateLabels"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.95, 1, 1)
 text = "ACCOUNT  •  APPEARANCE  •  COMPATIBILITY"
-horizontal_alignment = 1
 
 [node name="BodyPanel" type="PanelContainer" parent="MasterScroll/PageMargin/Page"]
 layout_mode = 2
+size_flags_vertical = 3
 theme_override_styles/panel = SubResource("MainPanel")
 
 [node name="BodyMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/BodyPanel"]
@@ -203,7 +251,7 @@ theme_override_styles/panel = SubResource("PreviewFrame")
 [node name="AvatarPreviewLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel/AvatarMargin/AvatarVBox/AvatarPreviewFrame"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 22
 text = "A01"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -215,8 +263,17 @@ columns = 3
 
 [node name="AvatarHint" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel/AvatarMargin/AvatarVBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.33, 0.46, 0.56, 1)
+theme_override_colors/font_color = Color(0.52, 0.67, 0.8, 1)
 text = "Choose the image displayed beside your NULL CHANNEL posts."
+autowrap_mode = 2
+
+[node name="TipsSeparator" type="HSeparator" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel/AvatarMargin/AvatarVBox"]
+layout_mode = 2
+
+[node name="RegistrationTips" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AvatarPanel/AvatarMargin/AvatarVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.66, 0.9, 1)
+text = "☆  REGISTRATION TIPS\n\nChoose a username you'll be proud to use in the community.\n\nYour writing style helps shape your presence here.\n\nMost information can be updated later."
 autowrap_mode = 2
 
 [node name="AccountForm" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns"]
@@ -226,7 +283,7 @@ theme_override_constants/separation = 10
 
 [node name="AccountTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 22
 text = "ACCOUNT"
 
 [node name="UsernameRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
@@ -295,7 +352,7 @@ layout_mode = 2
 
 [node name="PersonalTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 22
 text = "PERSONAL INFORMATION"
 
 [node name="PersonalGrid" type="GridContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
@@ -368,7 +425,7 @@ layout_mode = 2
 [node name="OccupationSummary" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.31, 0.44, 0.54, 1)
+theme_override_colors/font_color = Color(0.52, 0.66, 0.78, 1)
 autowrap_mode = 2
 
 [node name="AppearancePage" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
@@ -378,7 +435,7 @@ layout_mode = 2
 theme_override_constants/separation = 10
 [node name="AppearanceTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 22
 text = "CREATE YOUR APPEARANCE"
 [node name="AppearanceSubtitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage"]
 layout_mode = 2
@@ -449,7 +506,7 @@ text = "↑"
 [node name="SelectionSummary" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns/PreviewColumn"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.32, 0.44, 0.54, 1)
+theme_override_colors/font_color = Color(0.52, 0.66, 0.78, 1)
 autowrap_mode = 2
 
 [node name="AppearanceOptions" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns"]
@@ -478,11 +535,23 @@ theme_override_constants/v_separation = 7
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 8
+[node name="MethodIcon" type="TextureRect" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+texture = SubResource("ClipboardIcon")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.07, 0.58, 1, 1)
 [node name="MethodTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 22
 text = "COMPATIBILITY ASSESSMENT"
+horizontal_alignment = 1
+[node name="MethodRule" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.06, 0.52, 0.88, 0.9)
+text = "────────────── ▪ ◇ ▪ ──────────────"
 horizontal_alignment = 1
 [node name="MethodBody" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
 layout_mode = 2
@@ -495,14 +564,28 @@ alignment = 1
 theme_override_constants/separation = 12
 [node name="ParticipateButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage/MethodButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(250, 56)
+custom_minimum_size = Vector2(240, 96)
 layout_mode = 2
-text = "PARTICIPATE"
+theme_override_font_sizes/font_size = 13
+icon = SubResource("ClipboardIcon")
+icon_max_width = 54
+text = "PARTICIPATE\n★ RECOMMENDED\nTake the quiz and receive a matched starter partner."
+alignment = 0
 [node name="ManualAllocationButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage/MethodButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(250, 56)
+custom_minimum_size = Vector2(240, 96)
 layout_mode = 2
-text = "MANUAL ALLOCATION"
+theme_override_font_sizes/font_size = 13
+icon = SubResource("ManualIcon")
+icon_max_width = 54
+text = "MANUAL ALLOCATION\n\nSkip the quiz and choose directly from the standard roster."
+alignment = 0
+
+[node name="MethodRecommendation" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/MethodPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.19, 0.65, 1, 1)
+text = "ⓘ  Recommended for first-time operators."
+horizontal_alignment = 1
 
 [node name="ManualPage" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
 unique_name_in_owner = true
@@ -587,28 +670,114 @@ text = "SYNCHRONIZE"
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 11
-[node name="AssessmentHeaderRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage"]
+theme_override_constants/separation = 7
+
+[node name="AssessmentLayout" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage"]
 layout_mode = 2
-[node name="AssessmentCategory" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentHeaderRow"]
+size_flags_vertical = 3
+theme_override_constants/separation = 9
+
+[node name="AssessmentAbout" type="PanelContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("SoftPanel")
+
+[node name="AboutMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/AssessmentAbout"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="AboutVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/AssessmentAbout/AboutMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="AboutTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/AssessmentAbout/AboutMargin/AboutVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.5, 1, 1)
+text = "ABOUT THIS SECTION"
+
+[node name="AboutRule" type="HSeparator" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/AssessmentAbout/AboutMargin/AboutVBox"]
+layout_mode = 2
+
+[node name="AssessmentSectionTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/AssessmentAbout/AboutMargin/AboutVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "EVERYDAY"
+
+[node name="AssessmentQuestionCount" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/AssessmentAbout/AboutMargin/AboutVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.72, 0.82, 1)
+text = "06 QUESTIONS"
+
+[node name="AssessmentSectionBody" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/AssessmentAbout/AboutMargin/AboutVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.67, 0.76, 0.84, 1)
+text = "These questions are about normal, everyday situations.\n\nThere are no right or wrong answers. Choose the option that feels most natural to you."
+autowrap_mode = 2
+
+[node name="AssessmentMascot" type="TextureRect" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/AssessmentAbout/AboutMargin/AboutVBox"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+texture = ExtResource("10_mascot")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.3, 0.72, 1, 1)
+
+[node name="QuestionPanel" type="PanelContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("MainPanel")
+
+[node name="QuestionMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="QuestionVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel/QuestionMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="AssessmentHeaderRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel/QuestionMargin/QuestionVBox"]
+layout_mode = 2
+
+[node name="AssessmentCategory" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel/QuestionMargin/QuestionVBox/AssessmentHeaderRow"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.08, 0.68, 1, 1)
 text = "EVERYDAY"
-[node name="AssessmentCounter" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentHeaderRow"]
+
+[node name="AssessmentCounter" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel/QuestionMargin/QuestionVBox/AssessmentHeaderRow"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0.21, 0.76, 1, 1)
 text = "01 / 18"
-[node name="QuestionPrompt" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage"]
+
+[node name="QuestionRuleTop" type="HSeparator" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel/QuestionMargin/QuestionVBox"]
+layout_mode = 2
+
+[node name="QuestionPrompt" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel/QuestionMargin/QuestionVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 19
 text = "QUESTION"
 autowrap_mode = 2
-[node name="AnswerContainer" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage"]
+
+[node name="QuestionRuleBottom" type="HSeparator" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel/QuestionMargin/QuestionVBox"]
+layout_mode = 2
+
+[node name="AnswerContainer" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AssessmentPage/AssessmentLayout/QuestionPanel/QuestionMargin/QuestionVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 7
+theme_override_constants/separation = 5
 
 [node name="ResultPage" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
 unique_name_in_owner = true
@@ -624,7 +793,7 @@ layout_mode = 2
 [node name="LoadingLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultLoading"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 22
 text = "CALCULATING COMPATIBILITY..."
 horizontal_alignment = 1
 [node name="LoadingPulse" type="ProgressBar" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultLoading"]
@@ -639,7 +808,7 @@ layout_mode = 2
 theme_override_constants/separation = 10
 [node name="ResultTitle" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 22
 text = "YOUR STARTING PARTNER IS..."
 horizontal_alignment = 1
 [node name="ResultTendencies" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent"]
@@ -697,25 +866,43 @@ text = "OPEN NULL CHANNEL"
 
 [node name="ErrorLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.18, 0.22, 1)
 autowrap_mode = 2
 
 [node name="NavigationRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 46)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 theme_override_constants/separation = 12
 [node name="BackButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 44)
+custom_minimum_size = Vector2(140, 30)
 layout_mode = 2
+theme_override_font_sizes/font_size = 14
 text = "BACK"
-[node name="NavSpacer" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
+[node name="NavSpacerLeft" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="AssessmentProgressPips" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 7
+
+[node name="NavSpacerRight" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="NextButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/NavigationRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 44)
+custom_minimum_size = Vector2(140, 30)
 layout_mode = 2
+theme_override_font_sizes/font_size = 14
 text = "NEXT"
+
+[node name="PortalFooter" parent="MasterScroll/PageMargin/Page" instance=ExtResource("8_footer")]
+layout_mode = 2

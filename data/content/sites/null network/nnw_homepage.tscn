@@ -1,144 +1,89 @@
-[gd_scene load_steps=13 format=3 uid="uid://dfghm5hb81mbt"]
+[gd_scene load_steps=14 format=3 uid="uid://dfghm5hb81mbt"]
 
-[ext_resource type="Texture2D" path="res://data/assets/icons/nnwicon.png" id="1_logo"]
-[ext_resource type="Script" path="res://apps/browser/site_action_button.gd" id="2_action"]
-[ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="3_theme"]
+[ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="1_theme"]
+[ext_resource type="Shader" path="res://data/assets/shaders/null_network_portal_background.gdshader" id="2_shader"]
+[ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/components/null_network_portal_header.tscn" id="3_header"]
+[ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/components/null_network_portal_footer.tscn" id="4_footer"]
+[ext_resource type="Texture2D" path="res://data/assets/icons/nnwicon.png" id="5_logo"]
+[ext_resource type="Texture2D" path="res://data/assets/icons/nnw_portal_icons.svg" id="6_icons"]
+[ext_resource type="Script" path="res://apps/browser/site_action_button.gd" id="7_action"]
 
-[sub_resource type="StyleBoxFlat" id="GlassPanel"]
-bg_color = Color(0.972549, 0.992157, 1, 0.93)
+[sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
+shader = ExtResource("2_shader")
+
+[sub_resource type="AtlasTexture" id="DocumentIcon"]
+atlas = ExtResource("6_icons")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="MessageIcon"]
+atlas = ExtResource("6_icons")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="RankingIcon"]
+atlas = ExtResource("6_icons")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="StyleBoxFlat" id="HeroFrame"]
+bg_color = Color(0.006, 0.035, 0.064, 0.84)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.360784, 0.698039, 0.870588, 0.72)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0.109804, 0.360784, 0.560784, 0.14)
-shadow_size = 7
-
-[sub_resource type="StyleBoxFlat" id="HeroPanel"]
-bg_color = Color(0.984314, 0.996078, 1, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.435294, 0.768627, 0.905882, 0.72)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0.0745098, 0.305882, 0.501961, 0.12)
-shadow_size = 9
-
-[sub_resource type="StyleBoxFlat" id="GuestPanel"]
-bg_color = Color(0.913725, 0.968627, 1, 0.94)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.290196, 0.65098, 0.85098, 0.88)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
-[sub_resource type="StyleBoxFlat" id="AvatarPanel"]
-bg_color = Color(0.760784, 0.909804, 0.976471, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.247059, 0.603922, 0.819608, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-
-[sub_resource type="StyleBoxFlat" id="PrimaryNormal"]
-content_margin_left = 16.0
-content_margin_top = 7.0
-content_margin_right = 16.0
-content_margin_bottom = 7.0
-bg_color = Color(0.176471, 0.654902, 0.901961, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.0745098, 0.458824, 0.721569, 1)
-corner_radius_top_left = 11
-corner_radius_top_right = 11
-corner_radius_bottom_right = 11
-corner_radius_bottom_left = 11
-shadow_color = Color(0.0941176, 0.470588, 0.705882, 0.2)
+border_color = Color(0.06, 0.45, 0.74, 0.95)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+shadow_color = Color(0.0, 0.42, 0.82, 0.2)
 shadow_size = 4
 
-[sub_resource type="StyleBoxFlat" id="PrimaryHover"]
-content_margin_left = 16.0
-content_margin_top = 7.0
-content_margin_right = 16.0
-content_margin_bottom = 7.0
-bg_color = Color(0.286275, 0.760784, 0.94902, 1)
+[sub_resource type="StyleBoxFlat" id="VisualFrame"]
+bg_color = Color(0.005, 0.026, 0.047, 0.9)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.113725, 0.52549, 0.784314, 1)
-corner_radius_top_left = 11
-corner_radius_top_right = 11
-corner_radius_bottom_right = 11
-corner_radius_bottom_left = 11
-shadow_color = Color(0.0941176, 0.470588, 0.705882, 0.26)
+border_color = Color(0.035, 0.24, 0.42, 0.85)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="PrimaryNormal"]
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
+bg_color = Color(0.035, 0.44, 0.77, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.26, 0.87, 1, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+shadow_color = Color(0.02, 0.62, 1, 0.36)
 shadow_size = 5
 
-[sub_resource type="StyleBoxFlat" id="PrimaryPressed"]
-content_margin_left = 16.0
-content_margin_top = 8.0
-content_margin_right = 16.0
-content_margin_bottom = 6.0
-bg_color = Color(0.12549, 0.533333, 0.8, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.054902, 0.376471, 0.631373, 1)
-corner_radius_top_left = 11
-corner_radius_top_right = 11
-corner_radius_bottom_right = 11
-corner_radius_bottom_left = 11
-
-[sub_resource type="StyleBoxFlat" id="MiniNormal"]
-content_margin_left = 4.0
-content_margin_top = 2.0
-content_margin_right = 4.0
-content_margin_bottom = 2.0
-bg_color = Color(0.952941, 0.988235, 1, 0.96)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.356863, 0.686275, 0.85098, 0.82)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="StyleBoxFlat" id="MiniHover"]
-content_margin_left = 4.0
-content_margin_top = 2.0
-content_margin_right = 4.0
-content_margin_bottom = 2.0
-bg_color = Color(0.827451, 0.945098, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.176471, 0.596078, 0.831373, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
+[sub_resource type="StyleBoxFlat" id="PrimaryHover"]
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
+bg_color = Color(0.06, 0.58, 0.95, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.95, 1, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+shadow_color = Color(0.05, 0.72, 1, 0.5)
+shadow_size = 6
 
 [node name="NnwHomepage" type="Control"]
 anchors_preset = 15
@@ -146,7 +91,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("3_theme")
+theme = ExtResource("1_theme")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
@@ -156,37 +101,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.894118, 0.968627, 1, 1)
-
-[node name="TopGlow" type="ColorRect" parent="Background"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 138.0
-grow_horizontal = 2
-mouse_filter = 2
-color = Color(0.521569, 0.815686, 0.968627, 0.34)
-
-[node name="HorizonLine" type="ColorRect" parent="Background"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 138.0
-offset_bottom = 140.0
-grow_horizontal = 2
-mouse_filter = 2
-color = Color(0.321569, 0.682353, 0.878431, 0.55)
-
-[node name="BottomGlow" type="ColorRect" parent="Background"]
-layout_mode = 1
-anchors_preset = 12
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -112.0
-grow_horizontal = 2
-grow_vertical = 0
-mouse_filter = 2
-color = Color(0.709804, 0.886275, 0.972549, 0.34)
+material = SubResource("BackgroundMaterial")
+color = Color(1, 1, 1, 1)
 
 [node name="MasterScroll" type="ScrollContainer" parent="."]
 unique_name_in_owner = true
@@ -202,212 +118,161 @@ vertical_scroll_mode = 1
 [node name="PageMargin" type="MarginContainer" parent="MasterScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
 
-[node name="PageVBox" type="VBoxContainer" parent="MasterScroll/PageMargin"]
+[node name="Page" type="VBoxContainer" parent="MasterScroll/PageMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 14
+size_flags_vertical = 3
+theme_override_constants/separation = 6
 
-[node name="MainHeader" type="PanelContainer" parent="MasterScroll/PageMargin/PageVBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 94)
+[node name="PortalHeader" parent="MasterScroll/PageMargin/Page" instance=ExtResource("3_header")]
 layout_mode = 2
-theme_override_styles/panel = SubResource("GlassPanel")
+title_text = "null NETWORK"
+subtitle_text = ""
 
-[node name="HeaderMargin" type="MarginContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader"]
+[node name="HeroPanel" type="PanelContainer" parent="MasterScroll/PageMargin/Page"]
+custom_minimum_size = Vector2(0, 300)
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 10
+theme_override_styles/panel = SubResource("HeroFrame")
 
-[node name="HeaderHBox" type="HBoxContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin"]
+[node name="HeroMargin" type="MarginContainer" parent="MasterScroll/PageMargin/Page/HeroPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="HeroVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="LogoBlock" type="HBoxContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox"]
+[node name="HeroContent" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox"]
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="PortalVisual" type="PanelContainer" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("VisualFrame")
+
+[node name="VisualVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/PortalVisual"]
+layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 10
 
-[node name="LogoIcon" type="TextureRect" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock"]
-custom_minimum_size = Vector2(58, 58)
+[node name="MatrixTop" type="Label" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
 layout_mode = 2
-texture = ExtResource("1_logo")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="NullChannelTitle" type="Label" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/LogoBlock"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.0901961, 0.301961, 0.505882, 1)
-theme_override_font_sizes/font_size = 38
-text = "null NETWORK"
-vertical_alignment = 1
-
-[node name="GuestCard" type="PanelContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox"]
-custom_minimum_size = Vector2(128, 72)
-layout_mode = 2
-size_flags_horizontal = 8
-theme_override_styles/panel = SubResource("GuestPanel")
-
-[node name="GuestMargin" type="MarginContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard"]
-layout_mode = 2
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 4
-
-[node name="GuestVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin"]
-layout_mode = 2
-theme_override_constants/separation = 3
-
-[node name="GuestTop" type="HBoxContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="GuestAvatar" type="PanelContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/GuestTop"]
-custom_minimum_size = Vector2(32, 32)
-layout_mode = 2
-theme_override_styles/panel = SubResource("AvatarPanel")
-
-[node name="GuestAvatarLabel" type="Label" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/GuestTop/GuestAvatar"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.145098, 0.466667, 0.67451, 1)
-text = "?"
+theme_override_colors/font_color = Color(0.02, 0.35, 0.64, 0.62)
+text = "0  1  0  0  1  1  0  1  0\n  1  1  0  1  0  0  1\n0  0  1  1  0  1  0  0"
 horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="GuestInfo" type="VBoxContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/GuestTop"]
+[node name="HeroMark" type="TextureRect" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
+custom_minimum_size = Vector2(0, 108)
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 0
-
-[node name="GuestName" type="Label" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/GuestTop/GuestInfo"]
-layout_mode = 2
-text = "GUEST"
-clip_text = true
-
-[node name="GuestRank" type="Label" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/GuestTop/GuestInfo"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.352941, 0.486275, 0.580392, 1)
-text = "RANK --"
-clip_text = true
-
-[node name="AuthRow" type="HBoxContainer" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox"]
-layout_mode = 2
-theme_override_constants/separation = 3
-
-[node name="LoginButton" type="Button" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/AuthRow"]
-custom_minimum_size = Vector2(52, 19)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_disabled_color = Color(0.352941, 0.486275, 0.580392, 0.9)
-theme_override_styles/normal = SubResource("MiniNormal")
-theme_override_styles/hover = SubResource("MiniHover")
-theme_override_styles/disabled = SubResource("MiniNormal")
-text = "Login"
-disabled = true
-
-[node name="SignUpButton" type="Button" parent="MasterScroll/PageMargin/PageVBox/MainHeader/HeaderMargin/HeaderHBox/GuestCard/GuestMargin/GuestVBox/AuthRow"]
-custom_minimum_size = Vector2(62, 19)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("MiniNormal")
-theme_override_styles/hover = SubResource("MiniHover")
-text = "Sign Up"
-script = ExtResource("2_action")
-target_url = "null.net/register"
-
-[node name="HeroPanel" type="PanelContainer" parent="MasterScroll/PageMargin/PageVBox"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("HeroPanel")
-
-[node name="HeroMargin" type="MarginContainer" parent="MasterScroll/PageMargin/PageVBox/HeroPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 20
-
-[node name="HeroVBox" type="VBoxContainer" parent="MasterScroll/PageMargin/PageVBox/HeroPanel/HeroMargin"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="HeroMark" type="TextureRect" parent="MasterScroll/PageMargin/PageVBox/HeroPanel/HeroMargin/HeroVBox"]
-custom_minimum_size = Vector2(0, 72)
-layout_mode = 2
-texture = ExtResource("1_logo")
+texture = ExtResource("5_logo")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="DescriptionLabel" type="Label" parent="MasterScroll/PageMargin/PageVBox/HeroPanel/HeroMargin/HeroVBox"]
+[node name="MatrixFloor" type="Label" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.03, 0.42, 0.72, 0.72)
+text = "─────╱╱╱╱╱╱╱╱─────"
+horizontal_alignment = 1
+
+[node name="HeroCopy" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.105882, 0.211765, 0.301961, 1)
-theme_override_constants/line_spacing = 4
+theme_override_constants/separation = 8
+
+[node name="Eyebrow" type="Label" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/HeroCopy"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.66, 1, 1)
+text = "// ENTER THE DIGITAL FRONTIER //"
+horizontal_alignment = 1
+
+[node name="HeroTitle" type="Label" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/HeroCopy"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.26, 0.76, 1, 1)
+theme_override_font_sizes/font_size = 30
+text = "THE WORLD IS UNDER SIEGE."
+horizontal_alignment = 1
+
+[node name="DescriptionLabel" type="Label" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox/HeroContent/HeroCopy"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 10
+theme_override_constants/line_spacing = 2
 text = "In the lead-up to the devastating Y2K virus, a mass purge of data opened a rift between the world of man and computers. Now, electronic specters from the digital realm are trying to invade the world of the living!\n\nGear up with futuristic goggles and photon weaponry that lets you do battle with vicious viruses, woeful worms and apocalyptic A.I. — each one hellbent on overwriting humanity.\n\nUsing the latest innovations in augmented reality, take the fight from your screen straight into your home! A gaming experience like nothing you've seen before!\n\nFrom the brilliant mind of Tarou Yamada.\n\nコバルトブルー\n© 2000"
-horizontal_alignment = 1
+horizontal_alignment = 0
 autowrap_mode = 2
 
-[node name="Get Started" type="Button" parent="MasterScroll/PageMargin/PageVBox/HeroPanel/HeroMargin/HeroVBox"]
+[node name="Get Started" type="Button" parent="MasterScroll/PageMargin/Page/HeroPanel/HeroMargin/HeroVBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.972549, 0.996078, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(0.941176, 0.984314, 1, 1)
+theme_override_colors/font_color = Color(0.93, 0.99, 1, 1)
+theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("PrimaryNormal")
 theme_override_styles/hover = SubResource("PrimaryHover")
-theme_override_styles/pressed = SubResource("PrimaryPressed")
-text = "Get Started"
-script = ExtResource("2_action")
+theme_override_styles/pressed = SubResource("PrimaryNormal")
+text = "›     GET STARTED     ‹"
+script = ExtResource("7_action")
 target_url = "null.net/getstarted"
 
-[node name="PortalLinks" type="HFlowContainer" parent="MasterScroll/PageMargin/PageVBox"]
+[node name="PortalLinks" type="HBoxContainer" parent="MasterScroll/PageMargin/Page"]
 layout_mode = 2
 size_flags_horizontal = 3
-alignment = 1
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 8
+theme_override_constants/separation = 10
 
-[node name="UpdatesBtn" type="Button" parent="MasterScroll/PageMargin/PageVBox/PortalLinks"]
+[node name="UpdatesBtn" type="Button" parent="MasterScroll/PageMargin/Page/PortalLinks"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(174, 38)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-text = "Changelog"
-script = ExtResource("2_action")
+size_flags_horizontal = 3
+icon = SubResource("DocumentIcon")
+icon_max_width = 30
+text = "CHANGELOG       ›"
+script = ExtResource("7_action")
 required_flag_name = "operator.registered"
 show_alert_on_failed_condition = true
 failed_alert_title = "ACCOUNT REQUIRED"
 failed_alert_message = "You must have an account to access this area."
 target_url = "null.net/updates"
 
-[node name="ThreadsBtn" type="Button" parent="MasterScroll/PageMargin/PageVBox/PortalLinks"]
+[node name="ThreadsBtn" type="Button" parent="MasterScroll/PageMargin/Page/PortalLinks"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(174, 38)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-text = "Message Board"
-script = ExtResource("2_action")
+size_flags_horizontal = 3
+icon = SubResource("MessageIcon")
+icon_max_width = 30
+text = "MESSAGE BOARD       ›"
+script = ExtResource("7_action")
 required_flag_name = "operator.registered"
 show_alert_on_failed_condition = true
 failed_alert_title = "ACCOUNT REQUIRED"
 failed_alert_message = "You must have an account to access this area."
 target_url = "null.net/forums"
 
-[node name="RankingsBtn" type="Button" parent="MasterScroll/PageMargin/PageVBox/PortalLinks"]
+[node name="RankingsBtn" type="Button" parent="MasterScroll/PageMargin/Page/PortalLinks"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(174, 38)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-text = "Player Rankings"
-script = ExtResource("2_action")
+size_flags_horizontal = 3
+icon = SubResource("RankingIcon")
+icon_max_width = 30
+text = "PLAYER RANKINGS       ›"
+script = ExtResource("7_action")
 required_flag_name = "operator.registered"
 show_alert_on_failed_condition = true
 failed_alert_title = "ACCOUNT REQUIRED"
 failed_alert_message = "You must have an account to access this area."
 target_url = "null.net/playerrankings"
+
+[node name="PortalFooter" parent="MasterScroll/PageMargin/Page" instance=ExtResource("4_footer")]
+layout_mode = 2
