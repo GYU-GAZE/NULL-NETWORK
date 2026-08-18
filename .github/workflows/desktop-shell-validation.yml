@@ -10,11 +10,14 @@ on:
       - "systems/desktop/**"
       - "systems/window_manager/**"
       - "systems/workspace/**"
+      - "systems/ui/**"
+      - "apps/browser/sites/null_network/register/**"
       - "core/autoloads/kubu_os_metrics.gd"
       - "core/autoloads/global_signals.gd"
       - "data/content/desktop/**"
       - "tests/desktop/**"
       - "tests/window_manager/**"
+      - "tests/ui/**"
       - ".github/workflows/desktop-shell-validation.yml"
   workflow_dispatch:
 
@@ -112,6 +115,26 @@ jobs:
             2>&1 | tee desktop-work-area-test.log
           grep -q "WINDOW_WORK_AREA_TEST: PASS" desktop-work-area-test.log
 
+      - name: Run sidebar alignment test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/window_manager/window_sidebar_alignment_test.tscn \
+            2>&1 | tee desktop-sidebar-alignment-test.log
+          grep -q "WINDOW_SIDEBAR_ALIGNMENT_TEST: PASS" desktop-sidebar-alignment-test.log
+
+      - name: Run typewriter reveal test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/ui/typewriter_reveal_test.tscn \
+            2>&1 | tee typewriter-reveal-test.log
+          grep -q "TYPEWRITER_REVEAL_TEST: PASS" typewriter-reveal-test.log
+
       - name: Reject shell script errors
         shell: bash
         run: |
@@ -120,9 +143,11 @@ jobs:
             desktop-app-rail-test.log \
             desktop-shell-presentation-test.log \
             desktop-work-area-test.log \
+            desktop-sidebar-alignment-test.log \
+            typewriter-reveal-test.log \
             > desktop-shell-validation.log
 
-          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL" desktop-shell-validation.log; then
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL" desktop-shell-validation.log; then
             echo "Desktop shell validation reported an error."
             exit 1
           fi
@@ -141,5 +166,7 @@ jobs:
             desktop-app-rail-test.log
             desktop-shell-presentation-test.log
             desktop-work-area-test.log
+            desktop-sidebar-alignment-test.log
+            typewriter-reveal-test.log
             desktop-shell-validation.log
           if-no-files-found: ignore
