@@ -17,16 +17,16 @@ func _ready() -> void:
 	close_button.pressed.connect(_on_close_pressed)
 
 
-func setup(index: int, title: String, icon: Texture2D, active: bool, can_close: bool, tab_width: float) -> void:
+func setup(index: int, title: String, icon: Texture2D, active: bool, can_close: bool, resolved_width: float) -> void:
 	tab_index = index
 	is_active = active
 
-	custom_minimum_size.x = tab_width
+	custom_minimum_size.x = round(resolved_width)
 	size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 
 	favicon_rect.texture = icon
 	favicon_rect.visible = icon != null
-	favicon_rect.custom_minimum_size = Vector2(16, 16)
+	favicon_rect.custom_minimum_size = Vector2(10, 10)
 	favicon_rect.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	favicon_rect.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
@@ -37,10 +37,16 @@ func setup(index: int, title: String, icon: Texture2D, active: bool, can_close: 
 
 	close_button.text = "x"
 	close_button.disabled = not can_close
-	close_button.custom_minimum_size.x = 24
+	close_button.visible = can_close
+	close_button.custom_minimum_size.x = 14
 	close_button.size_flags_horizontal = Control.SIZE_SHRINK_END
 
 	modulate = Color.WHITE if active else Color(0.75, 0.75, 0.75, 1.0)
+	tooltip_text = title
+
+
+func get_reserved_close_width() -> float:
+	return close_button.custom_minimum_size.x if close_button.visible else 0.0
 
 
 func _on_title_pressed() -> void:

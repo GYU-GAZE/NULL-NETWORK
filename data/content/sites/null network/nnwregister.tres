@@ -8,4 +8,5 @@ script = ExtResource("1_page")
 url = "null.net/register"
 page_title = "NULL NETWORK — Operator Registration"
 site_scene = ExtResource("2_scene")
+overflow_policy = 2
 canvas_size = Vector2(860, 720)

@@ -1,6 +1,12 @@
 extends Resource
 class_name WebsitePage
 
+enum OverflowPolicy {
+	FIXED_VIEWPORT,
+	PAGE_SCROLL,
+	SELF_MANAGED_SCROLL,
+}
+
 @export_category("Route")
 @export var url: String = "null.net"
 @export var match_as_prefix: bool = false
@@ -12,6 +18,7 @@ class_name WebsitePage
 
 @export_category("Page Scene")
 @export var site_scene: PackedScene
+@export var overflow_policy: OverflowPolicy = OverflowPolicy.FIXED_VIEWPORT
 
 ## Serialized compatibility with WebsitePage assets authored before Browser
 ## became the single responsive viewport authority. The Browser intentionally

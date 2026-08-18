@@ -8,4 +8,5 @@ script = ExtResource("1_kf27u")
 url = "null.net/getstarted"
 page_title = "hello, world"
 site_scene = ExtResource("1_wpf41")
+overflow_policy = 2
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"

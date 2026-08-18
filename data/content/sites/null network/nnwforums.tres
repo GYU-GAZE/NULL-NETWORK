@@ -8,4 +8,5 @@ script = ExtResource("1_wknwx")
 url = "null.net/forums"
 page_title = "/null/ Channel"
 site_scene = ExtResource("1_rhv46")
+overflow_policy = 2
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"

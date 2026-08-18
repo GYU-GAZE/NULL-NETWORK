@@ -8,3 +8,4 @@ script = ExtResource("1_page")
 url = "null.net/updates"
 page_title = "Updates"
 site_scene = ExtResource("2_scene")
+overflow_policy = 2

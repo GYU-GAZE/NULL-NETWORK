@@ -9,4 +9,5 @@ url = "null.net/forums/thread/"
 page_title = "Viewing Thread"
 match_as_prefix = true
 site_scene = ExtResource("1_0pc1p")
+overflow_policy = 2
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"

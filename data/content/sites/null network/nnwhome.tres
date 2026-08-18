@@ -9,4 +9,6 @@ script = ExtResource("3_hh78u")
 page_title = "null NETWORK"
 favicon = ExtResource("2_gpf38")
 site_scene = ExtResource("2_p583y")
+overflow_policy = 1
+canvas_size = Vector2(600, 430)
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"

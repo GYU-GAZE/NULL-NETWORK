@@ -9,3 +9,4 @@ url = "kubuchan.net"
 page_title = "KUBUCHAN"
 record_in_browser_history = false
 site_scene = ExtResource("2_scene")
+overflow_policy = 2

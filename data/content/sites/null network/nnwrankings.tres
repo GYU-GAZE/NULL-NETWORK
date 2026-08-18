@@ -8,4 +8,5 @@ script = ExtResource("3_hh78u")
 url = "null.net/playerrankings"
 page_title = "null NETWORK - Player Rankings"
 site_scene = ExtResource("1_bml4i")
+overflow_policy = 2
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"

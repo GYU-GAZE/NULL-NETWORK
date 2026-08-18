@@ -9,4 +9,5 @@ url = "kubus://home"
 page_title = "Home"
 record_in_browser_history = false
 site_scene = ExtResource("1_y30ad")
+overflow_policy = 2
 metadata/_custom_type_script = "uid://duyokyo5xmy6y"

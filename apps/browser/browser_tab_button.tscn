@@ -3,15 +3,18 @@
 [ext_resource type="Script" uid="uid://ceubct2cadhcw" path="res://apps/browser/browser_tab_button.gd" id="1_xj1nm"]
 
 [node name="BrowserTabButton" type="PanelContainer" unique_id=77841907]
+custom_minimum_size = Vector2(78, 16)
 size_flags_horizontal = 0
+clip_contents = true
 script = ExtResource("1_xj1nm")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1111365720]
 layout_mode = 2
+theme_override_constants/separation = 1
 
 [node name="FaviconRect" type="TextureRect" parent="HBoxContainer" unique_id=1370919824]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(16, 16)
+custom_minimum_size = Vector2(10, 10)
 layout_mode = 2
 stretch_mode = 5
 
@@ -21,12 +24,14 @@ layout_mode = 2
 size_flags_horizontal = 3
 text_overrun_behavior = 3
 clip_text = true
+flat = true
 
 [node name="CloseButton" type="Button" parent="HBoxContainer" unique_id=1952477711]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(24, 0)
+custom_minimum_size = Vector2(14, 14)
 layout_mode = 2
 size_flags_horizontal = 8
 text = "x"
 text_overrun_behavior = 0
 clip_text = false
+flat = true
