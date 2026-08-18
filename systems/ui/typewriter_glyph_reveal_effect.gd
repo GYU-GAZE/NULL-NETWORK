@@ -3,8 +3,8 @@ class_name TypewriterGlyphRevealEffect
 
 ## Per-glyph reveal used by TypewriterReveal. Characters keep their authored
 ## size at all times; the presentation is a short digital lock-in made from
-## whole-pixel offsets, alpha and a restrained cool flash. This avoids glyph
-## geometry overshoot/clipping on pixel fonts.
+## whole-pixel horizontal offsets, alpha and a restrained cool flash. Keeping
+## the reveal horizontal prevents top/bottom clipping in fit-content labels.
 var bbcode: String = "typewriter_lock"
 
 
@@ -27,12 +27,10 @@ func _process_custom_fx(char_fx: CharFXTransform) -> bool:
 		return true
 
 	var progress := clampf(raw_progress, 0.0, 1.0)
-	if progress < 0.26:
+	if progress < 0.28:
 		char_fx.offset += Vector2(-1, 0)
-	elif progress < 0.54:
+	elif progress < 0.58:
 		char_fx.offset += Vector2(1, 0)
-	elif progress < 0.76:
-		char_fx.offset += Vector2(0, -1)
 
 	var alpha_progress := _ease_out_cubic(minf(progress / 0.78, 1.0))
 	char_fx.color.a *= alpha_progress
