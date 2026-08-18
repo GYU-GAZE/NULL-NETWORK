@@ -22,12 +22,15 @@ var _active_workspace_id: String = ""
 var _dock_locked: bool = false
 var _dock_lock_reason: String = ""
 var _shell_reveal_tween: Tween
+var _metrics_refresh_queued: bool = false
 
 
 func _ready() -> void:
 	_connect_global_signals()
 	if not KubuOSMetrics.metrics_changed.is_connected(_apply_metrics):
 		KubuOSMetrics.metrics_changed.connect(_apply_metrics)
+	if not resized.is_connected(_queue_metrics_apply):
+		resized.connect(_queue_metrics_apply)
 	_register_work_area_reservation()
 	_apply_metrics()
 	_sync_dock()
@@ -79,17 +82,38 @@ func _register_work_area_reservation() -> void:
 		KubuOSMetrics.emit_changed()
 
 
+func _queue_metrics_apply() -> void:
+	if _metrics_refresh_queued:
+		return
+	_metrics_refresh_queued = true
+	call_deferred("_apply_queued_metrics")
+
+
+func _apply_queued_metrics() -> void:
+	_metrics_refresh_queued = false
+	_apply_metrics()
+
+
 func _apply_metrics() -> void:
-	var rail_width_from_metrics: float = maxf(24.0, KubuOSMetrics.reserved_right_width)
-	sidebar_margin.anchor_left = 1.0
+	if not is_instance_valid(sidebar_margin) or not is_instance_valid(dock_panel):
+		return
+	var host_size := KubuOSMetrics.snap_vector(size)
+	if host_size.x <= 0.0 or host_size.y <= 0.0:
+		host_size = KubuOSMetrics.snap_vector(get_viewport_rect().size)
+	var rail_rect := KubuOSMetrics.get_right_reserved_rect(host_size)
+
+	# The rail no longer reproduces the work-area math independently with a
+	# right anchor + negative offset. Its visible left edge now comes from the
+	# exact same authoritative Rect2 used by WindowManager for maximize/drag.
+	sidebar_margin.anchor_left = 0.0
 	sidebar_margin.anchor_top = 0.0
-	sidebar_margin.anchor_right = 1.0
-	sidebar_margin.anchor_bottom = 1.0
-	sidebar_margin.offset_left = -rail_width_from_metrics
-	sidebar_margin.offset_top = KubuOSMetrics.taskbar_height
-	sidebar_margin.offset_right = 0.0
-	sidebar_margin.offset_bottom = 0.0
-	dock_panel.custom_minimum_size = Vector2(rail_width_from_metrics, 0.0)
+	sidebar_margin.anchor_right = 0.0
+	sidebar_margin.anchor_bottom = 0.0
+	sidebar_margin.offset_left = rail_rect.position.x
+	sidebar_margin.offset_top = rail_rect.position.y
+	sidebar_margin.offset_right = rail_rect.end.x
+	sidebar_margin.offset_bottom = rail_rect.end.y
+	dock_panel.custom_minimum_size = Vector2(rail_rect.size.x, 0.0)
 
 
 func _sync_dock() -> void:
