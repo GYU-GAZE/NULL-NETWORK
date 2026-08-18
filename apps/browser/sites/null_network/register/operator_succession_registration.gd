@@ -7,9 +7,9 @@ class_name OperatorSuccessionRegistrationPage
 ## OperatorService; this page intentionally contains no player-facing variant.
 ##
 ## Browser-session restoration is deliberately presentation-silent. A restored
-## Assessment question is already an established UI state, not a newly-entered
-## narrative beat, so the prompt and answers settle immediately instead of
-## replaying the typewriter/stagger sequence after every window reopen.
+## page is already an established UI state, not a newly-entered narrative beat,
+## so page transitions, typewriter and answer stagger settle immediately after
+## every window reopen.
 
 var _restoring_browser_presentation: bool = false
 
@@ -18,6 +18,18 @@ func restore_browser_state(state: Dictionary) -> void:
 	_restoring_browser_presentation = true
 	await super.restore_browser_state(state)
 	_restoring_browser_presentation = false
+
+
+func _show_page(
+	page: int,
+	scroll_to_top: bool = true,
+	animated: bool = true
+) -> void:
+	await super._show_page(
+		page,
+		scroll_to_top,
+		animated and not _restoring_browser_presentation
+	)
 
 
 func _render_assessment_question(track_visit: bool) -> void:
