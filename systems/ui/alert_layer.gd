@@ -3,23 +3,23 @@ class_name AlertLayer
 
 @export var alert_box_scene: PackedScene
 @export var default_animation: UniversalAlerts.AlertAnimation = UniversalAlerts.AlertAnimation.POP
-
-@export_category("Animation")
-@export var pop_duration: float = 0.18
-@export var fade_duration: float = 0.15
-@export var shake_duration: float = 0.28
-@export var slide_duration: float = 0.18
-@export var close_duration: float = 0.12
-@export var shake_strength: float = 10.0
+@export var motion_profile: UiMotionProfileData = preload(
+	"res://data/content/ui/motion/kubuos_default_motion.tres"
+)
 
 @onready var blocker: ColorRect = %Blocker
 @onready var center_container: CenterContainer = %CenterContainer
 
 var current_box: AlertBox
 var is_open: bool = false
+var _motion_player: UiMotionPlayer
 
 
 func _ready() -> void:
+	_motion_player = UiMotionPlayer.new()
+	_motion_player.name = "AlertMotionPlayer"
+	_motion_player.profile = motion_profile
+	add_child(_motion_player)
 	hide()
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -50,6 +50,8 @@ func show_alert(
 	_clear_current_box()
 
 	show()
+	blocker.show()
+	blocker.modulate.a = 0.0
 	is_open = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
 
@@ -67,7 +69,8 @@ func show_alert(
 
 	await get_tree().process_frame
 
-	_play_open_animation(animation_mode)
+	_motion_player.enter_control(blocker, Vector2.ZERO, motion_profile.fade_enter_duration)
+	await _play_open_animation(animation_mode)
 
 
 func close_alert() -> void:
@@ -84,13 +87,18 @@ func close_alert() -> void:
 	var box: AlertBox = current_box
 	current_box = null
 
-	var tween: Tween = create_tween()
-	tween.set_trans(Tween.TRANS_QUAD)
-	tween.set_ease(Tween.EASE_IN)
-	tween.parallel().tween_property(box, "modulate:a", 0.0, close_duration)
-	tween.parallel().tween_property(box, "scale", Vector2(0.96, 0.96), close_duration)
-
-	await tween.finished
+	_motion_player.exit_scaled_control(
+		box,
+		Vector2(0.96, 0.96),
+		Vector2(0, 2),
+		motion_profile.alert_exit_duration
+	)
+	_motion_player.exit_control(
+		blocker,
+		Vector2.ZERO,
+		motion_profile.fade_exit_duration
+	)
+	await get_tree().create_timer(maxf(motion_profile.alert_exit_duration, motion_profile.fade_exit_duration)).timeout
 
 	if is_instance_valid(box):
 		box.queue_free()
@@ -99,6 +107,10 @@ func close_alert() -> void:
 
 
 func _clear_current_box() -> void:
+	if current_box != null and is_instance_valid(current_box):
+		_motion_player.cancel_control(current_box)
+	if is_instance_valid(blocker):
+		_motion_player.cancel_control(blocker)
 	for child in center_container.get_children():
 		child.queue_free()
 
@@ -110,80 +122,52 @@ func _play_open_animation(animation_mode: UniversalAlerts.AlertAnimation) -> voi
 		return
 
 	current_box.pivot_offset = current_box.size * 0.5
-	current_box.modulate.a = 1.0
+	current_box.modulate.a = 0.0
 	current_box.scale = Vector2.ONE
 	current_box.position = current_box.position
 
 	match animation_mode:
 		UniversalAlerts.AlertAnimation.NONE:
+			current_box.modulate.a = 1.0
 			return
 
 		UniversalAlerts.AlertAnimation.POP:
-			_play_pop_animation()
+			await _play_pop_animation()
 
 		UniversalAlerts.AlertAnimation.SHAKE:
-			_play_shake_animation()
+			await _play_shake_animation()
 
 		UniversalAlerts.AlertAnimation.FADE:
-			_play_fade_animation()
+			await _play_fade_animation()
 
 		UniversalAlerts.AlertAnimation.SLIDE_DOWN:
-			_play_slide_down_animation()
+			await _play_slide_down_animation()
 
 
 func _play_pop_animation() -> void:
-	current_box.scale = Vector2(0.82, 0.82)
-	current_box.modulate.a = 0.0
-
-	var tween: Tween = create_tween()
-	tween.set_trans(Tween.TRANS_BACK)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(current_box, "scale", Vector2.ONE, pop_duration)
-	tween.parallel().tween_property(current_box, "modulate:a", 1.0, pop_duration)
+	await _motion_player.enter_scaled_control(
+		current_box,
+		Vector2(0.94, 0.94),
+		Vector2(0, 2),
+		motion_profile.alert_enter_duration
+	)
 
 
 func _play_fade_animation() -> void:
-	current_box.modulate.a = 0.0
-
-	var tween: Tween = create_tween()
-	tween.set_trans(Tween.TRANS_QUAD)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property(current_box, "modulate:a", 1.0, fade_duration)
+	await _motion_player.enter_control(current_box, Vector2.ZERO, motion_profile.fade_enter_duration)
 
 
 func _play_slide_down_animation() -> void:
-	var original_position: Vector2 = current_box.position
-	current_box.position = original_position + Vector2(0.0, -40.0)
-	current_box.modulate.a = 0.0
-
-	var tween: Tween = create_tween()
-	tween.set_trans(Tween.TRANS_QUAD)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(current_box, "position", original_position, slide_duration)
-	tween.parallel().tween_property(current_box, "modulate:a", 1.0, slide_duration)
+	await _motion_player.enter_control(current_box, Vector2(0, -8), motion_profile.alert_enter_duration)
 
 
 func _play_shake_animation() -> void:
-	_play_pop_animation()
-
-	await get_tree().create_timer(pop_duration).timeout
+	await _play_pop_animation()
 
 	if current_box == null or not is_instance_valid(current_box):
 		return
 
-	var original_position: Vector2 = current_box.position
-	var tween: Tween = create_tween()
-	tween.set_trans(Tween.TRANS_SINE)
-	tween.set_ease(Tween.EASE_IN_OUT)
-
-	var step_time: float = shake_duration / 6.0
-
-	tween.tween_property(current_box, "position", original_position + Vector2(shake_strength, 0.0), step_time)
-	tween.tween_property(current_box, "position", original_position + Vector2(-shake_strength, 0.0), step_time)
-	tween.tween_property(current_box, "position", original_position + Vector2(shake_strength * 0.65, 0.0), step_time)
-	tween.tween_property(current_box, "position", original_position + Vector2(-shake_strength * 0.65, 0.0), step_time)
-	tween.tween_property(current_box, "position", original_position + Vector2(shake_strength * 0.35, 0.0), step_time)
-	tween.tween_property(current_box, "position", original_position, step_time)
+	await _motion_player.reject_control(current_box)
 
 
 func _on_blocker_gui_input(event: InputEvent) -> void:

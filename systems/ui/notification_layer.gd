@@ -125,7 +125,7 @@ func _get_toast_final_position(toast: NotificationToast) -> Vector2:
 	x = clamp(x, 0.0, max(0.0, layer_size.x - chrome_right - toast_size.x))
 	y = clamp(y, taskbar_height, max(taskbar_height, layer_size.y - toast_size.y))
 
-	return Vector2(x, y)
+	return KubuOSMetrics.snap_vector(Vector2(x, y))
 
 
 func _get_toast_hidden_position(toast: NotificationToast, final_pos: Vector2) -> Vector2:
@@ -134,10 +134,10 @@ func _get_toast_hidden_position(toast: NotificationToast, final_pos: Vector2) ->
 	if toast_size.x <= 0.0 or toast_size.y <= 0.0:
 		toast_size = toast.get_combined_minimum_size()
 
-	return Vector2(
+	return KubuOSMetrics.snap_vector(Vector2(
 		final_pos.x,
 		-toast_size.y - hidden_extra_y
-	)
+	))
 
 
 func _get_layer_size() -> Vector2:

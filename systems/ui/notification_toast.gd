@@ -7,11 +7,20 @@ signal finished(toast: NotificationToast)
 @onready var message_label: Label = %MessageLabel
 
 @export var visible_duration: float = 3.5
-@export var enter_duration: float = 0.25
-@export var exit_duration: float = 0.25
+@export var motion_profile: UiMotionProfileData = preload(
+	"res://data/content/ui/motion/kubuos_default_motion.tres"
+)
 
 var final_position: Vector2 = Vector2.ZERO
 var hidden_position: Vector2 = Vector2.ZERO
+var _motion_player: UiMotionPlayer
+
+
+func _ready() -> void:
+	_motion_player = UiMotionPlayer.new()
+	_motion_player.name = "ToastMotionPlayer"
+	_motion_player.profile = motion_profile
+	add_child(_motion_player)
 
 
 func setup(title: String, message: String) -> void:
@@ -34,29 +43,17 @@ func play(final_pos: Vector2, hidden_pos: Vector2) -> void:
 	final_position = final_pos
 	hidden_position = hidden_pos
 
-	position = hidden_position
-	modulate.a = 1.0
+	position = KubuOSMetrics.snap_vector(final_position)
+	modulate.a = 0.0
 	show()
-
-	var tween: Tween = create_tween()
-	tween.set_trans(Tween.TRANS_QUAD)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "position", final_position, enter_duration)
-
-	await tween.finished
+	await _motion_player.enter_control(self, Vector2(0, -6), motion_profile.panel_enter_duration)
 	await get_tree().create_timer(visible_duration).timeout
 
 	await dismiss()
 
 
 func dismiss() -> void:
-	var tween: Tween = create_tween()
-	tween.set_trans(Tween.TRANS_QUAD)
-	tween.set_ease(Tween.EASE_IN)
-	tween.parallel().tween_property(self, "position", hidden_position, exit_duration)
-	tween.parallel().tween_property(self, "modulate:a", 0.0, exit_duration)
-
-	await tween.finished
+	await _motion_player.exit_control(self, Vector2(0, -4), motion_profile.panel_exit_duration)
 
 	finished.emit(self)
 	queue_free()

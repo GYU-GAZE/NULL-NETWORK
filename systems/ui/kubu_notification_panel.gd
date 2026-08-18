@@ -11,8 +11,10 @@ signal panel_closed
 @export var top_gap: float = 0.0
 
 @export_category("Animation")
-@export var slide_duration: float = 0.22
 @export var start_open: bool = false
+@export var motion_profile: UiMotionProfileData = preload(
+	"res://data/content/ui/motion/kubuos_default_motion.tres"
+)
 
 @export_category("Behavior")
 @export var close_on_notification_target: bool = true
@@ -21,10 +23,14 @@ signal panel_closed
 @onready var notification_center: KubuNotificationCenter = %KubuNotificationCenter
 
 var is_open: bool = false
-var _tween: Tween
+var _motion_player: UiMotionPlayer
 
 
 func _ready() -> void:
+	_motion_player = UiMotionPlayer.new()
+	_motion_player.name = "NotificationPanelMotionPlayer"
+	_motion_player.profile = motion_profile
+	add_child(_motion_player)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visible = true
 
@@ -114,19 +120,14 @@ func _apply_layout(animated: bool) -> void:
 		target_position = _get_closed_position(runtime_panel_size)
 
 	if not animated:
-		panel_container.position = target_position
+		panel_container.position = KubuOSMetrics.snap_vector(target_position)
 		return
 
 	_kill_tween()
-
-	_tween = create_tween()
-	_tween.set_trans(Tween.TRANS_CUBIC)
-	_tween.set_ease(Tween.EASE_OUT)
-	_tween.tween_property(
+	_motion_player.transition_rect(
 		panel_container,
-		"position",
-		target_position,
-		slide_duration
+		Rect2(KubuOSMetrics.snap_vector(target_position), KubuOSMetrics.snap_vector(panel_container.size)),
+		motion_profile.panel_enter_duration if is_open else motion_profile.panel_exit_duration
 	)
 
 
@@ -144,16 +145,16 @@ func _get_open_position(runtime_panel_size: Vector2) -> Vector2:
 
 	x = clamp(x, 0.0, max(0.0, root_size.x - chrome_right - runtime_panel_size.x))
 
-	return Vector2(x, y)
+	return KubuOSMetrics.snap_vector(Vector2(x, y))
 
 
 func _get_closed_position(runtime_panel_size: Vector2) -> Vector2:
 	var open_position: Vector2 = _get_open_position(runtime_panel_size)
 
-	return Vector2(
+	return KubuOSMetrics.snap_vector(Vector2(
 		open_position.x,
 		-runtime_panel_size.y
-	)
+	))
 
 
 func _get_runtime_panel_size() -> Vector2:
@@ -185,10 +186,5 @@ func _on_notification_target_requested(target_url: String) -> void:
 
 
 func _kill_tween() -> void:
-	if _tween == null:
-		return
-
-	if _tween.is_running():
-		_tween.kill()
-
-	_tween = null
+	if is_instance_valid(_motion_player):
+		_motion_player.cancel_control(panel_container)
