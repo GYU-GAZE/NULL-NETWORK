@@ -102,17 +102,17 @@ func _apply_metrics() -> void:
 		host_size = KubuOSMetrics.snap_vector(get_viewport_rect().size)
 	var rail_rect := KubuOSMetrics.get_right_reserved_rect(host_size)
 
-	# The rail no longer reproduces the work-area math independently with a
-	# right anchor + negative offset. Its visible left edge now comes from the
-	# exact same authoritative Rect2 used by WindowManager for maximize/drag.
-	sidebar_margin.anchor_left = 0.0
+	# Keep the right-edge anchors responsive, but derive every offset from the
+	# same authoritative rail Rect2 used by the window work area. This makes the
+	# rendered rail edge and maximize/drag boundary identical after resize.
+	sidebar_margin.anchor_left = 1.0
 	sidebar_margin.anchor_top = 0.0
-	sidebar_margin.anchor_right = 0.0
-	sidebar_margin.anchor_bottom = 0.0
-	sidebar_margin.offset_left = rail_rect.position.x
+	sidebar_margin.anchor_right = 1.0
+	sidebar_margin.anchor_bottom = 1.0
+	sidebar_margin.offset_left = rail_rect.position.x - host_size.x
 	sidebar_margin.offset_top = rail_rect.position.y
-	sidebar_margin.offset_right = rail_rect.end.x
-	sidebar_margin.offset_bottom = rail_rect.end.y
+	sidebar_margin.offset_right = rail_rect.end.x - host_size.x
+	sidebar_margin.offset_bottom = rail_rect.end.y - host_size.y
 	dock_panel.custom_minimum_size = Vector2(rail_rect.size.x, 0.0)
 
 
