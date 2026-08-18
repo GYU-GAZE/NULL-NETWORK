@@ -1,8 +1,11 @@
 extends RichTextEffect
 class_name TypewriterGlyphRevealEffect
 
-
-var bbcode: String = "typewriter_grow"
+## Per-glyph reveal used by TypewriterReveal. Characters keep their authored
+## size at all times; the presentation is a short digital lock-in made from
+## whole-pixel offsets, alpha and a restrained cool flash. This avoids glyph
+## geometry overshoot/clipping on pixel fonts.
+var bbcode: String = "typewriter_lock"
 
 
 func _process_custom_fx(char_fx: CharFXTransform) -> bool:
@@ -12,37 +15,33 @@ func _process_custom_fx(char_fx: CharFXTransform) -> bool:
 	)
 	var reveal_seconds: float = maxf(
 		0.01,
-		float(char_fx.env.get("reveal_seconds", 0.14))
-	)
-	var overshoot: float = maxf(
-		0.0,
-		float(char_fx.env.get("overshoot", 0.08))
+		float(char_fx.env.get("reveal_seconds", 0.09))
 	)
 	var reveal_time := 0.0
 	if char_fx.relative_index < reveal_times.size():
 		reveal_time = reveal_times[char_fx.relative_index]
 
-	var progress := clampf(
-		(char_fx.elapsed_time - reveal_time) / reveal_seconds,
-		0.0,
-		1.0
-	)
-	var height_scale := _resolve_height_scale(progress, overshoot)
-	var glyph_transform := char_fx.transform
-	# Glyph transforms use the font baseline as their origin. Scaling only the Y
-	# basis therefore grows the glyph upward without moving its feet.
-	glyph_transform.y *= height_scale
-	char_fx.transform = glyph_transform
-	char_fx.color.a *= _ease_out_cubic(minf(progress / 0.72, 1.0))
+	var raw_progress := (char_fx.elapsed_time - reveal_time) / reveal_seconds
+	if raw_progress <= 0.0:
+		char_fx.color.a = 0.0
+		return true
+
+	var progress := clampf(raw_progress, 0.0, 1.0)
+	if progress < 0.26:
+		char_fx.offset += Vector2(-1, 0)
+	elif progress < 0.54:
+		char_fx.offset += Vector2(1, 0)
+	elif progress < 0.76:
+		char_fx.offset += Vector2(0, -1)
+
+	var alpha_progress := _ease_out_cubic(minf(progress / 0.78, 1.0))
+	char_fx.color.a *= alpha_progress
+	if progress < 0.64:
+		var flash_strength := 1.0 - (progress / 0.64)
+		char_fx.color.r *= lerpf(1.0, 0.82, flash_strength)
+		char_fx.color.g *= lerpf(1.0, 1.08, flash_strength)
+		char_fx.color.b *= lerpf(1.0, 1.24, flash_strength)
 	return true
-
-
-func _resolve_height_scale(progress: float, overshoot: float) -> float:
-	if progress < 0.72:
-		return _ease_out_cubic(progress / 0.72)
-	if progress < 0.86:
-		return lerpf(1.0, 1.0 + overshoot, (progress - 0.72) / 0.14)
-	return lerpf(1.0 + overshoot, 1.0, (progress - 0.86) / 0.14)
 
 
 func _ease_out_cubic(value: float) -> float:
