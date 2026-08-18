@@ -1,5 +1,7 @@
 extends Node
 
+const WINDOW_SCENE: PackedScene = preload("res://systems/window_manager/window_base.tscn")
+
 var _failures := PackedStringArray()
 
 
@@ -51,7 +53,37 @@ func _run_test() -> void:
 	)
 
 	manager.free()
+	await _test_window_motion_contract()
 	_finish_test()
+
+
+func _test_window_motion_contract() -> void:
+	var workspace := Control.new()
+	workspace.size = Vector2(800, 450)
+	add_child(workspace)
+	var window := WINDOW_SCENE.instantiate() as WindowBase
+	_check(window != null, "WindowBase scene failed to instantiate.")
+	if window == null:
+		workspace.queue_free()
+		return
+	workspace.add_child(window)
+	window.setup("motion_test", "Motion Test", Vector2(420, 300), Vector2(400, 250), true)
+	window.position = Vector2(120, 70)
+	await get_tree().create_timer(0.25).timeout
+	var restore_rect := Rect2(window.position, window.size)
+	await window.maximize()
+	_check(window.is_maximized, "Animated maximize did not preserve maximized state.")
+	_check(window.position == Vector2.ZERO and window.size == workspace.size, "Animated maximize did not settle on snapped workspace geometry.")
+	await window.restore_from_maximized()
+	_check(not window.is_maximized, "Animated restore did not clear maximized state.")
+	_check(Rect2(window.position, window.size).is_equal_approx(restore_rect), "Animated restore did not return to the authoritative restore rectangle.")
+	var close_state := {"emitted": false}
+	window.window_closed.connect(func() -> void: close_state["emitted"] = true)
+	window.close()
+	_check(not bool(close_state["emitted"]), "window_closed emitted before close presentation completed.")
+	await get_tree().create_timer(0.2).timeout
+	_check(bool(close_state["emitted"]), "window_closed did not emit after close presentation.")
+	workspace.queue_free()
 
 
 func _check(condition: bool, message: String) -> void:

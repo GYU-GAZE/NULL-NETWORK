@@ -9,6 +9,8 @@ class_name Desktop
 @export_category("Time UI Animation (Juice)")
 @export var time_pulse_scale: Vector2 = Vector2(1.05, 1.05)
 @export var time_tween_duration: float = 0.3
+@export_category("Development")
+@export var enable_debug_time_surface: bool = false
 
 @onready var background: ColorRect = $Background
 @onready var top_bar_hbox: HBoxContainer = $TopBarHBox
@@ -81,9 +83,12 @@ func _on_campaign_changed(section: StringName) -> void:
 
 
 func _refresh_operator_context_visibility() -> void:
-	# The large center clock is still a vertical-slice/debug surface. It must not
-	# leak time/action information during the anonymous pre-registration boot.
-	top_bar_hbox.visible = not CampaignState.operator.is_empty()
+	# Retained for vertical-slice development without leaking into presentation.
+	top_bar_hbox.visible = (
+		enable_debug_time_surface
+		and OS.is_debug_build()
+		and not CampaignState.operator.is_empty()
+	)
 
 
 func _animate_time_change() -> void:

@@ -151,15 +151,15 @@ text = "THE WORLD IS UNDER SIEGE."
 horizontal_alignment = 1
 
 [node name="DescriptionLabel" type="RichTextLabel" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy"]
-custom_minimum_size = Vector2(0, 92)
+custom_minimum_size = Vector2(0, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_font_sizes/font_size = 14
 theme_override_constants/line_spacing = 0
 text = "In the lead-up to the devastating Y2K virus, a mass purge of data opened a rift between the world of man and computers. Now, electronic specters from the digital realm are trying to invade the world of the living!\n\nGear up with futuristic goggles and photon weaponry that lets you do battle with vicious viruses, woeful worms and apocalyptic A.I. — each one hellbent on overwriting humanity.\n\nUsing the latest innovations in augmented reality, take the fight from your screen straight into your home! A gaming experience like nothing you've seen before!\n\nFrom the brilliant mind of Tarou Yamada.\n\n                              コバルトブルー     © 2000"
-fit_content = false
-scroll_active = true
+fit_content = true
+scroll_active = false
 
 [node name="CtaFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox"]
 custom_minimum_size = Vector2(0, 40)

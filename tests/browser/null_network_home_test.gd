@@ -42,7 +42,11 @@ func _run_test() -> void:
 	var hero_title := home.find_child("HeroTitle", true, false) as Label
 	_check(hero_title != null and hero_title.text == "THE WORLD IS UNDER SIEGE.", "Null Network home lost the supplied hero headline.")
 	_check(home.find_child("MainFrame", true, false) is NullNetworkFrame, "Null Network home must use the stepped reference frame renderer.")
-	_check_footer_fits_canvas(home, "Null Network home")
+	var home_page: WebsitePage = SimulatedDNS.fetch_page("null.net")
+	_check(
+		home_page != null and home_page.overflow_policy == WebsitePage.OverflowPolicy.PAGE_SCROLL,
+		"Null Network home must declare Browser page-level overflow."
+	)
 
 	var login_button := home.find_child("LoginButton", true, false) as Button
 	var sign_up_button := home.find_child("SignUpButton", true, false) as SiteActionButton
@@ -63,6 +67,7 @@ func _run_test() -> void:
 	var description := home.find_child("DescriptionLabel", true, false) as RichTextLabel
 	_check(description != null, "Null Network home description was lost.")
 	if description != null:
+		_check(description.fit_content and not description.scroll_active, "Hero copy must grow naturally instead of using a tiny internal scrollbar.")
 		_check(description.text.contains("In the lead-up to the devastating Y2K virus"), "Existing intro copy changed during visual-only revamp.")
 		_check(description.text.contains("From the brilliant mind of Tarou Yamada."), "Existing creator credit changed during visual-only revamp.")
 		_check(description.text.contains("コバルトブルー"), "Existing Japanese footer copy changed during visual-only revamp.")
