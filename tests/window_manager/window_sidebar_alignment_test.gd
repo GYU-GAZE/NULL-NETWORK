@@ -6,6 +6,9 @@ const APP_RAIL_SCENE: PackedScene = preload(
 const APP_RAIL_ITEM_SCENE: PackedScene = preload(
 	"res://systems/desktop/dock/kubu_dock_item.tscn"
 )
+const WINDOW_MANAGER_SCENE: PackedScene = preload(
+	"res://systems/window_manager/window_manager.tscn"
+)
 
 var _failures := PackedStringArray()
 
@@ -25,6 +28,12 @@ func _run_test() -> void:
 	host.size = Vector2(640, 360)
 	add_child(host)
 
+	var manager := WINDOW_MANAGER_SCENE.instantiate() as WindowManager
+	_check(manager != null, "WindowManager failed to instantiate for boundary test.")
+	if manager != null:
+		host.add_child(manager)
+		manager.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
 	var rail := APP_RAIL_SCENE.instantiate() as KubuBottomDock
 	_check(rail != null, "App rail failed to instantiate for boundary test.")
 	if rail != null:
@@ -33,16 +42,19 @@ func _run_test() -> void:
 		rail.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		await get_tree().process_frame
 		await get_tree().process_frame
-		_check_alignment(host.size, rail, "initial")
+		_check_alignment(host.size, rail, manager, "initial")
 
 		host.size = Vector2(511, 317)
 		await get_tree().process_frame
 		await get_tree().process_frame
-		_check_alignment(host.size, rail, "resized")
+		_check_alignment(host.size, rail, manager, "resized")
 
+	if rail != null:
 		rail.queue_free()
-		host.queue_free()
-		await get_tree().process_frame
+	if manager != null:
+		manager.queue_free()
+	host.queue_free()
+	await get_tree().process_frame
 
 	KubuOSMetrics.reserved_left_width = original_left
 	KubuOSMetrics.reserved_right_width = original_right
@@ -50,7 +62,12 @@ func _run_test() -> void:
 	_finish_test()
 
 
-func _check_alignment(host_size: Vector2, rail: KubuBottomDock, phase: String) -> void:
+func _check_alignment(
+	host_size: Vector2,
+	rail: KubuBottomDock,
+	manager: WindowManager,
+	phase: String
+) -> void:
 	var work_rect := KubuOSMetrics.get_work_area_rect(host_size)
 	var reserved_rect := KubuOSMetrics.get_right_reserved_rect(host_size)
 	var visual_rect := rail.sidebar_margin.get_rect()
@@ -60,7 +77,7 @@ func _check_alignment(host_size: Vector2, rail: KubuBottomDock, phase: String) -
 	)
 	_check(
 		is_equal_approx(visual_rect.position.x, work_rect.end.x),
-		"%s: rendered sidebar left edge does not touch window work-area right edge." % phase
+		"%s: rendered sidebar left edge does not touch work-area right edge." % phase
 	)
 	_check(
 		is_equal_approx(visual_rect.end.x, host_size.x),
@@ -70,6 +87,16 @@ func _check_alignment(host_size: Vector2, rail: KubuBottomDock, phase: String) -
 		is_equal_approx(visual_rect.position.y, work_rect.position.y),
 		"%s: rendered sidebar top does not share work-area taskbar boundary." % phase
 	)
+	if manager != null:
+		var manager_rect := manager.get_work_area_rect()
+		_check(
+			manager_rect.is_equal_approx(work_rect),
+			"%s: WindowManager work area diverged from KubuOSMetrics." % phase
+		)
+		_check(
+			is_equal_approx(manager_rect.end.x, visual_rect.position.x),
+			"%s: maximized/drag boundary does not touch rendered sidebar." % phase
+		)
 
 
 func _check(condition: bool, message: String) -> void:
