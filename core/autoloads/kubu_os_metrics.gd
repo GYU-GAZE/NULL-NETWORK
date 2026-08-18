@@ -64,13 +64,44 @@ func get_work_area_position() -> Vector2:
 	return snap_vector(Vector2(reserved_left_width, taskbar_height))
 
 func get_work_area_size(parent_size: Vector2) -> Vector2:
-	return snap_vector(Vector2(
-		max(0.0, parent_size.x - reserved_left_width - reserved_right_width),
-		max(0.0, parent_size.y - taskbar_height - dock_height)
-	))
+	return get_work_area_rect(parent_size).size
 
 func get_work_area_rect(parent_size: Vector2) -> Rect2:
-	return Rect2(get_work_area_position(), get_work_area_size(parent_size))
+	var safe_parent := snap_vector(Vector2(
+		maxf(0.0, parent_size.x),
+		maxf(0.0, parent_size.y)
+	))
+	var left := clampf(snap_value(reserved_left_width), 0.0, safe_parent.x)
+	var right := clampf(
+		snap_value(safe_parent.x - reserved_right_width),
+		left,
+		safe_parent.x
+	)
+	var top := clampf(snap_value(taskbar_height), 0.0, safe_parent.y)
+	var bottom := clampf(
+		snap_value(safe_parent.y - dock_height),
+		top,
+		safe_parent.y
+	)
+	return Rect2(
+		Vector2(left, top),
+		Vector2(right - left, bottom - top)
+	)
+
+## Authoritative rectangle for the persistent right-side app rail. Visual
+## chrome and window clamping must derive from the same edge so a maximized
+## window can neither leave a dead strip nor overlap the rail.
+func get_right_reserved_rect(parent_size: Vector2) -> Rect2:
+	var safe_parent := snap_vector(Vector2(
+		maxf(0.0, parent_size.x),
+		maxf(0.0, parent_size.y)
+	))
+	var work_rect := get_work_area_rect(safe_parent)
+	var right_width := maxf(0.0, safe_parent.x - work_rect.end.x)
+	return Rect2(
+		Vector2(work_rect.end.x, work_rect.position.y),
+		Vector2(right_width, maxf(0.0, safe_parent.y - work_rect.position.y))
+	)
 
 func get_window_visual_scale(window_pixel_density: int) -> float:
 	var desktop_density: float = float(max(1, pixel_scale))
