@@ -4,8 +4,8 @@
 
 [resource]
 script = ExtResource("1_motion")
-page_enter_duration = 0.18
-page_exit_duration = 0.12
+page_enter_duration = 0.14
+page_exit_duration = 0.09
 page_offset = Vector2(8, 0)
 panel_enter_duration = 0.16
 panel_exit_duration = 0.12

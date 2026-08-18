@@ -16,6 +16,7 @@ layout_mode = 0
 mouse_filter = 1
 
 [node name="Background" type="PanelContainer" parent="VisualRoot" unique_id=76806708]
+unique_name_in_owner = true
 modulate = Color(0.47397572, 0.47397572, 0.47397572, 1)
 layout_mode = 1
 anchors_preset = 15

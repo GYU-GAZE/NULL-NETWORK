@@ -61,6 +61,7 @@ func _ready() -> void:
 	browser_back_btn.pressed.connect(_on_browser_back_pressed)
 	favorite_button.pressed.connect(_on_favorite_pressed)
 	resized.connect(_queue_tab_layout_refresh)
+	tab_scroll.resized.connect(_queue_tab_layout_refresh)
 	_connect_browser_navigation_signals(self)
 	if not GlobalSignals.request_browser_navigation.is_connected(_on_story_browser_navigation_requested):
 		GlobalSignals.request_browser_navigation.connect(_on_story_browser_navigation_requested)
@@ -184,7 +185,7 @@ func _sync_tab_buttons(animate_new: bool = false) -> void:
 		if animate_new and is_inside_tree():
 			motion_player.enter_scaled_control(tab_button, Vector2(0.9, 0.72), Vector2(0, 2), 0.12)
 	while _tab_buttons.size() > tabs.size():
-		var stale := _tab_buttons.pop_back()
+		var stale: BrowserTabButton = _tab_buttons.pop_back()
 		if is_instance_valid(stale):
 			stale.queue_free()
 	var resolved_width := _calculate_tab_width()
@@ -197,7 +198,7 @@ func _sync_tab_buttons(animate_new: bool = false) -> void:
 func _calculate_tab_width() -> float:
 	if tabs.is_empty():
 		return tab_width
-	var available := maxf(1.0, tab_scroll.size.x - tab_bar_reserved_margin)
+	var available := _get_available_tab_strip_width()
 	var separation := float(tab_button_container.get_theme_constant("separation"))
 	var total_spacing := separation * float(maxi(0, tabs.size() - 1))
 	return clampf(floor((available - total_spacing) / float(tabs.size())), minimum_tab_width, tab_width)
@@ -212,21 +213,33 @@ func _refresh_tab_layout_only() -> void:
 		return
 	var resolved_width := _calculate_tab_width()
 	for i in range(mini(_tab_buttons.size(), tabs.size())):
-		var tab := tabs[i]
+		var tab: BrowserTabData = tabs[i]
 		_tab_buttons[i].setup(i, tab.page_title, tab.favicon, i == current_tab_index, tabs.size() > 1, resolved_width)
-	var separation := float(tab_button_container.get_theme_constant("separation"))
-	var required_width := minimum_tab_width * float(tabs.size()) + separation * float(maxi(0, tabs.size() - 1))
-	var available_width := maxf(1.0, tab_scroll.size.x - tab_bar_reserved_margin)
+	var required_width := get_required_tab_content_width()
+	var available_width := _get_available_tab_strip_width()
 	_tab_overflow_active = required_width > available_width + 0.5
 	tab_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if _tab_overflow_active else ScrollContainer.SCROLL_MODE_DISABLED
 	if not _tab_overflow_active:
 		tab_scroll.scroll_horizontal = 0
 
 
-func _load_page(target_url: String, is_history_nav: bool = false) -> void:
+func _get_available_tab_strip_width() -> float:
+	var new_tab_width := maxf(new_tab_button_width, new_tab_button_holder.get_combined_minimum_size().x)
+	var chrome_separation := 0.0
+	var tab_bar := tab_scroll.get_parent() as BoxContainer
+	if tab_bar != null:
+		chrome_separation = float(tab_bar.get_theme_constant("separation"))
+	return maxf(1.0, size.x - new_tab_width - chrome_separation - tab_bar_reserved_margin)
+
+
+func _load_page(
+	target_url: String,
+	is_history_nav: bool = false,
+	forward: bool = true
+) -> void:
 	if _navigation_locked:
 		return
-	var clean_url := SimulatedDNS.normalize_url(target_url)
+	var clean_url: String = SimulatedDNS.normalize_url(target_url)
 	if clean_url.is_empty():
 		return
 	var tab := _get_current_tab()
@@ -251,7 +264,7 @@ func _load_page(target_url: String, is_history_nav: bool = false) -> void:
 	url_line_edit.text = clean_url
 	_sync_tab_buttons()
 	_refresh_favorite_button()
-	_present_url(clean_url, page, true)
+	_present_url(clean_url, page, forward)
 
 
 func _render_current_tab(forward: bool = true) -> void:
@@ -368,7 +381,7 @@ func _on_browser_back_pressed() -> void:
 	var tab := _get_current_tab()
 	if tab != null and tab.can_go_back():
 		var previous_url := tab.go_back()
-		_load_page(previous_url, true)
+		_load_page(previous_url, true, false)
 
 
 func _on_favorite_pressed() -> void:
@@ -466,6 +479,18 @@ func is_tab_overflow_active() -> bool:
 
 func get_tab_button_count() -> int:
 	return _tab_buttons.size()
+
+
+func get_required_tab_content_width() -> float:
+	if _tab_buttons.is_empty():
+		return 0.0
+	var required_width := 0.0
+	for tab_button: BrowserTabButton in _tab_buttons:
+		if is_instance_valid(tab_button):
+			required_width += tab_button.get_combined_minimum_size().x
+	var separation := float(tab_button_container.get_theme_constant("separation"))
+	required_width += separation * float(maxi(0, _tab_buttons.size() - 1))
+	return required_width
 
 
 func get_browser_chrome_height() -> float:

@@ -8,7 +8,6 @@ class_name NotificationLayer
 @export var taskbar_height: float = 19.0
 @export var right_margin: float = 6.0
 @export var top_gap: float = 4.0
-@export var hidden_extra_y: float = 6.0
 
 @export_category("Behavior")
 @export var max_visible_notifications: int = 1
@@ -43,7 +42,6 @@ func _sync_metrics() -> void:
 	taskbar_height = KubuOSMetrics.taskbar_height
 	right_margin = KubuOSMetrics.toast_right_margin
 	top_gap = KubuOSMetrics.toast_top_gap
-	hidden_extra_y = KubuOSMetrics.toast_hidden_extra_y
 
 
 func _on_metrics_changed() -> void:
@@ -106,9 +104,7 @@ func _try_show_next() -> void:
 	toast.size = toast_size
 
 	var final_pos: Vector2 = _get_toast_final_position(toast)
-	var hidden_pos: Vector2 = _get_toast_hidden_position(toast, final_pos)
-
-	toast.play(final_pos, hidden_pos)
+	toast.play(final_pos)
 
 
 func _get_toast_final_position(toast: NotificationToast) -> Vector2:
@@ -126,18 +122,6 @@ func _get_toast_final_position(toast: NotificationToast) -> Vector2:
 	y = clamp(y, taskbar_height, max(taskbar_height, layer_size.y - toast_size.y))
 
 	return KubuOSMetrics.snap_vector(Vector2(x, y))
-
-
-func _get_toast_hidden_position(toast: NotificationToast, final_pos: Vector2) -> Vector2:
-	var toast_size: Vector2 = toast.size
-
-	if toast_size.x <= 0.0 or toast_size.y <= 0.0:
-		toast_size = toast.get_combined_minimum_size()
-
-	return KubuOSMetrics.snap_vector(Vector2(
-		final_pos.x,
-		-toast_size.y - hidden_extra_y
-	))
 
 
 func _get_layer_size() -> Vector2:

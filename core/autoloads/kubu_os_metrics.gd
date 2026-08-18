@@ -24,7 +24,6 @@ signal display_state_changed(
 @export_category("Toast — Logical Units")
 @export var toast_right_margin: float = 6.0
 @export var toast_top_gap: float = 4.0
-@export var toast_hidden_extra_y: float = 6.0
 
 @export_category("Windows — Logical Units")
 @export var default_window_margin: float = 0.0

@@ -1,6 +1,7 @@
 extends Node
 
 const WINDOW_SCENE: PackedScene = preload("res://systems/window_manager/window_base.tscn")
+const MOTION_PROFILE: UiMotionProfileData = preload("res://data/content/ui/motion/kubuos_default_motion.tres")
 
 var _failures := PackedStringArray()
 
@@ -54,6 +55,7 @@ func _run_test() -> void:
 
 	manager.free()
 	await _test_window_motion_contract()
+	await _test_interrupted_motion_settles_authoritative_target()
 	_finish_test()
 
 
@@ -84,6 +86,32 @@ func _test_window_motion_contract() -> void:
 	await get_tree().create_timer(0.2).timeout
 	_check(bool(close_state["emitted"]), "window_closed did not emit after close presentation.")
 	workspace.queue_free()
+
+
+func _test_interrupted_motion_settles_authoritative_target() -> void:
+	var host := Control.new()
+	host.size = Vector2(640, 360)
+	add_child(host)
+	var probe := Control.new()
+	probe.position = Vector2(16, 12)
+	probe.size = Vector2(120, 80)
+	host.add_child(probe)
+	var motion := UiMotionPlayer.new()
+	motion.profile = MOTION_PROFILE
+	host.add_child(motion)
+	var authoritative_rect := Rect2(Vector2(240, 140), Vector2(260, 160))
+	motion.transition_rect(probe, authoritative_rect, 0.2)
+	await get_tree().create_timer(0.04).timeout
+	motion.cancel_control(probe)
+	_check(
+		Rect2(probe.position, probe.size) == authoritative_rect,
+		"Cancelling motion did not settle the Control on its authoritative target geometry."
+	)
+	_check(
+		probe.scale == Vector2.ONE and probe.rotation == 0.0 and probe.modulate == Color.WHITE,
+		"Cancelling motion left residual presentation properties."
+	)
+	host.queue_free()
 
 
 func _check(condition: bool, message: String) -> void:

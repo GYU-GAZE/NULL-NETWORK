@@ -105,8 +105,43 @@ func _test_registration_route() -> void:
 				question != null and operator_page._assessment_session.final_answer_by_question.has(question.question_id),
 				"Assessment did not retain the selected response in CompatibilitySessionData."
 			)
+		await _test_assessment_result_presentation(operator_page)
 	page_instance.queue_free()
 	await _wait_frames(2)
+
+
+func _test_assessment_result_presentation(page: OperatorCreationPage) -> void:
+	for question_value: Variant in ASSESSMENT_DATA.questions:
+		var question := question_value as CompatibilityQuestionData
+		if question == null:
+			continue
+		var order := CompatibilityAssessmentService.get_or_create_visual_order(
+			question,
+			page._assessment_session
+		)
+		if order.is_empty():
+			continue
+		var answer := question.get_answer(order[0])
+		if answer != null:
+			page._assessment_session.record_answer(question.question_id, answer.answer_id, 0)
+	var expected := CompatibilityAssessmentService.evaluate(
+		ASSESSMENT_DATA,
+		page._assessment_session,
+		page._selected_writing_style,
+		page._selected_kaomoji,
+		str(page.avatar_variant_hints.get(page._selected_avatar_id, ""))
+	)
+	page._question_index = ASSESSMENT_DATA.questions.size() - 1
+	page._calculate_and_show_result(true)
+	await get_tree().create_timer(0.35).timeout
+	_check(page.accept_result_button.disabled, "Assessment result unlocked ACCEPT before the payoff stabilized.")
+	_check(page.retake_assessment_button.disabled, "Assessment result unlocked RETAKE before the payoff stabilized.")
+	_check(page.result_manual_button.disabled, "Assessment result unlocked MANUAL before the payoff stabilized.")
+	await get_tree().create_timer(1.35).timeout
+	_check(page.get_current_flow_page() == OperatorCreationPage.FlowPage.RESULT, "Assessment payoff did not settle on Result.")
+	_check(page._assessment_result == expected, "Result presentation changed CompatibilityAssessmentService output.")
+	_check(not page.retake_assessment_button.disabled, "Assessment payoff did not unlock RETAKE after stabilization.")
+	_check(not page.result_manual_button.disabled, "Assessment payoff did not unlock MANUAL after stabilization.")
 
 func _check_appearance_navigation_is_clear(page: OperatorCreationPage) -> void:
 	var footer := page.find_child("PortalFooter", true, false) as Control

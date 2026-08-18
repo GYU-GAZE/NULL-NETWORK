@@ -12,7 +12,6 @@ signal finished(toast: NotificationToast)
 )
 
 var final_position: Vector2 = Vector2.ZERO
-var hidden_position: Vector2 = Vector2.ZERO
 var _motion_player: UiMotionPlayer
 
 
@@ -39,9 +38,8 @@ func _apply_text(title: String, message: String) -> void:
 	message_label.visible = not message.strip_edges().is_empty()
 
 
-func play(final_pos: Vector2, hidden_pos: Vector2) -> void:
+func play(final_pos: Vector2) -> void:
 	final_position = final_pos
-	hidden_position = hidden_pos
 
 	position = KubuOSMetrics.snap_vector(final_position)
 	modulate.a = 0.0

@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://bsm16kkm5j4eu"]
+[gd_scene load_steps=4 format=3 uid="uid://bsm16kkm5j4eu"]
 
 [ext_resource type="Script" uid="uid://74re1a3348oo" path="res://systems/desktop/dock/kubu_bottom_dock.gd" id="1_lf386"]
+[ext_resource type="PackedScene" uid="uid://w14nl6xxwxew" path="res://systems/desktop/dock/kubu_dock_item.tscn" id="2_dock_item"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_app_rail"]
 bg_color = Color(0.035, 0.073, 0.125, 1)
@@ -16,6 +17,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_lf386")
+dock_item_scene = ExtResource("2_dock_item")
 
 [node name="SidebarMargin" type="MarginContainer" parent="."]
 layout_mode = 1

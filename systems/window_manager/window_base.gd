@@ -54,7 +54,6 @@ var is_maximized: bool = false
 var restore_position: Vector2 = Vector2.ZERO
 var restore_size: Vector2 = Vector2.ZERO
 
-var _animation_tween: Tween
 var _motion_player: UiMotionPlayer
 var _is_opening: bool = false
 var _is_closing: bool = false
@@ -121,7 +120,7 @@ func play_open_animation() -> void:
 	if _is_closing:
 		return
 
-	_kill_animation_tween()
+	_cancel_active_motion()
 	_refresh_pivot_offset()
 	_is_opening = true
 	await _motion_player.enter_scaled_control(
@@ -371,7 +370,7 @@ func close() -> void:
 	resize_border.force_capture = false
 	_is_geometry_transitioning = false
 
-	_kill_animation_tween()
+	_cancel_active_motion()
 	_refresh_pivot_offset()
 	await _motion_player.exit_scaled_control(
 		self,
@@ -489,10 +488,6 @@ func _refresh_pivot_offset() -> void:
 	pivot_offset = size * 0.5
 
 
-func _kill_animation_tween() -> void:
-	if _animation_tween != null and _animation_tween.is_valid():
-		_animation_tween.kill()
-
-	_animation_tween = null
+func _cancel_active_motion() -> void:
 	if is_instance_valid(_motion_player):
-		_motion_player.cancel_control(self)
+		_motion_player.cancel_all()

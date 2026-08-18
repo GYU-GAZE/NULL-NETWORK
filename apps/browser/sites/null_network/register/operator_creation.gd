@@ -273,7 +273,7 @@ func _render_avatar_grid() -> void:
 		button.text = "%02d" % (index + 1)
 		button.tooltip_text = avatar_labels[index] if index < avatar_labels.size() else avatar_id
 		button.button_pressed = avatar_id == _selected_avatar_id
-		button.pressed.connect(_on_avatar_selected.bind(avatar_id, index))
+		button.pressed.connect(_on_avatar_selected.bind(avatar_id, index, button))
 		avatar_grid.add_child(button)
 	_refresh_avatar_preview()
 
@@ -364,10 +364,12 @@ func _render_appearance_categories() -> void:
 		button.button_group = group
 		button.text = _appearance_category_label(category)
 		button.button_pressed = category == _appearance_category
-		button.pressed.connect(_on_appearance_category_selected.bind(category))
+		button.pressed.connect(
+			_on_appearance_category_selected.bind(category, button)
+		)
 		appearance_categories.add_child(button)
 
-func _render_appearance_options() -> void:
+func _render_appearance_options(animate: bool = false) -> void:
 	_clear_container(appearance_grid)
 	if appearance_catalog == null:
 		return
@@ -381,8 +383,14 @@ func _render_appearance_options() -> void:
 		none_button.text = "NONE"
 		none_button.button_pressed = selected_id.is_empty()
 		none_button.pressed.connect(
-			_on_appearance_option_selected.bind(_appearance_category, "")
+			_on_appearance_option_selected.bind(
+				_appearance_category,
+				"",
+				none_button
+			)
 		)
+		if animate:
+			none_button.modulate.a = 0.0
 		appearance_grid.add_child(none_button)
 	for option_value in appearance_catalog.get_options(_appearance_category):
 		var option := option_value as AppearanceOptionData
@@ -396,9 +404,17 @@ func _render_appearance_options() -> void:
 		button.icon = option.thumbnail
 		button.button_pressed = option.option_id == selected_id
 		button.pressed.connect(
-			_on_appearance_option_selected.bind(_appearance_category, option.option_id)
+			_on_appearance_option_selected.bind(
+				_appearance_category,
+				option.option_id,
+				button
+			)
 		)
+		if animate:
+			button.modulate.a = 0.0
 		appearance_grid.add_child(button)
+	if animate:
+		call_deferred("_reveal_appearance_options")
 
 func _configure_manual_page() -> void:
 	for spin_value in [manual_valour_spin, manual_logic_spin, manual_sync_spin, manual_self_spin]:
@@ -443,12 +459,20 @@ func _connect_static_controls() -> void:
 		func() -> void: browser_navigation_requested.emit(NULL_CHANNEL_URL)
 	)
 	occupation_option.item_selected.connect(
-		func(_index: int) -> void: _refresh_occupation_summary()
+		func(_index: int) -> void:
+			_refresh_occupation_summary()
+			_motion_player.flash_control(
+				occupation_option,
+				Color(1.08, 1.14, 1.2, 1.0),
+				0.08
+			)
 	)
-	direction_front.pressed.connect(_set_overworld_direction.bind(0))
-	direction_right.pressed.connect(_set_overworld_direction.bind(1))
-	direction_back.pressed.connect(_set_overworld_direction.bind(2))
-	direction_left.pressed.connect(_set_overworld_direction.bind(3))
+	for field: LineEdit in [first_name_edit, last_name_edit, nickname_edit, username_edit]:
+		field.focus_entered.connect(_on_account_field_focused.bind(field))
+	direction_front.pressed.connect(_set_overworld_direction.bind(0, direction_front))
+	direction_right.pressed.connect(_set_overworld_direction.bind(1, direction_right))
+	direction_back.pressed.connect(_set_overworld_direction.bind(2, direction_back))
+	direction_left.pressed.connect(_set_overworld_direction.bind(3, direction_left))
 
 func _show_page(page: int, scroll_to_top: bool = true, animated: bool = true) -> void:
 	if _page_transitioning:
@@ -1244,7 +1268,16 @@ func _on_kaomoji_selected(id: String) -> void:
 	_selected_kaomoji = id
 	_motion_player.flash_control(kaomoji_options, Color(1.08, 1.14, 1.2, 1.0), 0.08)
 
-func _on_avatar_selected(avatar_id: String, index: int) -> void:
+func _on_account_field_focused(field: LineEdit) -> void:
+	_motion_player.flash_control(field, Color(1.06, 1.12, 1.18, 1.0), 0.08)
+
+
+func _on_avatar_selected(
+	avatar_id: String,
+	index: int,
+	source_button: Button
+) -> void:
+	await _motion_player.confirm_control(source_button)
 	_selected_avatar_id = avatar_id
 	avatar_preview_label.text = "A%02d" % (index + 1)
 	_motion_player.flash_control(avatar_preview_label, Color(1.1, 1.16, 1.22, 1.0), 0.09)
@@ -1253,23 +1286,46 @@ func _refresh_avatar_preview() -> void:
 	var index := avatar_ids.find(_selected_avatar_id)
 	avatar_preview_label.text = "A%02d" % (index + 1) if index >= 0 else "--"
 
-func _on_appearance_category_selected(category: int) -> void:
+func _on_appearance_category_selected(
+	category: int,
+	source_button: Button
+) -> void:
+	await _motion_player.confirm_control(source_button)
 	_appearance_category = category
 	_render_appearance_categories()
-	_render_appearance_options()
-	_motion_player.enter_control(appearance_grid, Vector2(3, 0), 0.12)
+	_render_appearance_options(true)
 
-func _on_appearance_option_selected(category: int, option_id: String) -> void:
+
+func _reveal_appearance_options() -> void:
+	var controls: Array[Control] = []
+	for child: Node in appearance_grid.get_children():
+		if child is Control:
+			controls.append(child as Control)
+	await _motion_player.reveal_group_staggered(controls, Vector2.ZERO)
+
+
+func _on_appearance_option_selected(
+	category: int,
+	option_id: String,
+	source_button: Button
+) -> void:
+	await _motion_player.confirm_control(source_button)
 	_appearance_selection[category] = option_id
 	_render_appearance_options()
 	_update_appearance_preview()
 	_motion_player.flash_control(portrait_layers, Color(1.08, 1.12, 1.18, 1.0), 0.09)
 	_motion_player.flash_control(overworld_layers, Color(1.08, 1.12, 1.18, 1.0), 0.09)
 
-func _set_overworld_direction(direction: int) -> void:
+
+func _set_overworld_direction(
+	direction: int,
+	source_button: Button
+) -> void:
+	await _motion_player.confirm_control(source_button)
 	_overworld_direction = posmod(direction, 4)
 	_update_appearance_preview()
-	_motion_player.enter_control(overworld_layers, Vector2(2, 0), 0.1)
+	overworld_layers.modulate.a = 0.0
+	_motion_player.enter_control(overworld_layers, Vector2.ZERO, 0.1)
 
 func _update_appearance_preview() -> void:
 	var has_portrait_texture := false
