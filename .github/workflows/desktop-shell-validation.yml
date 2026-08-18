@@ -18,6 +18,7 @@ on:
       - "tests/desktop/**"
       - "tests/window_manager/**"
       - "tests/ui/**"
+      - "tests/operator/**"
       - ".github/workflows/desktop-shell-validation.yml"
   workflow_dispatch:
 
@@ -135,6 +136,16 @@ jobs:
             2>&1 | tee typewriter-reveal-test.log
           grep -q "TYPEWRITER_REVEAL_TEST: PASS" typewriter-reveal-test.log
 
+      - name: Run registration restore test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/operator/operator_registration_restore_test.tscn \
+            2>&1 | tee operator-registration-restore-test.log
+          grep -q "OPERATOR_REGISTRATION_RESTORE_TEST: PASS" operator-registration-restore-test.log
+
       - name: Reject shell script errors
         shell: bash
         run: |
@@ -145,9 +156,10 @@ jobs:
             desktop-work-area-test.log \
             desktop-sidebar-alignment-test.log \
             typewriter-reveal-test.log \
+            operator-registration-restore-test.log \
             > desktop-shell-validation.log
 
-          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL" desktop-shell-validation.log; then
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL" desktop-shell-validation.log; then
             echo "Desktop shell validation reported an error."
             exit 1
           fi
@@ -168,5 +180,6 @@ jobs:
             desktop-work-area-test.log
             desktop-sidebar-alignment-test.log
             typewriter-reveal-test.log
+            operator-registration-restore-test.log
             desktop-shell-validation.log
           if-no-files-found: ignore
