@@ -39,9 +39,7 @@ func _run_test() -> void:
 		menu._input_enabled = true
 		menu.campaign_delete_requested.connect(_on_campaign_delete_requested)
 
-		var profile_list := menu.get_node_or_null(
-			"MenuArea/RightColumn/UserPanel/Margin/Root/Scroll/ProfileList"
-		) as VBoxContainer
+		var profile_list := menu.find_child("ProfileList", true, false) as VBoxContainer
 		_check(
 			profile_list != null and profile_list.get_child_count() == 2,
 			"Delete fixture should render one saved user plus New User."

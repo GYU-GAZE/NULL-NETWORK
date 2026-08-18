@@ -139,8 +139,8 @@ mouse_filter = 2
 [node name="BootLogoAnchor" type="Control" parent="BootLayer"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_right = 440.0
-offset_bottom = 180.0
+offset_right = 280.0
+offset_bottom = 112.0
 mouse_filter = 2
 
 [node name="BootLogo" type="TextureRect" parent="BootLayer/BootLogoAnchor"]
@@ -172,8 +172,8 @@ vertical_alignment = 1
 [node name="NullBrandAnchor" type="Control" parent="BootLayer"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_right = 560.0
-offset_bottom = 96.0
+offset_right = 440.0
+offset_bottom = 56.0
 mouse_filter = 2
 
 [node name="PixelField" type="Control" parent="BootLayer/NullBrandAnchor"]
@@ -282,9 +282,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -360.0
+offset_left = -296.0
 offset_top = -1.0
-offset_right = 360.0
+offset_right = 296.0
 offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2

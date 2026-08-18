@@ -8,9 +8,9 @@ script = ExtResource("2_splash")
 splash_id = &"gyu_gaze"
 fallback_text = "GYU:GAZE WORKS"
 background_color = Color(0.005, 0.007, 0.012, 1)
-fade_in_seconds = 0.24
-hold_seconds = 1.1
-fade_out_seconds = 0.24
+fade_in_seconds = 0.16
+hold_seconds = 0.65
+fade_out_seconds = 0.16
 logo_minimum_size = Vector2(360, 180)
 
 [sub_resource type="Resource" id="Splash_Godot"]
@@ -18,9 +18,9 @@ script = ExtResource("2_splash")
 splash_id = &"godot_engine"
 fallback_text = "GODOT ENGINE"
 background_color = Color(0.005, 0.007, 0.012, 1)
-fade_in_seconds = 0.24
-hold_seconds = 1.1
-fade_out_seconds = 0.24
+fade_in_seconds = 0.16
+hold_seconds = 0.65
+fade_out_seconds = 0.16
 logo_minimum_size = Vector2(360, 180)
 
 [resource]
@@ -28,16 +28,16 @@ script = ExtResource("1_presentation")
 splashes = Array[ExtResource("2_splash")]([SubResource("Splash_GyuGaze"), SubResource("Splash_Godot")])
 skip_speed_multiplier = 10.0
 kubuos_fallback_text = "KubuOS"
-logo_ignite_seconds = 0.36
-logo_hold_seconds = 0.44
-screen_power_seconds = 0.24
-reveal_seconds = 1.44
+logo_ignite_seconds = 0.18
+logo_hold_seconds = 0.18
+screen_power_seconds = 0.12
+reveal_seconds = 0.55
 logo_target_screen_x_ratio = 0.24
 logo_target_screen_y_ratio = 0.52
 logo_target_scale = 0.82
 background_intro_pan_ratio = 0.22
 null_network_fallback_text = "NULL NETWORK"
-null_logo_build_seconds = 0.8
+null_logo_build_seconds = 0.32
 null_logo_particle_count = 52
 null_logo_text_color = Color(0.91, 0.97, 1, 1)
 null_logo_glitch_color_a = Color(0.2, 0.9, 1, 0.55)

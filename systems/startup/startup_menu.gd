@@ -15,11 +15,8 @@ const STARTUP_USER_ENTRY_SCENE: PackedScene = preload(
 	"res://systems/startup/startup_user_entry.tscn"
 )
 const NEW_USER_ENTRY_ID: String = "__new_user__"
-const BOTTOM_BAR_HEIGHT: float = 56.0
-const BOTTOM_BAR_REVEAL_SECONDS: float = 0.3
-const SURFACE_SWAP_OUT_SECONDS: float = 0.14
-const SURFACE_SWAP_IN_SECONDS: float = 0.22
-const MODE_OPTION_REVEAL_SECONDS: float = 0.16
+const BOTTOM_BAR_HEIGHT: float = 40.0
+const BOTTOM_BAR_REVEAL_SECONDS: float = 0.18
 const SAFE_MODE_DESCRIPTION: String = (
 	"Historical checkpoints and manual saves remain available. You can return to an "
 	+ "earlier record when you choose to do so."
@@ -31,12 +28,14 @@ const COMMIT_MODE_DESCRIPTION: String = (
 
 @export var presentation_data: StartupPresentationData
 
+@onready var motion_player: UiMotionPlayer = %MotionPlayer
 @onready var account_surface: PanelContainer = %AccountSurface
 @onready var user_panel: PanelContainer = %UserPanel
 @onready var profile_list: VBoxContainer = %ProfileList
 @onready var mode_panel: PanelContainer = %ModePanel
-@onready var mode_content_root: VBoxContainer = %ModeContentRoot
+@onready var mode_scroll: ScrollContainer = %ModeScroll
 @onready var new_user_title: Label = %NewUserTitle
+@onready var mode_hint: Label = %ModeHint
 @onready var safe_mode_option: StartupModeOption = %SafeModeOption
 @onready var commit_mode_option: StartupModeOption = %CommitModeOption
 @onready var back_button: Button = %BackButton
@@ -88,11 +87,13 @@ func refresh_profiles() -> int:
 
 
 func reveal() -> void:
+	_prepare_user_surface()
 	show()
 	_input_enabled = false
 	await get_tree().process_frame
-	await _reveal_bottom_bar()
 	await _reveal_main_controls()
+	await get_tree().create_timer(0.04).timeout
+	await _reveal_bottom_bar()
 	_input_enabled = true
 
 
@@ -254,98 +255,19 @@ func _show_new_user_modes() -> void:
 	for option: StartupModeOption in _get_mode_options():
 		option.reset_immediately()
 
-	var exit_tween := create_tween()
-	exit_tween.set_trans(Tween.TRANS_QUAD)
-	exit_tween.set_ease(Tween.EASE_IN)
-	exit_tween.tween_property(
-		user_panel,
-		"modulate:a",
-		0.0,
-		SURFACE_SWAP_OUT_SECONDS
-	)
-	exit_tween.parallel().tween_property(
-		user_panel,
-		"scale",
-		Vector2(0.985, 0.985),
-		SURFACE_SWAP_OUT_SECONDS
-	)
-	await exit_tween.finished
-
-	user_panel.hide()
-	user_panel.modulate.a = 1.0
-	user_panel.scale = Vector2.ONE
-	mode_panel.show()
-	mode_panel.modulate.a = 1.0
-	mode_content_root.modulate.a = 1.0
-	new_user_title.modulate.a = 0.0
-	new_user_title.scale = Vector2(0.92, 0.92)
-	back_button.modulate.a = 0.0
-	var mode_hint := mode_panel.get_node_or_null(
-		"Margin/ModeContentRoot/ModeHint"
-	) as Label
-
-	if mode_hint != null:
-		mode_hint.modulate.a = 0.0
-
-	for option: StartupModeOption in _get_mode_options():
-		option.modulate.a = 0.0
-		option.scale = Vector2(1.0, 0.05)
-
-	await get_tree().process_frame
-	new_user_title.pivot_offset = new_user_title.size * 0.5
-
-	for option: StartupModeOption in _get_mode_options():
-		option.pivot_offset = option.size * 0.5
-
-	var header_tween := create_tween().set_parallel(true)
-	header_tween.set_trans(Tween.TRANS_CUBIC)
-	header_tween.set_ease(Tween.EASE_OUT)
-	header_tween.tween_property(
-		new_user_title,
-		"modulate:a",
-		1.0,
-		SURFACE_SWAP_IN_SECONDS
-	)
-	header_tween.tween_property(
-		new_user_title,
-		"scale",
-		Vector2.ONE,
-		SURFACE_SWAP_IN_SECONDS
-	)
-	header_tween.tween_property(
+	var staged_controls: Array[Control] = [
 		back_button,
-		"modulate:a",
-		1.0,
-		SURFACE_SWAP_IN_SECONDS
-	)
+		new_user_title,
+		mode_hint,
+		safe_mode_option,
+		commit_mode_option,
+	]
+	for control: Control in staged_controls:
+		control.modulate.a = 0.0
 
-	if mode_hint != null:
-		header_tween.tween_property(
-			mode_hint,
-			"modulate:a",
-			1.0,
-			SURFACE_SWAP_IN_SECONDS
-		)
-
-	await header_tween.finished
-
-	for option: StartupModeOption in _get_mode_options():
-		var option_tween := create_tween().set_parallel(true)
-		option_tween.set_trans(Tween.TRANS_EXPO)
-		option_tween.set_ease(Tween.EASE_OUT)
-		option_tween.tween_property(
-			option,
-			"modulate:a",
-			1.0,
-			MODE_OPTION_REVEAL_SECONDS
-		)
-		option_tween.tween_property(
-			option,
-			"scale",
-			Vector2.ONE,
-			MODE_OPTION_REVEAL_SECONDS
-		)
-		await option_tween.finished
+	mode_scroll.scroll_vertical = 0
+	await motion_player.transition_between(user_panel, mode_panel, true)
+	await motion_player.reveal_group_staggered(staged_controls, Vector2(0, 4))
 
 	_surface_transitioning = false
 	_set_mode_options_enabled(true)
@@ -360,45 +282,13 @@ func _show_user_list() -> void:
 	_set_mode_options_enabled(false)
 	back_button.disabled = true
 
-	var exit_tween := create_tween()
-	exit_tween.set_trans(Tween.TRANS_QUAD)
-	exit_tween.set_ease(Tween.EASE_IN)
-	exit_tween.tween_property(
-		mode_panel,
-		"modulate:a",
-		0.0,
-		SURFACE_SWAP_OUT_SECONDS
-	)
-	await exit_tween.finished
-
 	_selected_mode = CampaignState.SaveMode.UNSET
 	for option: StartupModeOption in _get_mode_options():
 		option.reset_immediately()
 
-	mode_panel.hide()
-	mode_panel.modulate.a = 1.0
-	user_panel.show()
-	user_panel.modulate.a = 0.0
-	user_panel.scale = Vector2(0.985, 0.985)
 	_clear_profile_selection()
 	show_error("")
-
-	var enter_tween := create_tween().set_parallel(true)
-	enter_tween.set_trans(Tween.TRANS_CUBIC)
-	enter_tween.set_ease(Tween.EASE_OUT)
-	enter_tween.tween_property(
-		user_panel,
-		"modulate:a",
-		1.0,
-		SURFACE_SWAP_IN_SECONDS
-	)
-	enter_tween.tween_property(
-		user_panel,
-		"scale",
-		Vector2.ONE,
-		SURFACE_SWAP_IN_SECONDS
-	)
-	await enter_tween.finished
+	await motion_player.transition_between(mode_panel, user_panel, false)
 
 	_surface_transitioning = false
 	_set_user_entries_enabled(true)
@@ -465,6 +355,9 @@ func _on_mode_toggle_requested(mode_value: int) -> void:
 		_selected_mode = target_mode
 		await target.set_expanded(true)
 
+	await get_tree().process_frame
+	mode_scroll.ensure_control_visible(target)
+
 	_surface_transitioning = false
 	_set_mode_options_enabled(true)
 	back_button.disabled = false
@@ -511,64 +404,20 @@ func _set_bottom_bar_resting() -> void:
 
 
 func _reveal_bottom_bar() -> void:
-	_set_bottom_bar_hidden()
-	bottom_bar_root.modulate.a = 0.82
-	var tween := create_tween()
-	tween.set_trans(Tween.TRANS_CUBIC)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property(
+	_set_bottom_bar_resting()
+	await motion_player.enter_control(
 		bottom_bar_root,
-		"offset_top",
-		-BOTTOM_BAR_HEIGHT,
+		Vector2(0, BOTTOM_BAR_HEIGHT),
 		BOTTOM_BAR_REVEAL_SECONDS
 	)
-	tween.parallel().tween_property(
-		bottom_bar_root,
-		"offset_bottom",
-		0.0,
-		BOTTOM_BAR_REVEAL_SECONDS
-	)
-	tween.parallel().tween_property(
-		bottom_bar_root,
-		"modulate:a",
-		1.0,
-		BOTTOM_BAR_REVEAL_SECONDS * 0.72
-	)
-	await tween.finished
 
 
 func _reveal_main_controls() -> void:
-	mode_panel.hide()
-	for option: StartupModeOption in _get_mode_options():
-		option.reset_immediately()
-
-	user_panel.show()
-	account_surface.pivot_offset = account_surface.size * 0.5
-	account_surface.scale = Vector2(1.0, 0.03)
-	account_surface.modulate.a = 0.38
-	user_panel.modulate.a = 0.0
-	var tween := create_tween().set_parallel(true)
-	tween.set_trans(Tween.TRANS_EXPO)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property(
-		account_surface,
-		"scale:y",
-		1.0,
-		0.34
-	)
-	tween.tween_property(
-		account_surface,
-		"modulate:a",
-		1.0,
-		0.24
-	)
-	tween.tween_property(
-		user_panel,
-		"modulate:a",
-		1.0,
-		0.22
-	).set_delay(0.08)
-	await tween.finished
+	account_surface.hide()
+	user_panel.hide()
+	motion_player.enter_control(account_surface, Vector2(0, 8), 0.18)
+	await get_tree().create_timer(0.04).timeout
+	await motion_player.enter_control(user_panel, Vector2(6, 0), 0.16)
 
 
 func _open_configs() -> void:
@@ -599,3 +448,19 @@ func _reset_visual_state() -> void:
 	_selected_mode = CampaignState.SaveMode.UNSET
 	_input_enabled = false
 	_surface_transitioning = false
+
+
+func _prepare_user_surface() -> void:
+	mode_panel.hide()
+	mode_panel.modulate.a = 1.0
+	user_panel.show()
+	user_panel.modulate.a = 1.0
+	account_surface.show()
+	account_surface.modulate.a = 1.0
+	for option: StartupModeOption in _get_mode_options():
+		option.reset_immediately()
+	_clear_profile_selection()
+	_selected_mode = CampaignState.SaveMode.UNSET
+	mode_scroll.scroll_vertical = 0
+	show_error("")
+	_set_bottom_bar_hidden()

@@ -21,6 +21,8 @@ func _run_test() -> void:
 		return
 
 	add_child(startup)
+	startup.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	startup.size = Vector2(640.0, 360.0)
 	await get_tree().process_frame
 	_check(
 		startup.presentation_data != null,
@@ -78,6 +80,16 @@ func _run_test() -> void:
 			is_equal_approx(null_center_x, startup.size.x * 0.5),
 			"NULL NETWORK final branding is no longer horizontally centered."
 		)
+		_check_brand_bounds(startup, kubu_anchor, "KubuOS default")
+		_check_brand_bounds(startup, null_anchor, "NULL NETWORK default")
+		_check(kubu_anchor.scale == Vector2.ONE, "Silver KubuOS fallback ended on a non-native scale.")
+		_check(null_anchor.scale == Vector2.ONE, "Silver NULL fallback ended on a non-native scale.")
+
+		startup.size = Vector2(480.0, 270.0)
+		startup._on_viewport_size_changed()
+		await startup.show_login_state(TimeManager.TimePeriod.DAY)
+		_check_brand_bounds(startup, kubu_anchor, "KubuOS minimum")
+		_check_brand_bounds(startup, null_anchor, "NULL NETWORK minimum")
 
 	startup.stop_and_hide()
 	_check(not startup.visible, "Startup presentation did not hide on shutdown.")
@@ -89,6 +101,17 @@ func _run_test() -> void:
 func _check(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
+
+
+func _check_brand_bounds(startup: StartupPresentation, control: Control, label: String) -> void:
+	var rect := control.get_rect()
+	_check(rect.position.x >= 0.0 and rect.position.y >= 0.0, "%s starts outside the canvas." % label)
+	_check(rect.end.x <= startup.size.x and rect.end.y <= startup.size.y, "%s ends outside the canvas." % label)
+	_check(
+		is_equal_approx(control.position.x, round(control.position.x))
+		and is_equal_approx(control.position.y, round(control.position.y)),
+		"%s no longer rests on the logical pixel grid." % label
+	)
 
 
 func _finish_test() -> void:

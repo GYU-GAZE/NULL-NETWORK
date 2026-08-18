@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UiMotionProfileData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/ui/ui_motion_profile_data.gd" id="1_motion"]
+
+[resource]
+script = ExtResource("1_motion")
+page_duration = 0.18
+page_offset = Vector2(8, 0)
+panel_enter_duration = 0.18
+panel_exit_duration = 0.12
+panel_offset = Vector2(0, 8)
+confirm_duration = 0.09
+stagger_delay = 0.045
+selection_lift_pixels = 2.0

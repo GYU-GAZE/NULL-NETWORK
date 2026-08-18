@@ -6,9 +6,9 @@ signal toggle_requested(mode_value: int)
 signal start_requested(mode_value: int)
 
 
-@export var collapsed_height: float = 56.0
-@export var expanded_height: float = 184.0
-@export var expand_seconds: float = 0.28
+@export var collapsed_height: float = 48.0
+@export var expanded_height: float = 168.0
+@export var expand_seconds: float = 0.18
 @export var collapsed_style: StyleBox
 @export var expanded_style: StyleBox
 
@@ -75,9 +75,9 @@ func set_expanded(value: bool, animated: bool = true) -> void:
 	_active_tween = create_tween().set_parallel(true)
 	_active_tween.set_trans(Tween.TRANS_CUBIC)
 	_active_tween.set_ease(Tween.EASE_OUT if _expanded else Tween.EASE_IN_OUT)
-	_active_tween.tween_property(
-		self,
-		"custom_minimum_size:y",
+	_active_tween.tween_method(
+		_set_animated_height,
+		custom_minimum_size.y,
 		expanded_height if _expanded else collapsed_height,
 		expand_seconds
 	)
@@ -143,3 +143,7 @@ func _kill_active_tween() -> void:
 		_active_tween.kill()
 
 	_active_tween = null
+
+
+func _set_animated_height(value: float) -> void:
+	custom_minimum_size.y = round(value)

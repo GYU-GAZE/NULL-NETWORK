@@ -62,31 +62,27 @@ func _run_test() -> void:
 
 	if menu != null:
 		add_child(menu)
+		menu.set_anchors_preset(Control.PRESET_TOP_LEFT)
+		menu.size = Vector2(640.0, 360.0)
 		await get_tree().process_frame
 		var period: int = menu.refresh_profiles()
 		_check(
 			period == TimeManager.TimePeriod.NIGHT,
 			"Startup menu did not choose latest save period for backdrop."
 		)
-		var profile_list := menu.get_node_or_null(
-			"MenuArea/RightColumn/UserPanel/Margin/Root/Scroll/ProfileList"
-		) as VBoxContainer
+		var profile_list := menu.find_child("ProfileList", true, false) as VBoxContainer
 		_check(
 			profile_list != null and profile_list.get_child_count() == 2,
 			"Startup menu must render saved users plus the New User pseudo-profile."
 		)
 
-		var account_surface := menu.get_node_or_null(
-			"MenuArea/RightColumn/AccountSurface"
-		) as PanelContainer
+		var account_surface := menu.find_child("AccountSurface", true, false) as PanelContainer
 		_check(
 			account_surface != null,
 			"Startup account list and New User flow no longer share one visual surface."
 		)
 
-		var user_panel := menu.get_node_or_null(
-			"MenuArea/RightColumn/UserPanel"
-		) as PanelContainer
+		var user_panel := menu.find_child("UserPanel", true, false) as PanelContainer
 		_check(
 			user_panel != null
 			and user_panel.get_theme_stylebox("panel") is StyleBoxEmpty,
@@ -187,7 +183,7 @@ func _run_test() -> void:
 					"New User first press did not highlight its row."
 				)
 				_check(
-					not menu.get_node("MenuArea/RightColumn/ModePanel").visible,
+					not menu.mode_panel.visible,
 					"New User first press opened mode selection prematurely."
 				)
 				new_entry._on_click_target_pressed()
@@ -200,34 +196,26 @@ func _run_test() -> void:
 					"New User second press incorrectly requested campaign load."
 				)
 				_check(
-					menu.get_node("MenuArea/RightColumn/ModePanel").visible,
+					menu.mode_panel.visible,
 					"New User second single press did not open save-mode selection."
 				)
 				_check(
 					account_surface != null and account_surface.visible,
 					"Shared account background disappeared during New User flow."
 				)
-				var new_user_title := menu.get_node_or_null(
-					"MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/Header/NewUserTitle"
-				) as Label
+				var new_user_title := menu.find_child("NewUserTitle", true, false) as Label
 				_check(
 					new_user_title != null
 					and new_user_title.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER,
 					"New User identity is not centered in the shared account surface."
 				)
 
-				var safe_option := menu.get_node_or_null(
-					"MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeOptions/SafeModeOption"
-				) as StartupModeOption
-				var commit_option := menu.get_node_or_null(
-					"MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeOptions/CommitModeOption"
-				) as StartupModeOption
+				var safe_option := menu.find_child("SafeModeOption", true, false) as StartupModeOption
+				var commit_option := menu.find_child("CommitModeOption", true, false) as StartupModeOption
 				_check(safe_option != null, "SAFE mode expandable option is missing.")
 				_check(commit_option != null, "COMMIT mode expandable option is missing.")
 				_check(
-					menu.get_node_or_null(
-						"MenuArea/RightColumn/ModePanel/Margin/ModeContentRoot/ModeDetailsClip"
-					) == null,
+					menu.find_child("ModeDetailsClip", true, false) == null,
 					"Legacy detached mode details box still exists."
 				)
 
@@ -253,6 +241,12 @@ func _run_test() -> void:
 						"Expanded SAFE mode does not contain an enabled START action."
 					)
 					_check(
+						safe_start != null
+						and safe_start.get_global_rect().end.y
+						<= safe_option.get_global_rect().end.y + 1.0,
+						"Expanded SAFE mode clips its START action."
+					)
+					_check(
 						commit_option == null or not commit_option.is_expanded(),
 						"Expanding SAFE mode also expanded COMMIT mode."
 					)
@@ -272,7 +266,7 @@ func _run_test() -> void:
 					)
 
 		_check(
-			menu.get_node_or_null("MenuArea/Divider") != null,
+			menu.find_child("DividerStack", true, false) != null,
 			"Startup menu lost the XP-style center divider."
 		)
 		_check(
@@ -296,6 +290,8 @@ func _run_test() -> void:
 			and is_equal_approx(bottom_bar.offset_bottom, 0.0),
 			"Startup bottom bar resting offsets no longer pin it to the viewport bottom."
 		)
+		await _check_canvas_bounds(menu, Vector2(640.0, 360.0), "default")
+		await _check_canvas_bounds(menu, Vector2(480.0, 270.0), "minimum")
 		menu.queue_free()
 
 	await get_tree().process_frame
@@ -313,6 +309,30 @@ func _on_campaign_load_requested(
 func _check(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
+
+
+func _check_canvas_bounds(menu: StartupMenu, canvas_size: Vector2, label: String) -> void:
+	menu.size = canvas_size
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var menu_rect := menu.get_global_rect()
+	for node_name: String in ["MenuArea", "SurfaceHost", "BottomBarRoot"]:
+		var control := menu.find_child(node_name, true, false) as Control
+		_check(control != null, "Startup %s canvas lost %s." % [label, node_name])
+		if control != null:
+			_check(
+				_rect_contains(menu_rect, control.get_global_rect()),
+				"Startup %s canvas lets %s escape the viewport." % [label, node_name]
+			)
+
+
+func _rect_contains(outer: Rect2, inner: Rect2) -> bool:
+	return (
+		inner.position.x >= outer.position.x - 1.0
+		and inner.position.y >= outer.position.y - 1.0
+		and inner.end.x <= outer.end.x + 1.0
+		and inner.end.y <= outer.end.y + 1.0
+	)
 
 
 func _finish_test() -> void:
