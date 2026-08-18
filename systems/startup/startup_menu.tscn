@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://systems/startup/startup_menu.gd" id="1_script"]
 [ext_resource type="Resource" path="res://data/content/startup/default_startup_presentation.tres" id="2_data"]
 [ext_resource type="PackedScene" path="res://systems/startup/startup_mode_option.tscn" id="3_mode_option"]
-[ext_resource type="Script" path="res://systems/ui/ui_motion_player.gd" id="4_motion_player"]
-[ext_resource type="Resource" path="res://data/content/ui/startup_motion.tres" id="5_motion"]
+[ext_resource type="Script" path="res://systems/ui/motion/ui_motion_player.gd" id="4_motion_player"]
+[ext_resource type="Resource" path="res://data/content/ui/motion/kubuos_default_motion.tres" id="5_motion"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_main"]
 

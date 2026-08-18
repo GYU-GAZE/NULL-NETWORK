@@ -167,7 +167,11 @@ func _sync_resize_border_hit_area() -> void:
 
 	if is_instance_valid(resize_border):
 		resize_border.border_size = resolved_border_size
-		resize_border.mouse_filter = Control.MOUSE_FILTER_STOP
+		resize_border.mouse_filter = (
+			Control.MOUSE_FILTER_STOP
+			if can_resize and not is_maximized and not _is_geometry_transitioning
+			else Control.MOUSE_FILTER_IGNORE
+		)
 
 
 func _get_internal_visual_size() -> Vector2:

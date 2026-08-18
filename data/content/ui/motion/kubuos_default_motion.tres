@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="UiMotionProfileData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/ui/ui_motion_profile_data.gd" id="1_motion"]
+
+[resource]
+script = ExtResource("1_motion")
+page_enter_duration = 0.18
+page_exit_duration = 0.12
+page_offset = Vector2(6, 0)
+panel_enter_duration = 0.16
+panel_exit_duration = 0.12
+panel_offset = Vector2(0, 6)
+button_confirm_duration = 0.09
+reject_duration = 0.12
+stagger_delay = 0.045
+selection_lift_pixels = 2.0
+reject_offset_pixels = 3.0
+window_enter_duration = 0.18
+window_exit_duration = 0.14
+window_focus_duration = 0.09
+window_geometry_duration = 0.2
+alert_enter_duration = 0.18
+alert_exit_duration = 0.13
+fade_enter_duration = 0.12
+fade_exit_duration = 0.1

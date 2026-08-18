@@ -30,25 +30,33 @@ layout_mode = 2
 
 [node name="TopBar" type="PanelContainer" parent="VisualRoot/Background/MainVBox" unique_id=73891259]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
 
 [node name="TopBarHBox" type="HBoxContainer" parent="VisualRoot/Background/MainVBox/TopBar" unique_id=452692183]
 layout_mode = 2
+theme_override_constants/separation = 0
 
 [node name="TitleLabel" type="Label" parent="VisualRoot/Background/MainVBox/TopBar/TopBarHBox" unique_id=1921216842]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+text_overrun_behavior = 3
+vertical_alignment = 1
 
 [node name="MaximizeButton" type="Button" parent="VisualRoot/Background/MainVBox/TopBar/TopBarHBox" unique_id=71444025]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(14, 12)
 layout_mode = 2
 text = "□"
+flat = true
 
 [node name="CloseButton" type="Button" parent="VisualRoot/Background/MainVBox/TopBar/TopBarHBox" unique_id=1703673678]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(14, 12)
 layout_mode = 2
 text = "X"
+flat = true
 
 [node name="SystemFontScope" parent="VisualRoot/Background/MainVBox/TopBar" instance=ExtResource("3_font_scope")]
 

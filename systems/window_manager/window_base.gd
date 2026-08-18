@@ -19,11 +19,13 @@ enum ResizeMode {
 }
 
 @export_category("Window Animation")
-@export var tween_duration: float = 0.25
-@export var opening_scale: Vector2 = Vector2(0.8, 0.8)
-@export var focus_scale: Vector2 = Vector2(1.02, 1.02)
-@export var closing_scale: Vector2 = Vector2(0.8, 0.8)
-@export var focus_pulse_duration: float = 0.1
+@export var motion_profile: UiMotionProfileData = preload(
+	"res://data/content/ui/motion/kubuos_default_motion.tres"
+)
+@export var opening_scale: Vector2 = Vector2(0.95, 0.95)
+@export var closing_scale: Vector2 = Vector2(0.96, 0.96)
+@export var opening_offset: Vector2 = Vector2(0, 4)
+@export var closing_offset: Vector2 = Vector2(0, 3)
 
 @export_category("Resize")
 @export var border_size: float = 8.0
@@ -53,8 +55,10 @@ var restore_position: Vector2 = Vector2.ZERO
 var restore_size: Vector2 = Vector2.ZERO
 
 var _animation_tween: Tween
+var _motion_player: UiMotionPlayer
 var _is_opening: bool = false
 var _is_closing: bool = false
+var _is_geometry_transitioning: bool = false
 
 @onready var title_label: Label = %TitleLabel
 @onready var close_button: Button = %CloseButton
@@ -62,10 +66,15 @@ var _is_closing: bool = false
 @onready var content_container: MarginContainer = %ContentContainer
 @onready var top_bar: Control = %TopBar
 @onready var resize_border: ResizeBorder = %ResizeBorder
+@onready var background: PanelContainer = %Background
 
 
 func _ready() -> void:
 	anchors_preset = Control.PRESET_TOP_LEFT
+	_motion_player = UiMotionPlayer.new()
+	_motion_player.name = "WindowMotionPlayer"
+	_motion_player.profile = motion_profile
+	add_child(_motion_player)
 
 	close_button.pressed.connect(close)
 	maximize_button.pressed.connect(toggle_maximized)
@@ -115,24 +124,20 @@ func play_open_animation() -> void:
 	_kill_animation_tween()
 	_refresh_pivot_offset()
 	_is_opening = true
-
-	scale = opening_scale
-	modulate = Color(1.0, 1.0, 1.0, 0.0)
-
-	_animation_tween = create_tween().set_parallel(true)
-	_animation_tween.tween_property(self, "scale", Vector2.ONE, tween_duration) \
-		.set_trans(Tween.TRANS_BACK) \
-		.set_ease(Tween.EASE_OUT)
-	_animation_tween.tween_property(self, "modulate:a", 1.0, tween_duration) \
-		.set_trans(Tween.TRANS_SINE) \
-		.set_ease(Tween.EASE_OUT)
-	_animation_tween.chain().tween_callback(_finish_open_animation)
+	await _motion_player.enter_scaled_control(
+		self,
+		opening_scale,
+		opening_offset,
+		motion_profile.window_enter_duration
+	)
+	_finish_open_animation()
 
 
 func _finish_open_animation() -> void:
 	_is_opening = false
-	_animation_tween = null
-	modulate.a = 1.0
+	position = KubuOSMetrics.snap_vector(position)
+	scale = Vector2.ONE
+	modulate = Color.WHITE
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -176,8 +181,8 @@ func toggle_maximized() -> void:
 		maximize()
 
 
-func maximize() -> void:
-	if is_maximized:
+func maximize(animated: bool = true) -> void:
+	if is_maximized or _is_geometry_transitioning:
 		return
 
 	window_focused.emit()
@@ -191,29 +196,50 @@ func maximize() -> void:
 	resize_border.force_capture = false
 
 	is_maximized = true
-	apply_maximized_geometry()
-
 	_refresh_maximize_button()
+	await _apply_window_geometry(
+		Rect2(_get_maximized_position(), _get_maximized_size()),
+		animated
+	)
 	window_moved.emit()
 	window_resized.emit()
 
 
-func restore_from_maximized() -> void:
-	if not is_maximized:
+func restore_from_maximized(animated: bool = true) -> void:
+	if not is_maximized or _is_geometry_transitioning:
 		return
 
 	window_focused.emit()
 	is_maximized = false
 
-	position = KubuOSMetrics.snap_vector(restore_position)
-	size = KubuOSMetrics.snap_vector(Vector2(
+	var target_size := KubuOSMetrics.snap_vector(Vector2(
 		max(restore_size.x, min_window_size.x),
 		max(restore_size.y, min_window_size.y)
 	))
-
 	_refresh_maximize_button()
+	await _apply_window_geometry(
+		Rect2(KubuOSMetrics.snap_vector(restore_position), target_size),
+		animated
+	)
 	window_moved.emit()
 	window_resized.emit()
+
+
+func _apply_window_geometry(target_rect: Rect2, animated: bool) -> void:
+	_is_geometry_transitioning = true
+	is_dragging = false
+	is_resizing = false
+	resize_mode = ResizeMode.NONE
+	resize_border.force_capture = false
+	resize_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	maximize_button.disabled = true
+	if animated and is_inside_tree():
+		await _motion_player.transition_rect(self, target_rect)
+	else:
+		position = KubuOSMetrics.snap_vector(target_rect.position)
+		size = KubuOSMetrics.snap_vector(target_rect.size)
+	_is_geometry_transitioning = false
+	_refresh_maximize_button()
 
 
 func apply_maximized_geometry() -> void:
@@ -265,6 +291,11 @@ func _refresh_maximize_button() -> void:
 		maximize_button.tooltip_text = "Maximize"
 
 	resize_border.visible = can_resize and not is_maximized
+	resize_border.mouse_filter = (
+		Control.MOUSE_FILTER_STOP
+		if can_resize and not is_maximized and not _is_geometry_transitioning
+		else Control.MOUSE_FILTER_IGNORE
+	)
 
 
 func _get_resize_mode(border_mouse_pos: Vector2) -> ResizeMode:
@@ -296,7 +327,7 @@ func _get_resize_mode(border_mouse_pos: Vector2) -> ResizeMode:
 
 
 func _on_resize_border_gui_input(event: InputEvent) -> void:
-	if not can_resize or is_maximized:
+	if not can_resize or is_maximized or _is_geometry_transitioning:
 		return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -318,25 +349,13 @@ func _on_resize_border_gui_input(event: InputEvent) -> void:
 
 
 func pulse() -> void:
-	if _is_closing or _is_opening:
+	if _is_closing or _is_opening or _is_geometry_transitioning:
 		# Focusing/maximizing a just-created window must not cancel its opening
 		# tween. Cancelling it while modulate.a is near zero leaves an invisible
 		# but fully registered app window and a misleading active dock icon.
 		return
 
-	_kill_animation_tween()
-	_refresh_pivot_offset()
-
-	if not scale.is_equal_approx(Vector2.ONE):
-		scale = Vector2.ONE
-
-	_animation_tween = create_tween()
-	_animation_tween.tween_property(self, "scale", focus_scale, focus_pulse_duration) \
-		.set_trans(Tween.TRANS_SINE) \
-		.set_ease(Tween.EASE_OUT)
-	_animation_tween.tween_property(self, "scale", Vector2.ONE, focus_pulse_duration) \
-		.set_trans(Tween.TRANS_SINE) \
-		.set_ease(Tween.EASE_IN)
+	_motion_player.flash_control(background)
 
 
 func close() -> void:
@@ -350,18 +369,17 @@ func close() -> void:
 	is_dragging = false
 	is_resizing = false
 	resize_border.force_capture = false
+	_is_geometry_transitioning = false
 
 	_kill_animation_tween()
 	_refresh_pivot_offset()
-
-	_animation_tween = create_tween().set_parallel(true)
-	_animation_tween.tween_property(self, "scale", closing_scale, tween_duration) \
-		.set_trans(Tween.TRANS_BACK) \
-		.set_ease(Tween.EASE_IN)
-	_animation_tween.tween_property(self, "modulate:a", 0.0, tween_duration) \
-		.set_trans(Tween.TRANS_SINE) \
-		.set_ease(Tween.EASE_IN)
-	_animation_tween.chain().tween_callback(window_closed.emit)
+	await _motion_player.exit_scaled_control(
+		self,
+		closing_scale,
+		closing_offset,
+		motion_profile.window_exit_duration
+	)
+	window_closed.emit()
 
 
 func _input(event: InputEvent) -> void:
@@ -476,3 +494,5 @@ func _kill_animation_tween() -> void:
 		_animation_tween.kill()
 
 	_animation_tween = null
+	if is_instance_valid(_motion_player):
+		_motion_player.cancel_control(self)

@@ -540,7 +540,7 @@ func _apply_saved_window_state(state: Dictionary, window: WindowBase) -> void:
 	window.position = KubuOSMetrics.snap_vector(target_rect.position)
 
 	if bool(state.get("is_maximized", false)):
-		window.maximize()
+		window.maximize(false)
 
 
 func _apply_default_window_state(window: WindowBase) -> void:
