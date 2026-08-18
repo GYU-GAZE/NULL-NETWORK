@@ -17,14 +17,14 @@ const GLITCH_CLOSE_TAG := "{/glitch}"
 @export_range(0.0, 0.5, 0.01) var short_pause_seconds: float = 0.11
 @export_range(0.0, 1.0, 0.01) var long_pause_seconds: float = 0.30
 @export_range(4.0, 30.0, 1.0) var creep_updates_per_second: float = 14.0
-@export_range(4.0, 20.0, 1.0) var glitch_burst_checks_per_second: float = 9.0
-@export_range(4, 40, 1) var glitch_burst_chance: int = 15
+@export_range(4.0, 20.0, 1.0) var glitch_burst_checks_per_second: float = 8.0
+@export_range(4, 40, 1) var glitch_burst_chance: int = 24
 
 var _target: Control
 var _full_text: String = ""
 var _display_text: String = ""
 var _running: bool = false
-var _started_at_usec: int = 0
+var _elapsed_seconds: float = 0.0
 var _last_revealed_index: int = -1
 var _timeline_duration: float = 0.0
 var _reveal_times := PackedFloat32Array()
@@ -60,8 +60,8 @@ func play(target: Control, text: String) -> void:
 	_full_text = text
 	_parse_source_text()
 	_running = true
+	_elapsed_seconds = 0.0
 	_last_revealed_index = -1
-	_started_at_usec = Time.get_ticks_usec()
 	_prepare_target_for_reveal()
 	_normalize_target()
 	reveal_started.emit()
@@ -84,12 +84,13 @@ func present(target: Control, text: String) -> void:
 	_full_text = text
 	_parse_source_text()
 	_running = false
+	_elapsed_seconds = 0.0
 	set_process(false)
 	_render_settled_text()
 	_normalize_target()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if not _running:
 		set_process(false)
 		return
@@ -98,13 +99,17 @@ func _process(_delta: float) -> void:
 		set_process(false)
 		return
 
-	var elapsed := float(Time.get_ticks_usec() - _started_at_usec) / 1000000.0
-	var revealed_count := _get_revealed_character_count(elapsed)
+	# An absolute reveal timeline is precomputed once, while elapsed time is
+	# advanced from frame delta. A slow frame therefore catches up instead of
+	# accumulating hundreds of timer waits, and pausing the scene tree keeps the
+	# controller aligned with RichTextEffect.elapsed_time.
+	_elapsed_seconds += maxf(0.0, delta)
+	var revealed_count := _get_revealed_character_count(_elapsed_seconds)
 	if _target is not RichTextLabel:
 		_set_visible_characters(revealed_count)
 	_emit_new_character_signals(revealed_count)
 
-	if elapsed >= _timeline_duration:
+	if _elapsed_seconds >= _timeline_duration:
 		_finish_natural_reveal()
 
 
