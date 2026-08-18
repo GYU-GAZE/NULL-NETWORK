@@ -71,19 +71,32 @@ enum FailedConditionBehavior {
 @export var alert_title: String = ""
 @export_multiline var alert_message: String = ""
 @export var alert_animation: UniversalAlerts.AlertAnimation = UniversalAlerts.AlertAnimation.POP
+@export var motion_profile: UiMotionProfileData = preload(
+	"res://data/content/ui/motion/null_network_motion.tres"
+)
+
+var _motion_player: UiMotionPlayer
 
 
 func _ready() -> void:
+	_motion_player = UiMotionPlayer.new()
+	_motion_player.name = "SiteActionMotionPlayer"
+	_motion_player.profile = motion_profile
+	add_child(_motion_player)
 	if not pressed.is_connected(_on_pressed):
 		pressed.connect(_on_pressed)
+	if not mouse_entered.is_connected(_on_mouse_entered):
+		mouse_entered.connect(_on_mouse_entered)
 
 	_apply_condition_visual_state()
 
 
 func _on_pressed() -> void:
 	if not _is_condition_met():
+		_motion_player.reject_control(self)
 		_apply_failed_condition_action()
 		return
+	_motion_player.confirm_control(self)
 
 	_apply_flag_action()
 	_apply_number_action()
@@ -92,6 +105,12 @@ func _on_pressed() -> void:
 	_apply_notification_action()
 	_apply_alert_action()
 	_apply_navigation_action()
+
+
+func _on_mouse_entered() -> void:
+	if disabled:
+		return
+	_motion_player.flash_control(self, Color(1.07, 1.1, 1.14, 1.0), 0.08)
 
 
 func _is_condition_met() -> bool:

@@ -51,7 +51,8 @@ func _test_registration_route() -> void:
 	await _wait_frames(3)
 	_check(page_instance is OperatorCreationPage, "Registration route did not instantiate OperatorCreationPage.")
 	_check(page_instance.find_child("PortalHeader", true, false) != null, "Registration lost the shared NULL NETWORK portal header.")
-	_check(page_instance.find_child("RegistrationStepper", true, false) != null, "Registration lost the three-stage visual stepper.")
+	_check(page_instance.find_child("RegistrationStepper", true, false) == null, "Registration must not retain the legacy visual stepper.")
+	_check(page_instance.find_child("StateLabels", true, false) == null, "Registration must not retain hidden StateLabels.")
 	_check(page_instance.find_child("AssessmentAbout", true, false) != null, "Compatibility Assessment lost its category context rail.")
 	_check(page_instance.find_child("AssessmentProgressPips", true, false) != null, "Compatibility Assessment lost its 18-question progress rail.")
 
@@ -71,24 +72,39 @@ func _test_registration_route() -> void:
 	_check(page_instance.find_child("ManualPage", true, false) != null, "Registration lost Manual Allocation.")
 	_check(page_instance.find_child("AssessmentPage", true, false) != null, "Registration lost the Compatibility Assessment page.")
 	_check(page_instance.find_child("ResultPage", true, false) != null, "Registration lost its Assessment result page.")
+	_check(page_instance.find_child("LoadingPulse", true, false) == null, "Assessment result must not use the legacy ProgressBar.")
+	_check(page_instance.find_child("ResultStatusLines", true, false) != null, "Assessment result lost its staged resolution sequence.")
 	_check(page_instance.find_child("RetakeAssessmentButton", true, false) != null, "Assessment result must expose Retake Assessment.")
 	_check(page_instance.find_child("ResultManualButton", true, false) != null, "Assessment result must expose Manual Allocation fallback.")
 	_check(page_instance.find_child("BodyPanel", true, false) is NullNetworkFrame, "Registration body must use the stepped NULL NETWORK frame renderer.")
-	_check(page_instance.find_child("StepAccount", true, false) is NullNetworkFrame, "Registration stepper must use the stepped NULL NETWORK frame renderer.")
 	var operator_page := page_instance as OperatorCreationPage
 	if operator_page != null:
 		_check_layout_fits_canvas(operator_page, "account")
-		operator_page._show_page(OperatorCreationPage.FlowPage.APPEARANCE)
-		await _wait_frames(2)
+		await operator_page._show_page(OperatorCreationPage.FlowPage.APPEARANCE)
+		_check(operator_page.get_current_flow_page() == OperatorCreationPage.FlowPage.APPEARANCE, "FlowPage transition did not settle on Appearance.")
+		_check(not operator_page.is_page_transitioning(), "FlowPage transition left navigation locked.")
 		operator_page.master_scroll.scroll_vertical = 100000
 		await _wait_frames(2)
 		_check_appearance_navigation_is_clear(operator_page)
-		operator_page._show_page(OperatorCreationPage.FlowPage.METHOD)
-		await _wait_frames(2)
+		await operator_page._show_page(OperatorCreationPage.FlowPage.METHOD)
 		_check_layout_fits_canvas(operator_page, "compatibility method")
 		operator_page._on_participate_pressed()
-		await _wait_frames(2)
+		await get_tree().create_timer(0.35).timeout
 		_check_layout_fits_canvas(operator_page, "assessment")
+		var first_answer := operator_page.answer_container.get_child(0) as AssessmentAnswerButton
+		_check(first_answer != null and first_answer.disabled, "Assessment answers became interactive before prompt reveal.")
+		operator_page._assessment_typewriter.complete()
+		await get_tree().create_timer(0.9).timeout
+		_check(operator_page.are_assessment_answers_ready(), "Assessment answers did not unlock after staggered reveal.")
+		if first_answer != null:
+			first_answer.button_pressed = true
+			first_answer.pressed.emit()
+			await get_tree().create_timer(0.2).timeout
+			var question := ASSESSMENT_DATA.questions[0] as CompatibilityQuestionData
+			_check(
+				question != null and operator_page._assessment_session.final_answer_by_question.has(question.question_id),
+				"Assessment did not retain the selected response in CompatibilitySessionData."
+			)
 	page_instance.queue_free()
 	await _wait_frames(2)
 

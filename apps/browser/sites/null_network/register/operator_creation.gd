@@ -52,6 +52,9 @@ const APPEARANCE_LAYER_ORDER := [
 @export var assessment_data: CompatibilityAssessmentData
 @export var appearance_catalog: AppearanceCatalogData
 @export var partner_preview_scene: PackedScene
+@export var motion_profile: UiMotionProfileData = preload(
+	"res://data/content/ui/motion/null_network_motion.tres"
+)
 
 @export_category("Locked Physical Server")
 @export var server_id: String = "tokyo_japan"
@@ -74,14 +77,9 @@ const APPEARANCE_LAYER_ORDER := [
 @onready var progress_label: Label = %ProgressLabel
 @onready var error_label: Label = %ErrorLabel
 @onready var navigation_row: HBoxContainer = %NavigationRow
-@onready var body_panel: PanelContainer = find_child("BodyPanel", true, false) as PanelContainer
 @onready var back_button: Button = %BackButton
 @onready var next_button: Button = %NextButton
 @onready var portal_header: NullNetworkPortalHeader = %PortalHeader
-@onready var registration_stepper: HBoxContainer = %RegistrationStepper
-@onready var step_account: PanelContainer = %StepAccount
-@onready var step_appearance: PanelContainer = %StepAppearance
-@onready var step_compatibility: PanelContainer = %StepCompatibility
 @onready var assessment_progress_pips: HBoxContainer = %AssessmentProgressPips
 
 @onready var account_page: VBoxContainer = %AccountPage
@@ -137,7 +135,7 @@ const APPEARANCE_LAYER_ORDER := [
 @onready var result_page: VBoxContainer = %ResultPage
 @onready var result_loading: VBoxContainer = %ResultLoading
 @onready var loading_label: Label = %LoadingLabel
-@onready var loading_pulse: ProgressBar = %LoadingPulse
+@onready var result_status_lines: VBoxContainer = %ResultStatusLines
 @onready var result_content: VBoxContainer = %ResultContent
 @onready var result_tendencies: Label = %ResultTendencies
 @onready var result_partner_preview_host: VBoxContainer = %ResultPartnerPreviewHost
@@ -164,12 +162,21 @@ var _assessment_result: Dictionary = {}
 var _manual_candidate_id: String = ""
 var _manual_preview: PartnerPreviewPanel
 var _result_preview: PartnerPreviewPanel
-var _loading_tween: Tween
 var _assessment_auto_advance_pending: bool = false
 var _assessment_typewriter: TypewriterReveal
 var _assessment_reveal_generation: int = 0
+var _motion_player: UiMotionPlayer
+var _page_transitioning: bool = false
+var _has_presented_page: bool = false
+var _result_sequence_generation: int = 0
+var _assessment_answers_ready: bool = false
+var _assessment_transitioning: bool = false
 
 func _ready() -> void:
+	_motion_player = UiMotionPlayer.new()
+	_motion_player.name = "RegistrationMotionPlayer"
+	_motion_player.profile = motion_profile
+	add_child(_motion_player)
 	_assessment_typewriter = TypewriterReveal.new()
 	_assessment_typewriter.name = "AssessmentTypewriter"
 	_assessment_typewriter.characters_per_second = 46.0
@@ -177,11 +184,6 @@ func _ready() -> void:
 	_assessment_typewriter.reveal_completed.connect(
 		_on_assessment_prompt_revealed
 	)
-	_apply_compact_registration_layout()
-	_organize_account_form()
-	_apply_reference_button_frames()
-	if not resized.is_connected(_update_body_height):
-		resized.connect(_update_body_height)
 	_validate_dependencies()
 	_configure_account_page()
 	_configure_appearance_page()
@@ -191,177 +193,9 @@ func _ready() -> void:
 	if not registration_completed.is_connected(_on_registration_completed):
 		registration_completed.connect(_on_registration_completed)
 	if not CampaignState.operator.is_empty() and not CampaignState.partner.is_empty():
-		_show_page(FlowPage.COMPLETE)
+		_show_page(FlowPage.COMPLETE, true, false)
 	else:
-		_show_page(FlowPage.ACCOUNT)
-
-func _apply_compact_registration_layout() -> void:
-	var page_margin := find_child("PageMargin", true, false) as MarginContainer
-	if page_margin != null:
-		page_margin.add_theme_constant_override("margin_left", 6)
-		page_margin.add_theme_constant_override("margin_top", 2)
-		page_margin.add_theme_constant_override("margin_right", 6)
-		page_margin.add_theme_constant_override("margin_bottom", 1)
-	var page := find_child("Page", true, false) as VBoxContainer
-	if page != null:
-		page.add_theme_constant_override("separation", 4)
-
-	var body_margin := find_child("BodyMargin", true, false) as MarginContainer
-	if body_margin != null:
-		body_margin.add_theme_constant_override("margin_left", 10)
-		body_margin.add_theme_constant_override("margin_top", 4)
-		body_margin.add_theme_constant_override("margin_right", 10)
-		body_margin.add_theme_constant_override("margin_bottom", 4)
-	var page_host := find_child("PageHost", true, false) as VBoxContainer
-	if page_host != null:
-		page_host.add_theme_constant_override("separation", 4)
-
-	var avatar_panel := find_child("AvatarPanel", true, false) as Control
-	if avatar_panel != null:
-		avatar_panel.custom_minimum_size.x = 180.0
-	var avatar_preview_frame := find_child("AvatarPreviewFrame", true, false) as Control
-	if avatar_preview_frame != null:
-		avatar_preview_frame.custom_minimum_size.y = 70.0
-	avatar_grid.columns = 6
-	var account_columns := find_child("AccountColumns", true, false) as BoxContainer
-	if account_columns != null:
-		account_columns.add_theme_constant_override("separation", 12)
-	var account_form := find_child("AccountForm", true, false) as BoxContainer
-	if account_form != null:
-		account_form.add_theme_constant_override("separation", 1)
-	var avatar_margin := find_child("AvatarMargin", true, false) as MarginContainer
-	if avatar_margin != null:
-		for margin_name: StringName in [&"margin_left", &"margin_top", &"margin_right", &"margin_bottom"]:
-			avatar_margin.add_theme_constant_override(margin_name, 6)
-	var avatar_vbox := find_child("AvatarVBox", true, false) as VBoxContainer
-	if avatar_vbox != null:
-		avatar_vbox.add_theme_constant_override("separation", 4)
-
-	var preview_column := find_child("PreviewColumn", true, false) as Control
-	if preview_column != null:
-		preview_column.custom_minimum_size.x = 230.0
-	var portrait_frame := find_child("PortraitFrame", true, false) as Control
-	if portrait_frame != null:
-		portrait_frame.custom_minimum_size.y = 164.0
-	var overworld_frame := find_child("OverworldFrame", true, false) as Control
-	if overworld_frame != null:
-		overworld_frame.custom_minimum_size.y = 130.0
-	if appearance_grid != null:
-		appearance_grid.columns = 2
-
-func _organize_account_form() -> void:
-	var account_form := find_child("AccountForm", true, false) as VBoxContainer
-	var writing_row := find_child("WritingRow", true, false) as Control
-	var writing_options := find_child("WritingStyleOptions", true, false) as Control
-	var kaomoji_row := find_child("KaomojiRow", true, false) as Control
-	var kaomoji_options := find_child("KaomojiOptions", true, false) as Control
-	if (
-		account_form != null
-		and writing_row != null
-		and writing_options != null
-		and kaomoji_row != null
-		and kaomoji_options != null
-	):
-		var expression_row := HBoxContainer.new()
-		expression_row.name = "ExpressionRow"
-		expression_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		expression_row.add_theme_constant_override("separation", 8)
-		account_form.add_child(expression_row)
-		account_form.move_child(expression_row, writing_row.get_index())
-		for controls: Array in [
-			[writing_row, writing_options],
-			[kaomoji_row, kaomoji_options]
-		]:
-			var column := VBoxContainer.new()
-			column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			column.add_theme_constant_override("separation", 3)
-			expression_row.add_child(column)
-			for control_value: Variant in controls:
-				var control := control_value as Control
-				if control == null:
-					continue
-				control.reparent(column)
-
-	var personal_grid := find_child("PersonalGrid", true, false) as GridContainer
-	if account_form == null or personal_grid == null:
-		return
-	var names_row := HBoxContainer.new()
-	names_row.name = "NamesRow"
-	names_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	names_row.add_theme_constant_override("separation", 8)
-	account_form.add_child(names_row)
-	account_form.move_child(names_row, personal_grid.get_index())
-	for field_prefix: String in ["First", "Last", "Nick"]:
-		var label := personal_grid.get_node_or_null(field_prefix + "Label") as Control
-		var info := personal_grid.get_node_or_null(field_prefix + "Info") as Control
-		var edit_name := {
-			"First": "FirstNameEdit",
-			"Last": "LastNameEdit",
-			"Nick": "NicknameEdit",
-		}[field_prefix] as String
-		var edit := personal_grid.get_node_or_null(edit_name) as Control
-		if label == null or info == null or edit == null:
-			continue
-		var column := VBoxContainer.new()
-		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		column.add_theme_constant_override("separation", 3)
-		names_row.add_child(column)
-		var label_row := HBoxContainer.new()
-		column.add_child(label_row)
-		label.reparent(label_row)
-		info.reparent(label_row)
-		edit.reparent(column)
-	personal_grid.columns = 3
-
-
-func _apply_reference_button_frames() -> void:
-	_wrap_portal_button(
-		participate_button,
-		"ParticipateFrame",
-		NullNetworkFrame.FrameTone.SELECTED
-	)
-	_wrap_portal_button(
-		manual_allocation_button,
-		"ManualAllocationFrame",
-		NullNetworkFrame.FrameTone.STANDARD
-	)
-
-
-func _wrap_portal_button(
-	button: Button,
-	frame_name: String,
-	tone: int
-) -> void:
-	if button == null or button.get_parent() == null:
-		return
-	var parent := button.get_parent() as Container
-	if parent == null:
-		return
-	var original_index: int = button.get_index()
-	var frame := NullNetworkFrame.new()
-	frame.name = frame_name
-	frame.tone = tone
-	frame.corner_cut = 6
-	frame.draw_scanlines = tone == NullNetworkFrame.FrameTone.SELECTED
-	frame.custom_minimum_size = button.custom_minimum_size
-	frame.size_flags_horizontal = button.size_flags_horizontal
-	frame.size_flags_vertical = button.size_flags_vertical
-	parent.add_child(frame)
-	parent.move_child(frame, original_index)
-	button.reparent(frame)
-	button.custom_minimum_size = Vector2.ZERO
-	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var transparent := StyleBoxEmpty.new()
-	for state: StringName in [
-		&"normal",
-		&"hover",
-		&"pressed",
-		&"hover_pressed",
-		&"disabled",
-		&"focus",
-	]:
-		button.add_theme_stylebox_override(state, transparent)
+		_show_page(FlowPage.ACCOUNT, true, false)
 
 func _validate_dependencies() -> void:
 	if assessment_data == null:
@@ -616,9 +450,18 @@ func _connect_static_controls() -> void:
 	direction_back.pressed.connect(_set_overworld_direction.bind(2))
 	direction_left.pressed.connect(_set_overworld_direction.bind(3))
 
-func _show_page(page: int, scroll_to_top: bool = true) -> void:
+func _show_page(page: int, scroll_to_top: bool = true, animated: bool = true) -> void:
+	if _page_transitioning:
+		return
+	var old_page := _get_flow_page_control(_current_page)
+	var next_page := _get_flow_page_control(page)
+	var forward := page >= _current_page
 	_current_page = page
 	_assessment_auto_advance_pending = false
+	_result_sequence_generation += 1
+	if page != FlowPage.ASSESSMENT:
+		_assessment_typewriter.cancel()
+		_assessment_reveal_generation += 1
 	for control_value in [
 		account_page,
 		appearance_page,
@@ -629,19 +472,64 @@ func _show_page(page: int, scroll_to_top: bool = true) -> void:
 		registered_panel
 	]:
 		var control := control_value as Control
-		if control != null:
+		if control != null and control != old_page:
 			control.hide()
-	match page:
-		FlowPage.ACCOUNT: account_page.show()
-		FlowPage.APPEARANCE: appearance_page.show()
-		FlowPage.METHOD: method_page.show()
-		FlowPage.MANUAL: manual_page.show()
-		FlowPage.ASSESSMENT: assessment_page.show()
-		FlowPage.RESULT: result_page.show()
-		FlowPage.COMPLETE: registered_panel.show()
-	_update_page_chrome()
+	if next_page == null:
+		return
+	if not animated or not _has_presented_page or old_page == next_page:
+		if old_page != null and old_page != next_page:
+			old_page.hide()
+		next_page.show()
+		next_page.modulate = Color.WHITE
+		next_page.position = KubuOSMetrics.snap_vector(next_page.position)
+		_has_presented_page = true
+		_update_page_chrome()
+		if scroll_to_top:
+			call_deferred("_reset_scroll_to_top")
+		return
+	_page_transitioning = true
+	_set_navigation_locked(true)
+	if old_page != null:
+		await _motion_player.exit_control(
+			old_page,
+			Vector2(-5 if forward else 5, -2),
+			motion_profile.page_exit_duration
+		)
+	if old_page != null:
+		old_page.hide()
 	if scroll_to_top:
-		call_deferred("_reset_scroll_to_top")
+		await _reset_scroll_to_top()
+	next_page.show()
+	await _motion_player.enter_control(
+		next_page,
+		Vector2(5 if forward else -5, 2),
+		motion_profile.page_enter_duration
+	)
+	_page_transitioning = false
+	_update_page_chrome()
+	_set_navigation_locked(false)
+
+
+func _get_flow_page_control(page: int) -> Control:
+	match page:
+		FlowPage.ACCOUNT: return account_page
+		FlowPage.APPEARANCE: return appearance_page
+		FlowPage.METHOD: return method_page
+		FlowPage.MANUAL: return manual_page
+		FlowPage.ASSESSMENT: return assessment_page
+		FlowPage.RESULT: return result_page
+		FlowPage.COMPLETE: return registered_panel
+	return null
+
+
+func _set_navigation_locked(locked: bool) -> void:
+	if locked:
+		back_button.disabled = true
+		next_button.disabled = true
+	else:
+		_update_page_chrome()
+	participate_button.disabled = locked
+	manual_allocation_button.disabled = locked
 
 func _reset_scroll_to_top() -> void:
 	var focus_owner := get_viewport().gui_get_focus_owner()
@@ -703,48 +591,14 @@ func _update_page_chrome() -> void:
 
 func _sync_portal_chrome() -> void:
 	var assessment_active: bool = _current_page == FlowPage.ASSESSMENT
-	registration_stepper.visible = _current_page in [
-		FlowPage.ACCOUNT,
-		FlowPage.APPEARANCE,
-		FlowPage.METHOD,
-		FlowPage.MANUAL
-	]
 	assessment_progress_pips.visible = assessment_active
 	portal_header.set_assessment_mode(assessment_active)
-	var active_step: int = 0
-	match _current_page:
-		FlowPage.APPEARANCE:
-			active_step = 1
-		FlowPage.METHOD, FlowPage.MANUAL:
-			active_step = 2
-		_:
-			active_step = 0
-	var steps: Array[PanelContainer] = [step_account, step_appearance, step_compatibility]
-	for index: int in range(steps.size()):
-		var frame := steps[index] as NullNetworkFrame
-		if frame != null:
-			frame.tone = (
-				NullNetworkFrame.FrameTone.SELECTED
-				if index == active_step
-				else NullNetworkFrame.FrameTone.QUIET
-			)
-			frame.draw_scanlines = index == active_step
-		steps[index].modulate = (
-			Color.WHITE
-			if index == active_step
-			else Color(0.52, 0.65, 0.76, 0.78)
-		)
 	if assessment_active:
 		_update_assessment_section_chrome()
-	_update_body_height()
-
-func _update_body_height() -> void:
-	if body_panel == null:
-		return
-	var fixed_chrome_height := 88.0 if _current_page == FlowPage.ASSESSMENT else 134.0
-	body_panel.custom_minimum_size.y = maxf(0.0, size.y - fixed_chrome_height)
 
 func _on_next_pressed() -> void:
+	if _page_transitioning:
+		return
 	_clear_error()
 	match _current_page:
 		FlowPage.ACCOUNT:
@@ -752,17 +606,21 @@ func _on_next_pressed() -> void:
 			if not errors.is_empty():
 				_show_errors(errors)
 				return
-			_show_page(FlowPage.APPEARANCE)
+			await _motion_player.confirm_control(next_button)
+			await _show_page(FlowPage.APPEARANCE)
 		FlowPage.APPEARANCE:
 			var errors := _collect_appearance().validate_data()
 			if not errors.is_empty():
 				_show_errors(errors)
 				return
-			_show_page(FlowPage.METHOD)
+			await _motion_player.confirm_control(next_button)
+			await _show_page(FlowPage.METHOD)
 		FlowPage.ASSESSMENT:
 			_advance_assessment_question()
 
 func _on_back_pressed() -> void:
+	if _page_transitioning or _assessment_transitioning:
+		return
 	_clear_error()
 	match _current_page:
 		FlowPage.APPEARANCE:
@@ -773,6 +631,7 @@ func _on_back_pressed() -> void:
 			_show_page(FlowPage.METHOD)
 		FlowPage.ASSESSMENT:
 			if _question_index > 0:
+				await _hide_assessment_question(false)
 				_question_index -= 1
 				_render_assessment_question(true)
 			else:
@@ -783,7 +642,7 @@ func _on_back_pressed() -> void:
 				if assessment_data != null
 				else 0
 			)
-			_show_page(FlowPage.ASSESSMENT)
+			await _show_page(FlowPage.ASSESSMENT)
 			_render_assessment_question(true)
 
 func _on_participate_pressed() -> void:
@@ -793,7 +652,7 @@ func _on_participate_pressed() -> void:
 		if assessment_data != null
 		else 0
 	)
-	_show_page(FlowPage.ASSESSMENT)
+	await _show_page(FlowPage.ASSESSMENT)
 	_render_assessment_question(true)
 
 func _on_manual_allocation_pressed() -> void:
@@ -822,6 +681,10 @@ func _update_assessment_progress_pips() -> void:
 			pip.color = Color(0.2, 0.76, 1.0, 1.0)
 		else:
 			pip.color = Color(0.08, 0.16, 0.24, 1.0)
+		pip.modulate = Color.WHITE
+	var current_pip := assessment_progress_pips.get_child(_question_index) as Control
+	if current_pip != null and _current_page == FlowPage.ASSESSMENT:
+		_motion_player.flash_control(current_pip, Color(1.28, 1.28, 1.28, 1.0), 0.08)
 
 func _update_assessment_section_chrome() -> void:
 	if assessment_data == null or assessment_data.questions.is_empty():
@@ -847,6 +710,7 @@ func _update_assessment_section_chrome() -> void:
 func _render_assessment_question(track_visit: bool) -> void:
 	_assessment_reveal_generation += 1
 	_assessment_auto_advance_pending = false
+	_assessment_answers_ready = false
 	_clear_container(answer_container)
 	if assessment_data == null or assessment_data.questions.is_empty():
 		_show_errors(PackedStringArray(["Compatibility Assessment data is unavailable."]))
@@ -889,8 +753,7 @@ func _render_assessment_question(track_visit: bool) -> void:
 		)
 		button.set_selected(answer.answer_id == selected_id)
 		button.disabled = true
-		button.pivot_offset = button.size * 0.5
-		button.scale = Vector2(0.84, 0.68)
+		button.scale = Vector2.ONE
 		button.modulate.a = 0.0
 		button.pressed.connect(
 			_on_assessment_answer_selected.bind(
@@ -900,9 +763,13 @@ func _render_assessment_question(track_visit: bool) -> void:
 			)
 		)
 	_refresh_assessment_next_state()
+	question_prompt.show()
+	question_prompt.modulate = Color.WHITE
+	question_prompt.position = KubuOSMetrics.snap_vector(question_prompt.position)
 	_assessment_typewriter.play(question_prompt, question.prompt)
 	_update_page_chrome()
 	master_scroll.set_deferred("scroll_vertical", 0)
+	_assessment_transitioning = false
 
 
 func _on_assessment_prompt_revealed() -> void:
@@ -914,33 +781,46 @@ func _on_assessment_prompt_revealed() -> void:
 		var button := child as AssessmentAnswerButton
 		if button == null:
 			continue
-		button.disabled = false
-		button.pivot_offset = button.size * 0.5
-		var tween := create_tween().set_parallel(true)
-		tween.set_trans(Tween.TRANS_BACK)
-		tween.set_ease(Tween.EASE_OUT)
-		tween.tween_property(button, "scale", Vector2.ONE, 0.2)
-		tween.tween_property(button, "modulate:a", 1.0, 0.12)
-		await get_tree().create_timer(0.07).timeout
+		await _motion_player.enter_control(button, Vector2(0, 4), 0.13)
+		if generation != _assessment_reveal_generation:
+			return
+		await get_tree().create_timer(motion_profile.stagger_delay).timeout
+	if generation != _assessment_reveal_generation:
+		return
+	_assessment_answers_ready = true
+	for child: Node in answer_container.get_children():
+		var answer_button := child as AssessmentAnswerButton
+		if answer_button != null:
+			answer_button.disabled = false
+	_refresh_assessment_next_state()
 
 func _on_assessment_answer_selected(
 	question_id: String,
 	answer_id: String,
 	visual_position: int
 ) -> void:
+	if not _assessment_answers_ready or _assessment_auto_advance_pending or _assessment_transitioning:
+		return
 	var previous_answer := str(
 		_assessment_session.final_answer_by_question.get(question_id, "")
 	)
 	var confirmed_existing_answer := previous_answer == answer_id
 	_assessment_session.record_answer(question_id, answer_id, visual_position)
 	_refresh_assessment_next_state()
+	var selected_button: AssessmentAnswerButton
+	for child: Node in answer_container.get_children():
+		var button := child as AssessmentAnswerButton
+		if button == null:
+			continue
+		button.modulate = Color.WHITE if button.button_pressed else Color(0.82, 0.86, 0.92, 1.0)
+		if button.button_pressed:
+			selected_button = button
+	if selected_button != null:
+		await _motion_player.confirm_control(selected_button)
 	if confirmed_existing_answer and not _assessment_auto_advance_pending:
 		_assessment_auto_advance_pending = true
-		call_deferred(
-			"_advance_assessment_after_confirmation",
-			question_id,
-			_question_index
-		)
+		await get_tree().create_timer(0.09).timeout
+		await _advance_assessment_after_confirmation(question_id, _question_index)
 
 func _advance_assessment_after_confirmation(
 	question_id: String,
@@ -979,13 +859,31 @@ func _refresh_assessment_next_state() -> void:
 	)
 
 func _advance_assessment_question() -> void:
-	if assessment_data == null:
+	if assessment_data == null or not _assessment_answers_ready or _assessment_transitioning:
 		return
 	if _question_index < assessment_data.questions.size() - 1:
+		await _hide_assessment_question(true)
 		_question_index += 1
 		_render_assessment_question(true)
 		return
 	_calculate_and_show_result(true)
+
+
+func _hide_assessment_question(forward: bool) -> void:
+	_assessment_transitioning = true
+	_assessment_answers_ready = false
+	_assessment_reveal_generation += 1
+	_assessment_typewriter.cancel()
+	for child: Node in answer_container.get_children():
+		var button := child as BaseButton
+		if button != null:
+			button.disabled = true
+			_motion_player.exit_control(button, Vector2(-4 if forward else 4, 0), 0.08)
+	await _motion_player.exit_control(
+		question_prompt,
+		Vector2(-4 if forward else 4, 0),
+		0.09
+	)
 
 func _calculate_and_show_result(with_loading: bool) -> void:
 	if assessment_data == null:
@@ -1003,28 +901,52 @@ func _calculate_and_show_result(with_loading: bool) -> void:
 		if not errors.is_empty():
 			_show_errors(errors)
 			return
-	_show_page(FlowPage.RESULT)
+	result_loading.show()
+	result_content.hide()
+	loading_label.text = "CALCULATING COMPATIBILITY..."
+	accept_result_button.disabled = true
+	retake_assessment_button.disabled = true
+	result_manual_button.disabled = true
+	await _show_page(FlowPage.RESULT)
 	if with_loading:
 		await _play_result_loading()
 	else:
 		_show_result_content()
 
 func _play_result_loading() -> void:
+	_result_sequence_generation += 1
+	var generation := _result_sequence_generation
 	result_loading.show()
 	result_content.hide()
-	loading_pulse.value = 5.0
 	loading_label.text = "CALCULATING COMPATIBILITY..."
-	if _loading_tween != null and _loading_tween.is_valid():
-		_loading_tween.kill()
-	_loading_tween = create_tween()
-	_loading_tween.set_trans(Tween.TRANS_CUBIC)
-	_loading_tween.set_ease(Tween.EASE_IN_OUT)
-	_loading_tween.tween_property(loading_pulse, "value", 100.0, 0.78)
-	await _loading_tween.finished
-	if _current_page == FlowPage.RESULT:
-		_show_result_content()
+	accept_result_button.disabled = true
+	retake_assessment_button.disabled = true
+	result_manual_button.disabled = true
+	for child: Node in result_status_lines.get_children():
+		if child is Control:
+			(child as Control).hide()
+	await _motion_player.enter_control(loading_label, Vector2(0, 3), 0.13)
+	for child: Node in result_status_lines.get_children():
+		if generation != _result_sequence_generation or _current_page != FlowPage.RESULT:
+			return
+		var status_line := child as Control
+		if status_line == null:
+			continue
+		await _motion_player.enter_control(status_line, Vector2(0, 3), 0.11)
+		await get_tree().create_timer(0.055).timeout
+	if generation != _result_sequence_generation or _current_page != FlowPage.RESULT:
+		return
+	await get_tree().create_timer(0.1).timeout
+	loading_label.text = "MATCH FOUND"
+	await _motion_player.flash_control(loading_label, Color(1.2, 1.3, 1.4, 1.0), 0.1)
+	if generation != _result_sequence_generation or _current_page != FlowPage.RESULT:
+		return
+	_show_result_content(false)
+	await _motion_player.enter_control(result_content, Vector2(0, 5), 0.16)
+	await get_tree().create_timer(0.08).timeout
+	_unlock_result_actions()
 
-func _show_result_content() -> void:
+func _show_result_content(unlock_actions: bool = true) -> void:
 	result_loading.hide()
 	result_content.show()
 	var tendencies := _dictionary_value(_assessment_result.get("tendencies", {}))
@@ -1048,17 +970,21 @@ func _show_result_content() -> void:
 		candidate,
 		variant_id
 	)
-	accept_result_button.disabled = (
-		_result_preview == null
-		or not _result_preview.has_resolved_apk()
-	)
+	if unlock_actions:
+		_unlock_result_actions()
+
+
+func _unlock_result_actions() -> void:
+	accept_result_button.disabled = _result_preview == null or not _result_preview.has_resolved_apk()
+	retake_assessment_button.disabled = false
+	result_manual_button.disabled = false
 
 func _on_retake_assessment_pressed() -> void:
 	_assessment_session.recalibration_count += 1
 	_assessment_session.reset_answers()
 	_assessment_result.clear()
 	_question_index = 0
-	_show_page(FlowPage.ASSESSMENT)
+	await _show_page(FlowPage.ASSESSMENT)
 	_render_assessment_question(true)
 
 func _on_accept_result_pressed() -> void:
@@ -1129,7 +1055,19 @@ func _finalize_registration(
 	)
 	SaveManager.request_checkpoint(&"onboarding.synchronized", true)
 	registration_completed.emit(CampaignState.operator.operator_id)
-	_show_page(FlowPage.COMPLETE)
+	registered_label.modulate.a = 0.0
+	open_channel_button.modulate.a = 0.0
+	await _show_page(FlowPage.COMPLETE)
+	await _play_registration_complete()
+
+
+func _play_registration_complete() -> void:
+	open_channel_button.disabled = true
+	await _motion_player.enter_control(registered_label, Vector2(0, 4), 0.16)
+	await _motion_player.flash_control(registered_panel, Color(1.08, 1.16, 1.22, 1.0), 0.12)
+	await get_tree().create_timer(0.06).timeout
+	await _motion_player.enter_control(open_channel_button, Vector2(0, 4), 0.14)
+	open_channel_button.disabled = false
 
 func _build_onboarding_metadata(
 	mode: String,
@@ -1300,13 +1238,16 @@ func _replace_partner_preview(
 
 func _on_writing_style_selected(id: String) -> void:
 	_selected_writing_style = id
+	_motion_player.flash_control(writing_style_options, Color(1.08, 1.14, 1.2, 1.0), 0.08)
 
 func _on_kaomoji_selected(id: String) -> void:
 	_selected_kaomoji = id
+	_motion_player.flash_control(kaomoji_options, Color(1.08, 1.14, 1.2, 1.0), 0.08)
 
 func _on_avatar_selected(avatar_id: String, index: int) -> void:
 	_selected_avatar_id = avatar_id
 	avatar_preview_label.text = "A%02d" % (index + 1)
+	_motion_player.flash_control(avatar_preview_label, Color(1.1, 1.16, 1.22, 1.0), 0.09)
 
 func _refresh_avatar_preview() -> void:
 	var index := avatar_ids.find(_selected_avatar_id)
@@ -1316,15 +1257,19 @@ func _on_appearance_category_selected(category: int) -> void:
 	_appearance_category = category
 	_render_appearance_categories()
 	_render_appearance_options()
+	_motion_player.enter_control(appearance_grid, Vector2(3, 0), 0.12)
 
 func _on_appearance_option_selected(category: int, option_id: String) -> void:
 	_appearance_selection[category] = option_id
 	_render_appearance_options()
 	_update_appearance_preview()
+	_motion_player.flash_control(portrait_layers, Color(1.08, 1.12, 1.18, 1.0), 0.09)
+	_motion_player.flash_control(overworld_layers, Color(1.08, 1.12, 1.18, 1.0), 0.09)
 
 func _set_overworld_direction(direction: int) -> void:
 	_overworld_direction = posmod(direction, 4)
 	_update_appearance_preview()
+	_motion_player.enter_control(overworld_layers, Vector2(2, 0), 0.1)
 
 func _update_appearance_preview() -> void:
 	var has_portrait_texture := false
@@ -1416,6 +1361,13 @@ func _get_apk_preview_texture(apk: APKData) -> Texture2D:
 func _show_errors(errors: PackedStringArray) -> void:
 	error_label.text = "\n".join(errors)
 	error_label.visible = not errors.is_empty()
+	if errors.is_empty():
+		return
+	_motion_player.enter_control(error_label, Vector2(0, -3), 0.13)
+	for field: LineEdit in [first_name_edit, last_name_edit, nickname_edit, username_edit]:
+		if field.text.strip_edges().is_empty():
+			_motion_player.reject_control(field)
+			break
 
 func _clear_error() -> void:
 	error_label.text = ""
@@ -1425,6 +1377,18 @@ func _clear_container(container: Node) -> void:
 	for child: Node in container.get_children():
 		container.remove_child(child)
 		child.queue_free()
+
+
+func get_current_flow_page() -> int:
+	return _current_page
+
+
+func is_page_transitioning() -> bool:
+	return _page_transitioning
+
+
+func are_assessment_answers_ready() -> bool:
+	return _assessment_answers_ready
 
 func get_browser_state() -> Dictionary:
 	return {
@@ -1523,10 +1487,10 @@ func restore_browser_state(state: Dictionary) -> void:
 	):
 		_calculate_and_show_result(false)
 	elif restored_page == FlowPage.ASSESSMENT:
-		_show_page(FlowPage.ASSESSMENT)
+		await _show_page(FlowPage.ASSESSMENT)
 		_render_assessment_question(false)
 	else:
-		_show_page(restored_page)
+		await _show_page(restored_page)
 	master_scroll.set_deferred(
 		"scroll_vertical",
 		maxi(0, int(state.get("scroll_y", 0)))
