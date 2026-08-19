@@ -1,16 +1,21 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/components/null_network_portal_header.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://data/assets/icons/nnwicon.png" id="2_logo"]
 [ext_resource type="Texture2D" path="res://data/assets/icons/nnw_portal_icons.svg" id="3_icons"]
 [ext_resource type="Script" path="res://apps/browser/site_action_button.gd" id="4_action"]
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="5_frame"]
+[ext_resource type="Script" path="res://data/templates/browser/site_action_data.gd" id="6_action_data"]
 
 [sub_resource type="AtlasTexture" id="UserIcon"]
 atlas = ExtResource("3_icons")
 region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="StyleBoxEmpty" id="TransparentPanel"]
+
+[sub_resource type="Resource" id="SignUpAction"]
+script = ExtResource("6_action_data")
+target_url = "null.net/register"
 
 [node name="NullNetworkPortalHeader" type="PanelContainer"]
 custom_minimum_size = Vector2(0, 48)
@@ -162,4 +167,4 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "Sign Up"
 script = ExtResource("4_action")
-target_url = "null.net/register"
+action_data = SubResource("SignUpAction")
