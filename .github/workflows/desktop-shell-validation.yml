@@ -14,6 +14,10 @@ on:
       - "apps/browser/**"
       - "core/autoloads/kubu_os_metrics.gd"
       - "core/autoloads/global_signals.gd"
+      - "core/autoloads/simulated_dns.gd"
+      - "core/autoloads/simulated_dns.tscn"
+      - "data/templates/browser/**"
+      - "data/content/sites/**"
       - "data/content/desktop/**"
       - "tests/desktop/**"
       - "tests/window_manager/**"
@@ -167,6 +171,26 @@ jobs:
             2>&1 | tee browser-page-scroll-origin-test.log
           grep -q "BROWSER_PAGE_SCROLL_ORIGIN_TEST: PASS" browser-page-scroll-origin-test.log
 
+      - name: Run site action data test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/browser/site_action_data_test.tscn \
+            2>&1 | tee site-action-data-test.log
+          grep -q "SITE_ACTION_DATA_TEST: PASS" site-action-data-test.log
+
+      - name: Run website catalog test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/browser/website_catalog_test.tscn \
+            2>&1 | tee website-catalog-test.log
+          grep -q "WEBSITE_CATALOG_TEST: PASS" website-catalog-test.log
+
       - name: Reject shell script errors
         shell: bash
         run: |
@@ -180,9 +204,11 @@ jobs:
             alert-layer-layout-test.log \
             operator-registration-restore-test.log \
             browser-page-scroll-origin-test.log \
+            site-action-data-test.log \
+            website-catalog-test.log \
             > desktop-shell-validation.log
 
-          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|ALERT_LAYER_LAYOUT_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL" desktop-shell-validation.log; then
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|ALERT_LAYER_LAYOUT_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" desktop-shell-validation.log; then
             echo "Desktop shell validation reported an error."
             exit 1
           fi
@@ -206,5 +232,7 @@ jobs:
             alert-layer-layout-test.log
             operator-registration-restore-test.log
             browser-page-scroll-origin-test.log
+            site-action-data-test.log
+            website-catalog-test.log
             desktop-shell-validation.log
           if-no-files-found: ignore
