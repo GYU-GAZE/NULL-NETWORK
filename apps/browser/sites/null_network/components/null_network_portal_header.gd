@@ -23,8 +23,18 @@ func _ready() -> void:
 	subtitle_label.text = subtitle_text
 	subtitle_label.visible = not subtitle_text.is_empty()
 	assessment_progress.visible = show_assessment_progress
-	sign_up_button.target_url = sign_up_target
+	_set_sign_up_target(sign_up_target)
 	set_assessment_category(0)
+
+
+func _set_sign_up_target(target: String) -> void:
+	if sign_up_button.action_data != null:
+		# The shared header scene owns its private subresource, so updating this
+		# route keeps page-level sign_up_target overrides data-driven without
+		# falling back to SiteActionButton's hidden compatibility fields.
+		sign_up_button.action_data.target_url = target
+		return
+	sign_up_button.target_url = target
 
 func set_assessment_mode(enabled: bool) -> void:
 	assessment_progress.visible = enabled
