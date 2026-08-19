@@ -74,11 +74,20 @@ func _test_window_motion_contract() -> void:
 	await get_tree().create_timer(0.25).timeout
 	var restore_rect := Rect2(window.position, window.size)
 	await window.maximize()
+	await get_tree().process_frame
 	_check(window.is_maximized, "Animated maximize did not preserve maximized state.")
 	_check(window.position == Vector2.ZERO and window.size == workspace.size, "Animated maximize did not settle on snapped workspace geometry.")
+	_check_adaptive_surfaces_match_outer_window(window, "maximized")
 	await window.restore_from_maximized()
+	await get_tree().process_frame
 	_check(not window.is_maximized, "Animated restore did not clear maximized state.")
 	_check(Rect2(window.position, window.size).is_equal_approx(restore_rect), "Animated restore did not return to the authoritative restore rectangle.")
+	_check_adaptive_surfaces_match_outer_window(window, "restored")
+
+	window.size = Vector2(533, 337)
+	await get_tree().process_frame
+	_check_adaptive_surfaces_match_outer_window(window, "directly resized")
+
 	var close_state := {"emitted": false}
 	window.window_closed.connect(func() -> void: close_state["emitted"] = true)
 	window.close()
@@ -86,6 +95,32 @@ func _test_window_motion_contract() -> void:
 	await get_tree().create_timer(0.2).timeout
 	_check(bool(close_state["emitted"]), "window_closed did not emit after close presentation.")
 	workspace.queue_free()
+
+
+func _check_adaptive_surfaces_match_outer_window(window: WindowBase, phase: String) -> void:
+	var adaptive := window as AdaptiveScaleWindowBase
+	_check(adaptive != null, "%s window is not AdaptiveScaleWindowBase." % phase)
+	if adaptive == null:
+		return
+	var rendered_visual_size := KubuOSMetrics.snap_vector(
+		adaptive.visual_root.size * adaptive.visual_root.scale
+	)
+	_check(
+		rendered_visual_size == adaptive.size,
+		"%s visual surface %s does not cover outer window %s." % [phase, rendered_visual_size, adaptive.size]
+	)
+	_check(
+		adaptive.resize_border.position == Vector2.ZERO,
+		"%s resize overlay no longer starts at the outer window origin." % phase
+	)
+	_check(
+		adaptive.resize_border.size == adaptive.size,
+		"%s resize overlay %s does not cover outer window %s; right/bottom handles would be stale." % [
+			phase,
+			adaptive.resize_border.size,
+			adaptive.size,
+		]
+	)
 
 
 func _test_interrupted_motion_settles_authoritative_target() -> void:
