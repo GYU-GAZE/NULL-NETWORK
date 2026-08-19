@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="WebsiteCatalog" load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://data/templates/browser/website_catalog.gd" id="1_catalog"]
+[ext_resource type="Resource" path="res://data/content/sites/null network/nnwhome.tres" id="2_home"]
+[ext_resource type="Resource" path="res://data/content/sites/null network/nnwforums.tres" id="3_forums"]
+[ext_resource type="Resource" path="res://data/content/sites/null network/nnwrankings.tres" id="4_rankings"]
+[ext_resource type="Resource" path="res://data/content/sites/null network/nnwgetstarted.tres" id="5_started"]
+[ext_resource type="Resource" path="res://data/content/sites/null network/nnwupdates.tres" id="6_updates"]
+[ext_resource type="Resource" path="res://data/content/sites/browser_home.tres" id="7_browser_home"]
+[ext_resource type="Resource" path="res://data/content/users/-UserProfiles.tres" id="8_profiles"]
+[ext_resource type="Resource" path="res://data/content/sites/null network/forum_thread_route.tres" id="9_threads"]
+[ext_resource type="Resource" path="res://data/content/sites/null network/nnwregister.tres" id="10_register"]
+[ext_resource type="Resource" path="res://data/content/sites/null network/nnwstarterselection.tres" id="11_starter"]
+[ext_resource type="Resource" path="res://data/content/sites/kubuchan/kubuchan_home.tres" id="12_kubuchan"]
+
+[resource]
+script = ExtResource("1_catalog")
+pages = Array[WebsitePage]([ExtResource("2_home"), ExtResource("3_forums"), ExtResource("4_rankings"), ExtResource("5_started"), ExtResource("6_updates"), ExtResource("7_browser_home"), ExtResource("8_profiles"), ExtResource("9_threads"), ExtResource("10_register"), ExtResource("11_starter"), ExtResource("12_kubuchan")])
