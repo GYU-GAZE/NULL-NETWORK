@@ -28,13 +28,12 @@ func _ready() -> void:
 
 
 func _set_sign_up_target(target: String) -> void:
-	if sign_up_button.action_data != null:
-		# The shared header scene owns its private subresource, so updating this
-		# route keeps page-level sign_up_target overrides data-driven without
-		# falling back to SiteActionButton's hidden compatibility fields.
-		sign_up_button.action_data.target_url = target
+	if sign_up_button.action_data == null:
+		push_error("NullNetworkPortalHeader SignUpButton requires SiteActionData.")
 		return
-	sign_up_button.target_url = target
+	# The shared header scene owns its private subresource, so page-level route
+	# overrides stay data-driven without mutating Button implementation fields.
+	sign_up_button.action_data.target_url = target
 
 func set_assessment_mode(enabled: bool) -> void:
 	assessment_progress.visible = enabled
