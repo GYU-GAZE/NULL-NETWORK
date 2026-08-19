@@ -22,6 +22,12 @@ enum VisibilityMode {
 	TOGGLE
 }
 
+enum FailedConditionBehavior {
+	DO_NOTHING,
+	DISABLE_BUTTON,
+	HIDE_BUTTON
+}
+
 @export_category("Action Resource")
 ## Preferred authoring path. New site interactions should use SiteActionData so
 ## game-state conditions/effects share the same pipeline as dialogues/events.
@@ -29,12 +35,6 @@ enum VisibilityMode {
 
 @export_category("Condition Presentation")
 @export var failed_condition_behavior: FailedConditionBehavior = FailedConditionBehavior.DO_NOTHING
-
-enum FailedConditionBehavior {
-	DO_NOTHING,
-	DISABLE_BUTTON,
-	HIDE_BUTTON
-}
 
 @export_category("Motion")
 @export var motion_profile: UiMotionProfileData = preload(
@@ -257,10 +257,7 @@ func _apply_legacy_number_action() -> void:
 		NumberMode.SET:
 			GameState.set_number(clean_var_name, number_value)
 		NumberMode.ADD:
-			GameState.set_number(
-				clean_var_name,
-				GameState.get_number(clean_var_name) + number_value
-			)
+			GameState.add_number(clean_var_name, number_value)
 		NumberMode.NONE:
 			return
 
