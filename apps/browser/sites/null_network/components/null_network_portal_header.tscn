@@ -14,6 +14,7 @@ region = Rect2(0, 0, 16, 16)
 [sub_resource type="StyleBoxEmpty" id="TransparentPanel"]
 
 [sub_resource type="Resource" id="SignUpAction"]
+resource_local_to_scene = true
 script = ExtResource("6_action_data")
 target_url = "null.net/register"
 
