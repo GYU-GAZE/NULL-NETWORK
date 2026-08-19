@@ -99,14 +99,14 @@ func _process(delta: float) -> void:
 		set_process(false)
 		return
 
-	# An absolute reveal timeline is precomputed once, while elapsed time is
-	# advanced from frame delta. A slow frame therefore catches up instead of
-	# accumulating hundreds of timer waits, and pausing the scene tree keeps the
-	# controller aligned with RichTextEffect.elapsed_time.
+	# The controller owns character visibility for both Label and RichTextLabel.
+	# RichTextEffect is presentation-only: it may animate a glyph that is already
+	# unlocked, but it can never keep the entire sentence invisibly "typing" in
+	# the background. This is especially important when a RichTextLabel instance
+	# is reused after navigating Back in a multi-page flow.
 	_elapsed_seconds += maxf(0.0, delta)
 	var revealed_count := _get_revealed_character_count(_elapsed_seconds)
-	if _target is not RichTextLabel:
-		_set_visible_characters(revealed_count)
+	_set_visible_characters(revealed_count)
 	_emit_new_character_signals(revealed_count)
 
 	if _elapsed_seconds >= _timeline_duration:
@@ -168,6 +168,7 @@ func _finish_natural_reveal() -> void:
 func _prepare_target_for_reveal() -> void:
 	if _target is RichTextLabel:
 		_render_rich_text(true)
+		_set_visible_characters(0)
 		return
 	(_target as Label).text = _display_text
 	_set_visible_characters(0)
@@ -227,7 +228,7 @@ func _render_rich_text(with_typewriter: bool) -> void:
 		rich_label.add_text(segment_text)
 		for _effect_index in range(pushed_effects):
 			rich_label.pop()
-	rich_label.visible_characters = -1
+	rich_label.visible_characters = 0 if with_typewriter else -1
 
 
 func _parse_source_text() -> void:
