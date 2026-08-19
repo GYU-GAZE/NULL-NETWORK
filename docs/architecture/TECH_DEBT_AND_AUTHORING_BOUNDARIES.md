@@ -24,19 +24,22 @@ Dialogue content should be authored through:
 
 Presentation should be authored through scenes/themes/motion Resources rather than page-specific timing hacks.
 
-## Compatibility layer: SiteActionButton legacy fields
+## Completed cleanup: SiteActionButton gameplay-state duplication
 
-`apps/browser/site_action_button.gd` still contains old direct fields for flags, numbers, visibility, alerts and navigation.
+The old `SiteActionButton` directly implemented its own flag/number/gameplay-condition pipeline. Existing Browser usages were migrated and those direct gameplay-state authoring fields were removed.
 
-Status: **compatibility only**.
+Current rule:
 
-New gameplay state logic must use `SiteActionData.conditions` and `SiteActionData.effects`.
+```text
+SiteActionButton
+└── SiteActionData
+    ├── ConditionRuleData / ConditionSetData
+    └── GameEffectData[]
+```
 
-Do not add new legacy enums/fields when a reusable `ConditionRuleData` or `GameEffectData` can express the behavior.
+Do not reintroduce direct persistent-state mutation fields to the Button when a shared Condition or GameEffect can express the behavior.
 
-UI-local visibility may remain local when it is presentation-only and not campaign state.
-
-Removal criterion: migrate every existing Browser scene away from legacy gameplay-state fields, then delete those fields in one explicit migration.
+UI-local presentation behavior may remain local when it is genuinely non-persistent.
 
 ## Stabilizer: BrowserPageScrollHost
 
