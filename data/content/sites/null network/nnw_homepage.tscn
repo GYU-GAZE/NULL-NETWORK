@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dfghm5hb81mbt"]
+[gd_scene load_steps=20 format=3 uid="uid://dfghm5hb81mbt"]
 
 [ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="1_theme"]
 [ext_resource type="Shader" path="res://data/assets/shaders/null_network_portal_background.gdshader" id="2_shader"]
@@ -8,6 +8,8 @@
 [ext_resource type="Texture2D" path="res://data/assets/icons/nnw_portal_icons.svg" id="6_icons"]
 [ext_resource type="Script" path="res://apps/browser/site_action_button.gd" id="7_action"]
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="8_frame"]
+[ext_resource type="Script" path="res://data/templates/browser/site_action_data.gd" id="9_action_data"]
+[ext_resource type="Script" path="res://data/templates/conditions/flag_condition_data.gd" id="10_flag_condition"]
 
 [sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
 shader = ExtResource("2_shader")
@@ -25,6 +27,42 @@ atlas = ExtResource("6_icons")
 region = Rect2(48, 0, 16, 16)
 
 [sub_resource type="StyleBoxEmpty" id="Transparent"]
+
+[sub_resource type="Resource" id="ConditionRegistered"]
+script = ExtResource("10_flag_condition")
+flag_name = "operator.registered"
+expected_value = true
+
+[sub_resource type="Resource" id="ActionGetStarted"]
+script = ExtResource("9_action_data")
+target_url = "null.net/getstarted"
+
+[sub_resource type="Resource" id="ActionUpdates"]
+script = ExtResource("9_action_data")
+conditions = SubResource("ConditionRegistered")
+target_url = "null.net/updates"
+show_failed_alert = true
+failed_alert_title = "ACCOUNT REQUIRED"
+failed_alert_message = "You must have an account to access this area."
+failed_alert_animation = 2
+
+[sub_resource type="Resource" id="ActionThreads"]
+script = ExtResource("9_action_data")
+conditions = SubResource("ConditionRegistered")
+target_url = "null.net/forums"
+show_failed_alert = true
+failed_alert_title = "ACCOUNT REQUIRED"
+failed_alert_message = "You must have an account to access this area."
+failed_alert_animation = 2
+
+[sub_resource type="Resource" id="ActionRankings"]
+script = ExtResource("9_action_data")
+conditions = SubResource("ConditionRegistered")
+target_url = "null.net/playerrankings"
+show_failed_alert = true
+failed_alert_title = "ACCOUNT REQUIRED"
+failed_alert_message = "You must have an account to access this area."
+failed_alert_animation = 2
 
 [node name="NnwHomepage" type="Control"]
 anchors_preset = 15
@@ -181,7 +219,7 @@ theme_override_styles/pressed = SubResource("Transparent")
 theme_override_styles/focus = SubResource("Transparent")
 text = "›        GET STARTED        ‹"
 script = ExtResource("7_action")
-target_url = "null.net/getstarted"
+action_data = SubResource("ActionGetStarted")
 
 [node name="PortalLinks" type="HBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox"]
 layout_mode = 2
@@ -207,11 +245,7 @@ theme_override_styles/pressed = SubResource("Transparent")
 theme_override_styles/focus = SubResource("Transparent")
 text = "CHANGELOG          ›"
 script = ExtResource("7_action")
-required_flag_name = "operator.registered"
-show_alert_on_failed_condition = true
-failed_alert_title = "ACCOUNT REQUIRED"
-failed_alert_message = "You must have an account to access this area."
-target_url = "null.net/updates"
+action_data = SubResource("ActionUpdates")
 
 [node name="ThreadsFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks"]
 custom_minimum_size = Vector2(0, 42)
@@ -233,11 +267,7 @@ theme_override_styles/pressed = SubResource("Transparent")
 theme_override_styles/focus = SubResource("Transparent")
 text = "MESSAGE BOARD          ›"
 script = ExtResource("7_action")
-required_flag_name = "operator.registered"
-show_alert_on_failed_condition = true
-failed_alert_title = "ACCOUNT REQUIRED"
-failed_alert_message = "You must have an account to access this area."
-target_url = "null.net/forums"
+action_data = SubResource("ActionThreads")
 
 [node name="RankingsFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks"]
 custom_minimum_size = Vector2(0, 42)
@@ -259,11 +289,7 @@ theme_override_styles/pressed = SubResource("Transparent")
 theme_override_styles/focus = SubResource("Transparent")
 text = "PLAYER RANKINGS          ›"
 script = ExtResource("7_action")
-required_flag_name = "operator.registered"
-show_alert_on_failed_condition = true
-failed_alert_title = "ACCOUNT REQUIRED"
-failed_alert_message = "You must have an account to access this area."
-target_url = "null.net/playerrankings"
+action_data = SubResource("ActionRankings")
 
 [node name="PortalFooter" parent="PageMargin/Page" instance=ExtResource("4_footer")]
 layout_mode = 2
