@@ -5,11 +5,11 @@ class_name SiteActionData
 ## Data-driven interaction definition for Browser site controls.
 ##
 ## Browser UI owns presentation/navigation, while game-state conditions and
-## effects reuse the same ConditionSetData/GameEffectData pipeline used by
+## effects reuse the same ConditionRuleData/GameEffectData pipeline used by
 ## dialogues, incidents and story content.
 
 @export_category("Availability")
-@export var conditions: ConditionSetData
+@export var conditions: ConditionRuleData
 
 @export_category("Effects")
 @export var effects: Array[GameEffectData] = []
