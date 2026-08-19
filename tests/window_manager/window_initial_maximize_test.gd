@@ -34,6 +34,13 @@ func _run_test() -> void:
 	# Match KubuFirstRunExperience: establish the final maximized geometry in the
 	# same frame the window is created, before WindowBase's deferred open motion.
 	await window.maximize(false)
+
+	# This assertion intentionally runs BEFORE a process/layout frame. The first-
+	# run regression was caused by the outer rectangle changing synchronously while
+	# VisualRoot/ResizeBorder still described the pre-maximize window until a later
+	# resize/recreation.
+	_check_surface_geometry(window, "same-frame maximized first-run window")
+
 	await get_tree().create_timer(0.30).timeout
 
 	var expected_rect := Rect2(
@@ -45,12 +52,13 @@ func _run_test() -> void:
 		Rect2(window.position, window.size).is_equal_approx(expected_rect),
 		"Deferred opening motion changed the authoritative first-run maximized rectangle."
 	)
-	_check_surface_geometry(window, "maximized first-run window")
+	_check_surface_geometry(window, "settled maximized first-run window")
 
 	await window.restore_from_maximized(false)
+	_check_surface_geometry(window, "same-frame restored first-run window")
 	await _wait_frames(2)
 	_check(not window.is_maximized, "Immediate restore did not leave maximized state.")
-	_check_surface_geometry(window, "restored first-run window")
+	_check_surface_geometry(window, "settled restored first-run window")
 	_check_resize_edges(window)
 
 	workspace.queue_free()
