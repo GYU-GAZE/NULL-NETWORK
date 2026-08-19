@@ -42,53 +42,36 @@ enum FailedConditionBehavior {
 )
 
 # -----------------------------------------------------------------------------
-# Legacy compatibility
+# Serialized legacy compatibility
 # -----------------------------------------------------------------------------
-# Existing .tscn content can keep using these fields while it is migrated to
-# SiteActionData. They intentionally remain functional, but no new gameplay
-# state logic should be authored here.
-@export_category("Legacy: Condition")
-@export var required_flag_name: String = ""
-@export var required_flag_value: bool = true
-
-@export_category("Legacy: Failed Condition Alert")
-@export var show_alert_on_failed_condition: bool = false
-@export var failed_alert_title: String = "Access denied"
-@export_multiline var failed_alert_message: String = "You cannot do that yet."
-@export var failed_alert_animation: UniversalAlerts.AlertAnimation = UniversalAlerts.AlertAnimation.SHAKE
-
-@export_category("Legacy: Navigation")
-@export var target_url: String = ""
-
-@export_category("Legacy: Game Flag")
-@export var flag_name: String = ""
-@export var flag_mode: FlagMode = FlagMode.NONE
-@export var flag_value: bool = true
-
-@export_category("Legacy: Number Variable")
-@export var number_var_name: String = ""
-@export var number_mode: NumberMode = NumberMode.NONE
-@export var number_value: int = 0
-
-@export_category("Legacy: Single Node Visibility")
-@export var target_node_path: NodePath
-@export var visibility_mode: VisibilityMode = VisibilityMode.NONE
-
-@export_category("Legacy: Multiple Node Visibility")
-@export var nodes_to_show: Array[NodePath] = []
-@export var nodes_to_hide: Array[NodePath] = []
-@export var nodes_to_toggle: Array[NodePath] = []
-
-@export_category("Legacy: Notification")
-@export var show_notification: bool = false
-@export var notification_title: String = ""
-@export_multiline var notification_message: String = ""
-
-@export_category("Legacy: Alert")
-@export var show_alert: bool = false
-@export var alert_title: String = ""
-@export_multiline var alert_message: String = ""
-@export var alert_animation: UniversalAlerts.AlertAnimation = UniversalAlerts.AlertAnimation.POP
+# These properties remain serialized so older scenes continue to load exactly
+# as authored, but they are intentionally hidden from the Inspector. New
+# content should only use SiteActionData for gameplay-state conditions/effects.
+@export_storage var required_flag_name: String = ""
+@export_storage var required_flag_value: bool = true
+@export_storage var show_alert_on_failed_condition: bool = false
+@export_storage var failed_alert_title: String = "Access denied"
+@export_storage var failed_alert_message: String = "You cannot do that yet."
+@export_storage var failed_alert_animation: UniversalAlerts.AlertAnimation = UniversalAlerts.AlertAnimation.SHAKE
+@export_storage var target_url: String = ""
+@export_storage var flag_name: String = ""
+@export_storage var flag_mode: FlagMode = FlagMode.NONE
+@export_storage var flag_value: bool = true
+@export_storage var number_var_name: String = ""
+@export_storage var number_mode: NumberMode = NumberMode.NONE
+@export_storage var number_value: int = 0
+@export_storage var target_node_path: NodePath
+@export_storage var visibility_mode: VisibilityMode = VisibilityMode.NONE
+@export_storage var nodes_to_show: Array[NodePath] = []
+@export_storage var nodes_to_hide: Array[NodePath] = []
+@export_storage var nodes_to_toggle: Array[NodePath] = []
+@export_storage var show_notification: bool = false
+@export_storage var notification_title: String = ""
+@export_storage var notification_message: String = ""
+@export_storage var show_alert: bool = false
+@export_storage var alert_title: String = ""
+@export_storage var alert_message: String = ""
+@export_storage var alert_animation: UniversalAlerts.AlertAnimation = UniversalAlerts.AlertAnimation.POP
 
 var _motion_player: UiMotionPlayer
 
