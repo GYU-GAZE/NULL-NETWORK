@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dcoqma7h6c75u"]
+[gd_scene load_steps=14 format=3 uid="uid://dcoqma7h6c75u"]
 
 [ext_resource type="Script" uid="uid://cwms4o3bngg47" path="res://apps/browser/browser.gd" id="1_mufrk"]
 [ext_resource type="PackedScene" uid="uid://c15t5fwjule8g" path="res://apps/browser/browser_tab_button.tscn" id="2_4noms"]
@@ -11,6 +11,11 @@
 [ext_resource type="Script" path="res://systems/ui/motion/ui_motion_player.gd" id="8_motion_player"]
 [ext_resource type="Resource" path="res://data/content/ui/motion/browser_motion.tres" id="9_motion"]
 [ext_resource type="Script" path="res://apps/browser/browser_page_scroll_host.gd" id="10_scroll_host"]
+[ext_resource type="Script" path="res://data/templates/browser/site_action_data.gd" id="11_action_data"]
+
+[sub_resource type="Resource" id="BrowserHomeAction"]
+script = ExtResource("11_action_data")
+target_url = "kubus://home"
 
 [node name="BrowserApp" type="Panel" unique_id=1373929234]
 clip_contents = true
@@ -92,7 +97,7 @@ custom_minimum_size = Vector2(18, 16)
 layout_mode = 2
 text = "H"
 script = ExtResource("4_kj561")
-target_url = "kubus://home"
+action_data = SubResource("BrowserHomeAction")
 
 [node name="UrlLineEdit" type="LineEdit" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=93702499]
 unique_name_in_owner = true
