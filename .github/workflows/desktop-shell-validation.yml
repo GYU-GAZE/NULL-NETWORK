@@ -11,7 +11,7 @@ on:
       - "systems/window_manager/**"
       - "systems/workspace/**"
       - "systems/ui/**"
-      - "apps/browser/sites/null_network/register/**"
+      - "apps/browser/**"
       - "core/autoloads/kubu_os_metrics.gd"
       - "core/autoloads/global_signals.gd"
       - "data/content/desktop/**"
@@ -19,6 +19,7 @@ on:
       - "tests/window_manager/**"
       - "tests/ui/**"
       - "tests/operator/**"
+      - "tests/browser/**"
       - ".github/workflows/desktop-shell-validation.yml"
   workflow_dispatch:
 
@@ -146,6 +147,16 @@ jobs:
             2>&1 | tee operator-registration-restore-test.log
           grep -q "OPERATOR_REGISTRATION_RESTORE_TEST: PASS" operator-registration-restore-test.log
 
+      - name: Run Browser page-scroll origin test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/browser/browser_page_scroll_origin_test.tscn \
+            2>&1 | tee browser-page-scroll-origin-test.log
+          grep -q "BROWSER_PAGE_SCROLL_ORIGIN_TEST: PASS" browser-page-scroll-origin-test.log
+
       - name: Reject shell script errors
         shell: bash
         run: |
@@ -157,9 +168,10 @@ jobs:
             desktop-sidebar-alignment-test.log \
             typewriter-reveal-test.log \
             operator-registration-restore-test.log \
+            browser-page-scroll-origin-test.log \
             > desktop-shell-validation.log
 
-          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL" desktop-shell-validation.log; then
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL" desktop-shell-validation.log; then
             echo "Desktop shell validation reported an error."
             exit 1
           fi
@@ -181,5 +193,6 @@ jobs:
             desktop-sidebar-alignment-test.log
             typewriter-reveal-test.log
             operator-registration-restore-test.log
+            browser-page-scroll-origin-test.log
             desktop-shell-validation.log
           if-no-files-found: ignore
