@@ -1,6 +1,7 @@
 extends Control
 class_name WindowBase
 
+signal window_opened
 signal window_closed
 signal window_focused
 signal window_moved
@@ -56,6 +57,8 @@ var restore_size: Vector2 = Vector2.ZERO
 
 var _motion_player: UiMotionPlayer
 var _is_opening: bool = false
+var _open_animation_pending: bool = true
+var _has_completed_open_animation: bool = false
 var _is_closing: bool = false
 var _is_geometry_transitioning: bool = false
 
@@ -84,6 +87,7 @@ func _ready() -> void:
 		resized.connect(_refresh_pivot_offset)
 
 	_refresh_maximize_button()
+	_open_animation_pending = true
 	call_deferred("play_open_animation")
 
 
@@ -116,8 +120,15 @@ func setup(
 	_refresh_maximize_button()
 
 
+func wait_until_opened() -> void:
+	if _has_completed_open_animation:
+		return
+	await window_opened
+
+
 func play_open_animation() -> void:
 	if _is_closing:
+		_open_animation_pending = false
 		return
 
 	_cancel_active_motion()
@@ -134,9 +145,13 @@ func play_open_animation() -> void:
 
 func _finish_open_animation() -> void:
 	_is_opening = false
+	_open_animation_pending = false
 	position = KubuOSMetrics.snap_vector(position)
 	scale = Vector2.ONE
 	modulate = Color.WHITE
+	if not _has_completed_open_animation:
+		_has_completed_open_animation = true
+		window_opened.emit()
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -348,10 +363,10 @@ func _on_resize_border_gui_input(event: InputEvent) -> void:
 
 
 func pulse() -> void:
-	if _is_closing or _is_opening or _is_geometry_transitioning:
-		# Focusing/maximizing a just-created window must not cancel its opening
-		# tween. Cancelling it while modulate.a is near zero leaves an invisible
-		# but fully registered app window and a misleading active dock icon.
+	if _is_closing or _open_animation_pending or _is_opening or _is_geometry_transitioning:
+		# A just-created window has a deferred opening presentation. Treat the
+		# pending frame as part of opening too, so focus cannot start a competing
+		# motion before play_open_animation() marks _is_opening.
 		return
 
 	_motion_player.flash_control(background)
@@ -363,6 +378,7 @@ func close() -> void:
 
 	_is_closing = true
 	_is_opening = false
+	_open_animation_pending = false
 	close_button.disabled = true
 	maximize_button.disabled = true
 	is_dragging = false
