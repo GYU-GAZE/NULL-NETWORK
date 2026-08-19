@@ -32,6 +32,12 @@ func _run_test() -> void:
 		startup.get_node_or_null("BootLayer/NullBrandAnchor") != null,
 		"NULL NETWORK branding no longer belongs to the persistent boot presentation."
 	)
+	_check(
+		startup.get_node_or_null(
+			"BootLayer/NullBrandAnchor/NullLogoRevealClip"
+		) != null,
+		"NULL NETWORK lost its dedicated left-to-right reveal clip."
+	)
 
 	if startup.presentation_data != null:
 		startup.presentation_data = (
@@ -52,6 +58,10 @@ func _run_test() -> void:
 			_check(
 				startup.presentation_data.day_background_texture != null,
 				"Default startup lost its day panorama test texture."
+			)
+			_check(
+				startup.presentation_data.null_logo_build_pan_start_ratio > 0.0,
+				"NULL logo build is no longer authored inside the camera pan."
 			)
 			startup._set_backdrop_period(TimeManager.TimePeriod.DAY)
 			startup._layout_backdrop()
@@ -88,6 +98,9 @@ func _run_test() -> void:
 	var null_anchor := startup.get_node_or_null(
 		"BootLayer/NullBrandAnchor"
 	) as Control
+	var reveal_clip := startup.get_node_or_null(
+		"BootLayer/NullBrandAnchor/NullLogoRevealClip"
+	) as Control
 
 	if kubu_anchor != null and null_anchor != null:
 		_check(
@@ -103,12 +116,28 @@ func _run_test() -> void:
 		_check_brand_bounds(startup, null_anchor, "NULL NETWORK default")
 		_check(kubu_anchor.scale == Vector2.ONE, "Silver KubuOS fallback ended on a non-native scale.")
 		_check(null_anchor.scale == Vector2.ONE, "Silver NULL fallback ended on a non-native scale.")
+		_check(startup._null_logo_built, "NULL NETWORK build never reached its resolved state.")
+		_check(
+			reveal_clip != null
+			and is_equal_approx(reveal_clip.size.x, null_anchor.size.x),
+			"NULL NETWORK reveal clip did not finish at the complete logo width."
+		)
+		_check(
+			startup.null_logo_label_ghost_a.modulate.a > 0.0
+			or startup.null_logo_texture_ghost_a.modulate.a > 0.0,
+			"Resolved NULL NETWORK logo lost its persistent glitch fringe."
+		)
 
 		startup.size = Vector2(480.0, 270.0)
 		startup._on_viewport_size_changed()
 		await startup.show_login_state(TimeManager.TimePeriod.DAY)
 		_check_brand_bounds(startup, kubu_anchor, "KubuOS minimum")
 		_check_brand_bounds(startup, null_anchor, "NULL NETWORK minimum")
+		_check(
+			reveal_clip != null
+			and is_equal_approx(reveal_clip.size.x, null_anchor.size.x),
+			"Login-state restore did not keep the NULL NETWORK logo fully resolved."
+		)
 
 	startup.stop_and_hide()
 	_check(not startup.visible, "Startup presentation did not hide on shutdown.")
