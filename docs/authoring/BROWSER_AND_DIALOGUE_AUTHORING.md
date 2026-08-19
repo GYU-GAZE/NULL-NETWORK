@@ -52,7 +52,7 @@ Do not edit `core/autoloads/simulated_dns.tscn` for each new website. `Simulated
 
 ## Site buttons and interactions
 
-New gameplay-aware site buttons should use:
+Gameplay-aware site buttons use:
 
 ```text
 SiteActionButton
@@ -83,11 +83,7 @@ SiteActionData
 
 The Null Network homepage is the reference implementation.
 
-### Legacy compatibility
-
-`SiteActionButton` still serializes its old direct flag/number/visibility fields so older `.tscn` files remain loadable, but those fields are hidden from the normal Inspector authoring surface.
-
-Do not create new gameplay content through those compatibility properties. New game-state behavior goes through `SiteActionData` + shared Conditions/Effects.
+Direct flag/number/gameplay-state fields were removed from `SiteActionButton` after existing Browser content was migrated. If a new interaction needs to change persistent game state, create/reuse a `GameEffectData` Resource instead of adding another special-purpose property to the Button.
 
 Local UI-only visibility manipulation may remain local to a site when it genuinely represents presentation rather than persistent game state.
 
