@@ -1,20 +1,21 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://systems/startup/startup_menu.gd" id="1_script"]
 [ext_resource type="Resource" path="res://data/content/startup/default_startup_presentation.tres" id="2_data"]
 [ext_resource type="PackedScene" path="res://systems/startup/startup_mode_option.tscn" id="3_mode_option"]
 [ext_resource type="Script" path="res://systems/ui/motion/ui_motion_player.gd" id="4_motion_player"]
 [ext_resource type="Resource" path="res://data/content/ui/motion/kubuos_default_motion.tres" id="5_motion"]
+[ext_resource type="Script" path="res://systems/startup/startup_surface_host.gd" id="6_surface_host"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_main"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_account_surface"]
-bg_color = Color(0.025, 0.075, 0.18, 0.82)
+bg_color = Color(0.012, 0.038, 0.095, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.24, 0.5, 0.78, 0.82)
+border_color = Color(0.36, 0.66, 0.9, 0.7)
 corner_radius_top_left = 2
 corner_radius_top_right = 2
 corner_radius_bottom_right = 2
@@ -42,7 +43,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 70.0
+offset_top = 82.0
 offset_bottom = -46.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -56,96 +57,76 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 6
 
 [node name="Columns" type="HBoxContainer" parent="MenuArea/MenuMargin"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 18
 
-[node name="LeftPane" type="CenterContainer" parent="MenuArea/MenuMargin/Columns"]
-custom_minimum_size = Vector2(112, 0)
+[node name="LeftPane" type="Control" parent="MenuArea/MenuMargin/Columns"]
+custom_minimum_size = Vector2(176, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.75
+size_flags_stretch_ratio = 0.9
 mouse_filter = 2
-
-[node name="LeftContent" type="VBoxContainer" parent="MenuArea/MenuMargin/Columns/LeftPane"]
-custom_minimum_size = Vector2(112, 0)
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 8
-
-[node name="SessionLabel" type="Label" parent="MenuArea/MenuMargin/Columns/LeftPane/LeftContent"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.55, 0.78, 1, 0.72)
-theme_override_font_sizes/font_size = 14
-text = "USER SESSION"
-horizontal_alignment = 1
-
-[node name="SignalLine" type="ColorRect" parent="MenuArea/MenuMargin/Columns/LeftPane/LeftContent"]
-custom_minimum_size = Vector2(0, 1)
-layout_mode = 2
-mouse_filter = 2
-color = Color(0.72, 0.9, 1, 0.34)
-
-[node name="LeftInstruction" type="Label" parent="MenuArea/MenuMargin/Columns/LeftPane/LeftContent"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.9, 0.95, 1, 0.9)
-theme_override_font_sizes/font_size = 14
-text = "SELECT A USER\nTO BEGIN"
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="DividerStack" type="Control" parent="MenuArea/MenuMargin/Columns"]
-custom_minimum_size = Vector2(4, 0)
+custom_minimum_size = Vector2(3, 0)
 layout_mode = 2
 mouse_filter = 2
 
 [node name="DividerGlow" type="ColorRect" parent="MenuArea/MenuMargin/Columns/DividerStack"]
 layout_mode = 1
-anchors_preset = 15
+anchor_top = 0.18
 anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_bottom = 0.82
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.86, 0.94, 1, 0.06)
+color = Color(0.72, 0.9, 1, 0.05)
 
 [node name="Divider" type="ColorRect" parent="MenuArea/MenuMargin/Columns/DividerStack"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
+anchor_top = 0.18
 anchor_right = 0.5
-anchor_bottom = 1.0
+anchor_bottom = 0.82
 offset_left = -1.0
-offset_right = 1.0
+offset_right = 0.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.9, 0.96, 1, 0.24)
+color = Color(0.82, 0.94, 1, 0.28)
 
 [node name="RightColumn" type="VBoxContainer" parent="MenuArea/MenuMargin/Columns"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 0)
+custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.25
-theme_override_constants/separation = 4
+size_flags_stretch_ratio = 1.1
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="SurfaceKicker" type="Label" parent="MenuArea/MenuMargin/Columns/RightColumn"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.56, 0.78, 0.96, 0.78)
+theme_override_font_sizes/font_size = 14
+text = "KUBUOS // USER ACCESS"
+horizontal_alignment = 1
 
 [node name="SurfaceHost" type="Control" parent="MenuArea/MenuMargin/Columns/RightColumn"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 128)
+custom_minimum_size = Vector2(0, 268)
 layout_mode = 2
-size_flags_vertical = 3
 clip_contents = true
 mouse_filter = 1
+script = ExtResource("6_surface_host")
 
 [node name="AccountSurface" type="PanelContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost"]
 unique_name_in_owner = true
@@ -170,21 +151,49 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_main")
 
 [node name="Margin" type="MarginContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/UserPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 9
 
 [node name="Root" type="VBoxContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/UserPanel/Margin"]
 layout_mode = 2
+theme_override_constants/separation = 5
 
-[node name="Scroll" type="ScrollContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/UserPanel/Margin/Root"]
+[node name="UserHeader" type="VBoxContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/UserPanel/Margin/Root"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="UserTitle" type="Label" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/UserPanel/Margin/Root/UserHeader"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "SELECT USER"
+horizontal_alignment = 1
+
+[node name="UserHint" type="Label" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/UserPanel/Margin/Root/UserHeader"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.66, 0.8, 0.94, 0.72)
+theme_override_font_sizes/font_size = 14
+text = "SELECT AGAIN TO OPEN"
+horizontal_alignment = 1
+
+[node name="UserRule" type="ColorRect" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/UserPanel/Margin/Root"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.58, 0.8, 1, 0.22)
+
+[node name="ProfileScroll" type="ScrollContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/UserPanel/Margin/Root"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="ProfileList" type="VBoxContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/UserPanel/Margin/Root/Scroll"]
+[node name="ProfileList" type="VBoxContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/UserPanel/Margin/Root/ProfileScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -199,40 +208,42 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_main")
 
-[node name="Margin" type="MarginContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel"]
+[node name="ModeMargin" type="MarginContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
 
-[node name="ModeScroll" type="ScrollContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/Margin"]
+[node name="ModeScroll" type="ScrollContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/ModeMargin"]
 unique_name_in_owner = true
 layout_mode = 2
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
-[node name="ModeContentRoot" type="VBoxContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/Margin/ModeScroll"]
+[node name="ModeContentRoot" type="VBoxContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/ModeMargin/ModeScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="Header" type="Control" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/Margin/ModeScroll/ModeContentRoot"]
-custom_minimum_size = Vector2(0, 32)
+[node name="ModeHeader" type="Control" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/ModeMargin/ModeScroll/ModeContentRoot"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 
-[node name="BackButton" type="Button" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/Margin/ModeScroll/ModeContentRoot/Header"]
+[node name="BackButton" type="Button" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/ModeMargin/ModeScroll/ModeContentRoot/ModeHeader"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 0
-offset_right = 32.0
-offset_bottom = 32.0
+offset_right = 28.0
+offset_bottom = 28.0
 focus_mode = 1
 text = "<"
 flat = true
 
-[node name="NewUserTitle" type="Label" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/Margin/ModeScroll/ModeContentRoot/Header"]
+[node name="NewUserTitle" type="Label" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/ModeMargin/ModeScroll/ModeContentRoot/ModeHeader"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -247,33 +258,35 @@ text = "NEW USER"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ModeHint" type="Label" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/Margin/ModeScroll/ModeContentRoot"]
+[node name="ModeHint" type="Label" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/ModeMargin/ModeScroll/ModeContentRoot"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.72, 0.84, 0.96, 0.8)
+theme_override_colors/font_color = Color(0.66, 0.8, 0.94, 0.76)
 theme_override_font_sizes/font_size = 14
 text = "SELECT SAVE MODE"
 horizontal_alignment = 1
 
-[node name="ModeOptions" type="VBoxContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/Margin/ModeScroll/ModeContentRoot"]
+[node name="ModeOptions" type="VBoxContainer" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/ModeMargin/ModeScroll/ModeContentRoot"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="SafeModeOption" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/Margin/ModeScroll/ModeContentRoot/ModeOptions" instance=ExtResource("3_mode_option")]
+[node name="SafeModeOption" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/ModeMargin/ModeScroll/ModeContentRoot/ModeOptions" instance=ExtResource("3_mode_option")]
 unique_name_in_owner = true
 
-[node name="CommitModeOption" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/Margin/ModeScroll/ModeContentRoot/ModeOptions" instance=ExtResource("3_mode_option")]
+[node name="CommitModeOption" parent="MenuArea/MenuMargin/Columns/RightColumn/SurfaceHost/ModePanel/ModeMargin/ModeScroll/ModeContentRoot/ModeOptions" instance=ExtResource("3_mode_option")]
 unique_name_in_owner = true
 
 [node name="ErrorLabel" type="Label" parent="MenuArea/MenuMargin/Columns/RightColumn"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(0, 28)
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.45, 0.42, 1)
 theme_override_font_sizes/font_size = 14
 autowrap_mode = 2
+horizontal_alignment = 1
 
 [node name="BottomBarRoot" type="Control" parent="."]
 unique_name_in_owner = true
@@ -295,7 +308,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.025, 0.08, 0.31, 0.9)
+color = Color(0.01, 0.025, 0.075, 0.92)
 
 [node name="BottomBandHighlight" type="ColorRect" parent="BottomBarRoot"]
 layout_mode = 1
@@ -304,7 +317,7 @@ anchor_right = 1.0
 offset_bottom = 1.0
 grow_horizontal = 2
 mouse_filter = 2
-color = Color(0.74, 0.9, 1, 0.34)
+color = Color(0.66, 0.86, 1, 0.28)
 
 [node name="UtilityButtons" type="HBoxContainer" parent="BottomBarRoot"]
 unique_name_in_owner = true
@@ -312,15 +325,15 @@ layout_mode = 1
 anchor_top = 0.5
 anchor_bottom = 0.5
 offset_left = 12.0
-offset_top = -15.0
-offset_right = 248.0
-offset_bottom = 15.0
+offset_top = -14.0
+offset_right = 236.0
+offset_bottom = 14.0
 grow_vertical = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="ExitButton" type="Button" parent="BottomBarRoot/UtilityButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 30)
+custom_minimum_size = Vector2(90, 28)
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "⏻  EXIT"
@@ -328,7 +341,7 @@ flat = true
 
 [node name="ConfigsButton" type="Button" parent="BottomBarRoot/UtilityButtons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(128, 30)
+custom_minimum_size = Vector2(126, 28)
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "⚙  CONFIGS"
