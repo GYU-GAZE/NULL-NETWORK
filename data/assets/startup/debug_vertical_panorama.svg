@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="1620" viewBox="0 0 960 1620" shape-rendering="crispEdges">
+  <rect width="960" height="1620" fill="#071225"/>
+
+  <!-- 0-360: upper sky -->
+  <rect y="0" width="960" height="360" fill="#101849"/>
+  <rect y="180" width="960" height="180" fill="#182b68"/>
+  <g fill="#f4f7ff">
+    <rect x="74" y="62" width="4" height="4"/><rect x="180" y="124" width="6" height="6"/>
+    <rect x="326" y="72" width="4" height="4"/><rect x="522" y="146" width="5" height="5"/>
+    <rect x="704" y="88" width="4" height="4"/><rect x="846" y="164" width="6" height="6"/>
+    <rect x="112" y="246" width="5" height="5"/><rect x="436" y="232" width="4" height="4"/>
+    <rect x="640" y="286" width="5" height="5"/><rect x="888" y="274" width="4" height="4"/>
+  </g>
+  <circle cx="720" cy="162" r="74" fill="#6ed6ff" opacity="0.18"/>
+  <circle cx="720" cy="162" r="42" fill="#d4f4ff" opacity="0.42"/>
+
+  <!-- 360-720: lower sky / clouds -->
+  <rect y="360" width="960" height="360" fill="#22508a"/>
+  <rect y="540" width="960" height="180" fill="#4a4f9a"/>
+  <g fill="#9fe9ff" opacity="0.62">
+    <rect x="78" y="420" width="220" height="34"/><rect x="130" y="394" width="96" height="30"/>
+    <rect x="568" y="470" width="260" height="38"/><rect x="628" y="438" width="112" height="34"/>
+  </g>
+  <g fill="#eeb9ff" opacity="0.48">
+    <rect x="244" y="584" width="288" height="36"/><rect x="306" y="552" width="134" height="34"/>
+  </g>
+
+  <!-- 720-990: horizon -->
+  <rect y="720" width="960" height="270" fill="#a43d80"/>
+  <rect y="830" width="960" height="160" fill="#ef6f69"/>
+  <circle cx="196" cy="844" r="96" fill="#ffd36a"/>
+  <rect x="100" y="844" width="192" height="146" fill="#ff9f61" opacity="0.55"/>
+
+  <!-- city silhouette -->
+  <g fill="#172039">
+    <rect x="0" y="912" width="94" height="178"/>
+    <rect x="92" y="862" width="126" height="228"/>
+    <rect x="216" y="930" width="82" height="160"/>
+    <rect x="296" y="842" width="142" height="248"/>
+    <rect x="436" y="894" width="94" height="196"/>
+    <rect x="528" y="826" width="148" height="264"/>
+    <rect x="674" y="876" width="116" height="214"/>
+    <rect x="788" y="846" width="172" height="244"/>
+  </g>
+  <g fill="#7bf7ff" opacity="0.78">
+    <rect x="116" y="890" width="14" height="10"/><rect x="150" y="890" width="14" height="10"/>
+    <rect x="332" y="878" width="16" height="12"/><rect x="372" y="878" width="16" height="12"/>
+    <rect x="566" y="864" width="16" height="12"/><rect x="608" y="864" width="16" height="12"/>
+    <rect x="826" y="884" width="18" height="12"/><rect x="870" y="884" width="18" height="12"/>
+  </g>
+
+  <!-- 990-1290: ground / plaza -->
+  <rect y="990" width="960" height="300" fill="#2d7f62"/>
+  <rect y="1088" width="960" height="202" fill="#397b4a"/>
+  <polygon points="0,1290 960,1290 730,1070 230,1070" fill="#4a5a63"/>
+  <polygon points="64,1290 206,1290 382,1070 336,1070" fill="#f3c74c" opacity="0.9"/>
+  <polygon points="754,1290 896,1290 624,1070 578,1070" fill="#f05f74" opacity="0.9"/>
+  <g fill="#95ffb5">
+    <rect x="46" y="1040" width="126" height="18"/><rect x="788" y="1028" width="126" height="18"/>
+  </g>
+
+  <!-- 1290-1620: foreground street -->
+  <rect y="1290" width="960" height="330" fill="#1a2435"/>
+  <polygon points="246,1620 714,1620 584,1290 376,1290" fill="#263449"/>
+  <polygon points="458,1620 502,1620 494,1290 466,1290" fill="#fff1a8"/>
+  <g fill="#ff4f8c">
+    <rect x="74" y="1360" width="180" height="20"/><rect x="706" y="1398" width="180" height="20"/>
+  </g>
+  <g fill="#48e6ff">
+    <rect x="106" y="1488" width="206" height="22"/><rect x="648" y="1518" width="206" height="22"/>
+  </g>
+
+  <!-- diagnostic guide lines every half-screen (270px at 540p reference) -->
+  <g opacity="0.96">
+    <rect y="269" width="960" height="2" fill="#ffea61"/>
+    <rect y="539" width="960" height="2" fill="#63ffea"/>
+    <rect y="809" width="960" height="2" fill="#ff63cb"/>
+    <rect y="1079" width="960" height="2" fill="#ffffff"/>
+    <rect y="1349" width="960" height="2" fill="#ff704d"/>
+  </g>
+
+  <!-- corner/crop markers -->
+  <g fill="#ffffff">
+    <rect x="0" y="0" width="32" height="8"/><rect x="0" y="0" width="8" height="32"/>
+    <rect x="928" y="0" width="32" height="8"/><rect x="952" y="0" width="8" height="32"/>
+    <rect x="0" y="1612" width="32" height="8"/><rect x="0" y="1588" width="8" height="32"/>
+    <rect x="928" y="1612" width="32" height="8"/><rect x="952" y="1588" width="8" height="32"/>
+  </g>
+</svg>
