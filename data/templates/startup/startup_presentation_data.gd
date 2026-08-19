@@ -17,7 +17,6 @@ class_name StartupPresentationData
 @export_range(0.05, 0.95, 0.01) var logo_target_screen_x_ratio: float = 0.24
 @export_range(0.05, 0.95, 0.01) var logo_target_screen_y_ratio: float = 0.52
 @export_range(0.25, 1.25, 0.01) var logo_target_scale: float = 0.82
-@export_range(0.0, 0.75, 0.01) var background_intro_pan_ratio: float = 0.22
 
 @export_category("Title Branding")
 @export var null_network_logo_texture: Texture2D
@@ -36,6 +35,9 @@ class_name StartupPresentationData
 @export var night_background_texture: Texture2D
 @export var day_background_color: Color = Color(0.055, 0.18, 0.27, 1.0)
 @export var night_background_color: Color = Color(0.012, 0.025, 0.075, 1.0)
+@export var vertical_panorama_enabled: bool = false
+@export_range(0.0, 1.0, 0.01) var panorama_start_ratio: float = 0.0
+@export_range(0.0, 1.0, 0.01) var panorama_end_ratio: float = 1.0
 @export_range(0.0, 160.0, 1.0) var backdrop_overscan_pixels: float = 72.0
 @export var mouse_parallax_pixels: Vector2 = Vector2(18.0, 10.0)
 @export_range(1.0, 20.0, 0.5) var parallax_follow_speed: float = 6.0
