@@ -125,11 +125,7 @@ func _button_target(root: Node, node_name: String) -> String:
 	return _resolve_button_target(button)
 
 func _resolve_button_target(button: SiteActionButton) -> String:
-	if button == null:
-		return ""
-	if button.action_data != null:
-		return button.action_data.target_url
-	return button.target_url
+	return button.get_target_url() if button != null else ""
 
 func _check(condition: bool, message: String) -> void:
 	if not condition:
