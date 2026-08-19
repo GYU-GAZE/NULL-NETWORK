@@ -65,9 +65,30 @@ func _run_test() -> void:
 		"complete() did not settle the markup-stripped authored text."
 	)
 
+	# Reuse the exact same RichTextLabel, matching Assessment Back navigation.
+	# Native visible_characters must advance before the total timeline ends;
+	# otherwise the sentence is invisibly generated and appears all at once.
+	reveal.play(label, "ABCDEFGH")
+	reveal.set_process(false)
+	_check(
+		label.visible_characters == 0,
+		"A replayed RichTextLabel did not begin from zero visible characters."
+	)
+	reveal._process(0.06)
+	var partial_visible := label.visible_characters
+	_check(
+		partial_visible > 0 and partial_visible < label.get_total_character_count(),
+		"A replayed RichTextLabel did not expose characters progressively."
+	)
+	reveal.complete()
+	_check(
+		label.visible_characters == -1,
+		"Completing a replayed RichTextLabel did not settle full visibility."
+	)
+
 	reveal.present(label, "RESTORED{creep}!{/creep}")
 	_check(
-		int(completion_state["count"]) == 1,
+		int(completion_state["count"]) == 2,
 		"present() incorrectly emitted reveal_completed during state restoration."
 	)
 	_check(
