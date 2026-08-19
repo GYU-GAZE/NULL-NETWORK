@@ -54,7 +54,12 @@ func _show_new_user_modes() -> void:
 		option.modulate.a = 0.0
 		option.scale = Vector2.ONE
 
-	for control: Control in [back_button, new_user_title, mode_hint]:
+	var header_controls: Array[Control] = [
+		back_button,
+		new_user_title,
+		mode_hint,
+	]
+	for control: Control in header_controls:
 		control.modulate.a = 0.0
 		control.scale = Vector2.ONE
 
