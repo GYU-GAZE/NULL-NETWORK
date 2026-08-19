@@ -227,6 +227,9 @@ func flash_control(control: Control, peak: Color = Color(1.12, 1.12, 1.18, 1.0),
 func enter_scaled_control(control: Control, start_scale: Vector2, offset: Vector2, duration: float) -> void:
 	if not _can_animate(control):
 		return
+	if _is_container_managed(control):
+		await _enter_scaled_container_child(control, start_scale, duration)
+		return
 	var revision := _begin_operation(control)
 	var rest := KubuOSMetrics.snap_vector(control.position)
 	_remember_target(control, rest, control.size, true)
@@ -248,6 +251,9 @@ func enter_scaled_control(control: Control, start_scale: Vector2, offset: Vector
 func exit_scaled_control(control: Control, end_scale: Vector2, offset: Vector2, duration: float) -> void:
 	if not _can_animate(control):
 		return
+	if _is_container_managed(control):
+		await _exit_scaled_container_child(control, end_scale, duration)
+		return
 	var revision := _begin_operation(control)
 	var rest := KubuOSMetrics.snap_vector(control.position)
 	_remember_target(control, rest, control.size, false)
@@ -260,6 +266,52 @@ func exit_scaled_control(control: Control, end_scale: Vector2, offset: Vector2, 
 	if not (await _wait_operation(control, revision, duration)):
 		return
 	_finish_control(control, rest, false, &"scaled_exit")
+
+
+func _enter_scaled_container_child(control: Control, start_scale: Vector2, duration: float) -> void:
+	_kill_control_tween(control)
+	var revision := _increment_revision(control)
+	control.show()
+	control.scale = start_scale
+	control.modulate.a = 0.0
+	var tween := create_tween().set_parallel(true)
+	_register_tween(control, tween)
+	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(control, "scale", Vector2.ONE, duration)
+	tween.tween_property(control, "modulate:a", 1.0, duration * 0.8)
+	if not (await _wait_operation(control, revision, duration)):
+		return
+	_finish_container_transform(control, true, &"scaled_enter")
+
+
+func _exit_scaled_container_child(control: Control, end_scale: Vector2, duration: float) -> void:
+	_kill_control_tween(control)
+	var revision := _increment_revision(control)
+	var tween := create_tween().set_parallel(true)
+	_register_tween(control, tween)
+	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_property(control, "scale", end_scale, duration)
+	tween.tween_property(control, "modulate:a", 0.0, duration)
+	if not (await _wait_operation(control, revision, duration)):
+		return
+	_finish_container_transform(control, false, &"scaled_exit")
+
+
+func _finish_container_transform(control: Control, visible_state: bool, operation: StringName) -> void:
+	if not is_instance_valid(control):
+		return
+	control.scale = Vector2.ONE
+	control.rotation = 0.0
+	control.modulate = Color.WHITE
+	control.visible = visible_state
+	_active_tweens.erase(control.get_instance_id())
+	_target_states.erase(control.get_instance_id())
+	_operation_revisions.erase(control.get_instance_id())
+	operation_finished.emit(control, operation)
+
+
+func _is_container_managed(control: Control) -> bool:
+	return is_instance_valid(control) and control.get_parent() is Container
 
 
 func cancel_control(
