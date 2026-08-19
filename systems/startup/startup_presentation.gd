@@ -21,6 +21,7 @@ signal boot_completed
 @onready var boot_logo: TextureRect = %BootLogo
 @onready var boot_fallback: Label = %BootFallback
 @onready var null_brand_anchor: Control = %NullBrandAnchor
+@onready var null_logo_reveal_clip: Control = %NullLogoRevealClip
 @onready var null_logo_root: Control = %NullLogoRoot
 @onready var null_logo_texture: TextureRect = %NullLogoTexture
 @onready var null_logo_texture_ghost_a: TextureRect = %NullLogoTextureGhostA
@@ -42,6 +43,7 @@ var _backdrop_intro_position: Vector2 = Vector2.ZERO
 var _backdrop_parallax_offset: Vector2 = Vector2.ZERO
 var _current_period: int = TimeManager.TimePeriod.DAY
 var _glitch_timer: float = 0.0
+var _null_logo_built: bool = false
 var _rng := RandomNumberGenerator.new()
 
 
@@ -124,8 +126,10 @@ func show_login_state(period: int = TimeManager.TimePeriod.DAY) -> void:
 	null_brand_anchor.scale = Vector2.ONE * _get_null_target_scale()
 	null_brand_anchor.modulate.a = 1.0
 	null_logo_root.modulate.a = 1.0
+	_set_null_logo_reveal_width(null_brand_anchor.size.x)
+	_null_logo_built = true
 	_clear_null_pixels()
-	_reset_logo_glitch()
+	_apply_idle_logo_glitch()
 	power_line.modulate.a = 0.0
 	screen_flash.modulate.a = 0.0
 	skip_hint.hide()
@@ -165,6 +169,9 @@ func _process(delta: float) -> void:
 		return
 
 	_update_backdrop_parallax(delta)
+	if not _null_logo_built:
+		return
+
 	_glitch_timer -= delta
 
 	if _glitch_timer <= 0.0:
@@ -239,17 +246,17 @@ func _play_kubuos_boot() -> void:
 	_configure_null_brand()
 
 	var boot_ignite_position := boot_logo_anchor.position
-	var null_ignite_position := null_brand_anchor.position
 	boot_logo_anchor.modulate.a = 0.0
 	boot_logo_anchor.scale = Vector2.ONE * _get_kubuos_target_scale()
 	boot_logo_anchor.position += Vector2(0, 6)
 	boot_logo_anchor.pivot_offset = boot_logo_anchor.size * 0.5
 	null_brand_anchor.modulate.a = 1.0
 	null_brand_anchor.scale = Vector2.ONE * _get_null_target_scale()
-	null_brand_anchor.position += Vector2(0, 4)
 	null_brand_anchor.pivot_offset = null_brand_anchor.size * 0.5
-	null_logo_root.modulate.a = 0.0
-	_reset_logo_glitch()
+	null_logo_root.modulate.a = 1.0
+	_null_logo_built = false
+	_set_null_logo_reveal_width(0.0)
+	_clear_logo_glitch()
 	var particles: Array[Control] = _spawn_null_boot_particles()
 
 	power_line.scale = Vector2(0.0, 1.0)
@@ -259,6 +266,9 @@ func _play_kubuos_boot() -> void:
 	backdrop_clip.modulate.a = 0.0
 	_set_backdrop_position(_backdrop_intro_position)
 
+	# KubuOS ignition is deliberately short. The NULL NETWORK identity is no
+	# longer built here: it is authored against the camera pan below so logo and
+	# landscape feel like one continuous title reveal instead of two cutscenes.
 	_active_tween = create_tween().set_parallel(true)
 	_active_tween.set_trans(Tween.TRANS_QUAD)
 	_active_tween.set_ease(Tween.EASE_OUT)
@@ -274,36 +284,7 @@ func _play_kubuos_boot() -> void:
 		boot_ignite_position,
 		presentation_data.logo_ignite_seconds
 	)
-	_active_tween.tween_property(
-		null_logo_root,
-		"modulate:a",
-		1.0,
-		presentation_data.null_logo_build_seconds
-	)
-	_active_tween.tween_method(
-		_set_control_position_snapped.bind(null_brand_anchor),
-		null_brand_anchor.position,
-		null_ignite_position,
-		presentation_data.null_logo_build_seconds
-	)
-
-	for particle: Control in particles:
-		var target: Vector2 = particle.get_meta("target_position", particle.position)
-		_active_tween.tween_property(
-			particle,
-			"position",
-			target,
-			presentation_data.null_logo_build_seconds
-		)
-		_active_tween.tween_property(
-			particle,
-			"modulate:a",
-			0.08,
-			presentation_data.null_logo_build_seconds
-		)
-
 	await _active_tween.finished
-	_clear_null_pixels()
 
 	if presentation_data.logo_hold_seconds > 0.0:
 		await get_tree().create_timer(presentation_data.logo_hold_seconds).timeout
@@ -333,46 +314,107 @@ func _play_kubuos_boot() -> void:
 
 	var target_position: Vector2 = _get_boot_logo_target_position()
 	var null_target_position: Vector2 = _get_null_brand_target_position()
-	_active_tween = create_tween()
+	var pan_seconds: float = maxf(0.01, presentation_data.reveal_seconds)
+	var build_seconds: float = minf(
+		presentation_data.null_logo_build_seconds,
+		pan_seconds
+	)
+	var build_start: float = minf(
+		pan_seconds - build_seconds,
+		pan_seconds * clampf(
+			presentation_data.null_logo_build_pan_start_ratio,
+			0.0,
+			0.9
+		)
+	)
+
+	_active_tween = create_tween().set_parallel(true)
 	_active_tween.set_trans(Tween.TRANS_CUBIC)
 	_active_tween.set_ease(Tween.EASE_OUT)
 	_active_tween.tween_method(
 		_set_backdrop_position,
 		backdrop_root.position,
 		_backdrop_base_position,
-		presentation_data.reveal_seconds
+		pan_seconds
 	)
-	_active_tween.parallel().tween_method(
+	_active_tween.tween_method(
 		_set_control_position_snapped.bind(boot_logo_anchor),
 		boot_logo_anchor.position,
 		target_position,
-		presentation_data.reveal_seconds
+		pan_seconds
 	)
-	_active_tween.parallel().tween_method(
+	_active_tween.tween_method(
 		_set_control_position_snapped.bind(null_brand_anchor),
 		null_brand_anchor.position,
 		null_target_position,
-		presentation_data.reveal_seconds
+		pan_seconds
 	)
-	_active_tween.parallel().tween_property(
+	_active_tween.tween_property(
 		power_line,
 		"modulate:a",
 		0.0,
-		presentation_data.reveal_seconds * 0.45
+		pan_seconds * 0.45
 	)
-	_active_tween.parallel().tween_property(
+	_active_tween.tween_property(
 		screen_flash,
 		"modulate:a",
 		0.0,
-		presentation_data.reveal_seconds * 0.6
+		pan_seconds * 0.6
 	)
+
+	# Reveal the title itself from left to right. Pixel fragments are ordered by
+	# their X target so the build front reads as data resolving into typography,
+	# rather than as a generic random particle cloud.
+	_active_tween.tween_method(
+		_set_null_logo_reveal_width,
+		0.0,
+		null_brand_anchor.size.x,
+		build_seconds
+	).set_delay(build_start)
+
+	for particle: Control in particles:
+		var ratio: float = float(particle.get_meta("build_ratio", 0.0))
+		var particle_delay: float = (
+			build_start
+			+ ratio * build_seconds * 0.72
+		)
+		var target: Vector2 = particle.get_meta(
+			"target_position",
+			particle.position
+		)
+		_active_tween.tween_property(
+			particle,
+			"modulate:a",
+			1.0,
+			minf(0.08, build_seconds * 0.12)
+		).set_delay(particle_delay)
+		_active_tween.tween_property(
+			particle,
+			"position",
+			target,
+			minf(0.20, build_seconds * 0.24)
+		).set_delay(particle_delay)
+		_active_tween.tween_property(
+			particle,
+			"modulate:a",
+			0.0,
+			minf(0.14, build_seconds * 0.16)
+		).set_delay(particle_delay + minf(0.14, build_seconds * 0.18))
+
+	_active_tween.tween_callback(
+		_on_null_logo_build_completed
+	).set_delay(build_start + build_seconds)
+
 	await _active_tween.finished
 
 	_set_backdrop_position(_backdrop_base_position)
 	boot_logo_anchor.position = target_position
 	null_brand_anchor.position = null_target_position
+	_set_null_logo_reveal_width(null_brand_anchor.size.x)
 	_backdrop_parallax_offset = Vector2.ZERO
-	_play_logo_glitch()
+	_clear_null_pixels()
+	if not _null_logo_built:
+		_on_null_logo_build_completed()
 
 
 func _configure_splash(splash: StartupSplashData) -> void:
@@ -425,7 +467,7 @@ func _configure_null_brand() -> void:
 	)
 	null_logo_texture_ghost_a.modulate = presentation_data.null_logo_glitch_color_a
 	null_logo_texture_ghost_b.modulate = presentation_data.null_logo_glitch_color_b
-	_reset_logo_glitch()
+	_clear_logo_glitch()
 
 
 func _set_backdrop_period(period: int) -> void:
@@ -521,9 +563,39 @@ func _layout_brand_sizes() -> void:
 	boot_logo_anchor.size = Vector2(boot_width, round(boot_width * 0.4))
 	var null_width := minf(440.0, maxf(220.0, size.x - 32.0))
 	null_brand_anchor.size = Vector2(null_width, 56.0)
+	_sync_null_logo_geometry()
 	var line_width := maxf(160.0, minf(592.0, size.x - 48.0))
 	power_line.offset_left = -round(line_width * 0.5)
 	power_line.offset_right = round(line_width * 0.5)
+
+
+func _sync_null_logo_geometry() -> void:
+	if not (
+		is_instance_valid(null_logo_reveal_clip)
+		and is_instance_valid(null_logo_root)
+	):
+		return
+
+	null_logo_reveal_clip.position = Vector2.ZERO
+	null_logo_reveal_clip.size.y = null_brand_anchor.size.y
+	null_logo_reveal_clip.size.x = clampf(
+		null_logo_reveal_clip.size.x,
+		0.0,
+		null_brand_anchor.size.x
+	)
+	null_logo_root.position = Vector2.ZERO
+	null_logo_root.size = null_brand_anchor.size
+
+
+func _set_null_logo_reveal_width(value: float) -> void:
+	if not is_instance_valid(null_logo_reveal_clip):
+		return
+	_sync_null_logo_geometry()
+	null_logo_reveal_clip.size.x = round(clampf(
+		value,
+		0.0,
+		null_brand_anchor.size.x
+	))
 
 
 func _layout_boot_logo_centered() -> void:
@@ -606,11 +678,26 @@ func _set_backdrop_position(value: Vector2) -> void:
 func _spawn_null_boot_particles() -> Array[Control]:
 	_clear_null_pixels()
 	var particles: Array[Control] = []
-	var target_rect := Rect2(Vector2.ZERO, null_brand_anchor.size)
+	var count: int = maxi(1, presentation_data.null_logo_particle_count)
+	var width: float = maxf(1.0, null_brand_anchor.size.x)
+	var height: float = maxf(1.0, null_brand_anchor.size.y)
 
-	for index: int in range(presentation_data.null_logo_particle_count):
+	for index: int in range(count):
+		var ratio: float = (
+			0.0
+			if count <= 1
+			else float(index) / float(count - 1)
+		)
+		var target := Vector2(
+			clampf(
+				lerpf(8.0, width - 8.0, ratio) + _rng.randf_range(-4.0, 4.0),
+				2.0,
+				width - 2.0
+			),
+			_rng.randf_range(7.0, maxf(8.0, height - 7.0))
+		)
 		var pixel := ColorRect.new()
-		var pixel_size: float = _rng.randf_range(2.0, 5.0)
+		var pixel_size: float = round(_rng.randf_range(2.0, 5.0))
 		pixel.size = Vector2(pixel_size, pixel_size)
 		pixel.color = (
 			presentation_data.null_logo_glitch_color_a
@@ -618,21 +705,29 @@ func _spawn_null_boot_particles() -> Array[Control]:
 			else presentation_data.null_logo_glitch_color_b
 		)
 		pixel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		pixel.position = Vector2(
-			_rng.randf_range(-90.0, target_rect.size.x + 90.0),
-			_rng.randf_range(-55.0, target_rect.size.y + 55.0)
-		)
-		pixel.set_meta("target_position", Vector2(
-			_rng.randf_range(12.0, maxf(13.0, target_rect.size.x - 12.0)),
-			_rng.randf_range(10.0, maxf(11.0, target_rect.size.y - 10.0))
+		pixel.modulate.a = 0.0
+		pixel.position = KubuOSMetrics.snap_vector(Vector2(
+			target.x - _rng.randf_range(12.0, 34.0),
+			target.y + _rng.randf_range(-18.0, 18.0)
 		))
+		pixel.set_meta("target_position", KubuOSMetrics.snap_vector(target))
+		pixel.set_meta("build_ratio", ratio)
 		pixel_field.add_child(pixel)
 		particles.append(pixel)
 
 	return particles
 
 
+func _on_null_logo_build_completed() -> void:
+	_null_logo_built = true
+	_set_null_logo_reveal_width(null_brand_anchor.size.x)
+	_apply_idle_logo_glitch()
+	_play_logo_glitch()
+
+
 func _play_logo_glitch() -> void:
+	if not _null_logo_built:
+		return
 	if _glitch_tween != null and _glitch_tween.is_valid():
 		return
 
@@ -649,10 +744,10 @@ func _play_logo_glitch() -> void:
 	null_logo_label_ghost_b.modulate.a = 0.65
 	_glitch_tween = create_tween()
 	_glitch_tween.tween_interval(0.055)
-	_glitch_tween.tween_callback(_reset_logo_glitch)
+	_glitch_tween.tween_callback(_apply_idle_logo_glitch)
 
 
-func _reset_logo_glitch() -> void:
+func _clear_logo_glitch() -> void:
 	null_logo_root.position = Vector2.ZERO
 	null_logo_texture_ghost_a.position = Vector2.ZERO
 	null_logo_texture_ghost_b.position = Vector2.ZERO
@@ -662,6 +757,28 @@ func _reset_logo_glitch() -> void:
 	null_logo_texture_ghost_b.modulate.a = 0.0
 	null_logo_label_ghost_a.modulate.a = 0.0
 	null_logo_label_ghost_b.modulate.a = 0.0
+	_glitch_tween = null
+
+
+func _apply_idle_logo_glitch() -> void:
+	# The resolved NULL NETWORK mark never returns to a perfectly clean state.
+	# Keep a one-pixel chromatic fringe between stronger intermittent bursts; the
+	# final authored logo can later replace this placeholder fringe with its N/K
+	# smudge artwork without changing the startup timing pipeline.
+	var idle_alpha: float = clampf(
+		presentation_data.null_logo_idle_glitch_alpha,
+		0.0,
+		0.5
+	)
+	null_logo_root.position = Vector2.ZERO
+	null_logo_texture_ghost_a.position = Vector2(-1, 0)
+	null_logo_texture_ghost_b.position = Vector2(1, 0)
+	null_logo_label_ghost_a.position = Vector2(-1, 0)
+	null_logo_label_ghost_b.position = Vector2(1, 0)
+	null_logo_texture_ghost_a.modulate.a = idle_alpha
+	null_logo_texture_ghost_b.modulate.a = idle_alpha
+	null_logo_label_ghost_a.modulate.a = idle_alpha
+	null_logo_label_ghost_b.modulate.a = idle_alpha
 	_glitch_tween = null
 
 
@@ -684,6 +801,7 @@ func _on_viewport_size_changed() -> void:
 	if not _is_playing:
 		boot_logo_anchor.position = _get_boot_logo_target_position()
 		null_brand_anchor.position = _get_null_brand_target_position()
+		_set_null_logo_reveal_width(null_brand_anchor.size.x)
 		_set_backdrop_position(_backdrop_base_position + _backdrop_parallax_offset)
 	else:
 		boot_logo_anchor.position = _clamp_control_position(
@@ -714,4 +832,9 @@ func _reset_visual_state() -> void:
 	backdrop_clip.modulate.a = 0.0
 	screen_flash.modulate.a = 0.0
 	skip_hint.hide()
+	_null_logo_built = false
 	_clear_null_pixels()
+	if is_instance_valid(null_logo_reveal_clip):
+		_set_null_logo_reveal_width(0.0)
+	if is_instance_valid(null_logo_root):
+		_clear_logo_glitch()
