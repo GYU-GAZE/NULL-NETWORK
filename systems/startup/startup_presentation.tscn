@@ -186,41 +186,22 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="NullLogoRoot" type="Control" parent="BootLayer/NullBrandAnchor"]
+[node name="NullLogoRevealClip" type="Control" parent="BootLayer/NullBrandAnchor"]
 unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 0
+offset_right = 440.0
+offset_bottom = 56.0
+mouse_filter = 2
+clip_contents = true
+
+[node name="NullLogoRoot" type="Control" parent="BootLayer/NullBrandAnchor/NullLogoRevealClip"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 440.0
+offset_bottom = 56.0
 mouse_filter = 2
 
-[node name="NullLogoTextureGhostA" type="TextureRect" parent="BootLayer/NullBrandAnchor/NullLogoRoot"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="NullLogoTextureGhostB" type="TextureRect" parent="BootLayer/NullBrandAnchor/NullLogoRoot"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="NullLogoTexture" type="TextureRect" parent="BootLayer/NullBrandAnchor/NullLogoRoot"]
+[node name="NullLogoTextureGhostA" type="TextureRect" parent="BootLayer/NullBrandAnchor/NullLogoRevealClip/NullLogoRoot"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -232,7 +213,31 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="NullLogoLabelGhostA" type="Label" parent="BootLayer/NullBrandAnchor/NullLogoRoot"]
+[node name="NullLogoTextureGhostB" type="TextureRect" parent="BootLayer/NullBrandAnchor/NullLogoRevealClip/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NullLogoTexture" type="TextureRect" parent="BootLayer/NullBrandAnchor/NullLogoRevealClip/NullLogoRoot"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NullLogoLabelGhostA" type="Label" parent="BootLayer/NullBrandAnchor/NullLogoRevealClip/NullLogoRoot"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -246,7 +251,7 @@ text = "NULL NETWORK"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="NullLogoLabelGhostB" type="Label" parent="BootLayer/NullBrandAnchor/NullLogoRoot"]
+[node name="NullLogoLabelGhostB" type="Label" parent="BootLayer/NullBrandAnchor/NullLogoRevealClip/NullLogoRoot"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -260,7 +265,7 @@ text = "NULL NETWORK"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="NullLogoLabel" type="Label" parent="BootLayer/NullBrandAnchor/NullLogoRoot"]
+[node name="NullLogoLabel" type="Label" parent="BootLayer/NullBrandAnchor/NullLogoRevealClip/NullLogoRoot"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
