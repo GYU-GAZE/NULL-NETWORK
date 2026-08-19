@@ -3,11 +3,10 @@ class_name StartupSurfaceHost
 
 ## Keeps the startup account surface compact at normal resolutions while still
 ## fitting the complete New User -> save mode flow when one mode is expanded.
-## On small canvases the host yields height to the viewport and ModeScroll owns
-## overflow instead of letting the entire login composition escape the screen.
+## On small canvases the host yields height to the actual menu column and
+## ModeScroll owns overflow instead of letting the login composition escape.
 
-@export_range(64.0, 320.0, 1.0) var minimum_surface_height: float = 100.0
-@export_range(0.0, 320.0, 1.0) var viewport_vertical_reserve: float = 170.0
+@export_range(48.0, 320.0, 1.0) var minimum_surface_height: float = 96.0
 @export_range(0.0, 24.0, 1.0) var fit_padding: float = 2.0
 
 @onready var mode_margin: MarginContainer = %ModeMargin
@@ -22,8 +21,9 @@ var _refresh_queued: bool = false
 
 
 func _ready() -> void:
-	if get_viewport() != null and not get_viewport().size_changed.is_connected(_queue_height_refresh):
-		get_viewport().size_changed.connect(_queue_height_refresh)
+	var column := get_parent() as Control
+	if column != null and not column.resized.is_connected(_queue_height_refresh):
+		column.resized.connect(_queue_height_refresh)
 	_queue_height_refresh()
 
 
@@ -81,9 +81,32 @@ func _refresh_height() -> void:
 		return
 
 	var required_height := get_required_mode_surface_height()
-	var viewport_height := get_viewport_rect().size.y
-	var available_height := maxf(
-		minimum_surface_height,
-		floorf(viewport_height - viewport_vertical_reserve)
+	var available_height := _get_available_column_height()
+	custom_minimum_size.y = minf(
+		required_height,
+		maxf(minimum_surface_height, available_height)
 	)
-	custom_minimum_size.y = minf(required_height, available_height)
+
+
+func _get_available_column_height() -> float:
+	var column := get_parent() as VBoxContainer
+	if column == null or column.size.y <= 0.0:
+		return get_required_mode_surface_height()
+
+	var visible_sibling_height := 0.0
+	var visible_item_count := 1 # SurfaceHost itself.
+	for child: Node in column.get_children():
+		if child == self or child is not Control:
+			continue
+		var control := child as Control
+		if not control.visible:
+			continue
+		visible_sibling_height += control.get_combined_minimum_size().y
+		visible_item_count += 1
+
+	var separation := float(column.get_theme_constant("separation"))
+	var separation_height := separation * float(maxi(0, visible_item_count - 1))
+	return maxf(
+		minimum_surface_height,
+		floorf(column.size.y - visible_sibling_height - separation_height)
+	)
