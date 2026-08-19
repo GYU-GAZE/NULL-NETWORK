@@ -82,6 +82,20 @@ func setup(
 	_refresh_adaptive_pixel_density(true)
 
 
+func _apply_window_geometry(target_rect: Rect2, animated: bool) -> void:
+	# WindowBase's non-animated geometry path assigns the OUTER Control rectangle
+	# synchronously. During first-run this happens in the same creation frame, and
+	# Godot is not required to deliver NOTIFICATION_RESIZED before the caller can
+	# continue. That used to leave VisualRoot/ResizeBorder at the pre-maximize
+	# dimensions until another resize/recreation occurred.
+	#
+	# Always run the base geometry operation first, then synchronously derive the
+	# adaptive presentation and hit surface from the final authoritative rectangle.
+	await super._apply_window_geometry(target_rect, animated)
+	if _is_configured:
+		_refresh_adaptive_pixel_density(true)
+
+
 func get_current_window_pixel_density() -> int:
 	return current_window_pixel_density
 
@@ -165,7 +179,7 @@ func _sync_visual_root_geometry() -> void:
 func _sync_resize_border_hit_area() -> void:
 	# ResizeBorder is a sibling of VisualRoot and therefore lives in the OUTER
 	# window coordinate space. Reassert all four edges from the actual window
-	# rectangle so right/bottom can never remain at a stale pre-resize size.
+	# rectangle so no edge can remain at a stale pre-resize size.
 	var scaled_border_size: float = round(
 		_configured_resize_border_size * _visual_scale
 	)
@@ -185,6 +199,11 @@ func _sync_resize_border_hit_area() -> void:
 		resize_border.offset_top = 0.0
 		resize_border.offset_right = 0.0
 		resize_border.offset_bottom = 0.0
+		# Anchors are the long-lived layout contract, but assign the rect once here
+		# as well so first-run hit testing is correct in the SAME frame as an
+		# immediate maximize/restore, before a deferred container/layout pass.
+		resize_border.position = Vector2.ZERO
+		resize_border.size = size
 		resize_border.border_size = resolved_border_size
 		resize_border.mouse_filter = (
 			Control.MOUSE_FILTER_STOP
