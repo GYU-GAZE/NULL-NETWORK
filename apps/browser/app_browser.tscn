@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dcoqma7h6c75u"]
+[gd_scene load_steps=12 format=3 uid="uid://dcoqma7h6c75u"]
 
 [ext_resource type="Script" uid="uid://cwms4o3bngg47" path="res://apps/browser/browser.gd" id="1_mufrk"]
 [ext_resource type="PackedScene" uid="uid://c15t5fwjule8g" path="res://apps/browser/browser_tab_button.tscn" id="2_4noms"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://systems/ui/kubu_font_scope.tscn" id="7_font_scope"]
 [ext_resource type="Script" path="res://systems/ui/motion/ui_motion_player.gd" id="8_motion_player"]
 [ext_resource type="Resource" path="res://data/content/ui/motion/browser_motion.tres" id="9_motion"]
+[ext_resource type="Script" path="res://apps/browser/browser_page_scroll_host.gd" id="10_scroll_host"]
 
 [node name="BrowserApp" type="Panel" unique_id=1373929234]
 clip_contents = true
@@ -151,6 +152,7 @@ vertical_scroll_mode = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+script = ExtResource("10_scroll_host")
 
 [node name="TabFontScope" parent="MainVBox/TabBarMargin" instance=ExtResource("7_font_scope")]
 
