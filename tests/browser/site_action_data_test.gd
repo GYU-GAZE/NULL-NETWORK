@@ -24,7 +24,8 @@ func _run_test() -> void:
 
 	var action := SiteActionData.new()
 	action.conditions = condition
-	action.effects = [effect]
+	var effects: Array[GameEffectData] = [effect]
+	action.effects = effects
 	action.target_url = "test.local/next"
 
 	_check(action.validate_data().is_empty(), "SiteActionData rejected a valid shared condition/effect setup.")
