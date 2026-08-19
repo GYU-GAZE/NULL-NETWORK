@@ -38,6 +38,7 @@ var _glitch_tween: Tween
 var _is_playing: bool = false
 var _parallax_enabled: bool = false
 var _backdrop_base_position: Vector2 = Vector2.ZERO
+var _backdrop_intro_position: Vector2 = Vector2.ZERO
 var _backdrop_parallax_offset: Vector2 = Vector2.ZERO
 var _current_period: int = TimeManager.TimePeriod.DAY
 var _glitch_timer: float = 0.0
@@ -129,7 +130,7 @@ func show_login_state(period: int = TimeManager.TimePeriod.DAY) -> void:
 	screen_flash.modulate.a = 0.0
 	skip_hint.hide()
 	_backdrop_parallax_offset = Vector2.ZERO
-	backdrop_root.position = _backdrop_base_position
+	_set_backdrop_position(_backdrop_base_position)
 	_parallax_enabled = true
 	_schedule_next_glitch()
 	set_process(true)
@@ -193,9 +194,7 @@ func _update_backdrop_parallax(delta: float) -> void:
 		target_offset,
 		follow_weight
 	)
-	backdrop_root.position = KubuOSMetrics.snap_vector(
-		_backdrop_base_position + _backdrop_parallax_offset
-	)
+	_set_backdrop_position(_backdrop_base_position + _backdrop_parallax_offset)
 
 
 func _play_custom_splashes() -> void:
@@ -258,11 +257,7 @@ func _play_kubuos_boot() -> void:
 	power_line.pivot_offset = power_line.size * 0.5
 	screen_flash.modulate.a = 0.0
 	backdrop_clip.modulate.a = 0.0
-
-	var intro_distance: float = round(
-		size.y * presentation_data.background_intro_pan_ratio
-	)
-	backdrop_root.position = _backdrop_base_position + Vector2(0.0, -intro_distance)
+	_set_backdrop_position(_backdrop_intro_position)
 
 	_active_tween = create_tween().set_parallel(true)
 	_active_tween.set_trans(Tween.TRANS_QUAD)
@@ -342,7 +337,7 @@ func _play_kubuos_boot() -> void:
 	_active_tween.set_trans(Tween.TRANS_CUBIC)
 	_active_tween.set_ease(Tween.EASE_OUT)
 	_active_tween.tween_method(
-		_set_control_position_snapped.bind(backdrop_root),
+		_set_backdrop_position,
 		backdrop_root.position,
 		_backdrop_base_position,
 		presentation_data.reveal_seconds
@@ -373,7 +368,7 @@ func _play_kubuos_boot() -> void:
 	)
 	await _active_tween.finished
 
-	backdrop_root.position = _backdrop_base_position
+	_set_backdrop_position(_backdrop_base_position)
 	boot_logo_anchor.position = target_position
 	null_brand_anchor.position = null_target_position
 	_backdrop_parallax_offset = Vector2.ZERO
@@ -471,11 +466,54 @@ func _layout_backdrop() -> void:
 		return
 
 	var overscan: float = round(presentation_data.backdrop_overscan_pixels)
+	var texture: Texture2D = backdrop_texture.texture
+
+	if presentation_data.vertical_panorama_enabled and texture != null:
+		var source_size: Vector2 = texture.get_size()
+
+		if source_size.x > 0.0 and source_size.y > 0.0:
+			# Fit the panorama to the viewport WIDTH (+ horizontal overscan) and let
+			# the real source aspect ratio determine its vertical travel. A 960x1620
+			# test image therefore remains genuinely tall instead of being squeezed
+			# into a 960x540 screen-sized TextureRect.
+			var target_width: float = maxf(1.0, size.x + overscan * 2.0)
+			var scale_factor: float = target_width / source_size.x
+			var target_size := KubuOSMetrics.snap_vector(source_size * scale_factor)
+
+			if target_size.y < size.y:
+				scale_factor = size.y / source_size.y
+				target_size = KubuOSMetrics.snap_vector(source_size * scale_factor)
+
+			backdrop_root.size = target_size
+			var centered_x: float = round((size.x - target_size.x) * 0.5)
+			var vertical_travel: float = maxf(0.0, target_size.y - size.y)
+			var start_ratio: float = clampf(
+				presentation_data.panorama_start_ratio,
+				0.0,
+				1.0
+			)
+			var end_ratio: float = clampf(
+				presentation_data.panorama_end_ratio,
+				0.0,
+				1.0
+			)
+			_backdrop_intro_position = KubuOSMetrics.snap_vector(Vector2(
+				centered_x,
+				-vertical_travel * start_ratio
+			))
+			_backdrop_base_position = KubuOSMetrics.snap_vector(Vector2(
+				centered_x,
+				-vertical_travel * end_ratio
+			))
+			_set_backdrop_position(_backdrop_base_position)
+			return
+
 	_backdrop_base_position = Vector2(-overscan, -overscan)
-	backdrop_root.position = _backdrop_base_position
+	_backdrop_intro_position = _backdrop_base_position
 	backdrop_root.size = KubuOSMetrics.snap_vector(
 		size + Vector2(overscan * 2.0, overscan * 2.0)
 	)
+	_set_backdrop_position(_backdrop_base_position)
 
 
 func _layout_brand_sizes() -> void:
@@ -548,6 +586,21 @@ func _get_null_target_scale() -> float:
 func _set_control_position_snapped(value: Vector2, control: Control) -> void:
 	if is_instance_valid(control):
 		control.position = KubuOSMetrics.snap_vector(value)
+
+
+func _set_backdrop_position(value: Vector2) -> void:
+	if not is_instance_valid(backdrop_root):
+		return
+
+	var minimum_position := Vector2(
+		minf(0.0, size.x - backdrop_root.size.x),
+		minf(0.0, size.y - backdrop_root.size.y)
+	)
+	var maximum_position := Vector2.ZERO
+	backdrop_root.position = KubuOSMetrics.snap_vector(Vector2(
+		clampf(value.x, minimum_position.x, maximum_position.x),
+		clampf(value.y, minimum_position.y, maximum_position.y)
+	))
 
 
 func _spawn_null_boot_particles() -> Array[Control]:
@@ -631,7 +684,7 @@ func _on_viewport_size_changed() -> void:
 	if not _is_playing:
 		boot_logo_anchor.position = _get_boot_logo_target_position()
 		null_brand_anchor.position = _get_null_brand_target_position()
-		backdrop_root.position = _backdrop_base_position + _backdrop_parallax_offset
+		_set_backdrop_position(_backdrop_base_position + _backdrop_parallax_offset)
 	else:
 		boot_logo_anchor.position = _clamp_control_position(
 			boot_logo_anchor.position,
