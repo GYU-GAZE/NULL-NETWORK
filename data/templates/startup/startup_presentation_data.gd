@@ -13,7 +13,7 @@ class_name StartupPresentationData
 @export_range(0.01, 4.0, 0.01) var logo_ignite_seconds: float = 0.36
 @export_range(0.0, 4.0, 0.01) var logo_hold_seconds: float = 0.44
 @export_range(0.01, 4.0, 0.01) var screen_power_seconds: float = 0.24
-@export_range(0.01, 6.0, 0.01) var reveal_seconds: float = 1.44
+@export_range(0.01, 8.0, 0.01) var reveal_seconds: float = 1.44
 @export_range(0.05, 0.95, 0.01) var logo_target_screen_x_ratio: float = 0.24
 @export_range(0.05, 0.95, 0.01) var logo_target_screen_y_ratio: float = 0.52
 @export_range(0.25, 1.25, 0.01) var logo_target_scale: float = 0.82
@@ -22,6 +22,7 @@ class_name StartupPresentationData
 @export var null_network_logo_texture: Texture2D
 @export var null_network_fallback_text: String = "NULL NETWORK"
 @export_range(0.05, 3.0, 0.05) var null_logo_build_seconds: float = 0.8
+@export_range(0.0, 0.9, 0.01) var null_logo_build_pan_start_ratio: float = 0.34
 @export_range(8, 128, 1) var null_logo_particle_count: int = 52
 @export_range(0.02, 0.35, 0.01) var null_logo_target_screen_y_ratio: float = 0.10
 @export_range(0.0, 120.0, 1.0) var null_logo_boot_gap_pixels: float = 8.0
@@ -29,6 +30,7 @@ class_name StartupPresentationData
 @export var null_logo_text_color: Color = Color(0.91, 0.97, 1.0, 1.0)
 @export var null_logo_glitch_color_a: Color = Color(0.2, 0.9, 1.0, 0.55)
 @export var null_logo_glitch_color_b: Color = Color(1.0, 0.2, 0.55, 0.5)
+@export_range(0.0, 0.5, 0.01) var null_logo_idle_glitch_alpha: float = 0.12
 
 @export_category("Backdrop")
 @export var day_background_texture: Texture2D
