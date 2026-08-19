@@ -83,9 +83,11 @@ SiteActionData
 
 The Null Network homepage is the reference implementation.
 
-### Legacy fields
+### Legacy compatibility
 
-`SiteActionButton` still exposes legacy flag/number/visibility fields so old scenes continue to load. Do not use those fields for new gameplay content. New game-state behavior goes through `SiteActionData` + shared Conditions/Effects.
+`SiteActionButton` still serializes its old direct flag/number/visibility fields so older `.tscn` files remain loadable, but those fields are hidden from the normal Inspector authoring surface.
+
+Do not create new gameplay content through those compatibility properties. New game-state behavior goes through `SiteActionData` + shared Conditions/Effects.
 
 Local UI-only visibility manipulation may remain local to a site when it genuinely represents presentation rather than persistent game state.
 
