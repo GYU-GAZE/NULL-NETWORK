@@ -10,6 +10,7 @@ on:
       - "systems/desktop/**"
       - "systems/window_manager/**"
       - "systems/workspace/**"
+      - "systems/startup/**"
       - "systems/ui/**"
       - "apps/browser/**"
       - "core/autoloads/kubu_os_metrics.gd"
@@ -121,6 +122,16 @@ jobs:
             2>&1 | tee desktop-work-area-test.log
           grep -q "WINDOW_WORK_AREA_TEST: PASS" desktop-work-area-test.log
 
+      - name: Run first-run maximize geometry test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/window_manager/window_initial_maximize_test.tscn \
+            2>&1 | tee window-initial-maximize-test.log
+          grep -q "WINDOW_INITIAL_MAXIMIZE_TEST: PASS" window-initial-maximize-test.log
+
       - name: Run sidebar alignment test
         shell: bash
         run: |
@@ -171,6 +182,16 @@ jobs:
             2>&1 | tee browser-page-scroll-origin-test.log
           grep -q "BROWSER_PAGE_SCROLL_ORIGIN_TEST: PASS" browser-page-scroll-origin-test.log
 
+      - name: Run Browser tab order test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/browser/browser_tab_order_test.tscn \
+            2>&1 | tee browser-tab-order-test.log
+          grep -q "BROWSER_TAB_ORDER_TEST: PASS" browser-tab-order-test.log
+
       - name: Run site action data test
         shell: bash
         run: |
@@ -199,16 +220,18 @@ jobs:
             desktop-app-rail-test.log \
             desktop-shell-presentation-test.log \
             desktop-work-area-test.log \
+            window-initial-maximize-test.log \
             desktop-sidebar-alignment-test.log \
             typewriter-reveal-test.log \
             alert-layer-layout-test.log \
             operator-registration-restore-test.log \
             browser-page-scroll-origin-test.log \
+            browser-tab-order-test.log \
             site-action-data-test.log \
             website-catalog-test.log \
             > desktop-shell-validation.log
 
-          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|ALERT_LAYER_LAYOUT_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" desktop-shell-validation.log; then
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_INITIAL_MAXIMIZE_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|ALERT_LAYER_LAYOUT_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|BROWSER_TAB_ORDER_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" desktop-shell-validation.log; then
             echo "Desktop shell validation reported an error."
             exit 1
           fi
@@ -227,11 +250,13 @@ jobs:
             desktop-app-rail-test.log
             desktop-shell-presentation-test.log
             desktop-work-area-test.log
+            window-initial-maximize-test.log
             desktop-sidebar-alignment-test.log
             typewriter-reveal-test.log
             alert-layer-layout-test.log
             operator-registration-restore-test.log
             browser-page-scroll-origin-test.log
+            browser-tab-order-test.log
             site-action-data-test.log
             website-catalog-test.log
             desktop-shell-validation.log
