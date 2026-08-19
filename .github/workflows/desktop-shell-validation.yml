@@ -137,6 +137,16 @@ jobs:
             2>&1 | tee typewriter-reveal-test.log
           grep -q "TYPEWRITER_REVEAL_TEST: PASS" typewriter-reveal-test.log
 
+      - name: Run alert layer layout test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/ui/alert_layer_layout_test.tscn \
+            2>&1 | tee alert-layer-layout-test.log
+          grep -q "ALERT_LAYER_LAYOUT_TEST: PASS" alert-layer-layout-test.log
+
       - name: Run registration restore test
         shell: bash
         run: |
@@ -167,11 +177,12 @@ jobs:
             desktop-work-area-test.log \
             desktop-sidebar-alignment-test.log \
             typewriter-reveal-test.log \
+            alert-layer-layout-test.log \
             operator-registration-restore-test.log \
             browser-page-scroll-origin-test.log \
             > desktop-shell-validation.log
 
-          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL" desktop-shell-validation.log; then
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|ALERT_LAYER_LAYOUT_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL" desktop-shell-validation.log; then
             echo "Desktop shell validation reported an error."
             exit 1
           fi
@@ -192,6 +203,7 @@ jobs:
             desktop-work-area-test.log
             desktop-sidebar-alignment-test.log
             typewriter-reveal-test.log
+            alert-layer-layout-test.log
             operator-registration-restore-test.log
             browser-page-scroll-origin-test.log
             desktop-shell-validation.log
