@@ -102,8 +102,7 @@ func _initialize_experience() -> void:
 		_set_input_locked(false)
 		return
 
-	# request_open_app is dispatched synchronously by WindowManager. Resolve the
-	# new window before WindowBase's deferred opening animation starts.
+	# request_open_app is dispatched synchronously by WindowManager.
 	GlobalSignals.request_open_app.emit(browser_app)
 
 	var browser_window: WindowBase = window_manager.open_windows.get(
@@ -124,23 +123,19 @@ func _initialize_experience() -> void:
 		_set_input_locked(false)
 		return
 
-	if experience_data.maximize_browser and not browser_window.is_maximized:
-		# First-run opening is a special initial-layout case. WindowBase schedules
-		# its opening presentation with call_deferred(), so starting an animated
-		# maximize here creates TWO geometry owners in the same startup window:
-		# the maximize rect tween and the opening scale/offset tween. The opening
-		# presentation can cancel/settle the geometry tween after AdaptiveScale has
-		# already sampled an intermediate rectangle, leaving VisualRoot/ResizeBorder
-		# out of sync until the Browser is recreated.
-		#
-		# Saved maximized windows already avoid this by applying maximize(false).
-		# Do the same here: establish the final maximized rectangle synchronously,
-		# then let the normal opening animation present that authoritative geometry.
-		await browser_window.maximize(false)
+	# The first-run must not invent a special maximized geometry. Wait until the
+	# normal WindowBase opening lifecycle has fully settled, then invoke the SAME
+	# maximize() path used by the maximize button. This guarantees the target rect
+	# is sampled from the live WindowManager work area instead of a creation-frame
+	# approximation and keeps is_maximized, restore geometry and adaptive scaling
+	# under the normal window-system contract.
+	await browser_window.wait_until_opened()
 
-	# Give the Browser scene and WindowBase deferred opening animation one frame to
-	# enter their stable tree state before issuing the scripted first navigation.
-	await get_tree().process_frame
+	if not is_inside_tree() or not is_instance_valid(browser_window):
+		return
+
+	if experience_data.maximize_browser and not browser_window.is_maximized:
+		await browser_window.maximize()
 
 	if not is_inside_tree() or not is_instance_valid(browser_window):
 		return
