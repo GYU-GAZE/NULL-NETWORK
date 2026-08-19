@@ -45,6 +45,25 @@ func _run_test() -> void:
 		)
 
 		if startup.presentation_data != null:
+			_check(
+				startup.presentation_data.vertical_panorama_enabled,
+				"Default startup no longer enables the vertical panorama backdrop."
+			)
+			_check(
+				startup.presentation_data.day_background_texture != null,
+				"Default startup lost its day panorama test texture."
+			)
+			startup._set_backdrop_period(TimeManager.TimePeriod.DAY)
+			startup._layout_backdrop()
+			_check(
+				startup.backdrop_root.size.y > startup.size.y * 2.0,
+				"Startup panorama is not tall enough to exercise a multi-screen vertical pan."
+			)
+			_check(
+				startup._backdrop_intro_position.y > startup._backdrop_base_position.y,
+				"Startup panorama no longer travels from the upper sky toward the lower landscape."
+			)
+
 			for splash: StartupSplashData in startup.presentation_data.splashes:
 				if splash == null:
 					continue
@@ -72,7 +91,7 @@ func _run_test() -> void:
 
 	if kubu_anchor != null and null_anchor != null:
 		_check(
-		null_anchor.position.y < kubu_anchor.position.y,
+			null_anchor.position.y < kubu_anchor.position.y,
 			"NULL NETWORK did not finish above the displaced KubuOS logo."
 		)
 		var null_center_x: float = null_anchor.position.x + null_anchor.size.x * 0.5
