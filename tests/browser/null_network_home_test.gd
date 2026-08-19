@@ -53,7 +53,7 @@ func _run_test() -> void:
 	_check(login_button != null, "Guest card must expose Login.")
 	_check(sign_up_button != null, "Guest card must expose Sign Up.")
 	if sign_up_button != null:
-		_check(sign_up_button.target_url == "null.net/register", "Sign Up must route directly to operator registration.")
+		_check(_resolve_button_target(sign_up_button) == "null.net/register", "Sign Up must route directly to operator registration.")
 
 	_check(_button_target(home, "Get Started") == "null.net/getstarted", "Get Started route changed during visual revamp.")
 	_check(_button_target(home, "UpdatesBtn") == "null.net/updates", "Changelog route changed during visual revamp.")
@@ -108,15 +108,28 @@ func _check_account_gate(root: Node, node_name: String) -> void:
 	_check(button != null, "%s must use SiteActionButton." % node_name)
 	if button == null:
 		return
-	_check(button.required_flag_name == "operator.registered", "%s must gate on operator.registered." % node_name)
-	_check(button.required_flag_value, "%s must unlock when operator.registered is true." % node_name)
-	_check(button.show_alert_on_failed_condition, "%s must pop an alert while the account gate fails." % node_name)
-	_check(button.failed_alert_message == ACCOUNT_REQUIRED_MESSAGE, "%s account-required alert copy changed." % node_name)
+	_check(button.action_data != null, "%s must author its interaction through SiteActionData." % node_name)
+	if button.action_data == null:
+		return
+	var flag_condition := button.action_data.conditions as FlagConditionData
+	_check(flag_condition != null, "%s must use the shared FlagConditionData gate." % node_name)
+	if flag_condition != null:
+		_check(flag_condition.flag_name == "operator.registered", "%s must gate on operator.registered." % node_name)
+		_check(flag_condition.expected_value, "%s must unlock when operator.registered is true." % node_name)
+	_check(button.action_data.show_failed_alert, "%s must pop an alert while the account gate fails." % node_name)
+	_check(button.action_data.failed_alert_message == ACCOUNT_REQUIRED_MESSAGE, "%s account-required alert copy changed." % node_name)
 	_check(button.failed_condition_behavior == SiteActionButton.FailedConditionBehavior.DO_NOTHING, "%s must stay clickable so its failed click can open the alert." % node_name)
 
 func _button_target(root: Node, node_name: String) -> String:
 	var button := root.find_child(node_name, true, false) as SiteActionButton
-	return button.target_url if button != null else ""
+	return _resolve_button_target(button)
+
+func _resolve_button_target(button: SiteActionButton) -> String:
+	if button == null:
+		return ""
+	if button.action_data != null:
+		return button.action_data.target_url
+	return button.target_url
 
 func _check(condition: bool, message: String) -> void:
 	if not condition:
