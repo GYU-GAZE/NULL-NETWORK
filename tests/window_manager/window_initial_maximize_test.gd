@@ -31,34 +31,33 @@ func _run_test() -> void:
 		true
 	)
 
-	# Match KubuFirstRunExperience: establish the final maximized geometry in the
-	# same frame the window is created, before WindowBase's deferred open motion.
-	await window.maximize(false)
+	# Match KubuFirstRunExperience exactly: allow WindowBase to complete its normal
+	# opening presentation first, then invoke the same animated maximize() path as
+	# the title-bar button. First-run must not own a separate maximize geometry.
+	await window.wait_until_opened()
+	_check(not window.is_maximized, "Window unexpectedly became maximized during opening.")
+	var restore_rect := Rect2(window.position, window.size)
 
-	# This assertion intentionally runs BEFORE a process/layout frame. The first-
-	# run regression was caused by the outer rectangle changing synchronously while
-	# VisualRoot/ResizeBorder still described the pre-maximize window until a later
-	# resize/recreation.
-	_check_surface_geometry(window, "same-frame maximized first-run window")
-
-	await get_tree().create_timer(0.30).timeout
+	await window.maximize()
 
 	var expected_rect := Rect2(
 		workspace.call("get_work_area_position"),
 		workspace.call("get_work_area_size")
 	)
-	_check(window.is_maximized, "Initial maximize did not preserve maximized state.")
+	_check(window.is_maximized, "Normal maximize did not preserve maximized state.")
 	_check(
 		Rect2(window.position, window.size).is_equal_approx(expected_rect),
-		"Deferred opening motion changed the authoritative first-run maximized rectangle."
+		"First-run maximize did not settle on the live WindowManager work area."
 	)
-	_check_surface_geometry(window, "settled maximized first-run window")
+	_check_surface_geometry(window, "maximized first-run window")
 
 	await window.restore_from_maximized(false)
-	_check_surface_geometry(window, "same-frame restored first-run window")
-	await _wait_frames(2)
 	_check(not window.is_maximized, "Immediate restore did not leave maximized state.")
-	_check_surface_geometry(window, "settled restored first-run window")
+	_check(
+		Rect2(window.position, window.size).is_equal_approx(restore_rect),
+		"First-run maximize did not preserve the pre-maximize restore rectangle."
+	)
+	_check_surface_geometry(window, "restored first-run window")
 	_check_resize_edges(window)
 
 	workspace.queue_free()
