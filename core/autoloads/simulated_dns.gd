@@ -2,6 +2,8 @@ extends Node
 
 signal routes_rebuilt
 
+@export var website_catalog: WebsiteCatalog
+## Compatibility fallback for scenes/tests that still inject routes directly.
 @export var registered_sites: Array[WebsitePage] = []
 
 var _exact_routes: Dictionary = {}
@@ -20,11 +22,21 @@ func normalize_url(raw_url: String) -> String:
 	return clean_url
 
 
+func get_registered_pages() -> Array[WebsitePage]:
+	if website_catalog != null:
+		return website_catalog.pages
+	return registered_sites
+
+
 func rebuild_routes() -> void:
 	_exact_routes.clear()
 	_prefix_routes.clear()
 
-	for site in registered_sites:
+	if website_catalog != null:
+		for error: String in website_catalog.validate_data():
+			push_error("WebsiteCatalog: %s" % error)
+
+	for site: WebsitePage in get_registered_pages():
 		_register_site(site)
 
 	_prefix_routes.sort_custom(func(a: WebsitePage, b: WebsitePage) -> bool:
