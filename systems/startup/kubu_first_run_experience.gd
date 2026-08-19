@@ -102,11 +102,8 @@ func _initialize_experience() -> void:
 		_set_input_locked(false)
 		return
 
-	# request_open_app is dispatched synchronously by WindowManager. Resolve and
-	# maximize the new window in the same frame, before WindowBase's deferred
-	# opening animation starts. Waiting a frame before maximizing used to trigger
-	# a focus pulse that cancelled the opening tween while its alpha was still 0,
-	# leaving an invisible-but-running Browser represented only by its dock icon.
+	# request_open_app is dispatched synchronously by WindowManager. Resolve the
+	# new window before WindowBase's deferred opening animation starts.
 	GlobalSignals.request_open_app.emit(browser_app)
 
 	var browser_window: WindowBase = window_manager.open_windows.get(
@@ -128,7 +125,18 @@ func _initialize_experience() -> void:
 		return
 
 	if experience_data.maximize_browser and not browser_window.is_maximized:
-		browser_window.maximize()
+		# First-run opening is a special initial-layout case. WindowBase schedules
+		# its opening presentation with call_deferred(), so starting an animated
+		# maximize here creates TWO geometry owners in the same startup window:
+		# the maximize rect tween and the opening scale/offset tween. The opening
+		# presentation can cancel/settle the geometry tween after AdaptiveScale has
+		# already sampled an intermediate rectangle, leaving VisualRoot/ResizeBorder
+		# out of sync until the Browser is recreated.
+		#
+		# Saved maximized windows already avoid this by applying maximize(false).
+		# Do the same here: establish the final maximized rectangle synchronously,
+		# then let the normal opening animation present that authoritative geometry.
+		await browser_window.maximize(false)
 
 	# Give the Browser scene and WindowBase deferred opening animation one frame to
 	# enter their stable tree state before issuing the scripted first navigation.
