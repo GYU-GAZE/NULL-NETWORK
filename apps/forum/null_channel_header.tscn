@@ -1,8 +1,25 @@
-[gd_scene format=3 uid="uid://bpbbjyyqep1sg"]
+[gd_scene load_steps=8 format=3 uid="uid://bpbbjyyqep1sg"]
 
 [ext_resource type="Script" uid="uid://dferouqi83ljf" path="res://apps/forum/null_channel_header.gd" id="1_t7py2"]
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="2_tcew5"]
 [ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="3_tcew5"]
+[ext_resource type="Script" path="res://data/templates/browser/site_action_data.gd" id="4_action_data"]
+
+[sub_resource type="Resource" id="ActionHome"]
+script = ExtResource("4_action_data")
+target_url = "null.net"
+
+[sub_resource type="Resource" id="ActionThreads"]
+script = ExtResource("4_action_data")
+target_url = "null.net/forums"
+
+[sub_resource type="Resource" id="ActionUpdates"]
+script = ExtResource("4_action_data")
+target_url = "null.net/updates"
+
+[sub_resource type="Resource" id="ActionRankings"]
+script = ExtResource("4_action_data")
+target_url = "null.net/playerrankings"
 
 [node name="NullChannelHeader" type="PanelContainer" unique_id=1050287416]
 custom_minimum_size = Vector2(0, 72)
@@ -88,7 +105,7 @@ clip_contents = true
 layout_mode = 2
 text = "Home"
 script = ExtResource("3_tcew5")
-target_url = "null.net"
+action_data = SubResource("ActionHome")
 
 [node name="ThreadsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=458510602]
 unique_name_in_owner = true
@@ -96,7 +113,7 @@ clip_contents = true
 layout_mode = 2
 text = "Threads"
 script = ExtResource("3_tcew5")
-target_url = "null.net/forums"
+action_data = SubResource("ActionThreads")
 
 [node name="UpdatesBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1216798712]
 unique_name_in_owner = true
@@ -104,7 +121,7 @@ clip_contents = true
 layout_mode = 2
 text = "Updates"
 script = ExtResource("3_tcew5")
-target_url = "null.net/updates"
+action_data = SubResource("ActionUpdates")
 
 [node name="RankingsBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox" unique_id=1349775164]
 unique_name_in_owner = true
@@ -112,7 +129,7 @@ clip_contents = true
 layout_mode = 2
 text = "Ranking"
 script = ExtResource("3_tcew5")
-target_url = "null.net/playerrankings"
+action_data = SubResource("ActionRankings")
 
 [node name="ProfileBtn" type="Button" parent="HeaderVBox/MainNavBarPanel/NavBarMargin/NavbarHBox"]
 unique_name_in_owner = true
