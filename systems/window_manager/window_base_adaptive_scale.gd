@@ -24,6 +24,18 @@ var _configured_resize_border_size: float = 8.0
 var _is_configured: bool = false
 
 
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_RESIZED:
+		return
+	# Window geometry can change through resize drag, maximize/restore tween,
+	# saved-state restore or workspace remapping. Keep the internal visual surface
+	# and the resize hit overlay derived from the authoritative OUTER Control
+	# rectangle on every resize notification instead of relying on one caller to
+	# remember to refresh them.
+	if _is_configured and is_instance_valid(visual_root):
+		_refresh_adaptive_pixel_density()
+
+
 func _ready() -> void:
 	_configured_resize_border_size = max(1.0, border_size)
 	super._ready()
@@ -44,10 +56,8 @@ func setup(
 		resize_enabled
 	)
 
-	# WindowBase.setup() historically set the overlay to IGNORE. The
-	# ResizeBorder now uses _has_point() to capture only its actual edge,
-	# so it must remain active after setup for every direction, including
-	# the lower edge covered visually by app content.
+	# WindowBase.setup() historically set the overlay to IGNORE. ResizeBorder
+	# owns edge hit-testing through _has_point(), so the overlay must stay active.
 	resize_border.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	# O mínimo configurado no AppResource é o breakpoint 2x -> 1x.
@@ -153,8 +163,9 @@ func _sync_visual_root_geometry() -> void:
 
 
 func _sync_resize_border_hit_area() -> void:
-	# ResizeBorder é irmão do VisualRoot e permanece no espaço externo da janela.
-	# A compensação mantém a área clicável alinhada à UI em 1x e em 2x.
+	# ResizeBorder is a sibling of VisualRoot and therefore lives in the OUTER
+	# window coordinate space. Reassert all four edges from the actual window
+	# rectangle so right/bottom can never remain at a stale pre-resize size.
 	var scaled_border_size: float = round(
 		_configured_resize_border_size * _visual_scale
 	)
@@ -166,6 +177,14 @@ func _sync_resize_border_hit_area() -> void:
 	border_size = resolved_border_size
 
 	if is_instance_valid(resize_border):
+		resize_border.anchor_left = 0.0
+		resize_border.anchor_top = 0.0
+		resize_border.anchor_right = 1.0
+		resize_border.anchor_bottom = 1.0
+		resize_border.offset_left = 0.0
+		resize_border.offset_top = 0.0
+		resize_border.offset_right = 0.0
+		resize_border.offset_bottom = 0.0
 		resize_border.border_size = resolved_border_size
 		resize_border.mouse_filter = (
 			Control.MOUSE_FILTER_STOP
