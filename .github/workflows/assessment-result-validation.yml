@@ -1,0 +1,142 @@
+name: Assessment Result Validation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "systems/onboarding/**"
+      - "systems/ui/effects/**"
+      - "apps/browser/sites/null_network/register/**"
+      - "data/templates/apk/**"
+      - "data/templates/tendency/**"
+      - "data/content/apks/**"
+      - "data/content/tendencies/**"
+      - "data/content/onboarding/**"
+      - "tests/onboarding/**"
+      - "tests/operator/**"
+      - ".github/workflows/assessment-result-validation.yml"
+  pull_request:
+    paths:
+      - "systems/onboarding/**"
+      - "systems/ui/effects/**"
+      - "apps/browser/sites/null_network/register/**"
+      - "data/templates/apk/**"
+      - "data/templates/tendency/**"
+      - "data/content/apks/**"
+      - "data/content/tendencies/**"
+      - "data/content/onboarding/**"
+      - "tests/onboarding/**"
+      - "tests/operator/**"
+      - ".github/workflows/assessment-result-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  assessment-result:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare CI-only asset placeholders
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp project.godot /tmp/project.godot.original
+
+          while IFS= read -r -d '' import_file; do
+            source_file="${import_file%.import}"
+            if [ ! -f "$source_file" ]; then
+              extension="${source_file##*.}"
+              echo "Missing raw asset: $source_file"
+              case "$extension" in
+                png)
+                  printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4////fwAJ+wP9KobjigAAAABJRU5ErkJggg==' \
+                    | base64 --decode > "$source_file"
+                  ;;
+                ttf)
+                  cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf "$source_file"
+                  ;;
+                *)
+                  echo "Unsupported missing asset type: $source_file"
+                  exit 1
+                  ;;
+              esac
+            fi
+            rm -f "$import_file"
+          done < <(find data -type f -name '*.import' -print0)
+
+          sed -i '/^theme\/custom=/d' project.godot
+
+      - name: Download Godot 4.6.3
+        run: |
+          curl --fail --location --retry 3 \
+            --output godot.zip \
+            https://godot-releases.nbg1.your-objectstorage.com/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip
+          unzip -q godot.zip
+          chmod +x Godot_v4.6.3-stable_linux.x86_64
+
+      - name: Import project
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --editor --path . --import --verbose \
+            2>&1 | tee godot-assessment-import.log
+
+      - name: Run Compatibility Assessment test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 90 \
+            tests/onboarding/compatibility_assessment_test.tscn \
+            2>&1 | tee godot-compatibility-assessment-test.log
+
+      - name: Run Operator result presentation test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 90 \
+            tests/operator/operator_result_presentation_test.tscn \
+            2>&1 | tee godot-operator-result-test.log
+
+      - name: Restore project settings
+        if: always()
+        run: cp /tmp/project.godot.original project.godot
+
+      - name: Reject parser and regression failures
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat \
+            godot-assessment-import.log \
+            godot-compatibility-assessment-test.log \
+            godot-operator-result-test.log \
+            > godot-assessment-result-validation.log
+
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|Parse Error" godot-assessment-result-validation.log; then
+            echo "Godot reported a script/resource error."
+            exit 1
+          fi
+
+          grep -q "COMPATIBILITY_ASSESSMENT_TEST: PASS" godot-compatibility-assessment-test.log
+          grep -q "OPERATOR_RESULT_PRESENTATION_TEST: PASS" godot-operator-result-test.log
+
+      - name: Upload validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assessment-result-validation-log
+          path: |
+            godot-assessment-import.log
+            godot-compatibility-assessment-test.log
+            godot-operator-result-test.log
+            godot-assessment-result-validation.log
+          if-no-files-found: ignore
