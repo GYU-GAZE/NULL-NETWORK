@@ -9,6 +9,10 @@ signal app_closed(app_id: String)
 signal app_focused(app_id: String)
 signal workspace_activated(workspace_id: String)
 
+signal onboarding_handoff_requested(operator_id: String)
+signal request_navigator_onboarding_reveal
+signal navigator_onboarding_reveal_completed(location_id: String)
+
 signal dock_lock_changed(locked: bool, reason: String)
 signal app_badge_count_changed(app_id: String, count: int)
 signal app_badge_dot_changed(app_id: String, visible: bool)
