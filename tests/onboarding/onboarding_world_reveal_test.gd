@@ -47,9 +47,22 @@ func _test_registration_handoff_relay() -> void:
 	add_child(page)
 	await _wait_frames(2)
 
+	var relay := page.find_child(
+		"OnboardingHandoffRelay",
+		true,
+		false
+	) as OperatorRegistrationHandoffRelay
 	_check(
-		page.find_child("OnboardingHandoffRelay", true, false) != null,
+		relay != null,
 		"Registration scene is missing its decoupled onboarding handoff relay."
+	)
+	_check(
+		is_instance_valid(page.open_channel_button),
+		"Registration page did not resolve OpenChannelButton after parent ready."
+	)
+	_check(
+		relay != null and relay.is_bound_to_page(),
+		"Onboarding handoff relay did not wait for the registration page ready boundary before binding controls."
 	)
 
 	var relayed_operator_id := ""
