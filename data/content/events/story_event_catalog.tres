@@ -1,14 +1,13 @@
-[gd_resource type="Resource" script_class="StoryEventCatalog" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="StoryEventCatalog" load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://data/templates/events/story_event_catalog.gd" id="1_catalog"]
 [ext_resource type="Script" path="res://data/templates/events/story_event_data.gd" id="2_event_type"]
 [ext_resource type="Resource" path="res://data/content/events/prologue_null_network_welcome.tres" id="3_welcome"]
 [ext_resource type="Resource" path="res://data/content/events/prologue_registration_started.tres" id="4_registration_started"]
 [ext_resource type="Resource" path="res://data/content/events/prologue_registration_completed.tres" id="5_registration_completed"]
-[ext_resource type="Resource" path="res://data/content/events/integration_showcase_resume.tres" id="6_showcase_resume"]
 [ext_resource type="Resource" path="res://data/content/events/integration_field_test_ready.tres" id="7_field_test"]
 [ext_resource type="Resource" path="res://data/content/events/integration_field_test_resume.tres" id="8_field_test_resume"]
 
 [resource]
 script = ExtResource("1_catalog")
-events = Array[ExtResource("2_event_type")]([ExtResource("4_registration_started"), ExtResource("5_registration_completed"), ExtResource("6_showcase_resume"), ExtResource("3_welcome"), ExtResource("7_field_test"), ExtResource("8_field_test_resume")])
+events = Array[ExtResource("2_event_type")]([ExtResource("4_registration_started"), ExtResource("5_registration_completed"), ExtResource("3_welcome"), ExtResource("7_field_test"), ExtResource("8_field_test_resume")])
