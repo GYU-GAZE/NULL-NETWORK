@@ -1,0 +1,175 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://apps/navigator/local_area/navigator_local_area_scene.gd" id="1_area"]
+[ext_resource type="Script" path="res://apps/navigator/local_area/local_area_entry_point.gd" id="2_entry"]
+[ext_resource type="PackedScene" path="res://apps/navigator/local_area/player_controller_2d.tscn" id="3_player"]
+
+[sub_resource type="RectangleShape2D" id="BoundaryHorizontal"]
+size = Vector2(656, 16)
+
+[sub_resource type="RectangleShape2D" id="BoundaryVertical"]
+size = Vector2(16, 376)
+
+[sub_resource type="RectangleShape2D" id="DeskCollision"]
+size = Vector2(150, 48)
+
+[sub_resource type="RectangleShape2D" id="BedCollision"]
+size = Vector2(118, 88)
+
+[node name="OperatorSafehouseRoom" type="Node2D"]
+script = ExtResource("1_area")
+area_bounds = Rect2(0, 0, 640, 360)
+
+[node name="RoomBackground" type="ColorRect" parent="."]
+offset_right = 640.0
+offset_bottom = 360.0
+mouse_filter = 2
+color = Color(0.018, 0.027, 0.045, 1)
+
+[node name="BackWall" type="ColorRect" parent="."]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 624.0
+offset_bottom = 126.0
+mouse_filter = 2
+color = Color(0.035, 0.063, 0.092, 1)
+
+[node name="Floor" type="ColorRect" parent="."]
+offset_left = 16.0
+offset_top = 126.0
+offset_right = 624.0
+offset_bottom = 344.0
+mouse_filter = 2
+color = Color(0.072, 0.084, 0.102, 1)
+
+[node name="FloorInset" type="ColorRect" parent="."]
+offset_left = 32.0
+offset_top = 146.0
+offset_right = 608.0
+offset_bottom = 328.0
+mouse_filter = 2
+color = Color(0.047, 0.055, 0.071, 1)
+
+[node name="WindowGlow" type="ColorRect" parent="."]
+offset_left = 56.0
+offset_top = 38.0
+offset_right = 184.0
+offset_bottom = 100.0
+mouse_filter = 2
+color = Color(0.074, 0.254, 0.36, 1)
+
+[node name="WindowInner" type="ColorRect" parent="."]
+offset_left = 60.0
+offset_top = 42.0
+offset_right = 180.0
+offset_bottom = 96.0
+mouse_filter = 2
+color = Color(0.018, 0.094, 0.145, 1)
+
+[node name="Desk" type="ColorRect" parent="."]
+offset_left = 245.0
+offset_top = 76.0
+offset_right = 395.0
+offset_bottom = 124.0
+mouse_filter = 2
+color = Color(0.12, 0.09, 0.12, 1)
+
+[node name="Monitor" type="ColorRect" parent="."]
+offset_left = 292.0
+offset_top = 48.0
+offset_right = 348.0
+offset_bottom = 84.0
+mouse_filter = 2
+color = Color(0.055, 0.58, 0.72, 1)
+
+[node name="MonitorScreen" type="ColorRect" parent="."]
+offset_left = 298.0
+offset_top = 54.0
+offset_right = 342.0
+offset_bottom = 78.0
+mouse_filter = 2
+color = Color(0.01, 0.04, 0.055, 1)
+
+[node name="Bed" type="ColorRect" parent="."]
+offset_left = 472.0
+offset_top = 212.0
+offset_right = 590.0
+offset_bottom = 300.0
+mouse_filter = 2
+color = Color(0.16, 0.09, 0.16, 1)
+
+[node name="BedSheet" type="ColorRect" parent="."]
+offset_left = 478.0
+offset_top = 218.0
+offset_right = 584.0
+offset_bottom = 294.0
+mouse_filter = 2
+color = Color(0.16, 0.22, 0.29, 1)
+
+[node name="Rug" type="ColorRect" parent="."]
+offset_left = 236.0
+offset_top = 210.0
+offset_right = 404.0
+offset_bottom = 304.0
+mouse_filter = 2
+color = Color(0.065, 0.17, 0.2, 1)
+
+[node name="RoomLabel" type="Label" parent="."]
+offset_left = 28.0
+offset_top = 310.0
+offset_right = 260.0
+offset_bottom = 334.0
+text = "OPERATOR SAFEHOUSE // ROOM"
+modulate = Color(0.32, 0.58, 0.67, 0.72)
+mouse_filter = 2
+
+[node name="WorldCollision" type="Node2D" parent="."]
+
+[node name="Boundaries" type="StaticBody2D" parent="WorldCollision"]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Top" type="CollisionShape2D" parent="WorldCollision/Boundaries"]
+position = Vector2(320, 8)
+shape = SubResource("BoundaryHorizontal")
+
+[node name="Bottom" type="CollisionShape2D" parent="WorldCollision/Boundaries"]
+position = Vector2(320, 352)
+shape = SubResource("BoundaryHorizontal")
+
+[node name="Left" type="CollisionShape2D" parent="WorldCollision/Boundaries"]
+position = Vector2(8, 180)
+shape = SubResource("BoundaryVertical")
+
+[node name="Right" type="CollisionShape2D" parent="WorldCollision/Boundaries"]
+position = Vector2(632, 180)
+shape = SubResource("BoundaryVertical")
+
+[node name="DeskBody" type="StaticBody2D" parent="WorldCollision"]
+position = Vector2(320, 100)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldCollision/DeskBody"]
+shape = SubResource("DeskCollision")
+
+[node name="BedBody" type="StaticBody2D" parent="WorldCollision"]
+position = Vector2(531, 256)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldCollision/BedBody"]
+shape = SubResource("BedCollision")
+
+[node name="EntryPoints" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="DefaultEntry" type="Marker2D" parent="EntryPoints"]
+position = Vector2(320, 238)
+script = ExtResource("2_entry")
+entry_id = "default"
+
+[node name="Actors" type="Node2D" parent="."]
+
+[node name="Player" parent="Actors" instance=ExtResource("3_player")]
+unique_name_in_owner = true
