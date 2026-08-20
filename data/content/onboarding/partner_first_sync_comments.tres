@@ -60,4 +60,4 @@ default_line = "{TENDENCY} sits closest to the surface. I think I'll understand 
 
 [resource]
 script = ExtResource("1_catalog")
-comments = Array[PartnerOnboardingCommentData]([SubResource("Novire"), SubResource("Pabubu"), SubResource("Vocalyte"), SubResource("Wizip"), SubResource("Trojaw"), SubResource("Gotsumimi"), SubResource("Nekiddo"), SubResource("Keraton"), SubResource("Guroton"), SubResource("Gantet"), SubResource("Veilum")])
+comments = Array[ExtResource("2_comment")]([SubResource("Novire"), SubResource("Pabubu"), SubResource("Vocalyte"), SubResource("Wizip"), SubResource("Trojaw"), SubResource("Gotsumimi"), SubResource("Nekiddo"), SubResource("Keraton"), SubResource("Guroton"), SubResource("Gantet"), SubResource("Veilum")])
