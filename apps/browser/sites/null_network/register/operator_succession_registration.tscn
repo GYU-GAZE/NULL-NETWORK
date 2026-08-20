@@ -1,11 +1,13 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/register/operator_creation.tscn" id="1_base"]
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/register/operator_succession_registration.gd" id="2_script"]
 [ext_resource type="Script" path="res://systems/onboarding/operator_registration_handoff_relay.gd" id="3_handoff"]
+[ext_resource type="Resource" path="res://data/content/onboarding/default_prologue_onboarding_presentation.tres" id="4_onboarding"]
 
 [node name="OperatorSuccessionRegistration" instance=ExtResource("1_base")]
 script = ExtResource("2_script")
+onboarding_presentation_data = ExtResource("4_onboarding")
 
 [node name="OnboardingHandoffRelay" type="Node" parent="."]
 script = ExtResource("3_handoff")
