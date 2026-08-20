@@ -7,9 +7,6 @@ signal onboarding_handoff_requested(operator_id: String)
 const TENDENCY_CATALOG: TendencyCatalogData = preload(
 	"res://data/content/tendencies/default_tendency_catalog.tres"
 )
-const PARTNER_COMMENT_CATALOG: PartnerOnboardingCommentCatalogData = preload(
-	"res://data/content/onboarding/partner_first_sync_comments.tres"
-)
 const RESULT_TENDENCY_ORDER := ["valour", "logic", "sync", "self"]
 
 var _result_tendency_rows: VBoxContainer
@@ -32,8 +29,7 @@ var _pixel_materializer: PixelMaterializer
 var _partner_typewriter: TypewriterReveal
 
 var _pending_completion_candidate: CompatibilityCandidateData
-var _pending_completion_tendencies: Dictionary = {}
-var _pending_completion_mode: String = ""
+var _pending_primary_trait: Dictionary = {}
 
 
 func _ready() -> void:
@@ -48,8 +44,6 @@ func _ready() -> void:
 func _validate_presentation_catalogs() -> void:
 	for validation_error: String in TENDENCY_CATALOG.validate_data():
 		push_error("Tendency presentation: %s" % validation_error)
-	for validation_error: String in PARTNER_COMMENT_CATALOG.validate_data():
-		push_error("Partner onboarding presentation: %s" % validation_error)
 
 
 func _configure_result_presentation() -> void:
@@ -380,8 +374,11 @@ func _finalize_registration(
 	mode: String
 ) -> void:
 	_pending_completion_candidate = candidate
-	_pending_completion_tendencies = tendencies.duplicate(true)
-	_pending_completion_mode = mode
+	_pending_primary_trait = (
+		_dictionary_value(_assessment_result.get("primary_trait", {})).duplicate(true)
+		if mode == "assessment"
+		else {}
+	)
 	accept_result_button.disabled = true
 	retake_assessment_button.disabled = true
 	result_manual_button.disabled = true
@@ -523,11 +520,17 @@ func _play_registration_complete() -> void:
 	await _enter_presentation_control(_arrival_name, 0.11)
 	await get_tree().create_timer(0.24).timeout
 
-	var dominant_tendency := _get_dominant_tendency(_pending_completion_tendencies)
-	var comment_line := PARTNER_COMMENT_CATALOG.get_line(
-		candidate.apk_id if candidate != null else "",
-		dominant_tendency
+	var personality: APKPersonalityData = null
+	if apk != null and not CampaignState.partner.is_empty():
+		personality = apk.get_personality(CampaignState.partner.personality_id)
+	var trait_id := str(_pending_primary_trait.get("trait_id", ""))
+	var comment_line := (
+		personality.get_first_impression_line(trait_id)
+		if personality != null
+		else "We're linked now. Let's see what happens next."
 	)
+	if comment_line.strip_edges().is_empty():
+		comment_line = "We're linked now. Let's see what happens next."
 	_arrival_comment.show()
 	_partner_typewriter.play(_arrival_comment, comment_line)
 	await _partner_typewriter.reveal_completed
@@ -602,17 +605,6 @@ func _get_partner_overworld_sprite(apk: APKData) -> Texture2D:
 	if not apk.portraits.is_empty() and apk.portraits[0] != null:
 		return apk.portraits[0]
 	return apk.combat_icon
-
-
-func _get_dominant_tendency(tendencies: Dictionary) -> String:
-	var dominant_id := "valour"
-	var dominant_value := -2147483648
-	for tendency_id: String in RESULT_TENDENCY_ORDER:
-		var value := int(tendencies.get(tendency_id, 0))
-		if value > dominant_value:
-			dominant_value = value
-			dominant_id = tendency_id
-	return dominant_id
 
 
 func _make_tendency_row_style(accent: Color, hovered: bool) -> StyleBoxFlat:
