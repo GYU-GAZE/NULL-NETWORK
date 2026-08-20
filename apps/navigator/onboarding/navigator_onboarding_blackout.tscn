@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://systems/ui/effects/radial_reveal_mask.gdshader" id="1_shader"]
+
+[sub_resource type="ShaderMaterial" id="RevealMaterial"]
+shader = ExtResource("1_shader")
+shader_parameter/reveal_center = Vector2(0.5, 0.5)
+shader_parameter/reveal_radius = 0.0
+shader_parameter/reveal_feather = 0.012
+shader_parameter/aspect_ratio = 1.7777778
+shader_parameter/mask_color = Color(0, 0, 0, 1)
+
+[node name="OnboardingBlackout" type="ColorRect"]
+unique_name_in_owner = true
+z_index = 100
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+material = SubResource("RevealMaterial")
+color = Color(0, 0, 0, 1)
