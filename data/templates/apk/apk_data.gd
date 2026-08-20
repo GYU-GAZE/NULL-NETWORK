@@ -83,6 +83,17 @@ func validate_data() -> PackedStringArray:
 			errors.append("APK '%s' repeats personality '%s'." % [apk_id, clean_id])
 		else:
 			personality_ids.append(clean_id)
+		if selectable_as_starter:
+			if personality.first_impression_profile == null:
+				errors.append(
+					"Selectable starter APK '%s' personality '%s' requires a first-impression profile."
+					% [apk_id, clean_id]
+				)
+			elif not personality.first_impression_profile.has_complete_trait_coverage():
+				errors.append(
+					"Selectable starter APK '%s' personality '%s' must cover all 14 Operator traits."
+					% [apk_id, clean_id]
+				)
 	var address_ids := PackedStringArray()
 	for term: AddressTermData in available_address_terms:
 		if term == null:
