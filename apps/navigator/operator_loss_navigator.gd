@@ -6,10 +6,9 @@ const SUCCESSION_REGISTRATION_URL: String = "null.net/register"
 
 @export var onboarding_presentation_data: PrologueOnboardingPresentationData
 
-@onready var onboarding_blackout: ColorRect = %OnboardingBlackout
+@onready var onboarding_blackout: RadialRevealOverlay = %OnboardingBlackout
 
 var _onboarding_reveal_running: bool = false
-var _onboarding_reveal_tween: Tween
 
 
 func _ready() -> void:
@@ -21,9 +20,6 @@ func _ready() -> void:
 		GlobalSignals.request_navigator_onboarding_reveal.connect(
 			_on_request_navigator_onboarding_reveal
 		)
-
-	if not resized.is_connected(_refresh_onboarding_reveal_material):
-		resized.connect(_refresh_onboarding_reveal_material)
 
 	_sync_onboarding_blackout()
 
@@ -42,7 +38,7 @@ func reveal_onboarding_world() -> void:
 
 	var reveal_flag := onboarding_presentation_data.world_revealed_flag
 	if GameState.get_flag(reveal_flag, false):
-		_set_onboarding_blackout_visible(false)
+		onboarding_blackout.uncover_immediately()
 		GlobalSignals.navigator_onboarding_reveal_completed.emit(
 			CampaignState.current_location_id
 		)
@@ -69,32 +65,20 @@ func reveal_onboarding_world() -> void:
 		return
 
 	local_area_view.set_interaction_enabled(false)
-	_set_onboarding_blackout_visible(true)
+	onboarding_blackout.cover()
 	await get_tree().process_frame
 
-	_refresh_onboarding_reveal_material()
-	_set_onboarding_reveal_center(_resolve_player_reveal_center())
-	_set_onboarding_reveal_radius(0.0)
-
-	if _onboarding_reveal_tween != null and _onboarding_reveal_tween.is_valid():
-		_onboarding_reveal_tween.kill()
-
-	_onboarding_reveal_tween = create_tween()
-	_onboarding_reveal_tween.set_trans(Tween.TRANS_SINE)
-	_onboarding_reveal_tween.set_ease(Tween.EASE_IN_OUT)
-	_onboarding_reveal_tween.tween_method(
-		_set_onboarding_reveal_radius,
-		0.0,
+	var reveal_origin := _resolve_player_reveal_global_position()
+	await onboarding_blackout.reveal_from_global_position(
+		reveal_origin,
+		onboarding_presentation_data.reveal_duration_seconds,
 		onboarding_presentation_data.reveal_end_radius,
-		onboarding_presentation_data.reveal_duration_seconds
+		onboarding_presentation_data.reveal_feather
 	)
-	await _onboarding_reveal_tween.finished
 
 	if not is_inside_tree():
 		return
 
-	_onboarding_reveal_tween = null
-	_set_onboarding_blackout_visible(false)
 	GameState.set_flag(reveal_flag, true)
 	SaveManager.request_checkpoint(
 		onboarding_presentation_data.completion_checkpoint,
@@ -108,7 +92,7 @@ func reveal_onboarding_world() -> void:
 func is_onboarding_blackout_active() -> bool:
 	return (
 		is_instance_valid(onboarding_blackout)
-		and onboarding_blackout.visible
+		and onboarding_blackout.is_covering()
 	)
 
 
@@ -135,69 +119,30 @@ func _sync_onboarding_blackout(force_blackout: bool = false) -> void:
 			false
 		)
 
-	_set_onboarding_blackout_visible(should_blackout)
 	if should_blackout:
-		_set_onboarding_reveal_radius(0.0)
+		onboarding_blackout.cover()
+	else:
+		onboarding_blackout.uncover_immediately()
+
 	if _current_mode == NavigatorMode.LOCAL_AREA:
 		local_area_view.set_interaction_enabled(
 			_is_app_active and not should_blackout
 		)
 
 
-func _set_onboarding_blackout_visible(visible_value: bool) -> void:
-	if not is_instance_valid(onboarding_blackout):
-		return
-	onboarding_blackout.visible = visible_value
-	onboarding_blackout.mouse_filter = (
-		Control.MOUSE_FILTER_STOP
-		if visible_value
-		else Control.MOUSE_FILTER_IGNORE
-	)
-
-
-func _refresh_onboarding_reveal_material() -> void:
-	if not is_instance_valid(onboarding_blackout):
-		return
-	var shader_material := onboarding_blackout.material as ShaderMaterial
-	if shader_material == null:
-		return
-	var safe_height := maxf(1.0, size.y)
-	shader_material.set_shader_parameter(
-		"aspect_ratio",
-		maxf(0.1, size.x / safe_height)
-	)
-	if onboarding_presentation_data != null:
-		shader_material.set_shader_parameter(
-			"reveal_feather",
-			onboarding_presentation_data.reveal_feather
-		)
-
-
-func _set_onboarding_reveal_center(center: Vector2) -> void:
-	var shader_material := onboarding_blackout.material as ShaderMaterial
-	if shader_material != null:
-		shader_material.set_shader_parameter("reveal_center", center)
-
-
-func _set_onboarding_reveal_radius(radius: float) -> void:
-	if not is_instance_valid(onboarding_blackout):
-		return
-	var shader_material := onboarding_blackout.material as ShaderMaterial
-	if shader_material != null:
-		shader_material.set_shader_parameter("reveal_radius", maxf(0.0, radius))
-
-
-func _resolve_player_reveal_center() -> Vector2:
+func _resolve_player_reveal_global_position() -> Vector2:
+	var fallback_rect := onboarding_blackout.get_global_rect()
+	var fallback_position := fallback_rect.get_center()
 	var area_instance := local_area_view.get_current_area_instance()
 	if area_instance == null:
-		return Vector2(0.5, 0.5)
+		return fallback_position
 	if not is_instance_valid(local_area_view.area_viewport) \
 		or not is_instance_valid(local_area_view.viewport_container):
-		return Vector2(0.5, 0.5)
+		return fallback_position
 
 	var viewport_size := Vector2(local_area_view.area_viewport.size)
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
-		return Vector2(0.5, 0.5)
+		return fallback_position
 
 	var player_viewport_position := (
 		local_area_view.area_viewport.get_canvas_transform()
@@ -205,27 +150,9 @@ func _resolve_player_reveal_center() -> Vector2:
 	)
 	var viewport_rect := local_area_view.viewport_container.get_global_rect()
 	var viewport_scale := viewport_rect.size / viewport_size
-	var player_global_position := (
+	return (
 		viewport_rect.position
 		+ player_viewport_position * viewport_scale
-	)
-	var navigator_rect := get_global_rect()
-	if navigator_rect.size.x <= 0.0 or navigator_rect.size.y <= 0.0:
-		return Vector2(0.5, 0.5)
-
-	return Vector2(
-		clampf(
-			(player_global_position.x - navigator_rect.position.x)
-			/ navigator_rect.size.x,
-			0.0,
-			1.0
-		),
-		clampf(
-			(player_global_position.y - navigator_rect.position.y)
-			/ navigator_rect.size.y,
-			0.0,
-			1.0
-		)
 	)
 
 
