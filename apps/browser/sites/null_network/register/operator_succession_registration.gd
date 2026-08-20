@@ -1,4 +1,4 @@
-extends OperatorCreationPage
+extends OperatorCreationRevampedPage
 class_name OperatorSuccessionRegistrationPage
 
 
