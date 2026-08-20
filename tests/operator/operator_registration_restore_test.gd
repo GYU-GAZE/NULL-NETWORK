@@ -59,6 +59,10 @@ func _run_test() -> void:
 		restored.are_assessment_answers_ready(),
 		"Restored Assessment did not settle answers into the ready state."
 	)
+	_check(
+		restored.question_prompt.visible_characters == -1,
+		"Restored Assessment prompt was not fully visible."
+	)
 	for child: Node in restored.answer_container.get_children():
 		var button := child as AssessmentAnswerButton
 		if button == null:
@@ -71,6 +75,42 @@ func _run_test() -> void:
 		_check(
 			button.scale.is_equal_approx(Vector2.ONE),
 			"Restored Assessment left residual answer presentation scale."
+		)
+
+	# A question that was already presented during the current Assessment is
+	# navigation state, not a fresh narrative beat. Returning to it must settle
+	# the prompt and answers immediately instead of replaying an invisible or
+	# redundant typewriter timeline.
+	var revisited_index := restored._question_index
+	restored._render_assessment_question(true)
+	await get_tree().process_frame
+	_check(
+		restored._question_index == revisited_index,
+		"Revisiting an Assessment question changed its index."
+	)
+	_check(
+		not restored._assessment_typewriter.is_running(),
+		"Revisited Assessment question replayed the typewriter timeline."
+	)
+	_check(
+		restored.question_prompt.visible_characters == -1,
+		"Revisited Assessment question did not render its full prompt immediately."
+	)
+	_check(
+		restored.are_assessment_answers_ready(),
+		"Revisited Assessment question did not restore ready answers immediately."
+	)
+	for child: Node in restored.answer_container.get_children():
+		var revisited_button := child as AssessmentAnswerButton
+		if revisited_button == null:
+			continue
+		_check(
+			not revisited_button.disabled,
+			"Revisited Assessment left an answer disabled."
+		)
+		_check(
+			is_equal_approx(revisited_button.modulate.a, 1.0),
+			"Revisited Assessment left an answer visually hidden."
 		)
 
 	restored.queue_free()
