@@ -38,10 +38,13 @@ func get_line(trait_id: String) -> String:
 	return line if not line.is_empty() else fallback_line.strip_edges()
 
 
-func get_reaction(trait_id: String) -> Reaction:
+func get_reaction(trait_id: String) -> int:
 	var clean_id := _normalize_trait_id(trait_id)
-	var value := int(reaction_by_trait.get(clean_id, Reaction.NEUTRAL))
-	return value as Reaction
+	return clampi(
+		int(reaction_by_trait.get(clean_id, Reaction.NEUTRAL)),
+		Reaction.POSITIVE,
+		Reaction.FRICTION
+	)
 
 
 func has_complete_trait_coverage() -> bool:
