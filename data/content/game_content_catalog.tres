@@ -53,6 +53,7 @@
 [ext_resource type="Resource" path="res://data/content/encyclopedia/encyclopedia_catalog.tres" id="54_encyclopedia_catalog"]
 [ext_resource type="Resource" path="res://data/content/calendar/calendar_catalog.tres" id="55_calendar_catalog"]
 [ext_resource type="Resource" path="res://data/content/apks/system/turd_init.tres" id="56_turd"]
+[ext_resource type="Resource" path="res://data/content/navigator/areas/operator_safehouse/operator_safehouse_location.tres" id="57_safehouse"]
 
 [resource]
 script = ExtResource("1_catalog")
@@ -65,7 +66,7 @@ status_effects = Array[ExtResource("26_status_type")]([ExtResource("20_barrier")
 dummies = Array[ExtResource("27_dummy_type")]([ExtResource("23_turret")])
 occupations = Array[ExtResource("31_occupation_type")]([ExtResource("32_neet"), ExtResource("33_student"), ExtResource("34_salaryperson")])
 app_catalog = ExtResource("11_app_catalog")
-locations = Array[ExtResource("14_location_type")]([ExtResource("15_akihabara"), ExtResource("35_residential"), ExtResource("36_high_school"), ExtResource("37_corporate")])
+locations = Array[ExtResource("14_location_type")]([ExtResource("15_akihabara"), ExtResource("35_residential"), ExtResource("36_high_school"), ExtResource("37_corporate"), ExtResource("57_safehouse")])
 npc_catalog = ExtResource("50_npc_catalog")
 social_catalog = ExtResource("51_social_catalog")
 encyclopedia_catalog = ExtResource("54_encyclopedia_catalog")
