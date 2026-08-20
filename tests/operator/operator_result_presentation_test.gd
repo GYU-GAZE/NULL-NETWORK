@@ -112,7 +112,10 @@ func _run_test() -> void:
 			"Partner compatibility card regressed to the old bright visual language."
 		)
 
-	var comment := page.PARTNER_COMMENT_CATALOG.get_line("novire_init", "valour")
+	var comment := OperatorCreationRevampedPage.PARTNER_COMMENT_CATALOG.get_line(
+		"novire_init",
+		"valour"
+	)
 	_check(
 		"VALOUR" in comment,
 		"First-sync partner comment no longer reacts to the Operator's dominant Tendency."
