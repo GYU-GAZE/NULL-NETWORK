@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="PartnerOnboardingCommentCatalogData" load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://data/templates/onboarding/partner_onboarding_comment_catalog_data.gd" id="1_catalog"]
+[ext_resource type="Script" path="res://data/templates/onboarding/partner_onboarding_comment_data.gd" id="2_comment"]
+
+[sub_resource type="Resource" id="Novire"]
+script = ExtResource("2_comment")
+apk_id = "novire_init"
+default_line = "{TENDENCY} came out on top. Good. I want to see if you act on it when it matters."
+
+[sub_resource type="Resource" id="Pabubu"]
+script = ExtResource("2_comment")
+apk_id = "pabubu_init"
+default_line = "So {TENDENCY} is your strongest signal? Hehe. Fine by me. Let's poke around and see what happens."
+
+[sub_resource type="Resource" id="Vocalyte"]
+script = ExtResource("2_comment")
+apk_id = "vocalyte_init"
+default_line = "{TENDENCY} is leading your profile. Nice. If we're doing this together, let's make it count."
+
+[sub_resource type="Resource" id="Wizip"]
+script = ExtResource("2_comment")
+apk_id = "wizip_init"
+default_line = "{TENDENCY} dominates the result. Understood. I'll be watching how consistently you follow through."
+
+[sub_resource type="Resource" id="Trojaw"]
+script = ExtResource("2_comment")
+apk_id = "trojaw_init"
+default_line = "{TENDENCY} won out. Works for me. Just don't expect me to carry decisions you won't make yourself."
+
+[sub_resource type="Resource" id="Gotsumimi"]
+script = ExtResource("2_comment")
+apk_id = "gotsumimi_init"
+default_line = "Your strongest reading is {TENDENCY}. That's enough for a start. I'll judge the rest by what you protect."
+
+[sub_resource type="Resource" id="Nekiddo"]
+script = ExtResource("2_comment")
+apk_id = "nekiddo_init"
+default_line = "{TENDENCY}... interesting. Then let's see whether your choices actually match the person you think you are."
+
+[sub_resource type="Resource" id="Keraton"]
+script = ExtResource("2_comment")
+apk_id = "keraton_init"
+default_line = "{TENDENCY} is your clearest tendency. Good. Whatever happens next, be someone I can rely on."
+
+[sub_resource type="Resource" id="Guroton"]
+script = ExtResource("2_comment")
+apk_id = "guroton_init"
+default_line = "{TENDENCY} is the loudest thing in here. Fine. Let's get moving before this gets boring."
+
+[sub_resource type="Resource" id="Gantet"]
+script = ExtResource("2_comment")
+apk_id = "gantet_init"
+default_line = "Primary tendency: {TENDENCY}. Recorded. I expect your decisions to remain coherent under pressure."
+
+[sub_resource type="Resource" id="Veilum"]
+script = ExtResource("2_comment")
+apk_id = "veilum_init"
+default_line = "{TENDENCY} sits closest to the surface. I think I'll understand the rest once we start moving."
+
+[resource]
+script = ExtResource("1_catalog")
+comments = Array[PartnerOnboardingCommentData]([SubResource("Novire"), SubResource("Pabubu"), SubResource("Vocalyte"), SubResource("Wizip"), SubResource("Trojaw"), SubResource("Gotsumimi"), SubResource("Nekiddo"), SubResource("Keraton"), SubResource("Guroton"), SubResource("Gantet"), SubResource("Veilum")])
