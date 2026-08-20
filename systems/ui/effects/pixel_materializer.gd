@@ -39,7 +39,7 @@ func materialize(
 	var target_rect := Rect2(target.position, target.size)
 	for index: int in range(particle_count):
 		var pixel := ColorRect.new()
-		var pixel_size := round(_rng.randf_range(
+		var pixel_size: float = roundf(_rng.randf_range(
 			minimum_particle_size,
 			maximum_particle_size
 		))
@@ -108,7 +108,9 @@ func cancel() -> void:
 func _set_target_alpha_quantized(value: float, target: TextureRect) -> void:
 	if not is_instance_valid(target):
 		return
-	var snapped_alpha := round(clampf(value, 0.0, 1.0) * 8.0) / 8.0
+	var snapped_alpha: float = roundf(
+		clampf(value, 0.0, 1.0) * 8.0
+	) / 8.0
 	target.modulate = Color(1.0, 1.0, 1.0, snapped_alpha)
 
 
