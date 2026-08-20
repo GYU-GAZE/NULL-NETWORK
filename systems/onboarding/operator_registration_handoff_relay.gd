@@ -23,6 +23,14 @@ func _ready() -> void:
 		_page.ready.connect(_bind_page_signals, CONNECT_ONE_SHOT)
 
 
+func is_bound_to_page() -> bool:
+	return (
+		_page_signals_bound
+		and is_instance_valid(_page)
+		and is_instance_valid(_page.open_channel_button)
+	)
+
+
 func _bind_page_signals() -> void:
 	if _page_signals_bound or not is_instance_valid(_page):
 		return
