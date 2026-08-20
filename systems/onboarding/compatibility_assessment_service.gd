@@ -7,6 +7,24 @@ const VARIANTS := [
 	"COMBUSTIVE", "CRYOSIVE", "CONDUCTIVE", "CORROSIVE",
 	"DEFENSIVE", "DESTRUCTIVE", "DEPLETIVE", "DECEPTIVE"
 ]
+const NEGATIVE_TRAIT_BY_AXIS := {
+	"INI": "reactive",
+	"STR": "improvisational",
+	"SOC": "independent",
+	"EXP": "reserved",
+	"ATT": "detached",
+	"CUR": "familiar",
+	"ASP": "present_oriented"
+}
+const POSITIVE_TRAIT_BY_AXIS := {
+	"INI": "proactive",
+	"STR": "structured",
+	"SOC": "collective",
+	"EXP": "expressive",
+	"ATT": "attached",
+	"CUR": "curious",
+	"ASP": "aspiring"
+}
 
 static func get_or_create_visual_order(
 	question: CompatibilityQuestionData,
@@ -52,6 +70,7 @@ static func evaluate(
 	var axis_values := _normalize_axes(raw_axes)
 	var rush := _calculate_rush_state(assessment, session)
 	var confidence := _calculate_confidence(assessment, session, rush)
+	var primary_trait := calculate_primary_trait(axis_values, confidence)
 	var candidate_scores := _calculate_candidate_scores(assessment, axis_values, confidence)
 	var selected_candidate := _highest_candidate(assessment, candidate_scores)
 	var tendencies := _calculate_tendencies(assessment, session)
@@ -69,12 +88,52 @@ static func evaluate(
 		"raw_axes": raw_axes,
 		"axis_values": axis_values,
 		"axis_confidence": confidence,
+		"primary_trait": primary_trait,
 		"rush_detected": bool(rush.get("rush_detected", false)),
 		"candidate_scores": candidate_scores,
 		"candidate_id": selected_candidate.candidate_id if selected_candidate != null else "",
 		"apk_id": selected_candidate.apk_id if selected_candidate != null else "",
 		"tendencies": tendencies,
 		"variant_placeholder": variant_result
+	}
+
+
+static func calculate_primary_trait(
+	axis_values: Dictionary,
+	axis_confidence: Dictionary
+) -> Dictionary:
+	var selected_axis := ""
+	var selected_trait := ""
+	var selected_value := 0
+	var selected_confidence := 0.0
+	var selected_salience := -1.0
+
+	# AXES is the deterministic tie-break order required by the Assessment
+	# contract. We replace the winner only on strictly greater salience.
+	for axis: String in AXES:
+		var axis_value := int(axis_values.get(axis, 0))
+		if axis_value == 0:
+			continue
+		var confidence := clampf(float(axis_confidence.get(axis, 1.0)), 0.0, 1.0)
+		var salience := absf(float(axis_value)) * confidence
+		if salience <= selected_salience:
+			continue
+		selected_axis = axis
+		selected_value = axis_value
+		selected_confidence = confidence
+		selected_salience = salience
+		selected_trait = str(
+			POSITIVE_TRAIT_BY_AXIS.get(axis, "")
+			if axis_value > 0
+			else NEGATIVE_TRAIT_BY_AXIS.get(axis, "")
+		)
+
+	return {
+		"axis_id": selected_axis,
+		"trait_id": selected_trait,
+		"axis_value": selected_value,
+		"confidence": selected_confidence,
+		"salience": maxf(0.0, selected_salience)
 	}
 
 static func _calculate_raw_axes(
