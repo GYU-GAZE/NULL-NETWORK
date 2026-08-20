@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MapLocation" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/templates/navigator/map_location.gd" id="1_location"]
+[ext_resource type="Resource" path="res://data/content/navigator/areas/operator_safehouse/operator_safehouse_local_area.tres" id="2_local_area"]
+
+[resource]
+script = ExtResource("1_location")
+location_id = "operator_safehouse"
+location_name = "Operator Safehouse"
+location_subtitle = "Home"
+location_description = "The Operator's room and first KubuOS terminal."
+show_on_world_map = false
+unlocked_by_default = false
+local_area = ExtResource("2_local_area")
