@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://celg3otohqa16"]
+[gd_scene load_steps=15 format=3 uid="uid://celg3otohqa16"]
 
 [ext_resource type="PackedScene" uid="uid://1sfbm60f4wjd" path="res://systems/desktop/desktop.tscn" id="1_desktop"]
 [ext_resource type="PackedScene" uid="uid://8g2y08hbwa6r" path="res://systems/workspace/workspace_manager.tscn" id="2_rayt5"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://systems/startup/kubu_first_run_experience.tscn" id="12_first_run"]
 [ext_resource type="PackedScene" path="res://systems/desktop/kubu_shell_presentation_controller.tscn" id="13_shell_presentation"]
 [ext_resource type="PackedScene" path="res://systems/ui/kubu_font_scope.tscn" id="14_font_scope"]
+[ext_resource type="PackedScene" path="res://systems/onboarding/prologue_onboarding_handoff_controller.tscn" id="15_onboarding_handoff"]
 
 [node name="Main" type="Node" unique_id=977689112]
 
@@ -56,3 +57,7 @@ bottom_dock_path = NodePath("../OSChromeLayer/KubuBottomDock")
 [node name="KubuFirstRunExperience" parent="." instance=ExtResource("12_first_run")]
 window_manager_path = NodePath("../WindowManagerLayer/WindowManager")
 shell_presentation_path = NodePath("../KubuShellPresentationController")
+
+[node name="PrologueOnboardingHandoffController" parent="." instance=ExtResource("15_onboarding_handoff")]
+workspace_manager_path = NodePath("../WorkspaceLayer/WorkspaceManager")
+window_manager_path = NodePath("../WindowManagerLayer/WindowManager")
