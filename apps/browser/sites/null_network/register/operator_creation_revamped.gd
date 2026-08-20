@@ -60,7 +60,10 @@ func _configure_result_presentation() -> void:
 	result_content.add_theme_constant_override("separation", 7)
 	result_tendencies.text = "YOUR TENDENCIES ARE:"
 	result_tendencies.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	result_tendencies.add_theme_color_override("font_color", Color(0.82, 0.94, 1.0, 1.0))
+	result_tendencies.add_theme_color_override(
+		"font_color",
+		Color(0.82, 0.94, 1.0, 1.0)
+	)
 
 	_result_tendency_rows = VBoxContainer.new()
 	_result_tendency_rows.name = "ResultTendencyRows"
@@ -151,7 +154,10 @@ func _build_tendency_rows(tendencies: Dictionary) -> void:
 		]
 		row.tooltip_text = definition.description
 		row.add_theme_color_override("font_color", definition.accent_color)
-		row.add_theme_color_override("font_hover_color", Color(0.94, 0.98, 1.0, 1.0))
+		row.add_theme_color_override(
+			"font_hover_color",
+			Color(0.94, 0.98, 1.0, 1.0)
+		)
 		row.add_theme_stylebox_override(
 			"normal",
 			_make_tendency_row_style(definition.accent_color, false)
@@ -212,7 +218,7 @@ func _play_result_loading() -> void:
 		if child is Control:
 			(child as Control).hide()
 
-	await _motion_player.enter_control(loading_label, Vector2(0, 3), 0.13)
+	await _enter_presentation_control(loading_label, 0.11)
 	for child: Node in result_status_lines.get_children():
 		if not _result_sequence_is_current(generation):
 			return
@@ -220,75 +226,59 @@ func _play_result_loading() -> void:
 		if status_line == null:
 			continue
 		status_line.show()
-		await _motion_player.enter_control(status_line, Vector2(0, 3), 0.11)
-		await get_tree().create_timer(0.07).timeout
+		await _enter_presentation_control(status_line, 0.09)
+		await get_tree().create_timer(0.045).timeout
 
 	if not _result_sequence_is_current(generation):
 		return
-	await get_tree().create_timer(0.16).timeout
+	await get_tree().create_timer(0.1).timeout
 	loading_label.text = "MATCH FOUND"
 	await _motion_player.flash_control(
 		loading_label,
 		Color(1.2, 1.3, 1.4, 1.0),
-		0.1
+		0.08
 	)
-	await get_tree().create_timer(0.34).timeout
+	await get_tree().create_timer(0.22).timeout
 	if not _result_sequence_is_current(generation):
 		return
 
 	_show_result_content(false)
 	result_tendencies.show()
-	await _motion_player.enter_control(result_tendencies, Vector2(0, 3), 0.14)
-	await get_tree().create_timer(0.18).timeout
+	await _enter_presentation_control(result_tendencies, 0.11)
+	await get_tree().create_timer(0.12).timeout
 
 	for row: Control in _result_tendency_controls:
 		if not _result_sequence_is_current(generation):
 			return
 		row.show()
-		await _motion_player.enter_control(row, Vector2(0, 3), 0.12)
-		await get_tree().create_timer(0.22).timeout
+		await _enter_presentation_control(row, 0.09)
+		await get_tree().create_timer(0.17).timeout
 
 	if not _result_sequence_is_current(generation):
 		return
 	_result_tendency_context.show()
-	await _motion_player.enter_control(
-		_result_tendency_context,
-		Vector2(0, 2),
-		0.11
-	)
-	await get_tree().create_timer(0.46).timeout
+	await _enter_presentation_control(_result_tendency_context, 0.08)
+	await get_tree().create_timer(0.24).timeout
 
 	_result_assignment_intro.show()
-	await _motion_player.enter_control(
-		_result_assignment_intro,
-		Vector2(0, 3),
-		0.14
-	)
-	await get_tree().create_timer(0.62).timeout
+	await _enter_presentation_control(_result_assignment_intro, 0.11)
+	await get_tree().create_timer(0.4).timeout
 	if not _result_sequence_is_current(generation):
 		return
 
 	_result_assigned_species.show()
-	await _motion_player.enter_control(
-		_result_assigned_species,
-		Vector2(0, 4),
-		0.16
-	)
+	await _enter_presentation_control(_result_assigned_species, 0.13)
 	await _motion_player.flash_control(
 		_result_assigned_species,
 		Color(1.18, 1.28, 1.34, 1.0),
-		0.1
+		0.08
 	)
-	await get_tree().create_timer(0.42).timeout
+	await get_tree().create_timer(0.28).timeout
 	if not _result_sequence_is_current(generation):
 		return
 
 	result_partner_preview_host.show()
-	await _motion_player.enter_control(
-		result_partner_preview_host,
-		Vector2(0, 4),
-		0.14
-	)
+	await _enter_presentation_control(result_partner_preview_host, 0.11)
 	if _result_preview != null:
 		for step: Control in _result_preview.get_reveal_steps():
 			if not _result_sequence_is_current(generation):
@@ -296,15 +286,15 @@ func _play_result_loading() -> void:
 			if step == null:
 				continue
 			step.show()
-			await _motion_player.enter_control(step, Vector2(0, 3), 0.11)
-			await get_tree().create_timer(0.09).timeout
+			await _enter_presentation_control(step, 0.08)
+			await get_tree().create_timer(0.055).timeout
 
-	await get_tree().create_timer(0.2).timeout
+	await get_tree().create_timer(0.12).timeout
 	if not _result_sequence_is_current(generation):
 		return
 	if _result_actions != null:
 		_result_actions.show()
-		await _motion_player.enter_control(_result_actions, Vector2(0, 3), 0.14)
+		await _enter_presentation_control(_result_actions, 0.11)
 	_unlock_result_actions()
 
 
@@ -349,6 +339,13 @@ func _show_result_content(unlock_actions: bool = true) -> void:
 
 	if settled:
 		_unlock_result_actions()
+	else:
+		# These controls remain under a hidden parent until the reveal finishes.
+		# Keeping the secondary choices logically available preserves the existing
+		# result contract without allowing the player to interrupt presentation.
+		retake_assessment_button.disabled = false
+		result_manual_button.disabled = false
+		accept_result_button.disabled = true
 
 
 func _unlock_result_actions() -> void:
@@ -361,6 +358,19 @@ func _result_sequence_is_current(generation: int) -> bool:
 	return (
 		generation == _result_sequence_generation
 		and _current_page == FlowPage.RESULT
+	)
+
+
+func _enter_presentation_control(control: Control, duration: float) -> void:
+	if control == null:
+		return
+	# Result rows and partner-card blocks belong to Containers. Use the
+	# container-safe motion path so presentation never owns layout coordinates.
+	await _motion_player.enter_scaled_control(
+		control,
+		Vector2(1.0, 0.88),
+		Vector2.ZERO,
+		duration
 	)
 
 
@@ -406,6 +416,7 @@ func _configure_completion_presentation() -> void:
 	_arrival_visual = Control.new()
 	_arrival_visual.name = "PartnerArrivalVisual"
 	_arrival_visual.custom_minimum_size = Vector2(0, 124)
+	_arrival_visual.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_arrival_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_completion_stage.add_child(_arrival_visual)
 
@@ -490,8 +501,8 @@ func _play_registration_complete() -> void:
 	_arrival_name.text = candidate.display_name if candidate != null else "PARTNER"
 	var sprite_texture := _get_partner_overworld_sprite(apk)
 
-	await _motion_player.enter_control(_completion_status, Vector2(0, 3), 0.13)
-	await get_tree().create_timer(0.22).timeout
+	await _enter_presentation_control(_completion_status, 0.11)
+	await get_tree().create_timer(0.2).timeout
 	await get_tree().process_frame
 	_layout_arrival_sprite(sprite_texture)
 	await _pixel_materializer.materialize(
@@ -506,11 +517,11 @@ func _play_registration_complete() -> void:
 	await _motion_player.flash_control(
 		_completion_status,
 		Color(1.16, 1.26, 1.3, 1.0),
-		0.1
+		0.08
 	)
 	_arrival_name.show()
-	await _motion_player.enter_control(_arrival_name, Vector2(0, 3), 0.13)
-	await get_tree().create_timer(0.28).timeout
+	await _enter_presentation_control(_arrival_name, 0.11)
+	await get_tree().create_timer(0.24).timeout
 
 	var dominant_tendency := _get_dominant_tendency(_pending_completion_tendencies)
 	var comment_line := PARTNER_COMMENT_CATALOG.get_line(
@@ -520,26 +531,29 @@ func _play_registration_complete() -> void:
 	_arrival_comment.show()
 	_partner_typewriter.play(_arrival_comment, comment_line)
 	await _partner_typewriter.reveal_completed
-	await get_tree().create_timer(0.35).timeout
+	await get_tree().create_timer(0.3).timeout
 
 	registered_label.text = "PARTNER LINK ESTABLISHED"
 	registered_label.show()
 	registered_label.modulate.a = 0.0
-	await _motion_player.enter_control(registered_label, Vector2(0, 3), 0.14)
+	await _enter_presentation_control(registered_label, 0.12)
 	if _complete_body != null:
 		_complete_body.show()
 		_complete_body.modulate.a = 0.0
-		await _motion_player.enter_control(_complete_body, Vector2(0, 2), 0.12)
+		await _enter_presentation_control(_complete_body, 0.1)
 
-	await get_tree().create_timer(0.28).timeout
+	await get_tree().create_timer(0.24).timeout
 	onboarding_handoff_requested.emit(CampaignState.operator.operator_id)
+	await get_tree().process_frame
+	if not is_inside_tree():
+		return
 
 	# Until the Navigator/world handoff is wired by the onboarding coordinator,
 	# preserve the old forum continuation as a non-blocking fallback. The result
 	# page itself never closes or opens another app directly.
 	open_channel_button.show()
 	open_channel_button.modulate.a = 0.0
-	await _motion_player.enter_control(open_channel_button, Vector2(0, 3), 0.12)
+	await _enter_presentation_control(open_channel_button, 0.1)
 	open_channel_button.disabled = false
 
 
@@ -613,7 +627,12 @@ func _make_tendency_row_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	style.border_width_top = 1
 	style.border_width_right = 1
 	style.border_width_bottom = 1
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.88 if hovered else 0.5)
+	style.border_color = Color(
+		accent.r,
+		accent.g,
+		accent.b,
+		0.88 if hovered else 0.5
+	)
 	style.corner_radius_top_left = 1
 	style.corner_radius_top_right = 1
 	style.corner_radius_bottom_right = 1
@@ -663,4 +682,7 @@ func _apply_primary_result_button_style(button: Button) -> void:
 	button.add_theme_stylebox_override("hover", hover)
 	button.add_theme_stylebox_override("pressed", hover)
 	button.add_theme_stylebox_override("focus", hover)
-	button.add_theme_color_override("font_color", Color(0.9, 0.98, 1.0, 1.0))
+	button.add_theme_color_override(
+		"font_color",
+		Color(0.9, 0.98, 1.0, 1.0)
+	)
