@@ -1,140 +1,203 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/register/partner_preview_panel.gd" id="1_script"]
 
 [sub_resource type="StyleBoxFlat" id="Panel"]
-bg_color = Color(0.965, 0.99, 1, 0.94)
+bg_color = Color(0.004, 0.025, 0.046, 0.97)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.32, 0.65, 0.86, 0.78)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.08, 0.28, 0.5, 0.12)
-shadow_size = 5
+border_color = Color(0.045, 0.44, 0.72, 0.92)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+shadow_color = Color(0, 0.35, 0.72, 0.18)
+shadow_size = 3
 
 [sub_resource type="StyleBoxFlat" id="PortraitPanel"]
-bg_color = Color(0.84, 0.94, 0.99, 0.78)
+bg_color = Color(0.006, 0.048, 0.084, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.36, 0.72, 0.9, 0.72)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+border_color = Color(0.08, 0.55, 0.84, 0.82)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
+[sub_resource type="StyleBoxFlat" id="SignalPanel"]
+bg_color = Color(0.008, 0.055, 0.088, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.05, 0.32, 0.52, 0.9)
+content_margin_left = 7.0
+content_margin_top = 4.0
+content_margin_right = 7.0
+content_margin_bottom = 4.0
 
 [sub_resource type="StyleBoxFlat" id="Tooltip"]
-bg_color = Color(0.08, 0.16, 0.27, 0.96)
+bg_color = Color(0.006, 0.026, 0.048, 0.99)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.38, 0.78, 0.96, 0.9)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(0.22, 0.74, 1, 0.92)
 content_margin_left = 8.0
-content_margin_top = 7.0
+content_margin_top = 6.0
 content_margin_right = 8.0
-content_margin_bottom = 7.0
+content_margin_bottom = 6.0
 
 [node name="PartnerPreviewPanel" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 330)
+custom_minimum_size = Vector2(0, 300)
 theme_override_styles/panel = SubResource("Panel")
 script = ExtResource("1_script")
 
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
 
 [node name="Root" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 7
 
-[node name="Top" type="HBoxContainer" parent="Margin/Root"]
+[node name="RecordHeader" type="Label" parent="Margin/Root"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_colors/font_color = Color(0.18, 0.7, 1, 1)
+text = "APK COMPATIBILITY RECORD // NULL NETWORK"
 
-[node name="PortraitPanel" type="PanelContainer" parent="Margin/Root/Top"]
-custom_minimum_size = Vector2(132, 132)
+[node name="TopRule" type="HSeparator" parent="Margin/Root"]
+layout_mode = 2
+
+[node name="IdentityBlock" type="HBoxContainer" parent="Margin/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PortraitPanel" type="PanelContainer" parent="Margin/Root/IdentityBlock"]
+custom_minimum_size = Vector2(116, 116)
 layout_mode = 2
 theme_override_styles/panel = SubResource("PortraitPanel")
 
-[node name="Portrait" type="TextureRect" parent="Margin/Root/Top/PortraitPanel"]
+[node name="Portrait" type="TextureRect" parent="Margin/Root/IdentityBlock/PortraitPanel"]
 unique_name_in_owner = true
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Info" type="VBoxContainer" parent="Margin/Root/Top"]
+[node name="Info" type="VBoxContainer" parent="Margin/Root/IdentityBlock"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 4
+theme_override_constants/separation = 3
 
-[node name="PartnerName" type="Label" parent="Margin/Root/Top/Info"]
+[node name="IdentityCaption" type="Label" parent="Margin/Root/IdentityBlock/Info"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.37, 0.58, 0.72, 1)
+text = "ASSIGNED APK"
+
+[node name="PartnerName" type="Label" parent="Margin/Root/IdentityBlock/Info"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.07, 0.28, 0.5, 1)
-theme_override_font_sizes/font_size = 42
+theme_override_colors/font_color = Color(0.86, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 20
 text = "PARTNER"
 
-[node name="LevelLabel" type="Label" parent="Margin/Root/Top/Info"]
+[node name="FormLabel" type="Label" parent="Margin/Root/IdentityBlock/Info"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "INITIAL LEVEL 3"
+theme_override_colors/font_color = Color(0.26, 0.76, 1, 1)
+text = "INIT FORM"
 
-[node name="StatusLabel" type="Label" parent="Margin/Root/Top/Info"]
+[node name="LevelLabel" type="Label" parent="Margin/Root/IdentityBlock/Info"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "CONTENT STATUS"
+text = "INITIAL LEVEL // 03"
 
-[node name="StatsTitle" type="Label" parent="Margin/Root/Top/Info"]
-layout_mode = 2
-text = "BASE STATS"
-
-[node name="StatsLabel" type="Label" parent="Margin/Root/Top/Info"]
+[node name="StatusLabel" type="Label" parent="Margin/Root/IdentityBlock/Info"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "HP --"
+text = "APK DATA // READY"
+
+[node name="DescriptionBlock" type="VBoxContainer" parent="Margin/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="DescriptionTitle" type="Label" parent="Margin/Root/DescriptionBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.7, 1, 1)
+text = "PROFILE // DESCRIPTION"
+
+[node name="DescriptionLabel" type="Label" parent="Margin/Root/DescriptionBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.74, 0.84, 0.9, 1)
 autowrap_mode = 2
 
-[node name="DescriptionLabel" type="Label" parent="Margin/Root"]
+[node name="ParametersBlock" type="VBoxContainer" parent="Margin/Root"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="StatsTitle" type="Label" parent="Margin/Root/ParametersBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.7, 1, 1)
+text = "INITIAL PARAMETERS"
+
+[node name="StatsLabel" type="Label" parent="Margin/Root/ParametersBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.92, 0.96, 1)
+text = "HP ---"
 autowrap_mode = 2
 
-[node name="PassiveTitle" type="Label" parent="Margin/Root"]
+[node name="PassiveBlock" type="VBoxContainer" parent="Margin/Root"]
+unique_name_in_owner = true
 layout_mode = 2
-text = "PASSIVE MODULE"
+theme_override_constants/separation = 3
 
-[node name="PassiveContainer" type="VBoxContainer" parent="Margin/Root"]
+[node name="PassiveTitle" type="Label" parent="Margin/Root/PassiveBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.7, 1, 1)
+text = "SIGNATURE PASSIVE"
+
+[node name="PassiveContainer" type="VBoxContainer" parent="Margin/Root/PassiveBlock"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="ModulesTitle" type="Label" parent="Margin/Root"]
-layout_mode = 2
-text = "STARTING MODULES"
-
-[node name="ModulesContainer" type="HFlowContainer" parent="Margin/Root"]
+[node name="ModulesBlock" type="VBoxContainer" parent="Margin/Root"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 6
+theme_override_constants/separation = 3
 
-[node name="VariantPlaceholder" type="Label" parent="Margin/Root"]
+[node name="ModulesTitle" type="Label" parent="Margin/Root/ModulesBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.18, 0.7, 1, 1)
+text = "STARTING LOADOUT"
+
+[node name="ModulesContainer" type="HFlowContainer" parent="Margin/Root/ModulesBlock"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.36, 0.43, 0.62, 1)
-text = "VARIANT NODE: -- // INTEGRATION PENDING"
+theme_override_constants/h_separation = 5
+theme_override_constants/v_separation = 5
+
+[node name="VariantBlock" type="PanelContainer" parent="Margin/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/panel = SubResource("SignalPanel")
+
+[node name="VariantPlaceholder" type="Label" parent="Margin/Root/VariantBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.68, 0.86, 1)
+text = "VARIANT SIGNAL // STANDARD"
 autowrap_mode = 2
 
 [node name="TooltipPanel" type="PanelContainer" parent="Margin/Root"]
@@ -146,5 +209,5 @@ theme_override_styles/panel = SubResource("Tooltip")
 [node name="TooltipLabel" type="Label" parent="Margin/Root/TooltipPanel"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.92, 0.98, 1, 1)
+theme_override_colors/font_color = Color(0.9, 0.97, 1, 1)
 autowrap_mode = 2
