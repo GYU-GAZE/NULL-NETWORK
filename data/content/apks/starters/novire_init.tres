@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="APKData" load_steps=16 format=3]
+[gd_resource type="Resource" script_class="APKData" load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://data/templates/apk/apk_data.gd" id="1_apk"]
 [ext_resource type="Script" path="res://data/templates/apk/apk_growth_profile_data.gd" id="2_growth"]
@@ -13,6 +13,9 @@
 [ext_resource type="Texture2D" path="res://icon.svg" id="11_icon"]
 [ext_resource type="Script" path="res://data/templates/evolution/evolution_branch_data.gd" id="12_branch_type"]
 [ext_resource type="Resource" path="res://data/content/evolution/novire_valour_branch.tres" id="13_valour_branch"]
+[ext_resource type="Resource" path="res://data/content/apks/personalities/first_impression/optimistic.tres" id="14_optimistic_impression"]
+[ext_resource type="Resource" path="res://data/content/apks/personalities/first_impression/brave.tres" id="15_brave_impression"]
+[ext_resource type="Resource" path="res://data/content/apks/personalities/first_impression/wise.tres" id="16_wise_impression"]
 
 [sub_resource type="Resource" id="Growth_novire"]
 script = ExtResource("2_growth")
@@ -27,18 +30,21 @@ script = ExtResource("3_personality")
 personality_id = "optimistic"
 display_name = "Optimistic"
 description = "Responds to danger with enthusiasm and tries to keep the Operator moving."
+first_impression_profile = ExtResource("14_optimistic_impression")
 
 [sub_resource type="Resource" id="Personality_brave"]
 script = ExtResource("3_personality")
 personality_id = "brave"
 display_name = "Brave"
 description = "Faces threats directly and encourages decisive action."
+first_impression_profile = ExtResource("15_brave_impression")
 
 [sub_resource type="Resource" id="Personality_wise"]
 script = ExtResource("3_personality")
 personality_id = "wise"
 display_name = "Wise"
 description = "Prefers observation, preparation and measured advice."
+first_impression_profile = ExtResource("16_wise_impression")
 
 [sub_resource type="Resource" id="Address_name"]
 script = ExtResource("4_address")
