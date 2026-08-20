@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PrologueOnboardingPresentationData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/onboarding/prologue_onboarding_presentation_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")
+browser_app_id = "browser"
+navigator_app_id = "navigator"
+onboarding_location_id = "operator_safehouse"
+world_revealed_flag = "prologue.onboarding_world_revealed"
+reveal_duration_seconds = 1.35
+reveal_end_radius = 1.45
+reveal_feather = 0.012
+completion_checkpoint = &"prologue.onboarding_world_revealed"
