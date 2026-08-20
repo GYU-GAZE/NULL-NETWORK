@@ -117,6 +117,17 @@ func _check_evaluation_contract() -> void:
 	_check(not str(result.get("candidate_id", "")).is_empty(), "Assessment must resolve one compatibility candidate.")
 	_check(bool(result.get("rush_detected", false)), "The deliberate same-position test corpus should trigger Rush Detection.")
 
+	var primary_trait := {}
+	var primary_trait_value: Variant = result.get("primary_trait", {})
+	if primary_trait_value is Dictionary:
+		primary_trait = primary_trait_value
+	_check(
+		not str(primary_trait.get("axis_id", "")).is_empty()
+		and not str(primary_trait.get("trait_id", "")).is_empty()
+		and float(primary_trait.get("salience", 0.0)) > 0.0,
+		"Assessment must resolve the internal primary Operator trait from axis salience."
+	)
+
 	var variant := {}
 	var variant_value: Variant = result.get("variant_placeholder", {})
 	if variant_value is Dictionary:
