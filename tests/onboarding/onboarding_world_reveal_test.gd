@@ -7,6 +7,15 @@ const NAVIGATOR_SCENE: PackedScene = preload(
 const REGISTRATION_SCENE: PackedScene = preload(
 	"res://apps/browser/sites/null_network/register/operator_succession_registration.tscn"
 )
+const WORKSPACE_MANAGER_SCENE: PackedScene = preload(
+	"res://systems/workspace/workspace_manager.tscn"
+)
+const WINDOW_MANAGER_SCENE: PackedScene = preload(
+	"res://systems/window_manager/window_manager.tscn"
+)
+const HANDOFF_SCENE: PackedScene = preload(
+	"res://systems/onboarding/prologue_onboarding_handoff_controller.tscn"
+)
 
 var _failures := PackedStringArray()
 var _test_root: String
@@ -24,6 +33,7 @@ func _run_test() -> void:
 
 	await _test_registration_handoff_relay()
 	await _test_navigator_blackout_and_world_reveal()
+	await _test_complete_browser_to_navigator_handoff()
 	_finish_test()
 
 
@@ -137,6 +147,139 @@ func _test_navigator_blackout_and_world_reveal() -> void:
 	await _wait_frames(2)
 
 
+func _test_complete_browser_to_navigator_handoff() -> void:
+	CampaignState.reset_campaign()
+	TimeManager.reset_save_data()
+	GameState.reset_save_data()
+	var create_errors := SaveManager.create_campaign(
+		"onboarding-handoff-test",
+		CampaignState.SaveMode.SAFE,
+		"Onboarding Handoff"
+	)
+	_check(create_errors.is_empty(), "Handoff campaign creation failed: %s" % create_errors)
+
+	var registration_errors := OperatorService.register_operator(
+		_make_profile(),
+		_make_appearance(),
+		{"valour": 4, "logic": 4, "sync": 4, "self": 3}
+	)
+	_check(registration_errors.is_empty(), "Handoff Operator registration failed: %s" % registration_errors)
+	var starter_errors := APKProgressionService.select_starter("novire_init", "Novi", 0, 0)
+	_check(starter_errors.is_empty(), "Handoff starter selection failed: %s" % starter_errors)
+	await _wait_frames(5)
+	_check(
+		not GameState.get_flag("story.prologue.account_ready", false),
+		"Legacy showcase account-ready flag still fires during the new synchronization flow."
+	)
+
+	var runtime := Control.new()
+	runtime.name = "Runtime"
+	runtime.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	runtime.size = Vector2(832, 393)
+	add_child(runtime)
+
+	var workspace_manager := WORKSPACE_MANAGER_SCENE.instantiate() as WorkspaceManager
+	workspace_manager.name = "WorkspaceManager"
+	workspace_manager.set_anchors_preset(Control.PRESET_FULL_RECT)
+	runtime.add_child(workspace_manager)
+
+	var window_manager := WINDOW_MANAGER_SCENE.instantiate() as WindowManager
+	window_manager.name = "WindowManager"
+	window_manager.set_anchors_preset(Control.PRESET_FULL_RECT)
+	runtime.add_child(window_manager)
+
+	var handoff := HANDOFF_SCENE.instantiate() as PrologueOnboardingHandoffController
+	handoff.name = "Handoff"
+	handoff.workspace_manager_path = NodePath("../WorkspaceManager")
+	handoff.window_manager_path = NodePath("../WindowManager")
+	runtime.add_child(handoff)
+	await _wait_frames(4)
+
+	_check(
+		workspace_manager.get_active_workspace_id() == "navigator",
+		"Prologue controller did not stage the black Navigator workspace before handoff."
+	)
+	var navigator := workspace_manager.get_active_workspace_instance() as OperatorLossNavigator
+	_check(navigator != null, "Staged Navigator workspace has the wrong runtime type.")
+	if navigator != null:
+		var presentation := navigator.onboarding_presentation_data.duplicate(true) as PrologueOnboardingPresentationData
+		presentation.reveal_duration_seconds = 0.05
+		navigator.onboarding_presentation_data = presentation
+		_check(
+			navigator.is_onboarding_blackout_active(),
+			"Staged Navigator was visible before synchronization handoff."
+		)
+
+	if not CampaignState.has_installed_app("browser"):
+		_check(
+			AppInstallationManager.install_app("browser", null, false, true),
+			"Could not install Browser for handoff integration test."
+		)
+	var browser_app := ContentRegistry.get_app("browser")
+	_check(browser_app != null, "Browser AppResource is missing in handoff test.")
+	if browser_app != null:
+		GlobalSignals.request_open_app.emit(browser_app)
+	await _wait_frames(4)
+	_check(
+		window_manager.open_windows.has("browser"),
+		"Browser did not open before onboarding handoff."
+	)
+
+	GlobalSignals.onboarding_handoff_requested.emit(
+		CampaignState.operator.operator_id
+	)
+	await get_tree().create_timer(0.9).timeout
+	await _wait_frames(4)
+
+	_check(
+		not window_manager.open_windows.has("browser"),
+		"Browser did not close as part of onboarding handoff."
+	)
+	_check(
+		workspace_manager.get_active_workspace_id() == "navigator",
+		"Navigator stopped being the active workspace during Browser close."
+	)
+	_check(
+		GameState.get_flag("prologue.onboarding_world_revealed", false),
+		"Integrated onboarding handoff never completed the world reveal."
+	)
+	_check(
+		CampaignState.current_location_id == "operator_safehouse",
+		"Integrated onboarding handoff did not finish inside the safehouse."
+	)
+
+	runtime.queue_free()
+	CampaignState.reset_campaign()
+	await _wait_frames(3)
+
+
+func _make_profile() -> OperatorProfileData:
+	var profile := OperatorProfileData.new()
+	profile.first_name = "Onboarding"
+	profile.last_name = "Test"
+	profile.nickname = "Operator"
+	profile.username = "onboarding_test"
+	profile.server_id = "tokyo_japan"
+	profile.occupation_id = "neet"
+	profile.gender = "other"
+	profile.pronoun_set_id = "they_them"
+	profile.avatar_id = "avatar_01"
+	return profile
+
+
+func _make_appearance() -> AppearanceData:
+	var appearance := AppearanceData.new()
+	appearance.body_type_id = "body_test"
+	appearance.face_id = "face_test"
+	appearance.eye_id = "eyes_test"
+	appearance.outer_layer_id = "outer_test"
+	appearance.middle_layer_id = "middle_test"
+	appearance.lower_layer_id = "lower_test"
+	appearance.hat_id = "hat_test"
+	appearance.facial_accessory_id = "accessory_test"
+	return appearance
+
+
 func _wait_frames(count: int) -> void:
 	for _index: int in range(count):
 		await get_tree().process_frame
@@ -148,6 +291,12 @@ func _check(condition: bool, message: String) -> void:
 
 
 func _finish_test() -> void:
+	CampaignState.reset_campaign()
+	TimeManager.reset_save_data()
+	GameState.reset_save_data()
+	SaveManager.configure_storage_root(SaveConstants.DEFAULT_STORAGE_ROOT)
+	ContentRegistry.reset_to_default_catalog()
+
 	if _failures.is_empty():
 		print("ONBOARDING_WORLD_REVEAL_TEST: PASS")
 		get_tree().quit(0)
