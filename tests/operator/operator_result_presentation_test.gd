@@ -18,6 +18,8 @@ func _run_test() -> void:
 	var registry_errors := ContentRegistry.reset_to_default_catalog()
 	_check(registry_errors.is_empty(), "Default content catalog failed: %s" % registry_errors)
 	CampaignState.reset_campaign()
+	_test_primary_trait_resolution()
+	_test_starter_first_impression_content()
 
 	var page := REGISTRATION_SCENE.instantiate() as OperatorCreationRevampedPage
 	_check(page != null, "Registration scene is not using OperatorCreationRevampedPage.")
@@ -54,6 +56,13 @@ func _run_test() -> void:
 			"logic": 4,
 			"sync": 3,
 			"self": 2,
+		},
+		"primary_trait": {
+			"axis_id": "INI",
+			"trait_id": "proactive",
+			"axis_value": 56,
+			"confidence": 1.0,
+			"salience": 56.0,
 		},
 		"variant_placeholder": {
 			"selected_variant_id": "",
@@ -112,20 +121,92 @@ func _run_test() -> void:
 			"Partner compatibility card regressed to the old bright visual language."
 		)
 
-	var comment := OperatorCreationRevampedPage.PARTNER_COMMENT_CATALOG.get_line(
-		"novire_init",
-		"valour"
-	)
-	_check(
-		"VALOUR" in comment,
-		"First-sync partner comment no longer reacts to the Operator's dominant Tendency."
-	)
 	_check(page.accept_result_button.text == "ACCEPT PARTNER", "Primary result action lost its final label.")
 	_check(page.result_manual_button.text == "CHOOSE MANUALLY", "Manual result fallback lost its final label.")
 
 	page.queue_free()
 	await _wait_frames(2)
 	_finish_test()
+
+
+func _test_primary_trait_resolution() -> void:
+	var tie_result := CompatibilityAssessmentService.calculate_primary_trait(
+		{
+			"INI": 40,
+			"STR": -40,
+			"SOC": 0,
+			"EXP": 0,
+			"ATT": 0,
+			"CUR": 0,
+			"ASP": 0,
+		},
+		{
+			"INI": 1.0,
+			"STR": 1.0,
+			"SOC": 1.0,
+			"EXP": 1.0,
+			"ATT": 1.0,
+			"CUR": 1.0,
+			"ASP": 1.0,
+		}
+	)
+	_check(
+		str(tie_result.get("axis_id", "")) == "INI"
+		and str(tie_result.get("trait_id", "")) == "proactive",
+		"Primary-trait ties must resolve by the stable Assessment axis order."
+	)
+
+	var confidence_result := CompatibilityAssessmentService.calculate_primary_trait(
+		{
+			"INI": 60,
+			"STR": -50,
+			"SOC": 0,
+			"EXP": 0,
+			"ATT": 0,
+			"CUR": 0,
+			"ASP": 0,
+		},
+		{
+			"INI": 0.65,
+			"STR": 1.0,
+			"SOC": 1.0,
+			"EXP": 1.0,
+			"ATT": 1.0,
+			"CUR": 1.0,
+			"ASP": 1.0,
+		}
+	)
+	_check(
+		str(confidence_result.get("axis_id", "")) == "STR"
+		and str(confidence_result.get("trait_id", "")) == "improvisational",
+		"Primary-trait salience must multiply axis magnitude by confidence."
+	)
+
+
+func _test_starter_first_impression_content() -> void:
+	var apk := ContentRegistry.get_apk("novire_init")
+	_check(apk != null, "REVQUIRE runtime APKData is missing.")
+	if apk == null:
+		return
+	_check(apk.validate_data().is_empty(), "REVQUIRE starter data failed validation: %s" % apk.validate_data())
+	for personality: APKPersonalityData in apk.available_personalities:
+		_check(personality != null, "REVQUIRE contains a null APK personality.")
+		if personality == null:
+			continue
+		_check(
+			personality.first_impression_profile != null,
+			"%s has no first-impression profile." % personality.display_name
+		)
+		if personality.first_impression_profile == null:
+			continue
+		_check(
+			personality.first_impression_profile.has_complete_trait_coverage(),
+			"%s does not cover all 14 directional Operator traits." % personality.display_name
+		)
+		_check(
+			not personality.get_first_impression_line("proactive").is_empty(),
+			"%s cannot resolve a proactive first-impression line." % personality.display_name
+		)
 
 
 func _wait_frames(count: int) -> void:
