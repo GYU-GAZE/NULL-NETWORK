@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="TendencyDefinitionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/tendency/tendency_definition_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tendency_id = "sync"
+display_name = "SYNC"
+description = "Coordination, attachment and acting through relationships. High SYNC favors cooperation, mutual support and preserving the people connected to a decision."
+accent_color = Color(0.34, 0.88, 0.72, 1)
