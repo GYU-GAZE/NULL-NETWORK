@@ -8,11 +8,17 @@ on:
       - "systems/onboarding/**"
       - "systems/ui/effects/**"
       - "apps/browser/sites/null_network/register/**"
+      - "apps/navigator/**"
+      - "core/main.tscn"
+      - "core/autoloads/global_signals.gd"
       - "data/templates/apk/**"
       - "data/templates/tendency/**"
+      - "data/templates/onboarding/**"
       - "data/content/apks/**"
       - "data/content/tendencies/**"
       - "data/content/onboarding/**"
+      - "data/content/navigator/**"
+      - "data/content/game_content_catalog.tres"
       - "tests/onboarding/**"
       - "tests/operator/**"
       - ".github/workflows/assessment-result-validation.yml"
@@ -21,11 +27,17 @@ on:
       - "systems/onboarding/**"
       - "systems/ui/effects/**"
       - "apps/browser/sites/null_network/register/**"
+      - "apps/navigator/**"
+      - "core/main.tscn"
+      - "core/autoloads/global_signals.gd"
       - "data/templates/apk/**"
       - "data/templates/tendency/**"
+      - "data/templates/onboarding/**"
       - "data/content/apks/**"
       - "data/content/tendencies/**"
       - "data/content/onboarding/**"
+      - "data/content/navigator/**"
+      - "data/content/game_content_catalog.tres"
       - "tests/onboarding/**"
       - "tests/operator/**"
       - ".github/workflows/assessment-result-validation.yml"
@@ -107,6 +119,15 @@ jobs:
             tests/operator/operator_result_presentation_test.tscn \
             2>&1 | tee godot-operator-result-test.log
 
+      - name: Run onboarding world reveal test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 90 \
+            tests/onboarding/onboarding_world_reveal_test.tscn \
+            2>&1 | tee godot-onboarding-world-reveal-test.log
+
       - name: Restore project settings
         if: always()
         run: cp /tmp/project.godot.original project.godot
@@ -119,6 +140,7 @@ jobs:
             godot-assessment-import.log \
             godot-compatibility-assessment-test.log \
             godot-operator-result-test.log \
+            godot-onboarding-world-reveal-test.log \
             > godot-assessment-result-validation.log
 
           if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|Parse Error" godot-assessment-result-validation.log; then
@@ -128,6 +150,7 @@ jobs:
 
           grep -q "COMPATIBILITY_ASSESSMENT_TEST: PASS" godot-compatibility-assessment-test.log
           grep -q "OPERATOR_RESULT_PRESENTATION_TEST: PASS" godot-operator-result-test.log
+          grep -q "ONBOARDING_WORLD_REVEAL_TEST: PASS" godot-onboarding-world-reveal-test.log
 
       - name: Upload validation logs
         if: always()
@@ -138,5 +161,6 @@ jobs:
             godot-assessment-import.log
             godot-compatibility-assessment-test.log
             godot-operator-result-test.log
+            godot-onboarding-world-reveal-test.log
             godot-assessment-result-validation.log
           if-no-files-found: ignore
