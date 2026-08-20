@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="TendencyDefinitionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/templates/tendency/tendency_definition_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tendency_id = "self"
+display_name = "SELF"
+description = "Independence, self-preservation and trust in personal judgement. High SELF favors autonomy and maintaining control over your own survival and choices."
+accent_color = Color(0.72, 0.48, 1, 1)
