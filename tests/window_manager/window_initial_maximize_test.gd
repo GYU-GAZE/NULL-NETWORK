@@ -31,11 +31,24 @@ func _run_test() -> void:
 		true
 	)
 
+	# A newly opened window must already render at its settled color. Focus pulse
+	# is transient feedback, not the mechanism that normalizes an authored dark
+	# Background modulate. Otherwise a window opened over an active workspace
+	# looks like it has a dark filter until the player clicks it.
+	_check(
+		window.background.modulate.is_equal_approx(Color.WHITE),
+		"Window Background starts dimmed and relies on focus input to normalize."
+	)
+
 	# Match KubuFirstRunExperience exactly: allow WindowBase to complete its normal
 	# opening presentation first, then invoke the same animated maximize() path as
 	# the title-bar button. First-run must not own a separate maximize geometry.
 	await window.wait_until_opened()
 	_check(not window.is_maximized, "Window unexpectedly became maximized during opening.")
+	_check(
+		window.background.modulate.is_equal_approx(Color.WHITE),
+		"Window opening presentation changed the settled Background color."
+	)
 	var restore_rect := Rect2(window.position, window.size)
 
 	await window.maximize()
