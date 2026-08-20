@@ -1,11 +1,12 @@
 [gd_resource type="Resource" script_class="TendencyCatalogData" load_steps=7 format=3]
 
-[ext_resource type="Script" path="res://data/templates/tendency/tendency_catalog_data.gd" id="1"]
-[ext_resource type="Resource" path="res://data/content/tendencies/valour.tres" id="2"]
-[ext_resource type="Resource" path="res://data/content/tendencies/logic.tres" id="3"]
-[ext_resource type="Resource" path="res://data/content/tendencies/sync.tres" id="4"]
-[ext_resource type="Resource" path="res://data/content/tendencies/self.tres" id="5"]
+[ext_resource type="Script" path="res://data/templates/tendency/tendency_catalog_data.gd" id="1_catalog"]
+[ext_resource type="Script" path="res://data/templates/tendency/tendency_definition_data.gd" id="2_type"]
+[ext_resource type="Resource" path="res://data/content/tendencies/valour.tres" id="3_valour"]
+[ext_resource type="Resource" path="res://data/content/tendencies/logic.tres" id="4_logic"]
+[ext_resource type="Resource" path="res://data/content/tendencies/sync.tres" id="5_sync"]
+[ext_resource type="Resource" path="res://data/content/tendencies/self.tres" id="6_self"]
 
 [resource]
-script = ExtResource("1")
-definitions = Array[TendencyDefinitionData]([ExtResource("2"), ExtResource("3"), ExtResource("4"), ExtResource("5")])
+script = ExtResource("1_catalog")
+definitions = Array[ExtResource("2_type")]([ExtResource("3_valour"), ExtResource("4_logic"), ExtResource("5_sync"), ExtResource("6_self")])
