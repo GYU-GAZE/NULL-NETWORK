@@ -9,7 +9,7 @@ enum Reaction {
 	FRICTION
 }
 
-const REQUIRED_TRAIT_IDS := PackedStringArray([
+const REQUIRED_TRAIT_IDS := [
 	"reactive",
 	"proactive",
 	"improvisational",
@@ -24,7 +24,7 @@ const REQUIRED_TRAIT_IDS := PackedStringArray([
 	"curious",
 	"present_oriented",
 	"aspiring"
-])
+]
 
 @export var profile_id: String = ""
 @export_multiline var fallback_line: String = ""
