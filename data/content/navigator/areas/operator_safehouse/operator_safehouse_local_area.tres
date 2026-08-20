@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LocalAreaData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/templates/navigator/local_area_data.gd" id="1_area"]
+[ext_resource type="PackedScene" path="res://data/content/navigator/areas/operator_safehouse/operator_safehouse_room.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_area")
+area_id = "operator_safehouse_room"
+area_name = "Operator Room"
+area_subtitle = "SAFEHOUSE // TOKYO"
+area_description = "The room where this Operator configured KubuOS and first connected to NULL NETWORK."
+area_scene = ExtResource("2_scene")
+default_entry_id = "default"
+background_color = Color(0.008, 0.012, 0.022, 1)
