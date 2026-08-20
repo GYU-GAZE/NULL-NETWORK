@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Shader" path="res://systems/ui/effects/radial_reveal_mask.gdshader" id="1_shader"]
+[ext_resource type="Script" path="res://systems/ui/effects/radial_reveal_overlay.gd" id="2_overlay"]
 
 [sub_resource type="ShaderMaterial" id="RevealMaterial"]
 shader = ExtResource("1_shader")
@@ -22,3 +23,4 @@ grow_vertical = 2
 mouse_filter = 0
 material = SubResource("RevealMaterial")
 color = Color(0, 0, 0, 1)
+script = ExtResource("2_overlay")
