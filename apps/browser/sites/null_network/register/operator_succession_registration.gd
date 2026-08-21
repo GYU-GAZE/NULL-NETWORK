@@ -38,67 +38,19 @@ func _show_page(
 
 
 func _render_assessment_question(track_visit: bool) -> void:
-	var question_was_visited := _is_current_assessment_question_visited()
 	super._render_assessment_question(track_visit)
-
-	if _restoring_browser_presentation or question_was_visited:
-		_settle_current_assessment_question()
-
-
-func _is_current_assessment_question_visited() -> bool:
-	if assessment_data == null or assessment_data.questions.is_empty():
-		return false
-
-	var safe_index := clampi(
-		_question_index,
-		0,
-		assessment_data.questions.size() - 1
-	)
-	var question := (
-		assessment_data.questions[safe_index]
-		as CompatibilityQuestionData
-	)
-	if question == null:
-		return false
-
-	var question_id := question.question_id.strip_edges().to_upper()
-	if question_id.is_empty():
-		return false
-
-	return bool(
-		_assessment_session.visited_questions.get(
-			question_id,
-			false
-		)
-	)
+	if not _restoring_browser_presentation:
+		return
+	if _assessment_typewriter != null and _assessment_typewriter.is_running():
+		_assessment_typewriter.complete()
 
 
-func _settle_current_assessment_question() -> void:
-	if assessment_data == null or assessment_data.questions.is_empty():
+func _on_assessment_prompt_revealed() -> void:
+	if not _restoring_browser_presentation:
+		await super._on_assessment_prompt_revealed()
 		return
 
-	var safe_index := clampi(
-		_question_index,
-		0,
-		assessment_data.questions.size() - 1
-	)
-	var question := (
-		assessment_data.questions[safe_index]
-		as CompatibilityQuestionData
-	)
-	if question == null:
-		return
-
-	# Revisiting a resolved question is navigation, not a new narrative beat.
-	# Present it directly in its settled state instead of replaying the
-	# typewriter timeline on the same RichTextLabel instance.
 	_assessment_reveal_generation += 1
-	if _assessment_typewriter != null:
-		_assessment_typewriter.present(
-			question_prompt,
-			question.prompt
-		)
-
 	_assessment_answers_ready = true
 	for child: Node in answer_container.get_children():
 		var answer_button := child as AssessmentAnswerButton
@@ -107,16 +59,7 @@ func _settle_current_assessment_question() -> void:
 		answer_button.disabled = false
 		answer_button.scale = Vector2.ONE
 		answer_button.modulate = Color.WHITE
-
 	_refresh_assessment_next_state()
-
-
-func _on_assessment_prompt_revealed() -> void:
-	if not _restoring_browser_presentation:
-		await super._on_assessment_prompt_revealed()
-		return
-
-	_settle_current_assessment_question()
 
 
 func _show_existing_completion_state() -> void:
