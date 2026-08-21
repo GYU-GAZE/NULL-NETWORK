@@ -29,6 +29,30 @@ func _run_test() -> void:
 		first._assessment_typewriter.is_running(),
 		"Fresh Assessment question did not start its presentation."
 	)
+	_check(
+		first.question_prompt.visible and first.question_prompt.is_visible_in_tree(),
+		"Fresh Assessment question started with its prompt hidden."
+	)
+	_check(
+		is_equal_approx(first.question_prompt.modulate.a, 1.0),
+		"Fresh Assessment question started with a transparent prompt."
+	)
+
+	# Freeze automatic processing and advance the controller directly so the test
+	# verifies the exact in-flight state that used to be logically progressing
+	# while remaining visually blank.
+	first._assessment_typewriter.set_process(false)
+	first._assessment_typewriter._process(0.08)
+	var partial_visible := first.question_prompt.visible_characters
+	_check(
+		partial_visible > 0 \
+		and partial_visible < first.question_prompt.get_total_character_count(),
+		"Fresh Assessment prompt did not expose a partial native character range."
+	)
+	_check(
+		first.question_prompt.visible and is_equal_approx(first.question_prompt.modulate.a, 1.0),
+		"Fresh Assessment prompt became hidden while its typewriter was in flight."
+	)
 
 	# Save while the prompt is deliberately still animating. Reopening the
 	# Browser must restore the established question, not replay that animation.
@@ -63,6 +87,14 @@ func _run_test() -> void:
 		restored.question_prompt.visible_characters == -1,
 		"Restored Assessment prompt was not fully visible."
 	)
+	_check(
+		restored.question_prompt.visible and restored.question_prompt.is_visible_in_tree(),
+		"Restored Assessment prompt remained hidden after settled presentation."
+	)
+	_check(
+		is_equal_approx(restored.question_prompt.modulate.a, 1.0),
+		"Restored Assessment prompt remained transparent after settled presentation."
+	)
 	for child: Node in restored.answer_container.get_children():
 		var button := child as AssessmentAnswerButton
 		if button == null:
@@ -79,8 +111,7 @@ func _run_test() -> void:
 
 	# A question that was already presented during the current Assessment is
 	# navigation state, not a fresh narrative beat. Returning to it must settle
-	# the prompt and answers immediately instead of replaying an invisible or
-	# redundant typewriter timeline.
+	# the prompt and answers immediately instead of replaying presentation.
 	var revisited_index := restored._question_index
 	restored._render_assessment_question(true)
 	await get_tree().process_frame
@@ -95,6 +126,14 @@ func _run_test() -> void:
 	_check(
 		restored.question_prompt.visible_characters == -1,
 		"Revisited Assessment question did not render its full prompt immediately."
+	)
+	_check(
+		restored.question_prompt.visible and restored.question_prompt.is_visible_in_tree(),
+		"Revisited Assessment question left the prompt Control hidden."
+	)
+	_check(
+		is_equal_approx(restored.question_prompt.modulate.a, 1.0),
+		"Revisited Assessment question left the prompt transparent."
 	)
 	_check(
 		restored.are_assessment_answers_ready(),
