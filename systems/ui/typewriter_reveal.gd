@@ -60,6 +60,7 @@ func play(target: Control, text: String) -> void:
 	_running = true
 	_elapsed_seconds = 0.0
 	_last_revealed_index = -1
+	_prepare_target_for_presentation()
 	_render_authored_text()
 	_set_visible_characters(0)
 	_normalize_target()
@@ -87,6 +88,7 @@ func present(target: Control, text: String) -> void:
 	_elapsed_seconds = 0.0
 	_last_revealed_index = _display_text.length() - 1
 	set_process(false)
+	_prepare_target_for_presentation()
 	_render_authored_text()
 	_set_visible_characters(-1)
 	_normalize_target()
@@ -158,6 +160,16 @@ func _finish_natural_reveal() -> void:
 	_normalize_target()
 	_emit_remaining_character_signals()
 	reveal_completed.emit()
+
+
+func _prepare_target_for_presentation() -> void:
+	if not is_instance_valid(_target):
+		return
+	_target.show()
+	if _target is RichTextLabel:
+		(_target as RichTextLabel).visible_characters_behavior = TextServer.VC_CHARS_BEFORE_SHAPING
+	elif _target is Label:
+		(_target as Label).visible_characters_behavior = TextServer.VC_CHARS_BEFORE_SHAPING
 
 
 func _render_authored_text() -> void:
