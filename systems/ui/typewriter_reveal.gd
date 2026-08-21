@@ -13,7 +13,6 @@ const GLITCH_OPEN_TAG := "{glitch}"
 const GLITCH_CLOSE_TAG := "{/glitch}"
 
 @export_range(1.0, 240.0, 1.0) var characters_per_second: float = 42.0
-@export_range(0.03, 0.25, 0.005) var glyph_reveal_seconds: float = 0.09
 @export_range(0.0, 0.5, 0.01) var short_pause_seconds: float = 0.11
 @export_range(0.0, 1.0, 0.01) var long_pause_seconds: float = 0.30
 @export_range(4.0, 30.0, 1.0) var creep_updates_per_second: float = 14.0
@@ -29,7 +28,6 @@ var _last_revealed_index: int = -1
 var _timeline_duration: float = 0.0
 var _reveal_times := PackedFloat32Array()
 var _segments: Array[Dictionary] = []
-var _glyph_effect := TypewriterGlyphRevealEffect.new()
 var _creep_effect := CreepGlyphEffect.new()
 var _glitch_effect := GlitchGlyphEffect.new()
 
@@ -62,7 +60,8 @@ func play(target: Control, text: String) -> void:
 	_running = true
 	_elapsed_seconds = 0.0
 	_last_revealed_index = -1
-	_prepare_target_for_reveal()
+	_render_authored_text()
+	_set_visible_characters(0)
 	_normalize_target()
 	reveal_started.emit()
 
@@ -73,7 +72,8 @@ func play(target: Control, text: String) -> void:
 
 
 ## Presents authored text directly in its settled state. This is intentionally
-## separate from play(): restoring a saved UI state must not replay presentation.
+## separate from play(): restoring or revisiting established UI state must not
+## replay presentation.
 func present(target: Control, text: String) -> void:
 	if not _is_supported_target(target):
 		push_error("TypewriterReveal target must be Label or RichTextLabel.")
@@ -85,8 +85,10 @@ func present(target: Control, text: String) -> void:
 	_parse_source_text()
 	_running = false
 	_elapsed_seconds = 0.0
+	_last_revealed_index = _display_text.length() - 1
 	set_process(false)
-	_render_settled_text()
+	_render_authored_text()
+	_set_visible_characters(-1)
 	_normalize_target()
 
 
@@ -99,11 +101,10 @@ func _process(delta: float) -> void:
 		set_process(false)
 		return
 
-	# The controller owns character visibility for both Label and RichTextLabel.
-	# RichTextEffect is presentation-only: it may animate a glyph that is already
-	# unlocked, but it can never keep the entire sentence invisibly "typing" in
-	# the background. This is especially important when a RichTextLabel instance
-	# is reused after navigating Back in a multi-page flow.
+	# TypewriterReveal has exactly one visibility authority: visible_characters.
+	# The full authored text is mounted once when play() begins, then this method
+	# only advances the native visibility gate. CREEP/GLITCH may decorate glyphs
+	# that already exist, but no RichTextEffect participates in typewriter timing.
 	_elapsed_seconds += maxf(0.0, delta)
 	var revealed_count := _get_revealed_character_count(_elapsed_seconds)
 	_set_visible_characters(revealed_count)
@@ -122,7 +123,6 @@ func complete() -> void:
 	var was_running := _running
 	_running = false
 	set_process(false)
-	_render_settled_text()
 	_set_visible_characters(-1)
 	_normalize_target()
 	_emit_remaining_character_signals()
@@ -131,7 +131,6 @@ func complete() -> void:
 
 
 func cancel(clear_text: bool = false) -> void:
-	var was_running := _running
 	_running = false
 	set_process(false)
 	if not is_instance_valid(_target):
@@ -142,11 +141,10 @@ func cancel(clear_text: bool = false) -> void:
 		else:
 			(_target as Label).text = ""
 		_set_visible_characters(0)
-	elif was_running:
-		# Cancellation is a presentation interruption, not a content rollback.
-		# Settle the authored text so hidden/reused controls never keep an old
-		# RichTextEffect timeline running in the background.
-		_render_settled_text()
+	else:
+		# Cancellation settles the already-mounted authored text. Rebuilding the
+		# RichTextLabel here used to reset custom-effect state and made navigation
+		# visually dependent on clear()/add_text() side effects.
 		_set_visible_characters(-1)
 	_normalize_target()
 
@@ -159,32 +157,24 @@ func _finish_natural_reveal() -> void:
 	_set_visible_characters(-1)
 	_normalize_target()
 	_emit_remaining_character_signals()
-	# RichTextLabel keeps the custom effects that are already mounted. At this
-	# point every typewriter glyph is fully locked, while creep/glitch spans can
-	# keep animating without a clear/rebuild flicker.
 	reveal_completed.emit()
 
 
-func _prepare_target_for_reveal() -> void:
+func _render_authored_text() -> void:
 	if _target is RichTextLabel:
-		_render_rich_text(true)
-		_set_visible_characters(0)
-		return
-	(_target as Label).text = _display_text
-	_set_visible_characters(0)
-
-
-func _render_settled_text() -> void:
-	if _target is RichTextLabel:
-		_render_rich_text(false)
+		_render_rich_text()
 	else:
 		(_target as Label).text = _display_text
 
 
-func _render_rich_text(with_typewriter: bool) -> void:
+func _render_rich_text() -> void:
 	var rich_label := _target as RichTextLabel
 	if rich_label == null:
 		return
+
+	# Mount the final authored content once. Typewriter timing is deliberately
+	# absent from the RichTextEffect stack; these effects are persistent semantic
+	# decorations only.
 	rich_label.clear()
 	for segment: Dictionary in _segments:
 		var start := int(segment.get("start", 0))
@@ -193,18 +183,6 @@ func _render_rich_text(with_typewriter: bool) -> void:
 			continue
 		var segment_text := _display_text.substr(start, end - start)
 		var pushed_effects := 0
-		if with_typewriter:
-			var local_reveal_times := PackedFloat32Array()
-			for character_index in range(start, end):
-				local_reveal_times.append(_reveal_times[character_index])
-			rich_label.push_customfx(
-				_glyph_effect,
-				{
-					"reveal_times": local_reveal_times,
-					"reveal_seconds": glyph_reveal_seconds,
-				}
-			)
-			pushed_effects += 1
 		if bool(segment.get("creep", false)):
 			rich_label.push_customfx(
 				_creep_effect,
@@ -228,7 +206,6 @@ func _render_rich_text(with_typewriter: bool) -> void:
 		rich_label.add_text(segment_text)
 		for _effect_index in range(pushed_effects):
 			rich_label.pop()
-	rich_label.visible_characters = 0 if with_typewriter else -1
 
 
 func _parse_source_text() -> void:
@@ -295,11 +272,6 @@ func _parse_source_text() -> void:
 		glitch_depth > 0
 	)
 	_timeline_duration = elapsed
-	if not _reveal_times.is_empty():
-		_timeline_duration = maxf(
-			_timeline_duration,
-			_reveal_times[_reveal_times.size() - 1] + glyph_reveal_seconds
-		)
 
 
 func _append_segment(start: int, end: int, creep: bool, glitch: bool) -> void:
