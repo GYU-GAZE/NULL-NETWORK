@@ -12,6 +12,13 @@ class_name OperatorSuccessionRegistrationPage
 ## completed, the arrival/first-impression beat is reconstructed from the saved
 ## onboarding metadata and replayed instead of stranding the campaign on the old
 ## COMPLETE fallback.
+##
+## Assessment prompts have one presentation authority: TypewriterReveal. Answer
+## buttons may use UiMotionPlayer, but the reusable QuestionPrompt itself must
+## never enter UiMotionPlayer's hide/show lifecycle. RichTextLabel caches shaped
+## content across reuse, and handing the same prompt to both systems allowed the
+## first Back/Next transition to poison every later reveal until the typewriter
+## settled. Keeping generic motion off the prompt makes navigation deterministic.
 
 @export var onboarding_presentation_data: PrologueOnboardingPresentationData
 
@@ -43,6 +50,48 @@ func _render_assessment_question(track_visit: bool) -> void:
 		return
 	if _assessment_typewriter != null and _assessment_typewriter.is_running():
 		_assessment_typewriter.complete()
+
+
+func _hide_assessment_question(forward: bool) -> void:
+	_assessment_transitioning = true
+	_assessment_answers_ready = false
+	_assessment_reveal_generation += 1
+
+	# The prompt is typewriter-owned. Clear it through that presentation system
+	# instead of fading/hiding the same reusable RichTextLabel through
+	# UiMotionPlayer. This is the critical boundary that prevents navigation from
+	# leaving hidden/shaping state behind on QuestionPrompt.
+	if _assessment_typewriter != null:
+		_assessment_typewriter.cancel(true)
+
+	var buttons: Array[BaseButton] = []
+	for child: Node in answer_container.get_children():
+		var button := child as BaseButton
+		if button == null:
+			continue
+		button.disabled = true
+		buttons.append(button)
+
+	# Answers retain their motion feedback. Run them concurrently and await one
+	# canonical exit operation so question navigation does not depend on a magic
+	# process-frame delay.
+	for index: int in range(buttons.size()):
+		var button := buttons[index]
+		if index == buttons.size() - 1:
+			await _motion_player.exit_control(
+				button,
+				Vector2(-4 if forward else 4, 0),
+				0.08
+			)
+		else:
+			_motion_player.exit_control(
+				button,
+				Vector2(-4 if forward else 4, 0),
+				0.08
+			)
+
+	# If data corruption somehow produced no answer buttons, there is no visual
+	# operation to await; the next render can proceed immediately.
 
 
 func _on_assessment_prompt_revealed() -> void:
