@@ -54,6 +54,61 @@ func _run_test() -> void:
 		"Fresh Assessment prompt became hidden while its typewriter was in flight."
 	)
 
+	# Reproduce the actual navigation boundary that caused the runtime failure.
+	# The first Back used to send QuestionPrompt through UiMotionPlayer.exit_control,
+	# after which every later typewriter timeline progressed while the prompt was
+	# visually blank. The prompt is now typewriter-owned and must survive both
+	# backward and forward transitions without entering a generic motion lifecycle.
+	await first._hide_assessment_question(false)
+	first._question_index = 3
+	first._render_assessment_question(true)
+	await get_tree().process_frame
+	_check(
+		first._assessment_typewriter.is_running(),
+		"Assessment prompt did not restart after a real Back transition."
+	)
+	_check(
+		first.question_prompt.visible and first.question_prompt.is_visible_in_tree(),
+		"Assessment prompt remained hidden after a real Back transition."
+	)
+	_check(
+		is_equal_approx(first.question_prompt.modulate.a, 1.0),
+		"Assessment prompt remained transparent after a real Back transition."
+	)
+	first._assessment_typewriter.set_process(false)
+	first._assessment_typewriter._process(0.08)
+	var back_partial := first.question_prompt.visible_characters
+	_check(
+		back_partial > 0 \
+		and back_partial < first.question_prompt.get_total_character_count(),
+		"Assessment prompt did not type progressively after a real Back transition."
+	)
+
+	await first._hide_assessment_question(true)
+	first._question_index = 4
+	first._render_assessment_question(true)
+	await get_tree().process_frame
+	_check(
+		first._assessment_typewriter.is_running(),
+		"Assessment prompt did not restart after returning forward to a visited question."
+	)
+	_check(
+		first.question_prompt.visible and first.question_prompt.is_visible_in_tree(),
+		"Assessment prompt remained hidden after returning forward."
+	)
+	first._assessment_typewriter.set_process(false)
+	first._assessment_typewriter._process(0.08)
+	var forward_partial := first.question_prompt.visible_characters
+	_check(
+		forward_partial > 0 \
+		and forward_partial < first.question_prompt.get_total_character_count(),
+		"Assessment prompt did not type progressively after returning forward."
+	)
+	_check(
+		is_equal_approx(first.question_prompt.modulate.a, 1.0),
+		"Assessment prompt became transparent after returning forward."
+	)
+
 	# Save while the prompt is deliberately still animating. Reopening the
 	# Browser must restore the established question, not replay that animation.
 	var stored_state := first.get_browser_state().duplicate(true)
@@ -109,9 +164,8 @@ func _run_test() -> void:
 			"Restored Assessment left residual answer presentation scale."
 		)
 
-	# Normal navigation deliberately uses the same presentation pipeline every
-	# time. Re-entering an already visited question must therefore be a clean new
-	# play(), not a play()->cancel()->present() fork in the succession page.
+	# Normal navigation deliberately uses the same canonical presentation path.
+	# Re-entering an established question after restore must still start cleanly.
 	restored._render_assessment_question(true)
 	await get_tree().process_frame
 	_check(
