@@ -109,48 +109,31 @@ func _run_test() -> void:
 			"Restored Assessment left residual answer presentation scale."
 		)
 
-	# A question that was already presented during the current Assessment is
-	# navigation state, not a fresh narrative beat. Returning to it must settle
-	# the prompt and answers immediately instead of replaying presentation.
-	var revisited_index := restored._question_index
+	# Normal navigation deliberately uses the same presentation pipeline every
+	# time. Re-entering an already visited question must therefore be a clean new
+	# play(), not a play()->cancel()->present() fork in the succession page.
 	restored._render_assessment_question(true)
 	await get_tree().process_frame
 	_check(
-		restored._question_index == revisited_index,
-		"Revisiting an Assessment question changed its index."
-	)
-	_check(
-		not restored._assessment_typewriter.is_running(),
-		"Revisited Assessment question replayed the typewriter timeline."
-	)
-	_check(
-		restored.question_prompt.visible_characters == -1,
-		"Revisited Assessment question did not render its full prompt immediately."
+		restored._assessment_typewriter.is_running(),
+		"Revisited Assessment question did not use the canonical typewriter path."
 	)
 	_check(
 		restored.question_prompt.visible and restored.question_prompt.is_visible_in_tree(),
-		"Revisited Assessment question left the prompt Control hidden."
+		"Revisited Assessment question started with its prompt hidden."
+	)
+	restored._assessment_typewriter.set_process(false)
+	restored._assessment_typewriter._process(0.08)
+	var revisited_partial := restored.question_prompt.visible_characters
+	_check(
+		revisited_partial > 0 \
+		and revisited_partial < restored.question_prompt.get_total_character_count(),
+		"Revisited Assessment prompt did not expose characters progressively."
 	)
 	_check(
 		is_equal_approx(restored.question_prompt.modulate.a, 1.0),
-		"Revisited Assessment question left the prompt transparent."
+		"Revisited Assessment prompt became transparent during replay."
 	)
-	_check(
-		restored.are_assessment_answers_ready(),
-		"Revisited Assessment question did not restore ready answers immediately."
-	)
-	for child: Node in restored.answer_container.get_children():
-		var revisited_button := child as AssessmentAnswerButton
-		if revisited_button == null:
-			continue
-		_check(
-			not revisited_button.disabled,
-			"Revisited Assessment left an answer disabled."
-		)
-		_check(
-			is_equal_approx(revisited_button.modulate.a, 1.0),
-			"Revisited Assessment left an answer visually hidden."
-		)
 
 	restored.queue_free()
 	await get_tree().process_frame
