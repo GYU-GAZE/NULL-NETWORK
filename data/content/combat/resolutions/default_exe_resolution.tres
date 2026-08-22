@@ -1,21 +1,17 @@
-[gd_resource type="Resource" script_class="CombatResolutionData" load_steps=11 format=3]
+[gd_resource type="Resource" script_class="CombatResolutionData" format=3 uid="uid://n10g5mc2shso"]
 
-[ext_resource type="Script" path="res://data/templates/combat/combat_resolution_data.gd" id="1_resolution"]
-[ext_resource type="Script" path="res://data/templates/combat/combat_style_rule_data.gd" id="2_style"]
-[ext_resource type="Script" path="res://data/templates/combat/player_action_data.gd" id="3_action_type"]
-[ext_resource type="Resource" path="res://data/content/combat/player_actions/scan.tres" id="4_scan"]
-[ext_resource type="Resource" path="res://data/content/combat/player_actions/purge.tres" id="5_purge"]
-[ext_resource type="Resource" path="res://data/content/combat/player_actions/purify.tres" id="6_purify"]
+[ext_resource type="Script" uid="uid://lfhnv2ndrkt4" path="res://data/templates/combat/combat_resolution_data.gd" id="1_resolution"]
+[ext_resource type="Script" uid="uid://dd1ejt4fvo5p" path="res://data/templates/effects/game_effect_data.gd" id="2_ojnuk"]
+[ext_resource type="Script" uid="uid://cw3wup10a330p" path="res://data/templates/combat/combat_style_rule_data.gd" id="2_style"]
+[ext_resource type="Script" uid="uid://pw63wlgym5i" path="res://data/templates/combat/player_action_data.gd" id="3_action_type"]
+[ext_resource type="Resource" uid="uid://ddq1teckyaxxd" path="res://data/content/combat/player_actions/scan.tres" id="4_scan"]
+[ext_resource type="Resource" uid="uid://13tochuekubs" path="res://data/content/combat/player_actions/purge.tres" id="5_purge"]
+[ext_resource type="Resource" uid="uid://dgbn0l8brenar" path="res://data/content/combat/player_actions/purify.tres" id="6_purify"]
 [ext_resource type="Resource" path="res://data/content/combat/player_actions/tame.tres" id="7_tame"]
-[ext_resource type="Script" path="res://data/templates/combat/combat_tendency_gain_data.gd" id="8_gain"]
+[ext_resource type="Script" uid="uid://dxoqpn82ahfe" path="res://data/templates/combat/combat_tendency_gain_data.gd" id="8_gain"]
 
 [sub_resource type="Resource" id="Style_default"]
 script = ExtResource("2_style")
-minimum_combat_style_score = 6
-dominance_margin = 3
-dominant_bonus_amount = 2
-mixed_bonus_amount = 1
-max_bonus_per_combat = 2
 
 [sub_resource type="Resource" id="Gain_escape_self"]
 script = ExtResource("8_gain")
@@ -26,8 +22,6 @@ amount = 2
 script = ExtResource("1_resolution")
 resolution_id = "resolution.default_exe"
 partner_loss_policy = 2
-partner_loss_infestation_increase = 1
-operator_loss_infestation_increase = 3
 player_actions = Array[ExtResource("3_action_type")]([ExtResource("4_scan"), ExtResource("5_purge"), ExtResource("6_purify"), ExtResource("7_tame")])
 combat_style_rule = SubResource("Style_default")
 escape_attempt_tendency_gains = Array[ExtResource("8_gain")]([SubResource("Gain_escape_self")])

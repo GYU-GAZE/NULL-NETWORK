@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="OccupationData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="OccupationData" format=3 uid="uid://do3nfj43vct14"]
 
-[ext_resource type="Script" path="res://data/templates/operator/occupation_data.gd" id="1_occupation"]
-[ext_resource type="Script" path="res://data/templates/operator/occupation_schedule_data.gd" id="2_schedule"]
+[ext_resource type="Script" uid="uid://ctettilndue22" path="res://data/templates/operator/occupation_data.gd" id="1_occupation"]
+[ext_resource type="Script" uid="uid://bjifbue043apl" path="res://data/templates/operator/occupation_schedule_data.gd" id="2_schedule"]
 
 [sub_resource type="Resource" id="Schedule_salaryperson"]
 script = ExtResource("2_schedule")
@@ -17,7 +17,6 @@ display_name = "Salaryperson"
 description = "A rigid weekday work shift, the highest fixed income, and natural access to adult and after-work events."
 initial_money = 4000
 recurring_income = 5000
-income_interval_days = 7
 schedule = SubResource("Schedule_salaryperson")
 starting_location_id = "operator_start_corporate"
 routine_event_ids = PackedStringArray("routine.occupation.salaryperson.workday")

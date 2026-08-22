@@ -1,11 +1,16 @@
-[gd_resource type="Resource" script_class="AppResource" load_steps=7 format=3 uid="uid://c1rtqiahmygmm"]
+[gd_resource type="Resource" script_class="AppResource" format=3 uid="uid://c1rtqiahmygmm"]
 
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="1_icon"]
 [ext_resource type="PackedScene" uid="uid://b2jukdy0iqin4" path="res://apps/navigator/app_navigator.tscn" id="2_scene"]
 [ext_resource type="Script" uid="uid://b2kr16bkp27ck" path="res://data/templates/app_resource.gd" id="3_app"]
-[ext_resource type="Script" path="res://data/templates/kubu_notification_data.gd" id="4_notification"]
-[ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="5_set_flag"]
-[ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="6_effect_type"]
+[ext_resource type="Script" uid="uid://bscriyeovw734" path="res://data/templates/kubu_notification_data.gd" id="4_notification"]
+[ext_resource type="Script" uid="uid://b83h03ewt815j" path="res://data/templates/effects/set_flag_effect_data.gd" id="5_set_flag"]
+[ext_resource type="Script" uid="uid://dd1ejt4fvo5p" path="res://data/templates/effects/game_effect_data.gd" id="6_effect_type"]
+
+[sub_resource type="Resource" id="Effect_installation_flag"]
+script = ExtResource("5_set_flag")
+flag_name = "kubu_os.app.navigator_installed"
+effect_id = "app.navigator.mark_installed"
 
 [sub_resource type="Resource" id="Notification_installed"]
 script = ExtResource("4_notification")
@@ -14,12 +19,6 @@ title = "NAVIGATOR INSTALLED"
 message = "Navigator is now available in the KubuOS dock."
 source_app_id = "navigator"
 notification_type = 6
-
-[sub_resource type="Resource" id="Effect_installation_flag"]
-script = ExtResource("5_set_flag")
-effect_id = "app.navigator.mark_installed"
-flag_name = "kubu_os.app.navigator_installed"
-value = true
 
 [resource]
 script = ExtResource("3_app")

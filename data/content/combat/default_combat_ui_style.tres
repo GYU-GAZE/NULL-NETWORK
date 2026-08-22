@@ -1,14 +1,6 @@
-[gd_resource type="Resource" script_class="CombatUIStyleData" load_steps=18 format=3]
+[gd_resource type="Resource" script_class="CombatUIStyleData" format=3 uid="uid://bs2cuowyhy8ye"]
 
-[ext_resource type="Script" path="res://data/templates/combat_ui_style_data.gd" id="1_style"]
-
-[sub_resource type="StyleBoxFlat" id="PlayerActor"]
-bg_color = Color(0.1, 0.1, 0.1, 0.9)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 1, 1, 1)
+[ext_resource type="Script" uid="uid://b57ybfh7qq431" path="res://data/templates/combat_ui_style_data.gd" id="1_style"]
 
 [sub_resource type="StyleBoxFlat" id="AllyActor"]
 bg_color = Color(0.1, 0.1, 0.1, 0.9)
@@ -18,13 +10,13 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.196078, 0.803922, 0.196078, 1)
 
-[sub_resource type="StyleBoxFlat" id="EnemyActor"]
-bg_color = Color(0.1, 0.1, 0.1, 0.9)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.862745, 0.0784314, 0.235294, 1)
+[sub_resource type="StyleBoxFlat" id="AllyTimeline"]
+bg_color = Color(0.117647, 0.482353, 0.117647, 1)
+border_width_bottom = 4
+border_color = Color(0.196078, 0.803922, 0.196078, 1)
+
+[sub_resource type="StyleBoxFlat" id="BarBackground"]
+bg_color = Color(0.02, 0.02, 0.03, 0.9)
 
 [sub_resource type="StyleBoxFlat" id="DisabledActor"]
 bg_color = Color(0.1, 0.1, 0.1, 0.9)
@@ -42,16 +34,18 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.3, 0.3, 0.3, 0.5)
 
-[sub_resource type="StyleBoxFlat" id="LockedSlot"]
-bg_color = Color(0.2, 0.03, 0.03, 0.8)
+[sub_resource type="StyleBoxFlat" id="EnemyActor"]
+bg_color = Color(0.1, 0.1, 0.1, 0.9)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.862745, 0.0784314, 0.235294, 1)
 
-[sub_resource type="StyleBoxFlat" id="BarBackground"]
-bg_color = Color(0.02, 0.02, 0.03, 0.9)
+[sub_resource type="StyleBoxFlat" id="EnemyTimeline"]
+bg_color = Color(0.517647, 0.0470588, 0.141176, 1)
+border_width_bottom = 4
+border_color = Color(0.862745, 0.0784314, 0.235294, 1)
 
 [sub_resource type="StyleBoxFlat" id="HPFill"]
 bg_color = Color(0.862745, 0.0784314, 0.235294, 1)
@@ -61,6 +55,35 @@ bg_color = Color(1, 0.647059, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="HPHeal"]
 bg_color = Color(0.196078, 0.803922, 0.196078, 1)
+
+[sub_resource type="StyleBoxFlat" id="LockedSlot"]
+bg_color = Color(0.2, 0.03, 0.03, 0.8)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.862745, 0.0784314, 0.235294, 1)
+
+[sub_resource type="StyleBoxFlat" id="ModuleSlot"]
+bg_color = Color(0.04, 0.04, 0.06, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.3, 0.35, 1)
+
+[sub_resource type="StyleBoxFlat" id="PlayerActor"]
+bg_color = Color(0.1, 0.1, 0.1, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="PlayerTimeline"]
+bg_color = Color(0.0705882, 0.337255, 0.6, 1)
+border_width_bottom = 4
+border_color = Color(0.117647, 0.564706, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StabilityFill"]
 bg_color = Color(0.117647, 0.564706, 1, 1)
@@ -72,29 +95,6 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0, 1, 1, 1)
-
-[sub_resource type="StyleBoxFlat" id="PlayerTimeline"]
-bg_color = Color(0.0705882, 0.337255, 0.6, 1)
-border_width_bottom = 4
-border_color = Color(0.117647, 0.564706, 1, 1)
-
-[sub_resource type="StyleBoxFlat" id="AllyTimeline"]
-bg_color = Color(0.117647, 0.482353, 0.117647, 1)
-border_width_bottom = 4
-border_color = Color(0.196078, 0.803922, 0.196078, 1)
-
-[sub_resource type="StyleBoxFlat" id="EnemyTimeline"]
-bg_color = Color(0.517647, 0.0470588, 0.141176, 1)
-border_width_bottom = 4
-border_color = Color(0.862745, 0.0784314, 0.235294, 1)
-
-[sub_resource type="StyleBoxFlat" id="ModuleSlot"]
-bg_color = Color(0.04, 0.04, 0.06, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.3, 0.3, 0.35, 1)
 
 [resource]
 script = ExtResource("1_style")

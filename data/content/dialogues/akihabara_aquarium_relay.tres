@@ -1,13 +1,11 @@
-[gd_resource type="Resource" script_class="DialogueData" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="DialogueData" format=3 uid="uid://ilvu0pe07j0x"]
 
-[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_data.gd" id="1_dialogue"]
-[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_speaker_data.gd" id="2_speaker"]
-[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_node_data.gd" id="3_node"]
-
-[sub_resource type="Resource" id="Speaker_relay"]
-script = ExtResource("2_speaker")
-speaker_id = "relay"
-display_name = "UNKNOWN RELAY"
+[ext_resource type="Script" uid="uid://cuiaejoxjxd8c" path="res://data/templates/dialogue/dialogue_data.gd" id="1_dialogue"]
+[ext_resource type="Script" uid="uid://bxd2eik5gk7p" path="res://data/templates/dialogue/dialogue_speaker_data.gd" id="2_speaker"]
+[ext_resource type="Script" uid="uid://cp45iepauxhxe" path="res://data/templates/dialogue/dialogue_choice_data.gd" id="2_vh0to"]
+[ext_resource type="Script" uid="uid://k8blrb5bqeuk" path="res://data/templates/dialogue/dialogue_node_data.gd" id="3_node"]
+[ext_resource type="Script" uid="uid://dd1ejt4fvo5p" path="res://data/templates/effects/game_effect_data.gd" id="3_xrqgd"]
+[ext_resource type="Script" uid="uid://bg6uj3aifqb6r" path="res://data/templates/dialogue/dialogue_portrait_state.gd" id="4_awf6n"]
 
 [sub_resource type="Resource" id="Node_signal"]
 script = ExtResource("3_node")
@@ -21,6 +19,11 @@ script = ExtResource("3_node")
 node_id = "contact"
 speaker_id = "relay"
 text = "SIGNAL LOCKED. FOREIGN PROCESS DETECTED."
+
+[sub_resource type="Resource" id="Speaker_relay"]
+script = ExtResource("2_speaker")
+speaker_id = "relay"
+display_name = "UNKNOWN RELAY"
 
 [resource]
 script = ExtResource("1_dialogue")

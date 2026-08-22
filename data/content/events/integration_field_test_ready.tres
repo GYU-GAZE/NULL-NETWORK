@@ -1,24 +1,21 @@
-[gd_resource type="Resource" script_class="StoryEventData" load_steps=12 format=3]
+[gd_resource type="Resource" script_class="StoryEventData" format=3 uid="uid://c5adb65wwlu8i"]
 
-[ext_resource type="Script" path="res://data/templates/events/story_event_data.gd" id="1_event"]
-[ext_resource type="Script" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
-[ext_resource type="Script" path="res://data/templates/events/story_event_step_data.gd" id="3_step"]
-[ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="4_effect"]
-[ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="5_flag"]
+[ext_resource type="Script" uid="uid://ctile4t6bt74" path="res://data/templates/events/story_event_data.gd" id="1_event"]
+[ext_resource type="Script" uid="uid://b68id3b3b6exj" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
+[ext_resource type="Script" uid="uid://cqbgbtuu4lbw8" path="res://data/templates/events/story_event_step_data.gd" id="3_step"]
+[ext_resource type="Script" uid="uid://dd1ejt4fvo5p" path="res://data/templates/effects/game_effect_data.gd" id="4_effect"]
+[ext_resource type="Script" uid="uid://b83h03ewt815j" path="res://data/templates/effects/set_flag_effect_data.gd" id="5_flag"]
 
-[sub_resource type="Resource" id="Trigger_welcome_complete"]
-script = ExtResource("2_trigger")
-trigger_type = 3
-watched_flag_name = "story.prologue.welcome_complete"
-watched_flag_value = true
+[sub_resource type="Resource" id="Effect_ready"]
+script = ExtResource("5_flag")
+flag_name = "integration.field_test.ready"
+effect_id = "integration.field_test.mark_ready"
 
 [sub_resource type="Resource" id="Step_alert"]
 script = ExtResource("3_step")
 step_id = "show_field_test_alert"
-step_type = 0
 title = "FIELD TEST AVAILABLE"
 message = "Read the pinned SYSTEMS FIELD TEST thread, follow its signal, then open Navigator."
-alert_animation = 1
 
 [sub_resource type="Resource" id="Step_open_browser"]
 script = ExtResource("3_step")
@@ -39,21 +36,16 @@ step_type = 1
 title = "AKIHABARA TEST ROUTE"
 message = "Follow the forum signal to project its Lead badge and Incident into Navigator."
 source_app_id = "navigator"
-notification_type = 0
-notification_priority = 1
 
-[sub_resource type="Resource" id="Effect_ready"]
-script = ExtResource("5_flag")
-effect_id = "integration.field_test.mark_ready"
-flag_name = "integration.field_test.ready"
-value = true
+[sub_resource type="Resource" id="Trigger_welcome_complete"]
+script = ExtResource("2_trigger")
+trigger_type = 3
+watched_flag_name = "story.prologue.welcome_complete"
 
 [resource]
 script = ExtResource("1_event")
 event_id = "integration.field_test.ready"
 priority = 90
 trigger = SubResource("Trigger_welcome_complete")
-repeat_policy = 0
 steps = Array[ExtResource("3_step")]([SubResource("Step_alert"), SubResource("Step_open_browser"), SubResource("Step_navigate_thread"), SubResource("Step_notification")])
 completion_effects = Array[ExtResource("4_effect")]([SubResource("Effect_ready")])
-interruption_policy = 0

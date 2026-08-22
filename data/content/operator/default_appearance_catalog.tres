@@ -1,39 +1,40 @@
-[gd_resource type="Resource" script_class="AppearanceCatalogData" load_steps=22 format=3]
+[gd_resource type="Resource" script_class="AppearanceCatalogData" format=3 uid="uid://bq5iucbtibscs"]
 
-[ext_resource type="Script" path="res://data/templates/operator/appearance_catalog_data.gd" id="1_catalog"]
-[ext_resource type="Script" path="res://data/templates/operator/appearance_option_data.gd" id="2_option"]
+[ext_resource type="Script" uid="uid://dy26wp8p028hv" path="res://data/templates/operator/appearance_catalog_data.gd" id="1_catalog"]
+[ext_resource type="Script" uid="uid://cld6n44g4ti07" path="res://data/templates/operator/appearance_option_data.gd" id="2_option"]
 
 [sub_resource type="Resource" id="body_a"]
 script = ExtResource("2_option")
 option_id = "body_a"
 display_name = "Body A"
-category = 0
+
 [sub_resource type="Resource" id="body_b"]
 script = ExtResource("2_option")
 option_id = "body_b"
 display_name = "Body B"
-category = 0
+
 [sub_resource type="Resource" id="body_c"]
 script = ExtResource("2_option")
 option_id = "body_c"
 display_name = "Body C"
-category = 0
+
 [sub_resource type="Resource" id="body_d"]
 script = ExtResource("2_option")
 option_id = "body_d"
 display_name = "Body D"
-category = 0
 
 [sub_resource type="Resource" id="face_a"]
 script = ExtResource("2_option")
 option_id = "face_a"
 display_name = "Face A"
 category = 1
+
 [sub_resource type="Resource" id="face_b"]
 script = ExtResource("2_option")
 option_id = "face_b"
 display_name = "Face B"
 category = 1
+
 [sub_resource type="Resource" id="face_c"]
 script = ExtResource("2_option")
 option_id = "face_c"
@@ -45,11 +46,13 @@ script = ExtResource("2_option")
 option_id = "eyes_a"
 display_name = "Eyes A"
 category = 2
+
 [sub_resource type="Resource" id="eyes_b"]
 script = ExtResource("2_option")
 option_id = "eyes_b"
 display_name = "Eyes B"
 category = 2
+
 [sub_resource type="Resource" id="eyes_c"]
 script = ExtResource("2_option")
 option_id = "eyes_c"
@@ -61,11 +64,13 @@ script = ExtResource("2_option")
 option_id = "outer_a"
 display_name = "Outer A"
 category = 3
+
 [sub_resource type="Resource" id="outer_b"]
 script = ExtResource("2_option")
 option_id = "outer_b"
 display_name = "Outer B"
 category = 3
+
 [sub_resource type="Resource" id="outer_c"]
 script = ExtResource("2_option")
 option_id = "outer_c"
@@ -77,11 +82,13 @@ script = ExtResource("2_option")
 option_id = "middle_a"
 display_name = "Middle A"
 category = 4
+
 [sub_resource type="Resource" id="middle_b"]
 script = ExtResource("2_option")
 option_id = "middle_b"
 display_name = "Middle B"
 category = 4
+
 [sub_resource type="Resource" id="middle_c"]
 script = ExtResource("2_option")
 option_id = "middle_c"
@@ -93,11 +100,13 @@ script = ExtResource("2_option")
 option_id = "lower_a"
 display_name = "Lower A"
 category = 5
+
 [sub_resource type="Resource" id="lower_b"]
 script = ExtResource("2_option")
 option_id = "lower_b"
 display_name = "Lower B"
 category = 5
+
 [sub_resource type="Resource" id="lower_c"]
 script = ExtResource("2_option")
 option_id = "lower_c"
@@ -109,6 +118,7 @@ script = ExtResource("2_option")
 option_id = "hat_a"
 display_name = "Hat A"
 category = 6
+
 [sub_resource type="Resource" id="hat_b"]
 script = ExtResource("2_option")
 option_id = "hat_b"
@@ -120,6 +130,7 @@ script = ExtResource("2_option")
 option_id = "accessory_a"
 display_name = "Accessory A"
 category = 7
+
 [sub_resource type="Resource" id="accessory_b"]
 script = ExtResource("2_option")
 option_id = "accessory_b"

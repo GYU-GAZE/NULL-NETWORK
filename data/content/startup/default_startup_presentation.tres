@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="StartupPresentationData" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="StartupPresentationData" format=3 uid="uid://dc2kxvtuhxi78"]
 
-[ext_resource type="Script" path="res://data/templates/startup/startup_presentation_data.gd" id="1_presentation"]
-[ext_resource type="Script" path="res://data/templates/startup/startup_splash_data.gd" id="2_splash"]
-[ext_resource type="Texture2D" path="res://data/assets/startup/debug_vertical_panorama.svg" id="3_debug_panorama"]
+[ext_resource type="Script" uid="uid://bfusv7q56hrm" path="res://data/templates/startup/startup_presentation_data.gd" id="1_presentation"]
+[ext_resource type="Script" uid="uid://btegrhl5pym8r" path="res://data/templates/startup/startup_splash_data.gd" id="2_splash"]
+[ext_resource type="Texture2D" uid="uid://cl2u5cnicjt8p" path="res://data/assets/startup/debug_vertical_panorama.svg" id="3_debug_panorama"]
 
 [sub_resource type="Resource" id="Splash_GyuGaze"]
 script = ExtResource("2_splash")
@@ -10,9 +10,7 @@ splash_id = &"gyu_gaze"
 fallback_text = "GYU:GAZE WORKS"
 background_color = Color(0.005, 0.007, 0.012, 1)
 fade_in_seconds = 0.16
-hold_seconds = 0.65
 fade_out_seconds = 0.16
-logo_minimum_size = Vector2(360, 180)
 
 [sub_resource type="Resource" id="Splash_Godot"]
 script = ExtResource("2_splash")
@@ -20,15 +18,11 @@ splash_id = &"godot_engine"
 fallback_text = "GODOT ENGINE"
 background_color = Color(0.005, 0.007, 0.012, 1)
 fade_in_seconds = 0.16
-hold_seconds = 0.65
 fade_out_seconds = 0.16
-logo_minimum_size = Vector2(360, 180)
 
 [resource]
 script = ExtResource("1_presentation")
 splashes = Array[ExtResource("2_splash")]([SubResource("Splash_GyuGaze"), SubResource("Splash_Godot")])
-skip_speed_multiplier = 10.0
-kubuos_fallback_text = "KubuOS"
 logo_ignite_seconds = 0.16
 logo_hold_seconds = 0.12
 screen_power_seconds = 0.11
@@ -36,26 +30,13 @@ reveal_seconds = 4.3
 logo_target_screen_x_ratio = 0.19
 logo_target_screen_y_ratio = 0.54
 logo_target_scale = 0.7
-null_network_fallback_text = "NULL NETWORK"
 null_logo_build_seconds = 1.15
-null_logo_build_pan_start_ratio = 0.34
 null_logo_particle_count = 72
 null_logo_target_screen_y_ratio = 0.115
 null_logo_target_scale = 0.84
-null_logo_text_color = Color(0.91, 0.97, 1, 1)
-null_logo_glitch_color_a = Color(0.2, 0.9, 1, 0.55)
-null_logo_glitch_color_b = Color(1, 0.2, 0.55, 0.5)
-null_logo_idle_glitch_alpha = 0.12
 day_background_texture = ExtResource("3_debug_panorama")
 night_background_texture = ExtResource("3_debug_panorama")
 day_background_color = Color(0.045, 0.14, 0.22, 1)
 night_background_color = Color(0.01, 0.02, 0.06, 1)
 vertical_panorama_enabled = true
-panorama_start_ratio = 0.0
-panorama_end_ratio = 1.0
-backdrop_overscan_pixels = 72.0
 mouse_parallax_pixels = Vector2(14, 8)
-parallax_follow_speed = 6.0
-splash_text_color = Color(0.9, 0.94, 1, 1)
-kubuos_text_color = Color(0.72, 0.94, 1, 1)
-power_line_color = Color(0.82, 0.96, 1, 1)

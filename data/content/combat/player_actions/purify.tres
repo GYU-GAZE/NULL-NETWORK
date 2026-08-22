@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="PlayerActionData" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="PlayerActionData" format=3 uid="uid://dgbn0l8brenar"]
 
-[ext_resource type="Script" path="res://data/templates/combat/player_action_data.gd" id="1_action"]
-[ext_resource type="Script" path="res://data/templates/combat/combat_tendency_gain_data.gd" id="2_gain"]
+[ext_resource type="Script" uid="uid://pw63wlgym5i" path="res://data/templates/combat/player_action_data.gd" id="1_action"]
+[ext_resource type="Script" uid="uid://dxoqpn82ahfe" path="res://data/templates/combat/combat_tendency_gain_data.gd" id="2_gain"]
 
 [sub_resource type="Resource" id="Gain_temporary"]
 script = ExtResource("2_gain")
@@ -11,7 +11,6 @@ amount = 2
 [sub_resource type="Resource" id="Gain_permanent"]
 script = ExtResource("2_gain")
 tendency = 2
-amount = 1
 
 [resource]
 script = ExtResource("1_action")

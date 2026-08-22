@@ -1,28 +1,25 @@
-[gd_resource type="Resource" script_class="StoryEventData" load_steps=20 format=3]
+[gd_resource type="Resource" script_class="StoryEventData" format=3 uid="uid://cdie0hn1xyy8a"]
 
-[ext_resource type="Script" path="res://data/templates/events/story_event_data.gd" id="1_event"]
-[ext_resource type="Script" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
-[ext_resource type="Script" path="res://data/templates/events/story_event_step_data.gd" id="3_step"]
-[ext_resource type="Script" path="res://data/templates/conditions/condition_rule_data.gd" id="4_rule"]
-[ext_resource type="Script" path="res://data/templates/conditions/condition_set_data.gd" id="5_condition_set"]
-[ext_resource type="Script" path="res://data/templates/conditions/flag_condition_data.gd" id="6_flag_condition"]
-[ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="7_effect"]
-[ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="8_set_flag"]
+[ext_resource type="Script" uid="uid://ctile4t6bt74" path="res://data/templates/events/story_event_data.gd" id="1_event"]
+[ext_resource type="Script" uid="uid://b68id3b3b6exj" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
+[ext_resource type="Script" uid="uid://cqbgbtuu4lbw8" path="res://data/templates/events/story_event_step_data.gd" id="3_step"]
+[ext_resource type="Script" uid="uid://bcb8biwqvf4bv" path="res://data/templates/conditions/condition_rule_data.gd" id="4_rule"]
+[ext_resource type="Script" uid="uid://b4ogugnf0aii6" path="res://data/templates/conditions/condition_set_data.gd" id="5_condition_set"]
+[ext_resource type="Script" uid="uid://bse7oqsi7tfiw" path="res://data/templates/conditions/flag_condition_data.gd" id="6_flag_condition"]
+[ext_resource type="Script" uid="uid://dd1ejt4fvo5p" path="res://data/templates/effects/game_effect_data.gd" id="7_effect"]
+[ext_resource type="Script" uid="uid://b83h03ewt815j" path="res://data/templates/effects/set_flag_effect_data.gd" id="8_set_flag"]
 
-[sub_resource type="Resource" id="Trigger_account_ready"]
-script = ExtResource("2_trigger")
-trigger_type = 3
-watched_flag_name = "story.prologue.account_ready"
-watched_flag_value = true
+[sub_resource type="Resource" id="Effect_mark_complete"]
+script = ExtResource("8_set_flag")
+flag_name = "story.prologue.welcome_complete"
+effect_id = "story.prologue.mark_welcome_complete"
 
 [sub_resource type="Resource" id="Condition_account_ready"]
 script = ExtResource("6_flag_condition")
 flag_name = "story.prologue.account_ready"
-expected_value = true
 
 [sub_resource type="Resource" id="Conditions_root"]
 script = ExtResource("5_condition_set")
-match_mode = 0
 rules = Array[ExtResource("4_rule")]([SubResource("Condition_account_ready")])
 
 [sub_resource type="Resource" id="Step_open_browser"]
@@ -40,10 +37,8 @@ browser_url = "null.net"
 [sub_resource type="Resource" id="Step_show_alert"]
 script = ExtResource("3_step")
 step_id = "show_welcome_alert"
-step_type = 0
 title = "NULL NETWORK"
 message = "Connection established. Your account is ready."
-alert_animation = 1
 
 [sub_resource type="Resource" id="Step_show_notification"]
 script = ExtResource("3_step")
@@ -52,8 +47,6 @@ step_type = 1
 title = "NAVIGATOR INSTALLED"
 message = "Navigator is now available from the KubuOS dock. The systems field-test thread contains an explicit dialogue test link."
 source_app_id = "navigator"
-notification_type = 0
-notification_priority = 1
 
 [sub_resource type="Resource" id="Step_install_navigator"]
 script = ExtResource("3_step")
@@ -63,9 +56,8 @@ app_id = "navigator"
 
 [sub_resource type="Resource" id="Effect_mark_sequence_applied"]
 script = ExtResource("8_set_flag")
-effect_id = "story.prologue.mark_welcome_sequence_applied"
 flag_name = "story.prologue.welcome_sequence_applied"
-value = true
+effect_id = "story.prologue.mark_welcome_sequence_applied"
 
 [sub_resource type="Resource" id="Step_apply_effects"]
 script = ExtResource("3_step")
@@ -73,11 +65,10 @@ step_id = "apply_welcome_effects"
 step_type = 9
 effects = Array[ExtResource("7_effect")]([SubResource("Effect_mark_sequence_applied")])
 
-[sub_resource type="Resource" id="Effect_mark_complete"]
-script = ExtResource("8_set_flag")
-effect_id = "story.prologue.mark_welcome_complete"
-flag_name = "story.prologue.welcome_complete"
-value = true
+[sub_resource type="Resource" id="Trigger_account_ready"]
+script = ExtResource("2_trigger")
+trigger_type = 3
+watched_flag_name = "story.prologue.account_ready"
 
 [resource]
 script = ExtResource("1_event")
@@ -85,7 +76,5 @@ event_id = "story.prologue.null_network_welcome"
 priority = 100
 conditions = SubResource("Conditions_root")
 trigger = SubResource("Trigger_account_ready")
-repeat_policy = 0
 steps = Array[ExtResource("3_step")]([SubResource("Step_open_browser"), SubResource("Step_navigate_browser"), SubResource("Step_show_alert"), SubResource("Step_show_notification"), SubResource("Step_install_navigator"), SubResource("Step_apply_effects")])
 completion_effects = Array[ExtResource("7_effect")]([SubResource("Effect_mark_complete")])
-interruption_policy = 0

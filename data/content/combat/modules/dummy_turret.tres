@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="ModuleData" load_steps=4 format=3 uid="uid://b5xe5jmx3xf86"]
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://b5xe5jmx3xf86"]
 
-[ext_resource type="Script" path="res://data/templates/module_data.gd" id="1_module"]
-[ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
-[ext_resource type="Resource" path="res://data/content/combat/dummies/turret.tres" id="3_dummy"]
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="1_module"]
+[ext_resource type="Script" uid="uid://rnthl5gqx7w1" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
+[ext_resource type="Script" uid="uid://dxoqpn82ahfe" path="res://data/templates/combat/combat_tendency_gain_data.gd" id="3_6s4ll"]
+[ext_resource type="Resource" uid="uid://b31826q4fkbgw" path="res://data/content/combat/dummies/turret.tres" id="3_dummy"]
 
 [sub_resource type="Resource" id="Effect_spawn"]
 script = ExtResource("2_effect")

@@ -1,24 +1,28 @@
-[gd_resource type="Resource" script_class="APKData" load_steps=17 format=3]
+[gd_resource type="Resource" script_class="APKData" format=3 uid="uid://dqcpt0j40amvs"]
 
-[ext_resource type="Script" path="res://data/templates/apk/apk_data.gd" id="1_apk"]
-[ext_resource type="Script" path="res://data/templates/apk/apk_growth_profile_data.gd" id="2_growth"]
-[ext_resource type="Script" path="res://data/templates/apk/apk_personality_data.gd" id="3_personality"]
-[ext_resource type="Script" path="res://data/templates/apk/address_term_data.gd" id="4_address"]
-[ext_resource type="Script" path="res://data/templates/module_data.gd" id="5_module"]
-[ext_resource type="Resource" path="res://data/content/combat/modules/basic_attack.tres" id="6_attack"]
-[ext_resource type="Resource" path="res://data/content/combat/modules/basic_defense.tres" id="7_defense"]
-[ext_resource type="Resource" path="res://data/content/combat/modules/basic_dodge.tres" id="8_dodge"]
-[ext_resource type="Resource" path="res://data/content/combat/modules/basic_heal.tres" id="9_heal"]
+[ext_resource type="Script" uid="uid://dwvuhtqbtihl5" path="res://data/templates/apk/apk_data.gd" id="1_apk"]
+[ext_resource type="Script" uid="uid://c2ihiqrxhbaw1" path="res://data/templates/apk/apk_growth_profile_data.gd" id="2_growth"]
+[ext_resource type="Script" uid="uid://cwgjxk5rvp3u3" path="res://data/templates/apk/apk_personality_data.gd" id="3_personality"]
+[ext_resource type="Script" uid="uid://ch2qg0x863c8p" path="res://data/templates/apk/address_term_data.gd" id="4_address"]
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="5_module"]
+[ext_resource type="Resource" uid="uid://douy6r2teyyce" path="res://data/content/combat/modules/basic_attack.tres" id="6_attack"]
+[ext_resource type="Resource" uid="uid://c08m7l3e4oail" path="res://data/content/combat/modules/basic_defense.tres" id="7_defense"]
+[ext_resource type="Resource" uid="uid://bdb5bnnhx1o76" path="res://data/content/combat/modules/basic_dodge.tres" id="8_dodge"]
+[ext_resource type="Resource" uid="uid://dc21a0ovikmof" path="res://data/content/combat/modules/basic_heal.tres" id="9_heal"]
+[ext_resource type="Script" uid="uid://c4urmsdd4jg0u" path="res://data/templates/evolution/evolution_branch_data.gd" id="9_nmyf1"]
+[ext_resource type="Script" uid="uid://w1epf6riwc1y" path="res://data/templates/apk/apk_level_reward_data.gd" id="10_6fl73"]
 [ext_resource type="Resource" path="res://data/content/combat/modules/rattildus_signature.tres" id="10_signature"]
-[ext_resource type="Texture2D" path="res://icon.svg" id="11_icon"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="11_icon"]
 
-[sub_resource type="Resource" id="Growth_rattildus"]
-script = ExtResource("2_growth")
-hp = 180
-atk = 55
-def = 45
-matk = 35
-mdef = 40
+[sub_resource type="Resource" id="Address_name"]
+script = ExtResource("4_address")
+address_term_id = "operator_first_name"
+source = 1
+
+[sub_resource type="Resource" id="Address_boss"]
+script = ExtResource("4_address")
+address_term_id = "boss"
+literal_text = "Boss"
 
 [sub_resource type="Resource" id="Personality_curious"]
 script = ExtResource("3_personality")
@@ -32,15 +36,13 @@ personality_id = "scrappy"
 display_name = "Scrappy"
 description = "Survives by improvising with whatever data remains."
 
-[sub_resource type="Resource" id="Address_name"]
-script = ExtResource("4_address")
-address_term_id = "operator_first_name"
-source = 1
-
-[sub_resource type="Resource" id="Address_boss"]
-script = ExtResource("4_address")
-address_term_id = "boss"
-literal_text = "Boss"
+[sub_resource type="Resource" id="Growth_rattildus"]
+script = ExtResource("2_growth")
+hp = 180
+atk = 55
+def = 45
+matk = 35
+mdef = 40
 
 [resource]
 script = ExtResource("1_apk")
@@ -48,7 +50,6 @@ apk_id = "rattildus_init"
 display_name = "RATTILDUS"
 species_line_id = "rattildus"
 form_id = "rattildus.init"
-form_type = 0
 sprites = Array[Texture2D]([ExtResource("11_icon")])
 portraits = Array[Texture2D]([ExtResource("11_icon")])
 combat_icon = ExtResource("11_icon")

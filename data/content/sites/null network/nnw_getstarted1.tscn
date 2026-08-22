@@ -1,19 +1,35 @@
-[gd_scene load_steps=10 format=3 uid="uid://bgvj70mu5l7r8"]
+[gd_scene format=3 uid="uid://bgvj70mu5l7r8"]
 
-[ext_resource type="Script" path="res://data/content/sites/null network/nnw_getstarted.gd" id="1_page"]
-[ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="2_theme"]
-[ext_resource type="Shader" path="res://data/assets/shaders/null_network_portal_background.gdshader" id="3_shader"]
-[ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/components/null_network_portal_header.tscn" id="4_header"]
-[ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/components/null_network_portal_footer.tscn" id="5_footer"]
-[ext_resource type="Texture2D" path="res://data/assets/icons/nnw_mascot.svg" id="6_mascot"]
-[ext_resource type="Script" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="7_frame"]
+[ext_resource type="Script" uid="uid://d3idkxqdsfriq" path="res://data/content/sites/null network/nnw_getstarted.gd" id="1_page"]
+[ext_resource type="Theme" uid="uid://d20vfd373sakv" path="res://data/assets/themes/null_network_home_theme.tres" id="2_theme"]
+[ext_resource type="Shader" uid="uid://btw02eqrtb8ds" path="res://data/assets/shaders/null_network_portal_background.gdshader" id="3_shader"]
+[ext_resource type="PackedScene" uid="uid://75jckqsrgkir" path="res://apps/browser/sites/null_network/components/null_network_portal_header.tscn" id="4_header"]
+[ext_resource type="Script" uid="uid://di40e5wgij1k4" path="res://apps/browser/site_rich_text_label.gd" id="6_bqbo1"]
+[ext_resource type="Script" uid="uid://dh2mk7mlvue41" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="7_frame"]
 
 [sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
 shader = ExtResource("3_shader")
+shader_parameter/color_top = Color(0.008, 0.047, 0.086, 1)
+shader_parameter/color_bottom = Color(0.003, 0.019, 0.037, 1)
+shader_parameter/grid_color = Color(0.02, 0.31, 0.56, 0.12)
+shader_parameter/scanline_count = 360.0
+shader_parameter/grid_size = 54.0
+shader_parameter/vignette_strength = 0.48
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_aeau4"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2xasx"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n4so8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dsmnc"]
 
 [sub_resource type="StyleBoxEmpty" id="Transparent"]
 
-[node name="NnwGetStarted" type="Control"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3lb10"]
+
+[node name="NnwGetStarted" type="Control" unique_id=1507562126]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -22,7 +38,8 @@ grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_page")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=1627482270]
+material = SubResource("BackgroundMaterial")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -30,9 +47,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-material = SubResource("BackgroundMaterial")
 
-[node name="PageMargin" type="MarginContainer" parent="."]
+[node name="PageMargin" type="MarginContainer" parent="." unique_id=921635882]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -44,222 +60,351 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 4
 
-[node name="Page" type="VBoxContainer" parent="PageMargin"]
+[node name="Page" type="VBoxContainer" parent="PageMargin" unique_id=827935586]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="PortalHeader" parent="PageMargin/Page" instance=ExtResource("4_header")]
+[node name="PortalHeader" parent="PageMargin/Page" unique_id=783501559 instance=ExtResource("4_header")]
 layout_mode = 2
-title_text = "NULL NETWORK"
 subtitle_text = "// COMMUNITY HUB"
 
-[node name="ContentFrame" type="PanelContainer" parent="PageMargin/Page"]
+[node name="ContentFrame" type="PanelContainer" parent="PageMargin/Page" unique_id=746042601]
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_aeau4")
 script = ExtResource("7_frame")
-tone = 1
 corner_cut = 8
 draw_scanlines = true
 
-[node name="ContentMargin" type="MarginContainer" parent="PageMargin/Page/ContentFrame"]
+[node name="ContentMargin" type="MarginContainer" parent="PageMargin/Page/ContentFrame" unique_id=1962745149]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 6
 
-[node name="ContentVBox" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin"]
+[node name="ContentVBox" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin" unique_id=1937449734]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="WelcomeBlock" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox"]
-layout_mode = 2
-alignment = 1
-theme_override_constants/separation = -2
-
-[node name="Mascot" type="TextureRect" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/WelcomeBlock"]
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-texture = ExtResource("6_mascot")
-expand_mode = 1
-stretch_mode = 5
-modulate = Color(0.32, 0.72, 1, 1)
-texture_filter = 1
-
-[node name="WelcomeTitle" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/WelcomeBlock"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.94, 0.98, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "hello, world"
-horizontal_alignment = 1
-
-[node name="WelcomeRule" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/WelcomeBlock"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.04, 0.55, 0.92, 0.9)
-theme_override_font_sizes/font_size = 14
-text = "+ ───── + ▪▪▪ ───── +"
-horizontal_alignment = 1
-
-[node name="GuideBody" type="HBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox"]
+[node name="GuideBody" type="HBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox" unique_id=1990986997]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 10
 
-[node name="PathRail" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody"]
-custom_minimum_size = Vector2(238, 0)
-layout_mode = 2
-script = ExtResource("7_frame")
-tone = 0
-corner_cut = 6
-
-[node name="RailMargin" type="MarginContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 6
-
-[node name="RailVBox" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="RailTitle" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.08, 0.66, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "NEW HERE? FOLLOW THE PATH."
-horizontal_alignment = 1
-
-[node name="IntroductionFrame" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 46)
-layout_mode = 2
-script = ExtResource("7_frame")
-tone = 3
-corner_cut = 6
-draw_scanlines = true
-
-[node name="IntroductionBtn" type="Button" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox/IntroductionFrame"]
-unique_name_in_owner = true
-layout_mode = 2
-toggle_mode = true
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("Transparent")
-theme_override_styles/hover = SubResource("Transparent")
-theme_override_styles/pressed = SubResource("Transparent")
-theme_override_styles/focus = SubResource("Transparent")
-text = "01   ▣   Introduction        ›\n             You are here"
-alignment = 0
-
-[node name="GetStartedFrame" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 46)
-layout_mode = 2
-script = ExtResource("7_frame")
-tone = 0
-corner_cut = 5
-draw_inner_border = false
-
-[node name="GetStartedBtn" type="Button" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox/GetStartedFrame"]
-unique_name_in_owner = true
-layout_mode = 2
-toggle_mode = true
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("Transparent")
-theme_override_styles/hover = SubResource("Transparent")
-theme_override_styles/pressed = SubResource("Transparent")
-theme_override_styles/focus = SubResource("Transparent")
-text = "02   ↗   Get Started!        ›\n             Recommended next"
-alignment = 0
-
-[node name="GlossaryFrame" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 46)
-layout_mode = 2
-script = ExtResource("7_frame")
-tone = 0
-corner_cut = 5
-draw_inner_border = false
-
-[node name="GlossaryBtn" type="Button" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox/GlossaryFrame"]
-unique_name_in_owner = true
-layout_mode = 2
-toggle_mode = true
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("Transparent")
-theme_override_styles/hover = SubResource("Transparent")
-theme_override_styles/pressed = SubResource("Transparent")
-theme_override_styles/focus = SubResource("Transparent")
-text = "03   ▤   Glossary            ›\n             Reference & terms"
-alignment = 0
-
-[node name="RailHint" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.55, 0.69, 0.81, 1)
-theme_override_font_sizes/font_size = 14
-text = "★  Follow the path to get the most\n     out of NULL NETWORK."
-vertical_alignment = 2
-
-[node name="ArticlePanel" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody"]
+[node name="ArticlePanel" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody" unique_id=488220543]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_2xasx")
 script = ExtResource("7_frame")
-tone = 1
-corner_cut = 6
 
-[node name="ArticleMargin" type="MarginContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel"]
+[node name="ArticleMargin" type="MarginContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel" unique_id=815573508]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 8
 
-[node name="ArticleVBox" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin"]
+[node name="ArticleVBox" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin" unique_id=1317495683]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="ArticleTitle" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox"]
+[node name="ArticleTitle" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox" unique_id=238696596]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.13, 0.64, 1, 1)
 theme_override_font_sizes/font_size = 14
 text = "01  INTRODUCTION"
 
-[node name="ArticleRule" type="HSeparator" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox"]
+[node name="ArticleRule" type="HSeparator" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox" unique_id=2014860065]
 layout_mode = 2
 
-[node name="ArticleScroll" type="ScrollContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox"]
+[node name="ArticleScroll" type="ScrollContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox" unique_id=1626373018]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="ArticleContent" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll"]
+[node name="ArticleContent" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll" unique_id=1490145210]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="IntroductionLabel" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll/ArticleContent"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "Hello Cobalt community,\n\nMy name is Morris and this is a fan project I began back in college in the mid 2000s. Piecing together the source code of Cobalt Blue from decompiled scraps has been one of the most challenging but rewarding experiences of my life. It’s been a lot of help from all of you along the way, and while it can’t be called a 1 to 1 recreation, I believe we’ve expanded upon Cobalt’s vision in a meaningful way.\n\nAs you may know, I’ve started my own gaming studio, M8Goods. This means I’ve had less time to dedicate to updating the game. This site is solely run by volunteer staff, the players, and unpaid organizers who help keep the app functioning on iOS and Android out of love. Due to copyright issues, we’ve never been able to monetize this project or secure an official release. It’s thanks to your generous donations that this website stays afloat.\n\nGoing forward, the moderation team will be taking the reins on this project and I’m sure they’ll do the community justice! For now, consider this the definitive version of the game and the last patch (r1) I’ll be taking part in.\n\nThank you all for playing and keeping the world safe.\n\nMorris_the_Worm8"
-autowrap_mode = 2
-
-[node name="GetStartedLabel" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll/ArticleContent"]
+[node name="IntroductionLabel" type="RichTextLabel" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll/ArticleContent" unique_id=1708285339]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "1  Upon starting the game, you will be prompted to enter a player name that is bound to your account. Choose wisely, as this cannot be changed later.\n\n2  The creatures you will encounter are APKs: living programs whose Integrity and behaviour are shaped by their data.\n\n3  NULL NETWORK is a game about making a memorable companion. Your Compatibility Assessment can match you with a partner, while Manual Allocation lets you select from the standard roster.\n\n4  Your Tendencies — VALOUR, LOGIC, SYNC and SELF — grow through decisions and combat behaviour. They shape evolution without replacing your direct tactical choices.\n\n5  During combat, SCAN, PURGE, PURIFY and TAME occupy Timeline slots. Each action changes the reward and the relationship you form with the target.\n\n6  Always be on guard. APK loss is permanent, and a careless Operator can leave more behind than progress."
-autowrap_mode = 2
+text = "Hi, NNW Operators!
 
-[node name="GlossaryLabel" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll/ArticleContent"]
+I'm Ten-ya! You might also know me as TenTen.
+
+NULL NETWORK is a dream project of mine that I first imagined way back in 2025.
+
+After managing to fully reconstruct the source code of PROJECT NULL, originally developed by KUBUSU, I was able to create a stable, playable port of the original project. That's how NULL NETWORK first came to be!
+
+If you're new here, the idea is pretty simple.
+
+NULL NETWORK lets you become an Operator and synchronize with an APK of your own. But the Network isn't something you explore from behind a screen! Take your KUBUSU Handtop with you and venture out into the real world to investigate strange signals, enter Data Centers, meet other Operators and discover the digital life hiding all around us.
+
+At least, that's how it starts. (´▽`)
+
+Over time, NNW has grown into something much bigger than I ever expected.
+
+People trade discoveries, organize expeditions, argue about things nobody completely understands yet, help new Operators find their footing and fill the forums with all sorts of rumors, theories and very strange posts.
+
+I love all of it.
+
+Every screenshot, bug report, forum thread and weird little thing you guys uncover reminds me why I wanted to bring this project back in the first place.
+
+PROJECT NULL was incredibly ambitious, but it was never really made for people like us to experience firsthand. There was so much buried inside it that I felt would be a shame to simply leave behind.
+
+NULL NETWORK is my attempt to give that work a new life.
+
+And we're still not done!
+
+I'll keep working on fixes, compatibility improvements and new features whenever I can. There are still plenty of things in the original project that I want to understand better, too.
+
+So if this is your first time here, welcome!
+
+Create an account, take the Compatibility Assessment and meet your first partner.
+
+The Network is a little strange at first, but you'll get used to us. ♡
+
+See you around!
+
+— Ten-ya!"
+autowrap_mode = 2
+script = ExtResource("6_bqbo1")
+metadata/_custom_type_script = "uid://di40e5wgij1k4"
+
+[node name="GetStartedLabel" type="RichTextLabel" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll/ArticleContent" unique_id=304771287]
 unique_name_in_owner = true
-visible = false
+layout_mode = 2
+text = "New to NULL NETWORK?
+
+Don't worry! Here's everything you need to know before becoming an Operator.
+
+
+[color=red][ 01 // REGISTER ][/color]
+
+Your first step is creating a NULL NETWORK account.
+
+Once you're registered, you'll officially become an Operator and be ready to synchronize with your first APK.
+
+That's it. Easy enough! (´▽`)
+
+
+[ 02 // COMPATIBILITY ASSESSMENT ]
+
+Before meeting your first partner, you can take the Compatibility Assessment.
+
+You'll be asked a series of questions about how you think, act and make decisions. There are no right answers, so don't overthink it!
+
+Your results help NULL NETWORK find an APK compatible with you and establish your initial Tendencies.
+
+Don't feel like taking it? That's okay! Manual Allocation lets you choose your partner and initial Tendency Values yourself.
+
+Still, letting the system decide can sometimes lead to... interesting results you wouldn't get otherwise. (´▽`)
+
+Take your time!
+
+Your partner is going to have opinions about you, too.
+
+
+[ 03 // WHAT IS AN APK? ]
+
+APKs are stable digital lifeforms capable of synchronizing with a human Operator.
+
+Your APK is your partner. It can fight alongside you, explore with you, unlock new abilities and even evolve through your synchronization.
+
+And yes, they can talk.
+
+APKs aren't mere pets or battle programs. They think, learn, remember, form opinions and express themselves in their own ways.
+
+Try to get along. ♡
+
+
+[ 04 // WHAT IS AN EXE? ]
+
+EXEs are unstable digital entities spreading throughout the Network.
+
+Most are hostile, unpredictable and dangerous. You'll encounter them while exploring real-world locations through VIRTUAL EYE.
+
+But don't mistake hostile for mindless.
+
+EXEs can display surprisingly complex behavior, and there is still a lot we don't understand about them.
+
+
+[ 05 // TENDENCIES ]
+
+NULL NETWORK keeps track of how you behave through four TENDENCY VALUES, each ranging from 0 to 200.
+
+They aren't combat stats or permanent personality labels. They rise and fall as you make decisions, fight, interact with others and spend time with your partner.
+
+[VALOUR]
+Courage, direct action, protection and risk.
+
+[LOGIC]
+Analysis, preparation, calculation and efficiency.
+
+[SYNC]
+Empathy, cooperation, trust and connection.
+
+[SELF]
+Survival, self-interest, opportunism and personal advancement.
+
+Your Tendencies can affect dialogue, opportunities and even the way your APK evolves.
+
+So just play the way that feels right to you!
+
+
+[ 06 // APK STATS ]
+
+Every APK has different strengths and weaknesses.
+
+[HP]
+Your APK's health.
+
+Lethal damage leaves it INCAPACITATED at 1 HP instead. An incapacitated APK can't use Modules, and taking more HP damage can bring it down to 0.
+
+Please don't let that happen.
+
+[ATK / DEF]
+Physical attack power and physical defense.
+
+[MATK / MDEF]
+Non-physical attack power and non-physical defense.
+
+[STABILITY]
+Every Module requires a percentage of Stability to use. Your APK can hold up to 100%, and some Stability is recovered as combat goes on.
+
+Letting it reach 0% has consequences.
+
+Try not to discover those the hard way. (；▽；)
+
+[MODULE CAPACITY]
+You can collect as many Modules as you want, but Module Capacity limits how many your APK can prepare for battle at once.
+
+
+[ 07 // COMBAT ]
+
+When an EXE attacks, your APK fights back using Modules.
+
+Each combat cycle gives you four Module Slots. Fill them with attacks, defenses, support abilities or whatever weird tricks your current loadout allows.
+
+Modules consume Stability, so using the strongest thing available four times in a row isn't always the smartest idea!
+
+And remember: defeating the enemy isn't always your only option.
+
+
+[ 08 // PLAYER ACTIONS ]
+
+Operators can interact directly with EXEs through Player Actions.
+
+Using one takes up Module Slots. Each slot contributes 25% toward the action, so you'll have to decide how much of your combat cycle you're willing to spend on it.
+
+[SCAN]
+Analyze an EXE and acquire one of its Modules.
+
+[PURGE]
+Mark an EXE for aggressive extraction. Defeating it afterward grants much more EXP, but permanently removes that individual from the local population.
+
+[PURIFY]
+Stabilize an EXE. Purification can reward you with a related Passive Module and improve the local digital ecosystem.
+
+[TAME]
+Attempt to make the target your new partner.
+
+Be careful! TAME permanently replaces your current partner.
+
+Purifying an EXE first creates a stable APK. Taming one directly is possible too, but... I really wouldn't recommend doing that unless you know what you're getting into.
+
+[RUN AWAY]
+
+Don't want to fight? You can try to leave instead!
+
+Some EXEs will let you go without a problem. Others might need a little convincing first.
+
+Running away successfully ends the encounter without rewards, but it also won't cost you any time.
+
+Just don't expect that option everywhere. Some places are much harder to leave once you're inside.
+
+
+And you don't have to use a Player Action at all! Simply defeating an EXE normally is always an option.
+
+What happens to them is up to you.
+
+
+[ READY? ]
+
+That's enough reading!
+
+Create your account, meet your first partner and get out there.
+
+We'll see you on the other side! ♡"
+fit_content = true
+autowrap_mode = 2
+script = ExtResource("6_bqbo1")
+metadata/_custom_type_script = "uid://di40e5wgij1k4"
+
+[node name="PathRail" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody" unique_id=1175302486]
+custom_minimum_size = Vector2(238, 0)
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_n4so8")
+script = ExtResource("7_frame")
+tone = 0
+
+[node name="RailMargin" type="MarginContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail" unique_id=779669013]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="RailVBox" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin" unique_id=1255418841]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="IntroductionFrame" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox" unique_id=1038504836]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_dsmnc")
+script = ExtResource("7_frame")
+tone = 3
+draw_scanlines = true
+
+[node name="IntroductionBtn" type="Button" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox/IntroductionFrame" unique_id=1773218906]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-text = "ADMINISTRATOR  A player who controls the majority of an area’s Data Centers.\n\nAGGRO LOCK  A state where an Operator is inside an enemy’s range and cannot safely exit.\n\nBLACKHAT  A playstyle centered on consumption, exploitation and forbidden systems.\n\nDATA CENTER  A fixed stronghold protected by a powerful APK.\n\nDEAD ZONE  A location with no active Operators and an unusually dense program ecosystem.\n\nINDEX  The act of gathering complete map information about an area.\n\nWHITEHAT  A purification-focused playstyle chosen after learning that other paths exist."
-autowrap_mode = 2
+theme_override_styles/normal = SubResource("Transparent")
+theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
+theme_override_styles/focus = SubResource("Transparent")
+toggle_mode = true
+text = "Introduction"
 
-[node name="PortalFooter" parent="PageMargin/Page" instance=ExtResource("5_footer")]
+[node name="GetStartedFrame" type="PanelContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox" unique_id=648340884]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_3lb10")
+script = ExtResource("7_frame")
+tone = 0
+corner_cut = 5
+draw_inner_border = false
+
+[node name="GetStartedBtn" type="Button" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/PathRail/RailMargin/RailVBox/GetStartedFrame" unique_id=1151871113]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("Transparent")
+theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
+theme_override_styles/focus = SubResource("Transparent")
+toggle_mode = true
+text = "Getting Started!"

@@ -1,13 +1,14 @@
-[gd_resource type="Resource" script_class="DummyData" load_steps=12 format=3]
+[gd_resource type="Resource" script_class="DummyData" format=3 uid="uid://b31826q4fkbgw"]
 
-[ext_resource type="Script" path="res://data/templates/dummy_data.gd" id="1_dummy"]
-[ext_resource type="Script" path="res://data/templates/combat_stat_formula_data.gd" id="2_stat_formula"]
-[ext_resource type="Script" path="res://data/templates/combat_value_formula.gd" id="3_formula"]
-[ext_resource type="Script" path="res://data/templates/combat_triggered_effect_data.gd" id="4_triggered"]
-[ext_resource type="Script" path="res://data/templates/combat_trigger_data.gd" id="5_trigger"]
-[ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="6_effect"]
-[ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="7_target"]
-[ext_resource type="Texture2D" path="res://icon.svg" id="8_icon"]
+[ext_resource type="Script" uid="uid://c62nfka6aqr6f" path="res://data/templates/dummy_data.gd" id="1_dummy"]
+[ext_resource type="Script" uid="uid://0ancnq2edet1" path="res://data/templates/status_effect.gd" id="2_2shfi"]
+[ext_resource type="Script" uid="uid://dnrvn6rhqxwl6" path="res://data/templates/combat_stat_formula_data.gd" id="2_stat_formula"]
+[ext_resource type="Script" uid="uid://2s4dc3vux8i3" path="res://data/templates/combat_value_formula.gd" id="3_formula"]
+[ext_resource type="Script" uid="uid://bslhntk7jble" path="res://data/templates/combat_triggered_effect_data.gd" id="4_triggered"]
+[ext_resource type="Script" uid="uid://euty5cpbldip" path="res://data/templates/combat_trigger_data.gd" id="5_trigger"]
+[ext_resource type="Script" uid="uid://rnthl5gqx7w1" path="res://data/templates/combat_effect_data.gd" id="6_effect"]
+[ext_resource type="Script" uid="uid://d0h7kubwmgtyk" path="res://data/templates/combat_target_selector.gd" id="7_target"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="8_icon"]
 
 [sub_resource type="Resource" id="Formula_hp"]
 script = ExtResource("3_formula")
@@ -16,12 +17,10 @@ stat_multiplier = 0.3
 
 [sub_resource type="Resource" id="Stat_hp"]
 script = ExtResource("2_stat_formula")
-stat = 1
 formula = SubResource("Formula_hp")
 
 [sub_resource type="Resource" id="Formula_atk"]
 script = ExtResource("3_formula")
-stat = 5
 stat_multiplier = 0.5
 
 [sub_resource type="Resource" id="Stat_atk"]
@@ -41,13 +40,11 @@ formula = SubResource("Formula_def")
 
 [sub_resource type="Resource" id="Target_direct"]
 script = ExtResource("7_target")
-target_kind = 1
 
 [sub_resource type="Resource" id="Formula_damage"]
 script = ExtResource("3_formula")
 base_value = 5.0
 stat_reference = 2
-stat = 5
 stat_multiplier = 1.0
 
 [sub_resource type="Resource" id="Effect_damage"]
@@ -58,7 +55,6 @@ can_crit = false
 
 [sub_resource type="Resource" id="Trigger_cycle_end"]
 script = ExtResource("5_trigger")
-timing = 5
 
 [sub_resource type="Resource" id="Triggered_fire"]
 script = ExtResource("4_triggered")

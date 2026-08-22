@@ -1,49 +1,59 @@
-[gd_resource type="Resource" script_class="KubuchanThreadData" load_steps=15 format=3]
+[gd_resource type="Resource" script_class="KubuchanThreadData" format=3 uid="uid://dqkvcvkwp6igs"]
 
-[ext_resource type="Script" path="res://data/templates/browser/kubuchan_thread_data.gd" id="1_thread"]
-[ext_resource type="Script" path="res://data/templates/browser/kubuchan_post_data.gd" id="2_post"]
+[ext_resource type="Script" uid="uid://uxo4tdgadv0p" path="res://data/templates/browser/kubuchan_thread_data.gd" id="1_thread"]
+[ext_resource type="Script" uid="uid://whb3a32ti3lc" path="res://data/templates/browser/kubuchan_post_data.gd" id="2_post"]
 
 [sub_resource type="Resource" id="Post_OP"]
 script = ExtResource("2_post")
 post_number = 73144201
 subject = "multiplayer recs for a new kubuos owner?"
-author_name = "Anonymous"
 uid = "7C2F91"
 timestamp = "08/11/26 (Tue) 21:18:04"
-body_text = "got a used KUBUSU for basically nothing. what does anyone actually play on this thing?\n\nlooking for multiplayer. co-op, versus, persistent weird shit, whatever. i don't care if it's ancient as long as there are still actual people on the other end."
+body_text = "got a used KUBUSU for basically nothing. what does anyone actually play on this thing?
+
+looking for multiplayer. co-op, versus, persistent weird shit, whatever. i don't care if it's ancient as long as there are still actual people on the other end."
 is_op = true
 
 [sub_resource type="Resource" id="Post_1"]
 script = ExtResource("2_post")
 post_number = 73144218
-author_name = "Anonymous"
 uid = "18B0D4"
 timestamp = "08/11/26 (Tue) 21:22:41"
-body_text = ">>73144201\nGRIDLOCK/8 still gets rooms around 9pm. Kubu Tactics Online has like twelve japanese guys who have apparently sworn a blood oath never to quit.\n\nPocket Marshal works if you already know three other people who own one."
+body_text = ">>73144201
+GRIDLOCK/8 still gets rooms around 9pm. Kubu Tactics Online has like twelve japanese guys who have apparently sworn a blood oath never to quit.
+
+Pocket Marshal works if you already know three other people who own one."
 
 [sub_resource type="Resource" id="Post_2"]
 script = ExtResource("2_post")
 post_number = 73144227
-author_name = "Anonymous"
 uid = "E340AF"
 timestamp = "08/11/26 (Tue) 21:25:09"
-body_text = "that's basically the whole list lol\n\nKubu sells a computer the size of a sandwich, locks the OS down like a bank terminal and then acts surprised when nobody ports games to it. corpse ecosystem."
+body_text = "that's basically the whole list lol
+
+Kubu sells a computer the size of a sandwich, locks the OS down like a bank terminal and then acts surprised when nobody ports games to it. corpse ecosystem."
 
 [sub_resource type="Resource" id="Post_3"]
 script = ExtResource("2_post")
 post_number = 73144241
-author_name = "Anonymous"
 uid = "5A72CC"
 timestamp = "08/11/26 (Tue) 21:31:53"
-body_text = ">>73144201\nMIRROR//RELAY was good before auth died. some private rooms still work if you know where to point the client.\n\nand don't say null network or the fucking bot will find the thread."
+body_text = ">>73144201
+MIRROR//RELAY was good before auth died. some private rooms still work if you know where to point the client.
+
+and don't say null network or the fucking bot will find the thread."
 
 [sub_resource type="Resource" id="Post_Bot"]
 script = ExtResource("2_post")
 post_number = 73144255
-author_name = "Anonymous"
-uid = "000000"
 timestamp = "08/11/26 (Tue) 21:36:00"
-body_text = "MULTIPLAYER REQUEST DETECTED.\n\nKUBUSU HANDTOP: COMPATIBLE.\nACTIVE SESSION AVAILABLE.\nNO MATCHMAKING REQUIRED.\n\nCONNECT."
+body_text = "MULTIPLAYER REQUEST DETECTED.
+
+KUBUSU HANDTOP: COMPATIBLE.
+ACTIVE SESSION AVAILABLE.
+NO MATCHMAKING REQUIRED.
+
+CONNECT."
 is_system_spam = true
 link_label = "https://null.net/"
 link_url = "null.net"
@@ -51,72 +61,86 @@ link_url = "null.net"
 [sub_resource type="Resource" id="Post_4"]
 script = ExtResource("2_post")
 post_number = 73144261
-author_name = "Anonymous"
 uid = "18B0D4"
 timestamp = "08/11/26 (Tue) 21:37:12"
-body_text = "LMFAO\n\n>>73144255\ni literally watched him summon it. null network admins still running this keyword-scraper shit? how has kubuchan not filtered the account yet"
+body_text = "LMFAO
+
+>>73144255
+i literally watched him summon it. null network admins still running this keyword-scraper shit? how has kubuchan not filtered the account yet"
 
 [sub_resource type="Resource" id="Post_5"]
 script = ExtResource("2_post")
 post_number = 73144270
-author_name = "Anonymous"
 uid = "91D5E0"
 timestamp = "08/11/26 (Tue) 21:40:36"
-body_text = ">>73144255\nNull Network isn't even really a KubuOS game. pretty sure it's a cancelled Kubu project somebody gutted, rebuilt out of scraps and kept patching until the original thing underneath stopped being recognizable.\n\nclient feels like five incompatible programs wearing the same skin."
+body_text = ">>73144255
+Null Network isn't even really a KubuOS game. pretty sure it's a cancelled Kubu project somebody gutted, rebuilt out of scraps and kept patching until the original thing underneath stopped being recognizable.
+
+client feels like five incompatible programs wearing the same skin."
 
 [sub_resource type="Resource" id="Post_6"]
 script = ExtResource("2_post")
 post_number = 73144278
-author_name = "Anonymous"
 uid = "44B8FA"
 timestamp = "08/11/26 (Tue) 21:43:58"
-body_text = ">>73144270\nnot exactly. WEWERE had a build before the public APK existed. same handshake strings, same asset names, same dead endpoints.\n\npeople call it a salvage because that's less stupid than the alternatives."
+body_text = ">>73144270
+not exactly. WEWERE had a build before the public APK existed. same handshake strings, same asset names, same dead endpoints.
+
+people call it a salvage because that's less stupid than the alternatives."
 
 [sub_resource type="Resource" id="Post_7"]
 script = ExtResource("2_post")
 post_number = 73144291
-author_name = "Anonymous"
 uid = "E340AF"
 timestamp = "08/11/26 (Tue) 21:48:15"
-body_text = ">>73144278\nwewereposting in 2026\n\nOP asked for multiplayer, not your haunted hard drive lore"
+body_text = ">>73144278
+wewereposting in 2026
+
+OP asked for multiplayer, not your haunted hard drive lore"
 
 [sub_resource type="Resource" id="Post_8"]
 script = ExtResource("2_post")
 post_number = 73144303
-author_name = "Anonymous"
 uid = "44B8FA"
 timestamp = "08/11/26 (Tue) 21:52:44"
-body_text = ">>73144291\ntwo regulars from the old NN threads stopped posting after going back in last month. one of them is actually missing, not internet-missing. family report and everything.\n\nprobably unrelated. still wouldn't put that apk on my main handtop."
+body_text = ">>73144291
+two regulars from the old NN threads stopped posting after going back in last month. one of them is actually missing, not internet-missing. family report and everything.
+
+probably unrelated. still wouldn't put that apk on my main handtop."
 
 [sub_resource type="Resource" id="Post_9"]
 script = ExtResource("2_post")
 post_number = 73144317
-author_name = "Anonymous"
 uid = "7C2F91"
 timestamp = "08/11/26 (Tue) 21:57:20"
-body_text = "so my options are\n\n1. twelve guys playing tactics in japanese\n2. convince three friends to buy obsolete hardware\n3. click the suspicious dead-game link posted by a spam bot everyone here recognizes\n\ngreat ecosystem"
+body_text = "so my options are
+
+1. twelve guys playing tactics in japanese
+2. convince three friends to buy obsolete hardware
+3. click the suspicious dead-game link posted by a spam bot everyone here recognizes
+
+great ecosystem"
 
 [sub_resource type="Resource" id="Post_10"]
 script = ExtResource("2_post")
 post_number = 73144324
-author_name = "Anonymous"
 uid = "5A72CC"
 timestamp = "08/11/26 (Tue) 21:59:02"
-body_text = ">>73144317\nif your only requirement is 'there are still people on the other end', the bot accidentally gave you the best answer in the thread.\n\nfor whatever reason that place is never empty."
+body_text = ">>73144317
+if your only requirement is 'there are still people on the other end', the bot accidentally gave you the best answer in the thread.
+
+for whatever reason that place is never empty."
 
 [sub_resource type="Resource" id="Post_11"]
 script = ExtResource("2_post")
 post_number = 73144331
-author_name = "Anonymous"
 uid = "91D5E0"
 timestamp = "08/11/26 (Tue) 22:01:47"
-body_text = ">>73144317\nuse the browser version first. don't install anything until you decide the weirdos are worth it."
+body_text = ">>73144317
+use the browser version first. don't install anything until you decide the weirdos are worth it."
 
 [resource]
 script = ExtResource("1_thread")
-board_code = "/kg/"
-board_name = "Kubu Gaming"
-board_tagline = "Games, software toys and network play on KubuOS"
 thread_title = "multiplayer recs for a new kubuos owner?"
 thread_id = 73144201
 archived_notice = "Thread archived. You cannot reply anymore."

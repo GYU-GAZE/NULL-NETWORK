@@ -1,16 +1,11 @@
-[gd_resource type="Resource" script_class="ModuleData" load_steps=7 format=3 uid="uid://bdb5bnnhx1o76"]
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://bdb5bnnhx1o76"]
 
-[ext_resource type="Script" path="res://data/templates/module_data.gd" id="1_module"]
-[ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
-[ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="3_target"]
-[ext_resource type="Script" path="res://data/templates/combat_value_formula.gd" id="4_formula"]
-[ext_resource type="Resource" path="res://data/content/combat/status_effects/dodge_up.tres" id="5_status"]
-[ext_resource type="Script" path="res://data/templates/combat/combat_tendency_gain_data.gd" id="6_gain"]
-
-[sub_resource type="Resource" id="Gain_logic"]
-script = ExtResource("6_gain")
-tendency = 1
-amount = 1
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="1_module"]
+[ext_resource type="Script" uid="uid://rnthl5gqx7w1" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
+[ext_resource type="Script" uid="uid://d0h7kubwmgtyk" path="res://data/templates/combat_target_selector.gd" id="3_target"]
+[ext_resource type="Script" uid="uid://2s4dc3vux8i3" path="res://data/templates/combat_value_formula.gd" id="4_formula"]
+[ext_resource type="Resource" uid="uid://bg2sktkj1myx" path="res://data/content/combat/status_effects/dodge_up.tres" id="5_status"]
+[ext_resource type="Script" uid="uid://dxoqpn82ahfe" path="res://data/templates/combat/combat_tendency_gain_data.gd" id="6_gain"]
 
 [sub_resource type="Resource" id="Target_self"]
 script = ExtResource("3_target")
@@ -25,8 +20,12 @@ script = ExtResource("2_effect")
 effect_type = 3
 target_selector = SubResource("Target_self")
 value_formula = SubResource("Formula_stack")
-status_effect = ExtResource("5_status")
 can_crit = false
+status_effect = ExtResource("5_status")
+
+[sub_resource type="Resource" id="Gain_logic"]
+script = ExtResource("6_gain")
+tendency = 1
 
 [resource]
 script = ExtResource("1_module")

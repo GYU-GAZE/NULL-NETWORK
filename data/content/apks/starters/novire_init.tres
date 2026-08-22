@@ -1,29 +1,35 @@
-[gd_resource type="Resource" script_class="APKData" load_steps=19 format=3]
+[gd_resource type="Resource" script_class="APKData" format=3 uid="uid://dcsel55diu26g"]
 
-[ext_resource type="Script" path="res://data/templates/apk/apk_data.gd" id="1_apk"]
-[ext_resource type="Script" path="res://data/templates/apk/apk_growth_profile_data.gd" id="2_growth"]
-[ext_resource type="Script" path="res://data/templates/apk/apk_personality_data.gd" id="3_personality"]
-[ext_resource type="Script" path="res://data/templates/apk/address_term_data.gd" id="4_address"]
-[ext_resource type="Script" path="res://data/templates/apk/apk_level_reward_data.gd" id="5_reward"]
-[ext_resource type="Script" path="res://data/templates/module_data.gd" id="6_module"]
-[ext_resource type="Resource" path="res://data/content/combat/modules/basic_attack.tres" id="7_attack"]
-[ext_resource type="Resource" path="res://data/content/combat/modules/basic_defense.tres" id="8_defense"]
-[ext_resource type="Resource" path="res://data/content/combat/modules/basic_dodge.tres" id="9_dodge"]
-[ext_resource type="Resource" path="res://data/content/combat/modules/basic_heal.tres" id="10_heal"]
-[ext_resource type="Texture2D" path="res://icon.svg" id="11_icon"]
-[ext_resource type="Script" path="res://data/templates/evolution/evolution_branch_data.gd" id="12_branch_type"]
-[ext_resource type="Resource" path="res://data/content/evolution/novire_valour_branch.tres" id="13_valour_branch"]
+[ext_resource type="Script" uid="uid://dwvuhtqbtihl5" path="res://data/templates/apk/apk_data.gd" id="1_apk"]
+[ext_resource type="Script" uid="uid://c2ihiqrxhbaw1" path="res://data/templates/apk/apk_growth_profile_data.gd" id="2_growth"]
+[ext_resource type="Script" uid="uid://cwgjxk5rvp3u3" path="res://data/templates/apk/apk_personality_data.gd" id="3_personality"]
+[ext_resource type="Script" uid="uid://ch2qg0x863c8p" path="res://data/templates/apk/address_term_data.gd" id="4_address"]
+[ext_resource type="Script" uid="uid://w1epf6riwc1y" path="res://data/templates/apk/apk_level_reward_data.gd" id="5_reward"]
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="6_module"]
+[ext_resource type="Resource" uid="uid://douy6r2teyyce" path="res://data/content/combat/modules/basic_attack.tres" id="7_attack"]
+[ext_resource type="Resource" uid="uid://c08m7l3e4oail" path="res://data/content/combat/modules/basic_defense.tres" id="8_defense"]
+[ext_resource type="Resource" uid="uid://bdb5bnnhx1o76" path="res://data/content/combat/modules/basic_dodge.tres" id="9_dodge"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="11_icon"]
+[ext_resource type="Script" uid="uid://c4urmsdd4jg0u" path="res://data/templates/evolution/evolution_branch_data.gd" id="12_branch_type"]
+[ext_resource type="Resource" uid="uid://cnhyr7m6q80p7" path="res://data/content/evolution/novire_valour_branch.tres" id="13_valour_branch"]
 [ext_resource type="Resource" path="res://data/content/apks/personalities/first_impression/optimistic.tres" id="14_optimistic_impression"]
 [ext_resource type="Resource" path="res://data/content/apks/personalities/first_impression/brave.tres" id="15_brave_impression"]
 [ext_resource type="Resource" path="res://data/content/apks/personalities/first_impression/wise.tres" id="16_wise_impression"]
 
-[sub_resource type="Resource" id="Growth_novire"]
-script = ExtResource("2_growth")
-hp = 240
-atk = 70
-def = 50
-matk = 60
-mdef = 55
+[sub_resource type="Resource" id="Address_name"]
+script = ExtResource("4_address")
+address_term_id = "operator_first_name"
+source = 1
+
+[sub_resource type="Resource" id="Address_nickname"]
+script = ExtResource("4_address")
+address_term_id = "operator_nickname"
+source = 2
+
+[sub_resource type="Resource" id="Address_boss"]
+script = ExtResource("4_address")
+address_term_id = "boss"
+literal_text = "Boss"
 
 [sub_resource type="Resource" id="Personality_optimistic"]
 script = ExtResource("3_personality")
@@ -46,25 +52,17 @@ display_name = "Wise"
 description = "Prefers observation, preparation and measured advice."
 first_impression_profile = ExtResource("16_wise_impression")
 
-[sub_resource type="Resource" id="Address_name"]
-script = ExtResource("4_address")
-address_term_id = "operator_first_name"
-source = 1
-
-[sub_resource type="Resource" id="Address_nickname"]
-script = ExtResource("4_address")
-address_term_id = "operator_nickname"
-source = 2
-
-[sub_resource type="Resource" id="Address_boss"]
-script = ExtResource("4_address")
-address_term_id = "boss"
-literal_text = "Boss"
-
 [sub_resource type="Resource" id="Reward_level_2"]
 script = ExtResource("5_reward")
-required_level = 2
 active_module_ids = PackedStringArray("basic_heal")
+
+[sub_resource type="Resource" id="Growth_novire"]
+script = ExtResource("2_growth")
+hp = 240
+atk = 70
+def = 50
+matk = 60
+mdef = 55
 
 [resource]
 script = ExtResource("1_apk")
@@ -72,14 +70,12 @@ apk_id = "novire_init"
 display_name = "REVQUIRE"
 species_line_id = "novire"
 form_id = "novire.init"
-form_type = 0
 selectable_as_starter = true
 starter_sort_order = 10
 sprites = Array[Texture2D]([ExtResource("11_icon")])
 portraits = Array[Texture2D]([ExtResource("11_icon")])
 combat_icon = ExtResource("11_icon")
 level_100_stats = SubResource("Growth_novire")
-stability_recovery = 20
 available_personalities = Array[ExtResource("3_personality")]([SubResource("Personality_optimistic"), SubResource("Personality_brave"), SubResource("Personality_wise")])
 available_address_terms = Array[ExtResource("4_address")]([SubResource("Address_name"), SubResource("Address_nickname"), SubResource("Address_boss")])
 default_active_modules = Array[ExtResource("6_module")]([ExtResource("7_attack"), ExtResource("8_defense"), ExtResource("9_dodge"), ExtResource("7_attack")])

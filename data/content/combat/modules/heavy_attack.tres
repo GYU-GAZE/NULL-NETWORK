@@ -1,30 +1,26 @@
-[gd_resource type="Resource" script_class="ModuleData" load_steps=6 format=3 uid="uid://d0de40r3qxfd8"]
+[gd_resource type="Resource" script_class="ModuleData" format=3 uid="uid://d0de40r3qxfd8"]
 
-[ext_resource type="Script" path="res://data/templates/module_data.gd" id="1_module"]
-[ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
-[ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="3_target"]
-[ext_resource type="Script" path="res://data/templates/combat_damage_formula_data.gd" id="4_damage"]
-[ext_resource type="Script" path="res://data/templates/combat/combat_tendency_gain_data.gd" id="5_gain"]
-
-[sub_resource type="Resource" id="Gain_valour"]
-script = ExtResource("5_gain")
-tendency = 0
-amount = 2
-
-[sub_resource type="Resource" id="Target_direct"]
-script = ExtResource("3_target")
-target_kind = 1
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="1_module"]
+[ext_resource type="Script" uid="uid://rnthl5gqx7w1" path="res://data/templates/combat_effect_data.gd" id="2_effect"]
+[ext_resource type="Script" uid="uid://d0h7kubwmgtyk" path="res://data/templates/combat_target_selector.gd" id="3_target"]
+[ext_resource type="Script" uid="uid://dop7fu5etyj0i" path="res://data/templates/combat_damage_formula_data.gd" id="4_damage"]
+[ext_resource type="Script" uid="uid://dxoqpn82ahfe" path="res://data/templates/combat/combat_tendency_gain_data.gd" id="5_gain"]
 
 [sub_resource type="Resource" id="Formula_damage"]
 script = ExtResource("4_damage")
 power = 100
-offense_stat = 5
-defense_stat = 6
+
+[sub_resource type="Resource" id="Target_direct"]
+script = ExtResource("3_target")
 
 [sub_resource type="Resource" id="Effect_damage"]
 script = ExtResource("2_effect")
 target_selector = SubResource("Target_direct")
 damage_formula = SubResource("Formula_damage")
+
+[sub_resource type="Resource" id="Gain_valour"]
+script = ExtResource("5_gain")
+amount = 2
 
 [resource]
 script = ExtResource("1_module")

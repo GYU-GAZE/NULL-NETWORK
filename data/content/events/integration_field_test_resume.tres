@@ -1,22 +1,22 @@
-[gd_resource type="Resource" script_class="StoryEventData" load_steps=15 format=3]
+[gd_resource type="Resource" script_class="StoryEventData" format=3 uid="uid://21eh2llhmyjl"]
 
-[ext_resource type="Script" path="res://data/templates/events/story_event_data.gd" id="1_event"]
-[ext_resource type="Script" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
-[ext_resource type="Script" path="res://data/templates/events/story_event_step_data.gd" id="3_step"]
-[ext_resource type="Script" path="res://data/templates/conditions/condition_rule_data.gd" id="4_rule"]
-[ext_resource type="Script" path="res://data/templates/conditions/condition_set_data.gd" id="5_set"]
-[ext_resource type="Script" path="res://data/templates/conditions/flag_condition_data.gd" id="6_flag_condition"]
-[ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="7_effect"]
-[ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="8_flag_effect"]
+[ext_resource type="Script" uid="uid://ctile4t6bt74" path="res://data/templates/events/story_event_data.gd" id="1_event"]
+[ext_resource type="Script" uid="uid://b68id3b3b6exj" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
+[ext_resource type="Script" uid="uid://cqbgbtuu4lbw8" path="res://data/templates/events/story_event_step_data.gd" id="3_step"]
+[ext_resource type="Script" uid="uid://bcb8biwqvf4bv" path="res://data/templates/conditions/condition_rule_data.gd" id="4_rule"]
+[ext_resource type="Script" uid="uid://b4ogugnf0aii6" path="res://data/templates/conditions/condition_set_data.gd" id="5_set"]
+[ext_resource type="Script" uid="uid://bse7oqsi7tfiw" path="res://data/templates/conditions/flag_condition_data.gd" id="6_flag_condition"]
+[ext_resource type="Script" uid="uid://dd1ejt4fvo5p" path="res://data/templates/effects/game_effect_data.gd" id="7_effect"]
+[ext_resource type="Script" uid="uid://b83h03ewt815j" path="res://data/templates/effects/set_flag_effect_data.gd" id="8_flag_effect"]
 
-[sub_resource type="Resource" id="Trigger_campaign_loaded"]
-script = ExtResource("2_trigger")
-trigger_type = 1
+[sub_resource type="Resource" id="Effect_ready"]
+script = ExtResource("8_flag_effect")
+flag_name = "integration.field_test.ready"
+effect_id = "integration.field_test.resume_mark_ready"
 
 [sub_resource type="Resource" id="Condition_welcome_complete"]
 script = ExtResource("6_flag_condition")
 flag_name = "story.prologue.welcome_complete"
-expected_value = true
 
 [sub_resource type="Resource" id="Condition_field_not_ready"]
 script = ExtResource("6_flag_condition")
@@ -25,7 +25,6 @@ expected_value = false
 
 [sub_resource type="Resource" id="Conditions_resume"]
 script = ExtResource("5_set")
-match_mode = 0
 rules = Array[ExtResource("4_rule")]([SubResource("Condition_welcome_complete"), SubResource("Condition_field_not_ready")])
 
 [sub_resource type="Resource" id="Step_open_browser"]
@@ -47,14 +46,10 @@ step_type = 1
 title = "FIELD TEST GUIDE RESTORED"
 message = "The temporary Akihabara integration route is open in Kubu Browser."
 source_app_id = "browser"
-notification_type = 0
-notification_priority = 1
 
-[sub_resource type="Resource" id="Effect_ready"]
-script = ExtResource("8_flag_effect")
-effect_id = "integration.field_test.resume_mark_ready"
-flag_name = "integration.field_test.ready"
-value = true
+[sub_resource type="Resource" id="Trigger_campaign_loaded"]
+script = ExtResource("2_trigger")
+trigger_type = 1
 
 [resource]
 script = ExtResource("1_event")
@@ -62,7 +57,5 @@ event_id = "integration.field_test.resume"
 priority = 80
 conditions = SubResource("Conditions_resume")
 trigger = SubResource("Trigger_campaign_loaded")
-repeat_policy = 0
 steps = Array[ExtResource("3_step")]([SubResource("Step_open_browser"), SubResource("Step_navigate_thread"), SubResource("Step_notification")])
 completion_effects = Array[ExtResource("7_effect")]([SubResource("Effect_ready")])
-interruption_policy = 0

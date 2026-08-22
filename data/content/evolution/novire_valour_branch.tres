@@ -1,17 +1,18 @@
-[gd_resource type="Resource" script_class="EvolutionBranchData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="EvolutionBranchData" format=3 uid="uid://cnhyr7m6q80p7"]
 
-[ext_resource type="Script" path="res://data/templates/evolution/evolution_branch_data.gd" id="1_branch"]
-[ext_resource type="Script" path="res://data/templates/evolution/core_requirement_data.gd" id="2_core"]
-[ext_resource type="Script" path="res://data/templates/evolution/evolution_catalyst_data.gd" id="3_catalyst"]
-[ext_resource type="Script" path="res://data/templates/evolution/evolution_window_data.gd" id="4_window"]
+[ext_resource type="Script" uid="uid://c4urmsdd4jg0u" path="res://data/templates/evolution/evolution_branch_data.gd" id="1_branch"]
+[ext_resource type="Script" uid="uid://xfnkntyhoatj" path="res://data/templates/evolution/core_requirement_data.gd" id="2_core"]
+[ext_resource type="Script" uid="uid://bvbuu6mjs3u86" path="res://data/templates/evolution/evolution_catalyst_data.gd" id="3_catalyst"]
+[ext_resource type="Script" uid="uid://btg377etr37uj" path="res://data/templates/evolution/evolution_window_data.gd" id="4_window"]
 
 [sub_resource type="Resource" id="Core_valour"]
 script = ExtResource("2_core")
 min_level = 15
 required_current_apk_id = "novire_init"
-required_global_tendency = 0
 require_global_dominance = true
 global_dominance_margin = 5
+required_flags = null
+forbidden_flags = null
 
 [sub_resource type="Resource" id="Catalyst_damage"]
 script = ExtResource("3_catalyst")
@@ -20,23 +21,15 @@ threshold = 100
 
 [sub_resource type="Resource" id="Catalyst_projected"]
 script = ExtResource("3_catalyst")
-catalyst_kind = 0
-tendency = 0
 threshold = 30
 
 [sub_resource type="Resource" id="Window_cycle"]
 script = ExtResource("4_window")
-window_id = "end_of_cycle"
-window_kind = 0
 
 [resource]
 script = ExtResource("1_branch")
 branch_id = "evolution.novire.valour"
 target_apk_id = "novire_valour"
-combat_only = true
 core_requirements = Array[ExtResource("2_core")]([SubResource("Core_valour")])
 evolution_catalysts = Array[ExtResource("3_catalyst")]([SubResource("Catalyst_damage"), SubResource("Catalyst_projected")])
 windows = Array[ExtResource("4_window")]([SubResource("Window_cycle")])
-prompt_player = true
-forced_if_valid = false
-once_per_battle = true

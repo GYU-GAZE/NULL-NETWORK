@@ -1,41 +1,48 @@
-[gd_scene load_steps=20 format=3 uid="uid://dfghm5hb81mbt"]
+[gd_scene format=3 uid="uid://dfghm5hb81mbt"]
 
-[ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="1_theme"]
-[ext_resource type="Shader" path="res://data/assets/shaders/null_network_portal_background.gdshader" id="2_shader"]
-[ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/components/null_network_portal_header.tscn" id="3_header"]
+[ext_resource type="Theme" uid="uid://d20vfd373sakv" path="res://data/assets/themes/null_network_home_theme.tres" id="1_theme"]
+[ext_resource type="Shader" uid="uid://btw02eqrtb8ds" path="res://data/assets/shaders/null_network_portal_background.gdshader" id="2_shader"]
+[ext_resource type="PackedScene" uid="uid://75jckqsrgkir" path="res://apps/browser/sites/null_network/components/null_network_portal_header.tscn" id="3_header"]
 [ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/components/null_network_portal_footer.tscn" id="4_footer"]
-[ext_resource type="Texture2D" path="res://data/assets/icons/nnwicon.png" id="5_logo"]
-[ext_resource type="Texture2D" path="res://data/assets/icons/nnw_portal_icons.svg" id="6_icons"]
-[ext_resource type="Script" path="res://apps/browser/site_action_button.gd" id="7_action"]
-[ext_resource type="Script" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="8_frame"]
-[ext_resource type="Script" path="res://data/templates/browser/site_action_data.gd" id="9_action_data"]
-[ext_resource type="Script" path="res://data/templates/conditions/flag_condition_data.gd" id="10_flag_condition"]
+[ext_resource type="Texture2D" uid="uid://d1ikfbaxfrmtk" path="res://data/assets/icons/nnwicon.png" id="5_logo"]
+[ext_resource type="Texture2D" uid="uid://ib5573tullh7" path="res://data/assets/icons/nnw_portal_icons.svg" id="6_icons"]
+[ext_resource type="Script" uid="uid://di40e5wgij1k4" path="res://apps/browser/site_rich_text_label.gd" id="6_l0cy7"]
+[ext_resource type="Script" uid="uid://dd1ejt4fvo5p" path="res://data/templates/effects/game_effect_data.gd" id="7_0llbi"]
+[ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="7_action"]
+[ext_resource type="Script" uid="uid://dh2mk7mlvue41" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="8_frame"]
+[ext_resource type="Script" uid="uid://du08olu0k2tfp" path="res://data/templates/browser/site_action_data.gd" id="9_action_data"]
+[ext_resource type="Script" uid="uid://bse7oqsi7tfiw" path="res://data/templates/conditions/flag_condition_data.gd" id="10_flag_condition"]
 
 [sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
 shader = ExtResource("2_shader")
+shader_parameter/color_top = Color(0.008, 0.047, 0.086, 1)
+shader_parameter/color_bottom = Color(0.003, 0.019, 0.037, 1)
+shader_parameter/grid_color = Color(0.02, 0.31, 0.56, 0.12)
+shader_parameter/scanline_count = 360.0
+shader_parameter/grid_size = 54.0
+shader_parameter/vignette_strength = 0.48
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fvwyx"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_66dl0"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ehp7m"]
+
+[sub_resource type="StyleBoxEmpty" id="Transparent"]
+
+[sub_resource type="Resource" id="ActionGetStarted"]
+script = ExtResource("9_action_data")
+target_url = "null.net/getstarted"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_pnwaw"]
 
 [sub_resource type="AtlasTexture" id="DocumentIcon"]
 atlas = ExtResource("6_icons")
 region = Rect2(16, 0, 16, 16)
 
-[sub_resource type="AtlasTexture" id="MessageIcon"]
-atlas = ExtResource("6_icons")
-region = Rect2(32, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="RankingIcon"]
-atlas = ExtResource("6_icons")
-region = Rect2(48, 0, 16, 16)
-
-[sub_resource type="StyleBoxEmpty" id="Transparent"]
-
 [sub_resource type="Resource" id="ConditionRegistered"]
 script = ExtResource("10_flag_condition")
 flag_name = "operator.registered"
-expected_value = true
-
-[sub_resource type="Resource" id="ActionGetStarted"]
-script = ExtResource("9_action_data")
-target_url = "null.net/getstarted"
 
 [sub_resource type="Resource" id="ActionUpdates"]
 script = ExtResource("9_action_data")
@@ -44,7 +51,12 @@ target_url = "null.net/updates"
 show_failed_alert = true
 failed_alert_title = "ACCOUNT REQUIRED"
 failed_alert_message = "You must have an account to access this area."
-failed_alert_animation = 2
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hoad8"]
+
+[sub_resource type="AtlasTexture" id="MessageIcon"]
+atlas = ExtResource("6_icons")
+region = Rect2(32, 0, 16, 16)
 
 [sub_resource type="Resource" id="ActionThreads"]
 script = ExtResource("9_action_data")
@@ -53,7 +65,12 @@ target_url = "null.net/forums"
 show_failed_alert = true
 failed_alert_title = "ACCOUNT REQUIRED"
 failed_alert_message = "You must have an account to access this area."
-failed_alert_animation = 2
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hed6w"]
+
+[sub_resource type="AtlasTexture" id="RankingIcon"]
+atlas = ExtResource("6_icons")
+region = Rect2(48, 0, 16, 16)
 
 [sub_resource type="Resource" id="ActionRankings"]
 script = ExtResource("9_action_data")
@@ -62,9 +79,9 @@ target_url = "null.net/playerrankings"
 show_failed_alert = true
 failed_alert_title = "ACCOUNT REQUIRED"
 failed_alert_message = "You must have an account to access this area."
-failed_alert_animation = 2
 
-[node name="NnwHomepage" type="Control"]
+[node name="NnwHomepage" type="Control" unique_id=734392268]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -72,7 +89,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_theme")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=217051631]
+material = SubResource("BackgroundMaterial")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -80,10 +98,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-material = SubResource("BackgroundMaterial")
-color = Color(1, 1, 1, 1)
 
-[node name="PageMargin" type="MarginContainer" parent="."]
+[node name="PageMargin" type="MarginContainer" parent="." unique_id=789687788]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -95,201 +111,223 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 4
 
-[node name="Page" type="VBoxContainer" parent="PageMargin"]
+[node name="Page" type="VBoxContainer" parent="PageMargin" unique_id=1988997757]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="PortalHeader" parent="PageMargin/Page" instance=ExtResource("3_header")]
+[node name="PortalHeader" parent="PageMargin/Page" unique_id=1266019571 instance=ExtResource("3_header")]
 layout_mode = 2
 title_text = "null NETWORK"
-subtitle_text = ""
 
-[node name="MainFrame" type="PanelContainer" parent="PageMargin/Page"]
+[node name="MainFrame" type="PanelContainer" parent="PageMargin/Page" unique_id=96269053]
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_fvwyx")
 script = ExtResource("8_frame")
-tone = 1
 corner_cut = 8
 draw_scanlines = true
 
-[node name="MainMargin" type="MarginContainer" parent="PageMargin/Page/MainFrame"]
+[node name="MainMargin" type="MarginContainer" parent="PageMargin/Page/MainFrame" unique_id=1594527769]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 8
 
-[node name="MainVBox" type="VBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin"]
+[node name="MainVBox" type="VBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin" unique_id=1886942368]
 layout_mode = 2
 theme_override_constants/separation = 7
 
-[node name="HeroVBox" type="VBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox"]
+[node name="HeroVBox" type="VBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox" unique_id=1942708026]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 7
 
-[node name="HeroContent" type="HBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox"]
+[node name="HeroContent" type="HBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox" unique_id=1427113256]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 16
 
-[node name="PortalVisual" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent"]
+[node name="PortalVisual" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent" unique_id=84798732]
 custom_minimum_size = Vector2(252, 0)
 layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_66dl0")
 script = ExtResource("8_frame")
 tone = 0
 corner_cut = 5
 draw_inner_border = false
 draw_corner_marks = false
 
-[node name="VisualVBox" type="VBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual"]
+[node name="VisualVBox" type="VBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual" unique_id=1360398076]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = -2
+alignment = 1
 
-[node name="MatrixTop" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
+[node name="MatrixTop" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual/VisualVBox" unique_id=894432572]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.02, 0.35, 0.64, 0.55)
 theme_override_font_sizes/font_size = 14
-text = "0  1  0  0  1  1  0  1  0\n  1  1  0  1  0  0  1\n0  0  1  1  0  1  0  0"
+text = "0  1  0  0  1  1  0  1  0
+  1  1  0  1  0  0  1
+0  0  1  1  0  1  0  0"
 horizontal_alignment = 1
 
-[node name="HeroMark" type="TextureRect" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
+[node name="HeroMark" type="TextureRect" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual/VisualVBox" unique_id=845663049]
+texture_filter = 1
 custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 texture = ExtResource("5_logo")
 expand_mode = 1
 stretch_mode = 5
-texture_filter = 1
 
-[node name="MatrixFloor" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual/VisualVBox"]
+[node name="MatrixFloor" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/PortalVisual/VisualVBox" unique_id=1692952733]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.03, 0.42, 0.72, 0.68)
 theme_override_font_sizes/font_size = 14
 text = "──────╱╱╱╱╱╱──────"
 horizontal_alignment = 1
 
-[node name="HeroCopy" type="VBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent"]
+[node name="HeroCopy" type="VBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent" unique_id=1000263507]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 3
 
-[node name="Eyebrow" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy"]
+[node name="Eyebrow" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy" unique_id=603065177]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.66, 1, 1)
 theme_override_font_sizes/font_size = 14
-text = "// ENTER THE DIGITAL FRONTIER //"
+text = "// PROTECT THE DIGITAL FRONTIER //"
 horizontal_alignment = 1
 
-[node name="HeroTitle" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy"]
+[node name="HeroTitle" type="Label" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy" unique_id=794749781]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.26, 0.76, 1, 1)
 theme_override_font_sizes/font_size = 28
-text = "THE WORLD IS UNDER SIEGE."
+text = "THE END OF THE WORLD NEARS."
 horizontal_alignment = 1
 
-[node name="DescriptionLabel" type="RichTextLabel" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy"]
-custom_minimum_size = Vector2(0, 0)
+[node name="DescriptionLabel" type="RichTextLabel" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/HeroContent/HeroCopy" unique_id=619235681]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 14
-theme_override_constants/line_spacing = 0
-text = "In the lead-up to the devastating Y2K virus, a mass purge of data opened a rift between the world of man and computers. Now, electronic specters from the digital realm are trying to invade the world of the living!\n\nGear up with futuristic goggles and photon weaponry that lets you do battle with vicious viruses, woeful worms and apocalyptic A.I. — each one hellbent on overwriting humanity.\n\nUsing the latest innovations in augmented reality, take the fight from your screen straight into your home! A gaming experience like nothing you've seen before!\n\nFrom the brilliant mind of Tarou Yamada.\n\n                              コバルトブルー     © 2000"
+text = "Across the Network, malicious digital entities known as EXEs are spreading through malware and compromised systems.
+
+Once confined to the digital world, they are now searching for a way across the boundary - into ours.
+
+To fight back, APKs were created!
+
+Purified from the same entities that threaten the Network, APKs are stable digital lifeforms capable of forming a bond with a human partner. Through synchronization, an Operator can awaken abilities that would otherwise remain dormant.
+
+With KUBUSU Handtop's VIRTUAL EYE technology, the boundary between the virtual and the real is no longer invisible.
+
+SEE BEYOND THE SCREEN.
+STEP INTO A NEW DIMENSION.
+DISCOVER A LIVING DIGITAL FAUNA ALL AROUND YOU.
+BECOME AN OPERATOR AND SAVE THE WORLD!
+
+NULL NETWORK originated from PROJECT NULL, the ambitious research initiative developed by the WEWERE research team and KUBUSU Corp.
+
+© 2027 TEN-YA. ALL RIGHTS RESERVED."
 fit_content = true
 scroll_active = false
+script = ExtResource("6_l0cy7")
+metadata/_custom_type_script = "uid://di40e5wgij1k4"
 
-[node name="CtaFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox"]
+[node name="CtaFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox" unique_id=1628540538]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_ehp7m")
 script = ExtResource("8_frame")
 tone = 3
 corner_cut = 7
 draw_scanlines = true
 
-[node name="Get Started" type="Button" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/CtaFrame"]
+[node name="Get Started" type="Button" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox/CtaFrame" unique_id=637793433]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.93, 0.99, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("Transparent")
-theme_override_styles/hover = SubResource("Transparent")
 theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
 theme_override_styles/focus = SubResource("Transparent")
 text = "›        GET STARTED        ‹"
 script = ExtResource("7_action")
 action_data = SubResource("ActionGetStarted")
 
-[node name="PortalLinks" type="HBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox"]
+[node name="PortalLinks" type="HBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox" unique_id=1903470322]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="UpdatesFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks"]
+[node name="UpdatesFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks" unique_id=2074350494]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_pnwaw")
 script = ExtResource("8_frame")
-tone = 1
 corner_cut = 5
 draw_inner_border = false
 
-[node name="UpdatesBtn" type="Button" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks/UpdatesFrame"]
+[node name="UpdatesBtn" type="Button" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks/UpdatesFrame" unique_id=1155203496]
 unique_name_in_owner = true
 layout_mode = 2
-icon = SubResource("DocumentIcon")
-icon_max_width = 24
 theme_override_styles/normal = SubResource("Transparent")
-theme_override_styles/hover = SubResource("Transparent")
 theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
 theme_override_styles/focus = SubResource("Transparent")
 text = "CHANGELOG          ›"
+icon = SubResource("DocumentIcon")
 script = ExtResource("7_action")
 action_data = SubResource("ActionUpdates")
 
-[node name="ThreadsFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks"]
+[node name="ThreadsFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks" unique_id=1321628253]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_hoad8")
 script = ExtResource("8_frame")
-tone = 1
 corner_cut = 5
 draw_inner_border = false
 
-[node name="ThreadsBtn" type="Button" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks/ThreadsFrame"]
+[node name="ThreadsBtn" type="Button" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks/ThreadsFrame" unique_id=2018477716]
 unique_name_in_owner = true
 layout_mode = 2
-icon = SubResource("MessageIcon")
-icon_max_width = 24
 theme_override_styles/normal = SubResource("Transparent")
-theme_override_styles/hover = SubResource("Transparent")
 theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
 theme_override_styles/focus = SubResource("Transparent")
 text = "MESSAGE BOARD          ›"
+icon = SubResource("MessageIcon")
 script = ExtResource("7_action")
 action_data = SubResource("ActionThreads")
 
-[node name="RankingsFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks"]
+[node name="RankingsFrame" type="PanelContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks" unique_id=2121597629]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_hed6w")
 script = ExtResource("8_frame")
-tone = 1
 corner_cut = 5
 draw_inner_border = false
 
-[node name="RankingsBtn" type="Button" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks/RankingsFrame"]
+[node name="RankingsBtn" type="Button" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/PortalLinks/RankingsFrame" unique_id=35880239]
 unique_name_in_owner = true
 layout_mode = 2
-icon = SubResource("RankingIcon")
-icon_max_width = 24
 theme_override_styles/normal = SubResource("Transparent")
-theme_override_styles/hover = SubResource("Transparent")
 theme_override_styles/pressed = SubResource("Transparent")
+theme_override_styles/hover = SubResource("Transparent")
 theme_override_styles/focus = SubResource("Transparent")
 text = "PLAYER RANKINGS          ›"
+icon = SubResource("RankingIcon")
 script = ExtResource("7_action")
 action_data = SubResource("ActionRankings")
 
-[node name="PortalFooter" parent="PageMargin/Page" instance=ExtResource("4_footer")]
+[node name="PortalFooter" parent="PageMargin/Page" unique_id=454124804 instance=ExtResource("4_footer")]
 layout_mode = 2

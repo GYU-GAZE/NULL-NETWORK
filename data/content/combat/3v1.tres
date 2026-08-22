@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="CombatEncounter" load_steps=9 format=3 uid="uid://i24s2c766jts"]
+[gd_resource type="Resource" script_class="CombatEncounter" format=3 uid="uid://i24s2c766jts"]
 
-[ext_resource type="Script" path="res://data/templates/combat_encounter.gd" id="1_encounter"]
-[ext_resource type="Script" path="res://data/templates/combat_slot_data.gd" id="2_slot"]
+[ext_resource type="Script" uid="uid://cpylubw8n7yf8" path="res://data/templates/combat_encounter.gd" id="1_encounter"]
+[ext_resource type="Script" uid="uid://djaxfdpwehdq4" path="res://data/templates/combat_slot_data.gd" id="2_slot"]
 [ext_resource type="Resource" path="res://data/content/combat/rewards/rattildus_reward.tres" id="5_reward"]
-[ext_resource type="Resource" path="res://data/content/combat/resolutions/default_exe_resolution.tres" id="6_resolution"]
+[ext_resource type="Resource" uid="uid://n10g5mc2shso" path="res://data/content/combat/resolutions/default_exe_resolution.tres" id="6_resolution"]
 
 [sub_resource type="Resource" id="Slot_player"]
 script = ExtResource("2_slot")
@@ -13,7 +13,6 @@ participant_source = 1
 script = ExtResource("2_slot")
 participant_source = 3
 apk_id = "rattildus_init"
-apk_level = 1
 reward_profile = ExtResource("5_reward")
 
 [sub_resource type="Resource" id="Slot_enemy_center"]
@@ -21,7 +20,6 @@ script = ExtResource("2_slot")
 slot_index = 1
 participant_source = 3
 apk_id = "rattildus_init"
-apk_level = 1
 reward_profile = ExtResource("5_reward")
 
 [sub_resource type="Resource" id="Slot_enemy_right"]
@@ -29,7 +27,6 @@ script = ExtResource("2_slot")
 slot_index = 2
 participant_source = 3
 apk_id = "rattildus_init"
-apk_level = 1
 reward_profile = ExtResource("5_reward")
 
 [resource]

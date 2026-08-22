@@ -1,11 +1,11 @@
-[gd_resource type="Resource" script_class="StatusEffectData" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="StatusEffectData" format=3 uid="uid://bg2sktkj1myx"]
 
-[ext_resource type="Script" path="res://data/templates/status_effect.gd" id="1_status"]
-[ext_resource type="Script" path="res://data/templates/combat_triggered_effect_data.gd" id="2_triggered"]
-[ext_resource type="Script" path="res://data/templates/combat_trigger_data.gd" id="3_trigger"]
-[ext_resource type="Script" path="res://data/templates/combat_effect_data.gd" id="4_effect"]
-[ext_resource type="Script" path="res://data/templates/combat_target_selector.gd" id="5_target"]
-[ext_resource type="Script" path="res://data/templates/combat_value_formula.gd" id="6_formula"]
+[ext_resource type="Script" uid="uid://0ancnq2edet1" path="res://data/templates/status_effect.gd" id="1_status"]
+[ext_resource type="Script" uid="uid://bslhntk7jble" path="res://data/templates/combat_triggered_effect_data.gd" id="2_triggered"]
+[ext_resource type="Script" uid="uid://euty5cpbldip" path="res://data/templates/combat_trigger_data.gd" id="3_trigger"]
+[ext_resource type="Script" uid="uid://rnthl5gqx7w1" path="res://data/templates/combat_effect_data.gd" id="4_effect"]
+[ext_resource type="Script" uid="uid://d0h7kubwmgtyk" path="res://data/templates/combat_target_selector.gd" id="5_target"]
+[ext_resource type="Script" uid="uid://2s4dc3vux8i3" path="res://data/templates/combat_value_formula.gd" id="6_formula"]
 
 [sub_resource type="Resource" id="Target_holder"]
 script = ExtResource("5_target")
@@ -34,8 +34,8 @@ effects = Array[ExtResource("4_effect")]([SubResource("Effect_dodge")])
 [resource]
 script = ExtResource("1_status")
 status_id = &"dodge_up"
-classification = &"evasion"
 display_name = "DODGE UP"
+classification = &"evasion"
 description = "Raises DODGE until the current cycle ends."
 duration_cycles = 1
 tick_on_application_cycle = true

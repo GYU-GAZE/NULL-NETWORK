@@ -1,23 +1,22 @@
-[gd_resource type="Resource" script_class="APKData" load_steps=14 format=3]
+[gd_resource type="Resource" script_class="APKData" format=3 uid="uid://b33bisiuyr2sl"]
 
-[ext_resource type="Script" path="res://data/templates/apk/apk_data.gd" id="1_apk"]
-[ext_resource type="Script" path="res://data/templates/apk/apk_growth_profile_data.gd" id="2_growth"]
-[ext_resource type="Script" path="res://data/templates/apk/apk_personality_data.gd" id="3_personality"]
-[ext_resource type="Script" path="res://data/templates/apk/address_term_data.gd" id="4_address"]
-[ext_resource type="Script" path="res://data/templates/module_data.gd" id="5_module"]
-[ext_resource type="Resource" path="res://data/content/combat/modules/basic_attack.tres" id="6_attack"]
-[ext_resource type="Resource" path="res://data/content/combat/modules/basic_defense.tres" id="7_defense"]
-[ext_resource type="Resource" path="res://data/content/combat/modules/basic_dodge.tres" id="8_dodge"]
-[ext_resource type="Resource" path="res://data/content/combat/modules/basic_heal.tres" id="9_heal"]
-[ext_resource type="Texture2D" path="res://icon.svg" id="10_icon"]
+[ext_resource type="Script" uid="uid://dwvuhtqbtihl5" path="res://data/templates/apk/apk_data.gd" id="1_apk"]
+[ext_resource type="Script" uid="uid://c2ihiqrxhbaw1" path="res://data/templates/apk/apk_growth_profile_data.gd" id="2_growth"]
+[ext_resource type="Script" uid="uid://cwgjxk5rvp3u3" path="res://data/templates/apk/apk_personality_data.gd" id="3_personality"]
+[ext_resource type="Script" uid="uid://ch2qg0x863c8p" path="res://data/templates/apk/address_term_data.gd" id="4_address"]
+[ext_resource type="Script" uid="uid://c5i2yudu22p4m" path="res://data/templates/module_data.gd" id="5_module"]
+[ext_resource type="Resource" uid="uid://douy6r2teyyce" path="res://data/content/combat/modules/basic_attack.tres" id="6_attack"]
+[ext_resource type="Resource" uid="uid://c08m7l3e4oail" path="res://data/content/combat/modules/basic_defense.tres" id="7_defense"]
+[ext_resource type="Resource" uid="uid://bdb5bnnhx1o76" path="res://data/content/combat/modules/basic_dodge.tres" id="8_dodge"]
+[ext_resource type="Resource" uid="uid://dc21a0ovikmof" path="res://data/content/combat/modules/basic_heal.tres" id="9_heal"]
+[ext_resource type="Script" uid="uid://c4urmsdd4jg0u" path="res://data/templates/evolution/evolution_branch_data.gd" id="9_npw21"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="10_icon"]
+[ext_resource type="Script" uid="uid://w1epf6riwc1y" path="res://data/templates/apk/apk_level_reward_data.gd" id="10_x1rjm"]
 
-[sub_resource type="Resource" id="Growth_turd"]
-script = ExtResource("2_growth")
-hp = 100
-atk = 10
-def = 10
-matk = 10
-mdef = 10
+[sub_resource type="Resource" id="Address_operator"]
+script = ExtResource("4_address")
+address_term_id = "operator"
+literal_text = "Operator"
 
 [sub_resource type="Resource" id="Personality_containment"]
 script = ExtResource("3_personality")
@@ -25,10 +24,8 @@ personality_id = "containment"
 display_name = "Containment"
 description = "A minimal emergency process that prioritizes keeping the Operator synchronized."
 
-[sub_resource type="Resource" id="Address_operator"]
-script = ExtResource("4_address")
-address_term_id = "operator"
-literal_text = "Operator"
+[sub_resource type="Resource" id="Growth_turd"]
+script = ExtResource("2_growth")
 
 [resource]
 script = ExtResource("1_apk")
@@ -36,7 +33,6 @@ apk_id = "turd_init"
 display_name = "TURD"
 species_line_id = "turd"
 form_id = "turd.init"
-form_type = 0
 sprites = Array[Texture2D]([ExtResource("10_icon")])
 portraits = Array[Texture2D]([ExtResource("10_icon")])
 combat_icon = ExtResource("10_icon")

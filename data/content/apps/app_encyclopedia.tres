@@ -1,20 +1,13 @@
-[gd_resource type="Resource" script_class="AppResource" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="AppResource" format=3 uid="uid://cl2xm1rsjrtlw"]
 
-[ext_resource type="Script" path="res://data/templates/app_resource.gd" id="1_app"]
-[ext_resource type="Texture2D" path="res://icon.svg" id="2_icon"]
+[ext_resource type="Script" uid="uid://b2kr16bkp27ck" path="res://data/templates/app_resource.gd" id="1_app"]
+[ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="2_icon"]
 [ext_resource type="PackedScene" path="res://apps/encyclopedia/encyclopedia_app.tscn" id="3_scene"]
-[ext_resource type="Script" path="res://data/templates/conditions/condition_set_data.gd" id="4_set"]
-[ext_resource type="Script" path="res://data/templates/conditions/condition_rule_data.gd" id="5_rule"]
-[ext_resource type="Script" path="res://data/templates/conditions/encyclopedia_condition_data.gd" id="6_encyclopedia"]
-[ext_resource type="Script" path="res://data/templates/kubu_notification_data.gd" id="7_notification"]
-
-[sub_resource type="Resource" id="Entry_required"]
-script = ExtResource("6_encyclopedia")
-requirement = 0
-
-[sub_resource type="Resource" id="Conditions_has_entry"]
-script = ExtResource("4_set")
-rules = Array[ExtResource("5_rule")]([SubResource("Entry_required")])
+[ext_resource type="Script" uid="uid://dd1ejt4fvo5p" path="res://data/templates/effects/game_effect_data.gd" id="3_tkhq0"]
+[ext_resource type="Script" uid="uid://b4ogugnf0aii6" path="res://data/templates/conditions/condition_set_data.gd" id="4_set"]
+[ext_resource type="Script" uid="uid://bcb8biwqvf4bv" path="res://data/templates/conditions/condition_rule_data.gd" id="5_rule"]
+[ext_resource type="Script" uid="uid://clqc8wo6jfofw" path="res://data/templates/conditions/encyclopedia_condition_data.gd" id="6_encyclopedia"]
+[ext_resource type="Script" uid="uid://bscriyeovw734" path="res://data/templates/kubu_notification_data.gd" id="7_notification"]
 
 [sub_resource type="Resource" id="Notification_installed"]
 script = ExtResource("7_notification")
@@ -23,6 +16,13 @@ title = "ENCYCLOPEDIA INSTALLED"
 message = "Confirmed network entities are now indexed."
 source_app_id = "encyclopedia"
 notification_type = 6
+
+[sub_resource type="Resource" id="Entry_required"]
+script = ExtResource("6_encyclopedia")
+
+[sub_resource type="Resource" id="Conditions_has_entry"]
+script = ExtResource("4_set")
+rules = Array[ExtResource("5_rule")]([SubResource("Entry_required")])
 
 [resource]
 script = ExtResource("1_app")

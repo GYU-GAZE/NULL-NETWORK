@@ -1,16 +1,15 @@
-[gd_resource type="Resource" script_class="StoryEventData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="StoryEventData" format=3 uid="uid://bc12166o3q1gf"]
 
-[ext_resource type="Script" path="res://data/templates/events/story_event_data.gd" id="1_event"]
-[ext_resource type="Script" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
-[ext_resource type="Script" path="res://data/templates/events/story_event_step_data.gd" id="3_step"]
-[ext_resource type="Script" path="res://data/templates/effects/game_effect_data.gd" id="4_effect"]
-[ext_resource type="Script" path="res://data/templates/effects/set_flag_effect_data.gd" id="5_flag"]
+[ext_resource type="Script" uid="uid://ctile4t6bt74" path="res://data/templates/events/story_event_data.gd" id="1_event"]
+[ext_resource type="Script" uid="uid://b68id3b3b6exj" path="res://data/templates/events/story_event_trigger_data.gd" id="2_trigger"]
+[ext_resource type="Script" uid="uid://cqbgbtuu4lbw8" path="res://data/templates/events/story_event_step_data.gd" id="3_step"]
+[ext_resource type="Script" uid="uid://dd1ejt4fvo5p" path="res://data/templates/effects/game_effect_data.gd" id="4_effect"]
+[ext_resource type="Script" uid="uid://b83h03ewt815j" path="res://data/templates/effects/set_flag_effect_data.gd" id="5_flag"]
 
-[sub_resource type="Resource" id="Trigger_registration_unlocked"]
-script = ExtResource("2_trigger")
-trigger_type = 3
-watched_flag_name = "prologue.registration_unlocked"
-watched_flag_value = true
+[sub_resource type="Resource" id="Effect_started"]
+script = ExtResource("5_flag")
+flag_name = "prologue.registration_started"
+effect_id = "prologue.registration.mark_started"
 
 [sub_resource type="Resource" id="Step_open_browser"]
 script = ExtResource("3_step")
@@ -24,18 +23,16 @@ step_id = "navigate_registration"
 step_type = 3
 browser_url = "null.net/register"
 
-[sub_resource type="Resource" id="Effect_started"]
-script = ExtResource("5_flag")
-effect_id = "prologue.registration.mark_started"
-flag_name = "prologue.registration_started"
-value = true
+[sub_resource type="Resource" id="Trigger_registration_unlocked"]
+script = ExtResource("2_trigger")
+trigger_type = 3
+watched_flag_name = "prologue.registration_unlocked"
 
 [resource]
 script = ExtResource("1_event")
 event_id = "prologue.registration_started"
 priority = 1000
 trigger = SubResource("Trigger_registration_unlocked")
-repeat_policy = 0
 steps = Array[ExtResource("3_step")]([SubResource("Step_open_browser"), SubResource("Step_navigate_register")])
 completion_effects = Array[ExtResource("4_effect")]([SubResource("Effect_started")])
 interruption_policy = 1

@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="NPCData" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="NPCData" format=3 uid="uid://bc5ef8y26t6lk"]
 
-[ext_resource type="Script" path="res://data/templates/npcs/npc_data.gd" id="1_npc"]
-[ext_resource type="Script" path="res://data/templates/npcs/npc_routine_entry_data.gd" id="2_routine"]
-[ext_resource type="Resource" path="res://data/content/users/GANBAREkun.tres" id="3_user"]
+[ext_resource type="Script" uid="uid://dyo5kny30euf0" path="res://data/templates/npcs/npc_data.gd" id="1_npc"]
+[ext_resource type="Script" uid="uid://bcm5qjy8q3dfw" path="res://data/templates/npcs/npc_routine_entry_data.gd" id="2_routine"]
+[ext_resource type="Resource" uid="uid://dqcx6fntqnfmx" path="res://data/content/users/GANBAREkun.tres" id="3_user"]
 [ext_resource type="Resource" path="res://data/content/npcs/personalities/ganbare_heroic.tres" id="4_personality"]
 [ext_resource type="Resource" path="res://data/content/combat/loadouts/ganbarekun_party_partner.tres" id="5_party_loadout"]
 
@@ -23,8 +23,6 @@ routine_id = "ganbarekun.integration.offline"
 priority = 10
 weekday_indices = PackedInt32Array(0, 1, 2, 3, 4, 5, 6)
 day_blocks = PackedInt32Array(12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23)
-presence_state = 0
-physically_present = false
 status_text = "Offline until the next day cycle."
 
 [resource]
@@ -32,8 +30,8 @@ script = ExtResource("1_npc")
 npc_id = "ganbarekun"
 network_user = ExtResource("3_user")
 personality = ExtResource("4_personality")
+tags = PackedStringArray("ranking", "forum", "integration")
 default_location_id = "akihabara"
 routines = Array[ExtResource("2_routine")]([SubResource("Routine_online"), SubResource("Routine_offline")])
-tags = PackedStringArray("ranking", "forum", "integration")
 can_join_party = true
 party_loadout = ExtResource("5_party_loadout")
