@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://75jckqsrgkir" path="res://apps/browser/sites/null_network/components/null_network_portal_header.tscn" id="4_header"]
 [ext_resource type="Script" uid="uid://di40e5wgij1k4" path="res://apps/browser/site_rich_text_label.gd" id="6_bqbo1"]
 [ext_resource type="Script" uid="uid://dh2mk7mlvue41" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="7_frame"]
+[ext_resource type="Resource" path="res://data/content/shared/tenya_user.tres" id="8_tenya"]
 
 [sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
 shader = ExtResource("3_shader")
@@ -37,6 +38,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_page")
+author_user = ExtResource("8_tenya")
 
 [node name="Background" type="ColorRect" parent="." unique_id=1627482270]
 material = SubResource("BackgroundMaterial")
@@ -121,228 +123,74 @@ text = "01  INTRODUCTION"
 [node name="ArticleRule" type="HSeparator" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox" unique_id=2014860065]
 layout_mode = 2
 
-[node name="ArticleScroll" type="ScrollContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox" unique_id=1626373018]
+[node name="PostBody" type="HBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox"]
 layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="AuthorProfile" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/PostBody"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(112, 0)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="AuthorAvatar" type="TextureRect" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/PostBody/AuthorProfile"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="AuthorUsername" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/PostBody/AuthorProfile"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.13, 0.64, 1, 1)
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="AuthorTitle" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/PostBody/AuthorProfile"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.88, 0.96, 1)
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="AuthorLocation" type="Label" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/PostBody/AuthorProfile"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.69, 0.81, 1)
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="ArticleScroll" type="ScrollContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/PostBody" unique_id=1626373018]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="ArticleContent" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll" unique_id=1490145210]
+[node name="ArticleContent" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/PostBody/ArticleScroll" unique_id=1490145210]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="IntroductionLabel" type="RichTextLabel" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll/ArticleContent" unique_id=1708285339]
+[node name="IntroductionLabel" type="RichTextLabel" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/PostBody/ArticleScroll/ArticleContent" unique_id=1708285339]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-text = "Hi, NNW Operators!
-
-I'm Ten-ya! You might also know me as TenTen.
-
-NULL NETWORK is a dream project of mine that I first imagined way back in 2025.
-
-After managing to fully reconstruct the source code of PROJECT NULL, originally developed by KUBUSU, I was able to create a stable, playable port of the original project. That's how NULL NETWORK first came to be!
-
-If you're new here, the idea is pretty simple.
-
-NULL NETWORK lets you become an Operator and synchronize with an APK of your own. But the Network isn't something you explore from behind a screen! Take your KUBUSU Handtop with you and venture out into the real world to investigate strange signals, enter Data Centers, meet other Operators and discover the digital life hiding all around us.
-
-At least, that's how it starts. (´▽`)
-
-Over time, NNW has grown into something much bigger than I ever expected.
-
-People trade discoveries, organize expeditions, argue about things nobody completely understands yet, help new Operators find their footing and fill the forums with all sorts of rumors, theories and very strange posts.
-
-I love all of it.
-
-Every screenshot, bug report, forum thread and weird little thing you guys uncover reminds me why I wanted to bring this project back in the first place.
-
-PROJECT NULL was incredibly ambitious, but it was never really made for people like us to experience firsthand. There was so much buried inside it that I felt would be a shame to simply leave behind.
-
-NULL NETWORK is my attempt to give that work a new life.
-
-And we're still not done!
-
-I'll keep working on fixes, compatibility improvements and new features whenever I can. There are still plenty of things in the original project that I want to understand better, too.
-
-So if this is your first time here, welcome!
-
-Create an account, take the Compatibility Assessment and meet your first partner.
-
-The Network is a little strange at first, but you'll get used to us. ♡
-
-See you around!
-
-— Ten-ya!"
+text = "Hi, NNW Operators!\n\nI'm Ten-ya! You might also know me as TenTen.\n\nNULL NETWORK is a dream project of mine that I first imagined way back in 2025.\n\nAfter managing to fully reconstruct the source code of PROJECT NULL, originally developed by KUBUSU, I was able to create a stable, playable port of the original project. That's how NULL NETWORK first came to be!\n\nIf you're new here, the idea is pretty simple.\n\nNULL NETWORK lets you become an Operator and synchronize with an APK of your own. But the Network isn't something you explore from behind a screen! Take your KUBUSU Handtop with you and venture out into the real world to investigate strange signals, enter Data Centers, meet other Operators and discover the digital life hiding all around us.\n\nAt least, that's how it starts. (´▽`)\n\nOver time, NNW has grown into something much bigger than I ever expected.\n\nPeople trade discoveries, organize expeditions, argue about things nobody completely understands yet, help new Operators find their footing and fill the forums with all sorts of rumors, theories and very strange posts.\n\nI love all of it.\n\nEvery screenshot, bug report, forum thread and weird little thing you guys uncover reminds me why I wanted to bring this project back in the first place.\n\nPROJECT NULL was incredibly ambitious, but it was never really made for people like us to experience firsthand. There was so much buried inside it that I felt would be a shame to simply leave behind.\n\nNULL NETWORK is my attempt to give that work a new life.\n\nAnd we're still not done!\n\nI'll keep working on fixes, compatibility improvements and new features whenever I can. There are still plenty of things in the original project that I want to understand better, too.\n\nSo if this is your first time here, welcome!\n\nCreate an account, take the Compatibility Assessment and meet your first partner.\n\nThe Network is a little strange at first, but you'll get used to us. ♡\n\nSee you around!\n\n— Ten-ya!"
+fit_content = true
+scroll_active = false
 autowrap_mode = 2
 script = ExtResource("6_bqbo1")
 metadata/_custom_type_script = "uid://di40e5wgij1k4"
 
-[node name="GetStartedLabel" type="RichTextLabel" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/ArticleScroll/ArticleContent" unique_id=304771287]
+[node name="GetStartedLabel" type="RichTextLabel" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/PostBody/ArticleScroll/ArticleContent" unique_id=304771287]
 unique_name_in_owner = true
 layout_mode = 2
-text = "New to NULL NETWORK?
-
-Don't worry! Here's everything you need to know before becoming an Operator.
-
-
-[color=red][ 01 // REGISTER ][/color]
-
-Your first step is creating a NULL NETWORK account.
-
-Once you're registered, you'll officially become an Operator and be ready to synchronize with your first APK.
-
-That's it. Easy enough! (´▽`)
-
-
-[ 02 // COMPATIBILITY ASSESSMENT ]
-
-Before meeting your first partner, you can take the Compatibility Assessment.
-
-You'll be asked a series of questions about how you think, act and make decisions. There are no right answers, so don't overthink it!
-
-Your results help NULL NETWORK find an APK compatible with you and establish your initial Tendencies.
-
-Don't feel like taking it? That's okay! Manual Allocation lets you choose your partner and initial Tendency Values yourself.
-
-Still, letting the system decide can sometimes lead to... interesting results you wouldn't get otherwise. (´▽`)
-
-Take your time!
-
-Your partner is going to have opinions about you, too.
-
-
-[ 03 // WHAT IS AN APK? ]
-
-APKs are stable digital lifeforms capable of synchronizing with a human Operator.
-
-Your APK is your partner. It can fight alongside you, explore with you, unlock new abilities and even evolve through your synchronization.
-
-And yes, they can talk.
-
-APKs aren't mere pets or battle programs. They think, learn, remember, form opinions and express themselves in their own ways.
-
-Try to get along. ♡
-
-
-[ 04 // WHAT IS AN EXE? ]
-
-EXEs are unstable digital entities spreading throughout the Network.
-
-Most are hostile, unpredictable and dangerous. You'll encounter them while exploring real-world locations through VIRTUAL EYE.
-
-But don't mistake hostile for mindless.
-
-EXEs can display surprisingly complex behavior, and there is still a lot we don't understand about them.
-
-
-[ 05 // TENDENCIES ]
-
-NULL NETWORK keeps track of how you behave through four TENDENCY VALUES, each ranging from 0 to 200.
-
-They aren't combat stats or permanent personality labels. They rise and fall as you make decisions, fight, interact with others and spend time with your partner.
-
-[VALOUR]
-Courage, direct action, protection and risk.
-
-[LOGIC]
-Analysis, preparation, calculation and efficiency.
-
-[SYNC]
-Empathy, cooperation, trust and connection.
-
-[SELF]
-Survival, self-interest, opportunism and personal advancement.
-
-Your Tendencies can affect dialogue, opportunities and even the way your APK evolves.
-
-So just play the way that feels right to you!
-
-
-[ 06 // APK STATS ]
-
-Every APK has different strengths and weaknesses.
-
-[HP]
-Your APK's health.
-
-Lethal damage leaves it INCAPACITATED at 1 HP instead. An incapacitated APK can't use Modules, and taking more HP damage can bring it down to 0.
-
-Please don't let that happen.
-
-[ATK / DEF]
-Physical attack power and physical defense.
-
-[MATK / MDEF]
-Non-physical attack power and non-physical defense.
-
-[STABILITY]
-Every Module requires a percentage of Stability to use. Your APK can hold up to 100%, and some Stability is recovered as combat goes on.
-
-Letting it reach 0% has consequences.
-
-Try not to discover those the hard way. (；▽；)
-
-[MODULE CAPACITY]
-You can collect as many Modules as you want, but Module Capacity limits how many your APK can prepare for battle at once.
-
-
-[ 07 // COMBAT ]
-
-When an EXE attacks, your APK fights back using Modules.
-
-Each combat cycle gives you four Module Slots. Fill them with attacks, defenses, support abilities or whatever weird tricks your current loadout allows.
-
-Modules consume Stability, so using the strongest thing available four times in a row isn't always the smartest idea!
-
-And remember: defeating the enemy isn't always your only option.
-
-
-[ 08 // PLAYER ACTIONS ]
-
-Operators can interact directly with EXEs through Player Actions.
-
-Using one takes up Module Slots. Each slot contributes 25% toward the action, so you'll have to decide how much of your combat cycle you're willing to spend on it.
-
-[SCAN]
-Analyze an EXE and acquire one of its Modules.
-
-[PURGE]
-Mark an EXE for aggressive extraction. Defeating it afterward grants much more EXP, but permanently removes that individual from the local population.
-
-[PURIFY]
-Stabilize an EXE. Purification can reward you with a related Passive Module and improve the local digital ecosystem.
-
-[TAME]
-Attempt to make the target your new partner.
-
-Be careful! TAME permanently replaces your current partner.
-
-Purifying an EXE first creates a stable APK. Taming one directly is possible too, but... I really wouldn't recommend doing that unless you know what you're getting into.
-
-[RUN AWAY]
-
-Don't want to fight? You can try to leave instead!
-
-Some EXEs will let you go without a problem. Others might need a little convincing first.
-
-Running away successfully ends the encounter without rewards, but it also won't cost you any time.
-
-Just don't expect that option everywhere. Some places are much harder to leave once you're inside.
-
-
-And you don't have to use a Player Action at all! Simply defeating an EXE normally is always an option.
-
-What happens to them is up to you.
-
-
-[ READY? ]
-
-That's enough reading!
-
-Create your account, meet your first partner and get out there.
-
-We'll see you on the other side! ♡"
+text = "New to NULL NETWORK?\n\nDon't worry! Here's everything you need to know before becoming an Operator.\n\n\n[color=red][ 01 // REGISTER ][/color]\n\nYour first step is creating a NULL NETWORK account.\n\nOnce you're registered, you'll officially become an Operator and be ready to synchronize with your first APK.\n\nThat's it. Easy enough! (´▽`)\n\n\n[ 02 // COMPATIBILITY ASSESSMENT ]\n\nBefore meeting your first partner, you can take the Compatibility Assessment.\n\nYou'll be asked a series of questions about how you think, act and make decisions. There are no right answers, so don't overthink it!\n\nYour results help NULL NETWORK find an APK compatible with you and establish your initial Tendencies.\n\nDon't feel like taking it? That's okay! Manual Allocation lets you choose your partner and initial Tendency Values yourself.\n\nStill, letting the system decide can sometimes lead to... interesting results you wouldn't get otherwise. (´▽`)\n\nTake your time!\n\nYour partner is going to have opinions about you, too.\n\n\n[ 03 // WHAT IS AN APK? ]\n\nAPKs are stable digital lifeforms capable of synchronizing with a human Operator.\n\nYour APK is your partner. It can fight alongside you, explore with you, unlock new abilities and even evolve through your synchronization.\n\nAnd yes, they can talk.\n\nAPKs aren't mere pets or battle programs. They think, learn, remember, form opinions and express themselves in their own ways.\n\nTry to get along. ♡\n\n\n[ 04 // WHAT IS AN EXE? ]\n\nEXEs are unstable digital entities spreading throughout the Network.\n\nMost are hostile, unpredictable and dangerous. You'll encounter them while exploring real-world locations through VIRTUAL EYE.\n\nBut don't mistake hostile for mindless.\n\nEXEs can display surprisingly complex behavior, and there is still a lot we don't understand about them.\n\n\n[ 05 // TENDENCIES ]\n\nNULL NETWORK keeps track of how you behave through four TENDENCY VALUES, each ranging from 0 to 200.\n\nThey aren't combat stats or permanent personality labels. They rise and fall as you make decisions, fight, interact with others and spend time with your partner.\n\n[VALOUR]\nCourage, direct action, protection and risk.\n\n[LOGIC]\nAnalysis, preparation, calculation and efficiency.\n\n[SYNC]\nEmpathy, cooperation, trust and connection.\n\n[SELF]\nSurvival, self-interest, opportunism and personal advancement.\n\nYour Tendencies can affect dialogue, opportunities and even the way your APK evolves.\n\nSo just play the way that feels right to you!\n\n\n[ 06 // APK STATS ]\n\nEvery APK has different strengths and weaknesses.\n\n[HP]\nYour APK's health.\n\nLethal damage leaves it INCAPACITATED at 1 HP instead. An incapacitated APK can't use Modules, and taking more HP damage can bring it down to 0.\n\nPlease don't let that happen.\n\n[ATK / DEF]\nPhysical attack power and physical defense.\n\n[MATK / MDEF]\nNon-physical attack power and non-physical defense.\n\n[STABILITY]\nEvery Module requires a percentage of Stability to use. Your APK can hold up to 100%, and some Stability is recovered as combat goes on.\n\nLetting it reach 0% has consequences.\n\nTry not to discover those the hard way. (；▽；)\n\n[MODULE CAPACITY]\nYou can collect as many Modules as you want, but Module Capacity limits how many your APK can prepare for battle at once.\n\n\n[ 07 // COMBAT ]\n\nWhen an EXE attacks, your APK fights back using Modules.\n\nEach combat cycle gives you four Module Slots. Fill them with attacks, defenses, support abilities or whatever weird tricks your current loadout allows.\n\nModules consume Stability, so using the strongest thing available four times in a row isn't always the smartest idea!\n\nAnd remember: defeating the enemy isn't always your only option.\n\n\n[ 08 // PLAYER ACTIONS ]\n\nOperators can interact directly with EXEs through Player Actions.\n\nUsing one takes up Module Slots. Each slot contributes 25% toward the action, so you'll have to decide how much of your combat cycle you're willing to spend on it.\n\n[SCAN]\nAnalyze an EXE and acquire one of its Modules.\n\n[PURGE]\nMark an EXE for aggressive extraction. Defeating it afterward grants much more EXP, but permanently removes that individual from the local population.\n\n[PURIFY]\nStabilize an EXE. Purification can reward you with a related Passive Module and improve the local digital ecosystem.\n\n[TAME]\nAttempt to make the target your new partner.\n\nBe careful! TAME permanently replaces your current partner.\n\nPurifying an EXE first creates a stable APK. Taming one directly is possible too, but... I really wouldn't recommend doing that unless you know what you're getting into.\n\n[RUN AWAY]\n\nDon't want to fight? You can try to leave instead!\n\nSome EXEs will let you go without a problem. Others might need a little convincing first.\n\nRunning away successfully ends the encounter without rewards, but it also won't cost you any time.\n\nJust don't expect that option everywhere. Some places are much harder to leave once you're inside.\n\n\nAnd you don't have to use a Player Action at all! Simply defeating an EXE normally is always an option.\n\nWhat happens to them is up to you.\n\n\n[ READY? ]\n\nThat's enough reading!\n\nCreate your account, meet your first partner and get out there.\n\nWe'll see you on the other side! ♡"
 fit_content = true
+scroll_active = false
 autowrap_mode = 2
 script = ExtResource("6_bqbo1")
 metadata/_custom_type_script = "uid://di40e5wgij1k4"
