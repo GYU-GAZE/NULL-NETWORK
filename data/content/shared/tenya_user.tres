@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="NetworkUserData" format=3]
+
+[ext_resource type="Texture2D" path="res://icon.svg" id="1_avatar"]
+[ext_resource type="Script" path="res://data/templates/network_user_data.gd" id="2_user"]
+
+[resource]
+script = ExtResource("2_user")
+user_id = "TENYA"
+display_name = "TENYA!"
+avatar = ExtResource("1_avatar")
+title = "Administrator"
+rank_label = "Top 3 Worldwide"
+location = "Tokyo, Japan"
+role = 1
+global_rank = 3
+score = 700000
+level = 53
+partner_apk_name = "HUBBIE"
+server_name = "Japan"
+server_flag_icon = ExtResource("1_avatar")
+is_known_to_player = false
