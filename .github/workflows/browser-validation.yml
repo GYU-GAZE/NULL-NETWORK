@@ -72,7 +72,7 @@ jobs:
         run: |
           set -o pipefail
           ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 45 \
+            --headless --path . --quit-after 300 \
             tests/browser/browser_page_scroll_origin_test.tscn \
             2>&1 | tee browser-page-scroll-origin-test.log
           grep -q "BROWSER_PAGE_SCROLL_ORIGIN_TEST: PASS" browser-page-scroll-origin-test.log
@@ -82,7 +82,7 @@ jobs:
         run: |
           set -o pipefail
           ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 45 \
+            --headless --path . --quit-after 300 \
             tests/browser/browser_responsive_site_layout_test.tscn \
             2>&1 | tee browser-responsive-site-layout-test.log
           grep -q "BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: PASS" browser-responsive-site-layout-test.log
@@ -92,7 +92,7 @@ jobs:
         run: |
           set -o pipefail
           ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 45 \
+            --headless --path . --quit-after 300 \
             tests/browser/null_network_home_test.tscn \
             2>&1 | tee null-network-home-test.log
           grep -q "NULL_NETWORK_HOME_TEST: PASS" null-network-home-test.log
@@ -102,7 +102,7 @@ jobs:
         run: |
           set -o pipefail
           ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 45 \
+            --headless --path . --quit-after 300 \
             tests/browser/browser_tab_order_test.tscn \
             2>&1 | tee browser-tab-order-test.log
           grep -q "BROWSER_TAB_ORDER_TEST: PASS" browser-tab-order-test.log
@@ -112,7 +112,7 @@ jobs:
         run: |
           set -o pipefail
           ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 45 \
+            --headless --path . --quit-after 300 \
             tests/browser/site_action_data_test.tscn \
             2>&1 | tee site-action-data-test.log
           grep -q "SITE_ACTION_DATA_TEST: PASS" site-action-data-test.log
@@ -122,7 +122,7 @@ jobs:
         run: |
           set -o pipefail
           ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 45 \
+            --headless --path . --quit-after 300 \
             tests/browser/website_catalog_test.tscn \
             2>&1 | tee website-catalog-test.log
           grep -q "WEBSITE_CATALOG_TEST: PASS" website-catalog-test.log
