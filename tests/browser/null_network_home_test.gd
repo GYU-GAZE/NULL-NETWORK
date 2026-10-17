@@ -40,7 +40,7 @@ func _run_test() -> void:
 	_check(avatar != null and avatar.custom_minimum_size == Vector2(28, 28), "Guest avatar placeholder must match the adapted portal header avatar size.")
 
 	var hero_title := home.find_child("HeroTitle", true, false) as Label
-	_check(hero_title != null and hero_title.text == "THE WORLD IS UNDER SIEGE.", "Null Network home lost the supplied hero headline.")
+	_check(hero_title != null and hero_title.text == "THE END OF THE WORLD NEARS.", "Null Network home lost the supplied hero headline.")
 	_check(home.find_child("MainFrame", true, false) is NullNetworkFrame, "Null Network home must use the stepped reference frame renderer.")
 	var home_page: WebsitePage = SimulatedDNS.fetch_page("null.net")
 	_check(
@@ -68,9 +68,9 @@ func _run_test() -> void:
 	_check(description != null, "Null Network home description was lost.")
 	if description != null:
 		_check(description.fit_content and not description.scroll_active, "Hero copy must grow naturally instead of using a tiny internal scrollbar.")
-		_check(description.text.contains("In the lead-up to the devastating Y2K virus"), "Existing intro copy changed during visual-only revamp.")
-		_check(description.text.contains("From the brilliant mind of Tarou Yamada."), "Existing creator credit changed during visual-only revamp.")
-		_check(description.text.contains("コバルトブルー"), "Existing Japanese footer copy changed during visual-only revamp.")
+		_check(description.text.contains("malicious digital entities known as EXEs"), "Current EXE premise copy was lost from the homepage.")
+		_check(description.text.contains("Purified from the same entities that threaten the Network"), "Current APK premise copy was lost from the homepage.")
+		_check(description.text.contains("© 2027 TEN-YA. ALL RIGHTS RESERVED."), "Current Ten-ya footer credit was lost from the homepage.")
 
 	home.queue_free()
 	var guide := GET_STARTED_SCENE.instantiate() as Control
