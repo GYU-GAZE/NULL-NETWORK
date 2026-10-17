@@ -1,0 +1,165 @@
+name: Browser Validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare CI-only asset placeholders
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp project.godot /tmp/project.godot.original
+
+          while IFS= read -r -d '' import_file; do
+            source_file="${import_file%.import}"
+
+            if [ ! -f "$source_file" ]; then
+              extension="${source_file##*.}"
+
+              case "$extension" in
+                png)
+                  printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4////fwAJ+wP9KobjigAAAABJRU5ErkJggg==' \
+                    | base64 --decode > "$source_file"
+                  ;;
+                ttf)
+                  cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf "$source_file"
+                  ;;
+                *)
+                  echo "Unsupported missing asset type: $source_file"
+                  exit 1
+                  ;;
+              esac
+            fi
+
+            rm -f "$import_file"
+          done < <(find data -type f -name '*.import' -print0)
+
+          sed -i '/^theme\/custom=/d' project.godot
+
+      - name: Download Godot 4.6.3
+        run: |
+          curl --fail --location --retry 3 \
+            --output godot.zip \
+            https://godot-releases.nbg1.your-objectstorage.com/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip
+          unzip -q godot.zip
+          chmod +x Godot_v4.6.3-stable_linux.x86_64
+
+      - name: Import project
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --editor --path . --import --verbose \
+            2>&1 | tee godot-browser-import.log
+
+      - name: Run Browser page-scroll bounds test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 45 \
+            tests/browser/browser_page_scroll_origin_test.tscn \
+            2>&1 | tee browser-page-scroll-origin-test.log
+          grep -q "BROWSER_PAGE_SCROLL_ORIGIN_TEST: PASS" browser-page-scroll-origin-test.log
+
+      - name: Run Browser responsive site layout test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 45 \
+            tests/browser/browser_responsive_site_layout_test.tscn \
+            2>&1 | tee browser-responsive-site-layout-test.log
+          grep -q "BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: PASS" browser-responsive-site-layout-test.log
+
+      - name: Run NULL NETWORK homepage test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 45 \
+            tests/browser/null_network_home_test.tscn \
+            2>&1 | tee null-network-home-test.log
+          grep -q "NULL_NETWORK_HOME_TEST: PASS" null-network-home-test.log
+
+      - name: Run Browser tab-order test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 45 \
+            tests/browser/browser_tab_order_test.tscn \
+            2>&1 | tee browser-tab-order-test.log
+          grep -q "BROWSER_TAB_ORDER_TEST: PASS" browser-tab-order-test.log
+
+      - name: Run SiteActionData test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 45 \
+            tests/browser/site_action_data_test.tscn \
+            2>&1 | tee site-action-data-test.log
+          grep -q "SITE_ACTION_DATA_TEST: PASS" site-action-data-test.log
+
+      - name: Run WebsiteCatalog test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 45 \
+            tests/browser/website_catalog_test.tscn \
+            2>&1 | tee website-catalog-test.log
+          grep -q "WEBSITE_CATALOG_TEST: PASS" website-catalog-test.log
+
+      - name: Reject Browser script and resource errors
+        shell: bash
+        run: |
+          cat \
+            godot-browser-import.log \
+            browser-page-scroll-origin-test.log \
+            browser-responsive-site-layout-test.log \
+            null-network-home-test.log \
+            browser-tab-order-test.log \
+            site-action-data-test.log \
+            website-catalog-test.log \
+            > godot-browser-validation.log
+
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|Parse Error|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: FAIL|NULL_NETWORK_HOME_TEST: FAIL|BROWSER_TAB_ORDER_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" godot-browser-validation.log; then
+            exit 1
+          fi
+
+      - name: Restore project settings
+        if: always()
+        run: cp /tmp/project.godot.original project.godot
+
+      - name: Upload Browser validation log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-validation-log
+          path: |
+            godot-browser-import.log
+            browser-page-scroll-origin-test.log
+            browser-responsive-site-layout-test.log
+            null-network-home-test.log
+            browser-tab-order-test.log
+            site-action-data-test.log
+            website-catalog-test.log
+            godot-browser-validation.log
+          if-no-files-found: ignore
