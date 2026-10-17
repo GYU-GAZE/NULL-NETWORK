@@ -32,7 +32,7 @@ func _run_test() -> void:
 	_check(not browser.is_tab_overflow_active(), "One Browser tab must not show horizontal overflow.")
 	_check(not browser.tab_scroll.get_h_scroll_bar().visible, "One Browser tab left a horizontal scrollbar visible.")
 	_check(browser.get_tab_button_count() == 1, "Browser did not preserve its initial tab button.")
-	_check(browser.get_browser_chrome_height() <= 40.0, "Browser chrome exceeded its 40 px logical budget.")
+	_check(browser.get_browser_chrome_height() <= 40.0, "Browser chrome exceeded its 40 px logical budget. Measured: %.1f px." % browser.get_browser_chrome_height())
 	_check(browser.get_site_viewport_ratio() >= 0.85, "Browser site viewport must retain at least 85% of app height.")
 
 	for index in range(7):
@@ -182,19 +182,19 @@ func _test_browser_window_density() -> void:
 	browser.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	await get_tree().create_timer(0.35).timeout
 	_check(window.get_current_window_pixel_density() == AdaptiveScaleWindowBase.PIXEL_DENSITY_2X, "Browser did not begin at 2x window density.")
-	_check(browser.get_browser_chrome_height() <= 40.0, "Browser chrome exceeded its budget at 2x density.")
+	_check(browser.get_browser_chrome_height() <= 40.0, "Browser chrome exceeded its budget at 2x density. Measured: %.1f px." % browser.get_browser_chrome_height())
 
 	window.size = Vector2(390, 240)
 	await _wait_frames(4)
 	_check(window.get_current_window_pixel_density() == AdaptiveScaleWindowBase.PIXEL_DENSITY_1X, "Shrinking Browser did not switch the window to 1x density.")
-	_check(browser.get_browser_chrome_height() <= 40.0, "Browser chrome exceeded its budget at 1x density.")
+	_check(browser.get_browser_chrome_height() <= 40.0, "Browser chrome exceeded its budget at 1x density. Measured: %.1f px." % browser.get_browser_chrome_height())
 	_check(browser.get_site_viewport_ratio() >= 0.80, "Browser chrome crushed the site viewport at 1x density.")
 
 	window.size = Vector2(430, 280)
 	await _wait_frames(4)
 	_check(window.get_current_window_pixel_density() == AdaptiveScaleWindowBase.PIXEL_DENSITY_2X, "Growing Browser beyond hysteresis did not restore 2x density.")
 	await window.maximize()
-	_check(browser.get_browser_chrome_height() <= 40.0, "Maximized Browser chrome exceeded its logical budget.")
+	_check(browser.get_browser_chrome_height() <= 40.0, "Maximized Browser chrome exceeded its logical budget. Measured: %.1f px." % browser.get_browser_chrome_height())
 	_check(browser.get_site_viewport_ratio() >= 0.85, "Maximized Browser did not preserve the site-dominant layout.")
 	workspace.queue_free()
 	await _wait_frames(2)
