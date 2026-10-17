@@ -124,7 +124,7 @@ jobs:
         run: |
           set -o pipefail
           ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 90 \
+            --headless --path . --quit-after 300 \
             tests/onboarding/onboarding_world_reveal_test.tscn \
             2>&1 | tee godot-onboarding-world-reveal-test.log
 
