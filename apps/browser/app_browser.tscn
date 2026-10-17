@@ -153,7 +153,7 @@ grow_vertical = 2
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
-[node name="ScrollSiteContainer" type="VBoxContainer" parent="MainVBox/ContentArea/PageScroll"]
+[node name="ScrollSiteContainer" type="Container" parent="MainVBox/ContentArea/PageScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
