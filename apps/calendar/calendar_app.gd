@@ -2,6 +2,11 @@ extends PanelContainer
 class_name CalendarApp
 
 
+@export_category("Calendar Components")
+@export var day_button_scene: PackedScene
+@export var event_card_scene: PackedScene
+
+
 @onready var current_date_label: Label = %CurrentDateLabel
 @onready var current_period_label: Label = %CurrentPeriodLabel
 @onready var current_block_label: Label = %CurrentBlockLabel
@@ -146,19 +151,12 @@ func _rebuild_day_buttons() -> void:
 
 		var day: Dictionary = day_value as Dictionary
 		var game_day: int = int(day.get("game_day", -1))
-		var button := Button.new()
-		button.toggle_mode = true
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.custom_minimum_size.y = 48.0
-		button.text = "%s  %02d/%02d\n%s  ·  %d FREE" % [
-			str(day.get("weekday_name", "---")),
-			int(day.get("calendar_day", 1)),
-			int(day.get("month", 1)),
-			"TODAY" if bool(day.get("is_today", false)) else "DAY %d" % game_day,
-			int(day.get("remaining_free_blocks", 0))
-		]
-		button.set_meta(&"game_day", game_day)
-		button.pressed.connect(_on_day_button_pressed.bind(game_day))
+		var button := _instantiate_day_button()
+		if button == null:
+			continue
+
+		button.setup(day)
+		button.day_selected.connect(_on_day_button_pressed)
 		day_button_list.add_child(button)
 		_day_buttons[game_day] = button
 
@@ -167,10 +165,10 @@ func _rebuild_day_buttons() -> void:
 
 func _update_day_button_selection() -> void:
 	for raw_day: Variant in _day_buttons:
-		var button := _day_buttons[raw_day] as Button
+		var button := _day_buttons[raw_day] as CalendarDayButton
 
 		if button != null:
-			button.button_pressed = int(raw_day) == _selected_game_day
+			button.set_selected(int(raw_day) == _selected_game_day)
 
 
 func _render_selected_day() -> void:
@@ -203,45 +201,40 @@ func _render_selected_day() -> void:
 
 
 func _render_event(event: Dictionary) -> void:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size.y = 72.0
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_bottom", 8)
-	var content := VBoxContainer.new()
-	var header := Label.new()
-	header.text = "%s // %s" % [
-		str(event.get("time_label", "")),
-		str(event.get("kind_label", "EVENT"))
-	]
-	var title := Label.new()
-	title.text = str(event.get("title", "UNKNOWN EVENT"))
-	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var description := Label.new()
-	description.text = str(event.get("description", ""))
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var location_id: String = str(event.get("location_id", "")).strip_edges()
+	var card := _instantiate_event_card()
+	if card == null:
+		return
 
+	var location_name := ""
+	var location_id: String = str(event.get("location_id", "")).strip_edges()
 	if not location_id.is_empty():
 		var location: MapLocation = ContentRegistry.get_location(location_id)
-		var location_label := Label.new()
-		location_label.text = "LOCATION // %s" % (
-			location.location_name if location != null else location_id
-		)
-		content.add_child(header)
-		content.add_child(title)
-		content.add_child(description)
-		content.add_child(location_label)
-	else:
-		content.add_child(header)
-		content.add_child(title)
-		content.add_child(description)
+		location_name = location.location_name if location != null else location_id
 
-	margin.add_child(content)
-	panel.add_child(margin)
-	event_list.add_child(panel)
+	card.setup(event, location_name)
+	event_list.add_child(card)
+
+
+func _instantiate_day_button() -> CalendarDayButton:
+	if day_button_scene == null:
+		push_error("CalendarApp requires day_button_scene.")
+		return null
+
+	var instance := day_button_scene.instantiate() as CalendarDayButton
+	if instance == null:
+		push_error("CalendarApp day_button_scene must instantiate CalendarDayButton.")
+	return instance
+
+
+func _instantiate_event_card() -> CalendarEventCard:
+	if event_card_scene == null:
+		push_error("CalendarApp requires event_card_scene.")
+		return null
+
+	var instance := event_card_scene.instantiate() as CalendarEventCard
+	if instance == null:
+		push_error("CalendarApp event_card_scene must instantiate CalendarEventCard.")
+	return instance
 
 
 func _get_selected_day_snapshot() -> Dictionary:
