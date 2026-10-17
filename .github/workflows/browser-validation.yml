@@ -68,6 +68,7 @@ jobs:
             2>&1 | tee godot-browser-import.log
 
       - name: Run Browser page-scroll bounds test
+        continue-on-error: true
         shell: bash
         run: |
           set -o pipefail
@@ -78,6 +79,7 @@ jobs:
           grep -q "BROWSER_PAGE_SCROLL_ORIGIN_TEST: PASS" browser-page-scroll-origin-test.log
 
       - name: Run Browser responsive site layout test
+        continue-on-error: true
         shell: bash
         run: |
           set -o pipefail
@@ -88,6 +90,7 @@ jobs:
           grep -q "BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: PASS" browser-responsive-site-layout-test.log
 
       - name: Run NULL NETWORK homepage test
+        continue-on-error: true
         shell: bash
         run: |
           set -o pipefail
@@ -98,6 +101,7 @@ jobs:
           grep -q "NULL_NETWORK_HOME_TEST: PASS" null-network-home-test.log
 
       - name: Run Browser tab-order test
+        continue-on-error: true
         shell: bash
         run: |
           set -o pipefail
@@ -108,6 +112,7 @@ jobs:
           grep -q "BROWSER_TAB_ORDER_TEST: PASS" browser-tab-order-test.log
 
       - name: Run SiteActionData test
+        continue-on-error: true
         shell: bash
         run: |
           set -o pipefail
@@ -118,6 +123,7 @@ jobs:
           grep -q "SITE_ACTION_DATA_TEST: PASS" site-action-data-test.log
 
       - name: Run WebsiteCatalog test
+        continue-on-error: true
         shell: bash
         run: |
           set -o pipefail
@@ -130,6 +136,7 @@ jobs:
       - name: Reject Browser script and resource errors
         shell: bash
         run: |
+          set -euo pipefail
           cat \
             godot-browser-import.log \
             browser-page-scroll-origin-test.log \
@@ -139,6 +146,21 @@ jobs:
             site-action-data-test.log \
             website-catalog-test.log \
             > godot-browser-validation.log
+
+          for marker in \
+            "BROWSER_PAGE_SCROLL_ORIGIN_TEST: PASS|browser-page-scroll-origin-test.log" \
+            "BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: PASS|browser-responsive-site-layout-test.log" \
+            "NULL_NETWORK_HOME_TEST: PASS|null-network-home-test.log" \
+            "BROWSER_TAB_ORDER_TEST: PASS|browser-tab-order-test.log" \
+            "SITE_ACTION_DATA_TEST: PASS|site-action-data-test.log" \
+            "WEBSITE_CATALOG_TEST: PASS|website-catalog-test.log"; do
+            expected="${marker%%|*}"
+            logfile="${marker#*|}"
+            grep -q "$expected" "$logfile" || {
+              echo "Missing validation marker: $expected in $logfile"
+              exit 1
+            }
+          done
 
           if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|Parse Error|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: FAIL|NULL_NETWORK_HOME_TEST: FAIL|BROWSER_TAB_ORDER_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" godot-browser-validation.log; then
             exit 1
