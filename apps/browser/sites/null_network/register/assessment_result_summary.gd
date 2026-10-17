@@ -17,7 +17,7 @@ var _rows: Array[AssessmentResultTendencyRow] = []
 func render(
 	tendencies: Dictionary,
 	catalog: TendencyCatalogData,
-	order: Array[String]
+	order: Array
 ) -> void:
 	_clear_rows()
 	if catalog == null:
