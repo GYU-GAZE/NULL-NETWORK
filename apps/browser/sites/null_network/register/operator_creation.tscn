@@ -52,6 +52,30 @@ corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 
+[sub_resource type="StyleBoxFlat" id="PrimaryResultNormal"]
+bg_color = Color(0.015, 0.18, 0.28, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.12, 0.68, 1, 0.9)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
+[sub_resource type="StyleBoxFlat" id="PrimaryResultHover"]
+bg_color = Color(0.025, 0.28, 0.4, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.86, 1, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
 [sub_resource type="StyleBoxEmpty" id="TransparentButton"]
 
 [sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
@@ -895,6 +919,11 @@ theme_override_constants/separation = 8
 unique_name_in_owner = true
 custom_minimum_size = Vector2(190, 44)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.98, 1, 1)
+theme_override_styles/normal = SubResource("PrimaryResultNormal")
+theme_override_styles/hover = SubResource("PrimaryResultHover")
+theme_override_styles/pressed = SubResource("PrimaryResultHover")
+theme_override_styles/focus = SubResource("PrimaryResultHover")
 text = "ACCEPT"
 [node name="RetakeAssessmentButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent/ResultActions"]
 unique_name_in_owner = true
