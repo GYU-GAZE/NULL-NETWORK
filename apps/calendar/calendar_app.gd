@@ -155,9 +155,9 @@ func _rebuild_day_buttons() -> void:
 		if button == null:
 			continue
 
+		day_button_list.add_child(button)
 		button.setup(day)
 		button.day_selected.connect(_on_day_button_pressed)
-		day_button_list.add_child(button)
 		_day_buttons[game_day] = button
 
 	_update_day_button_selection()
@@ -211,8 +211,8 @@ func _render_event(event: Dictionary) -> void:
 		var location: MapLocation = ContentRegistry.get_location(location_id)
 		location_name = location.location_name if location != null else location_id
 
-	card.setup(event, location_name)
 	event_list.add_child(card)
+	card.setup(event, location_name)
 
 
 func _instantiate_day_button() -> CalendarDayButton:
