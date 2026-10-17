@@ -43,7 +43,7 @@ const SESSION_STATE_VERSION: int = 1
 @onready var content_area: Control = %ContentArea
 @onready var site_container: Control = %SiteContainer
 @onready var page_scroll: ScrollContainer = %PageScroll
-@onready var scroll_site_container: VBoxContainer = %ScrollSiteContainer
+@onready var scroll_site_container: BrowserPageScrollHost = %ScrollSiteContainer
 
 var tabs: Array[BrowserTabData] = []
 var current_tab_index: int = -1
