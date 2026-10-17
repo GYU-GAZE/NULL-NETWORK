@@ -30,6 +30,18 @@ func run() -> void:
 	check(not duplicate.ok, "Authoring accepted a normalized duplicate URL")
 	check(catalog_before == FileAccess.get_file_as_bytes(fixture.catalog_path), "Rejected creation modified the catalog")
 	check(not FileAccess.file_exists(BrowserAuthoringFixture.ROOT.path_join("duplicate.tscn")), "Rejected creation left a partial scene")
+	# A directory occupying the temporary catalog path forces a real save
+	# failure after the new scene and page Resource have already been written.
+	var pending := str(fixture.catalog_path).get_basename() + ".pending.tres"
+	DirAccess.make_dir_absolute(pending)
+	print("AUTHORING_EXPECTED_WRITE_FAILURE: BEGIN")
+	var interrupted := WebsiteAuthoring.create_page({"name": "rollback_probe", "url": "rollback.local", "title": "Rollback", "folder": BrowserAuthoringFixture.ROOT, "catalog": fixture.catalog_path})
+	print("AUTHORING_EXPECTED_WRITE_FAILURE: END")
+	check(not interrupted.ok, "Catalog save failure was reported as success")
+	check(catalog_before == FileAccess.get_file_as_bytes(fixture.catalog_path), "Catalog save failure changed the original catalog")
+	for extension: String in ["tscn", "tres"]:
+		check(not FileAccess.file_exists(BrowserAuthoringFixture.ROOT.path_join("rollback_probe." + extension)), "Interrupted creation left a new partial file")
+	DirAccess.remove_absolute(pending)
 	var old_catalog: WebsiteCatalog = SimulatedDNS.website_catalog
 	SimulatedDNS.website_catalog = fixture.catalog
 	SimulatedDNS.rebuild_routes()

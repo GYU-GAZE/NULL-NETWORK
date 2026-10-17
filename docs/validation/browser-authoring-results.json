@@ -20,8 +20,9 @@
     {
       "scene": "tests/browser/browser_authoring_pipeline_test.tscn",
       "code": 0,
-      "seconds": 15.24,
+      "seconds": 14.97,
       "errors": [
+        "ERROR: Cannot save file 'res://.godot/browser_authoring_fixture/catalog.pending.tres'.",
         "ERROR: 1 resources still in use at exit (run with --verbose for details)."
       ],
       "passed": true
@@ -29,7 +30,7 @@
     {
       "scene": "tests/browser/browser_contract_unit_test.tscn",
       "code": 0,
-      "seconds": 3.06,
+      "seconds": 2.89,
       "errors": [
         "ERROR: SiteActionButton '@Button@85': Condition: occupation_id is required for the selected requirement.",
         "ERROR: 1 resources still in use at exit (run with --verbose for details)."
@@ -472,6 +473,18 @@
     "workflow": "Production dialog creates/registers page, opens generated scene; canonical duplicate rejected without catalog mutation",
     "log": "browser-editor-native-final.log"
   },
+  "expected_fault_injection": "AUTHORING_EXPECTED_WRITE_FAILURE wraps an intentional ResourceSaver error; both new files are removed and original catalog bytes remain unchanged.",
+  "focused_final_verification": [
+    {
+      "scene": "tests/browser/browser_contract_unit_test.tscn",
+      "code": 0,
+      "seconds": 2.5,
+      "errors": [
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "passed": true
+    }
+  ],
   "test_changes": [
     "Scroll-origin test now expects the previous entry scroll position on Back, as required by the new history contract.",
     "Responsive test asserts natural minimum height instead of removed canvas API.",

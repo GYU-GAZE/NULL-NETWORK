@@ -31,7 +31,9 @@ func run() -> void:
 	check(not button.disabled, "Relevant numeric signal did not unlock action")
 	var dependent := SiteActionButton.new()
 	dependent.action_data = SiteActionData.new()
-	dependent.action_data.conditions = OccupationConditionData.new()
+	var occupation := OccupationConditionData.new()
+	occupation.requirement = OccupationConditionData.Requirement.HAS_ANY
+	dependent.action_data.conditions = occupation
 	add_child(dependent)
 	count = dependent.action_binding.refresh_count
 	CampaignState.campaign_changed.emit(&"inventory")
@@ -49,11 +51,13 @@ func run() -> void:
 	notification.title = "Shared definition"
 	notification.notification_id = "authored_identity"
 	notification.is_read = true
+	notification.set_meta("authoring_tag", "preserved metadata")
 	var first: KubuNotificationData = UniversalNotifications.push_resource(notification, "browser", "unit.local")
 	var second: KubuNotificationData = UniversalNotifications.push_resource(notification, "browser", "unit.local")
 	check(first.notification_id != second.notification_id, "Same-frame notifications reused runtime identity")
 	check(notification.notification_id == "authored_identity" and notification.is_read, "Notification Resource was mutated")
 	check(first.source_app_id == "browser" and first.target_url == "unit.local", "Notification defaults lost page context")
+	check(first.get_meta("authoring_tag", "") == "preserved metadata", "Notification publishing discarded Resource metadata")
 	var layout := ResponsiveColumns.new()
 	layout.size = Vector2(240, 160)
 	add_child(layout)
