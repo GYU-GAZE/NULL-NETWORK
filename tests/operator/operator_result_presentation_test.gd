@@ -32,16 +32,25 @@ func _run_test() -> void:
 	add_child(page)
 	await _wait_frames(3)
 
+	var result_summary := page.find_child(
+		"AssessmentResultSummary",
+		true,
+		false
+	) as AssessmentResultSummary
 	_check(
-		page.find_child("ResultTendencyRows", true, false) != null,
+		result_summary != null,
+		"Assessment result lost its reusable result summary."
+	)
+	_check(
+		result_summary != null and result_summary.tendency_rows != null,
 		"Assessment result lost its staged Tendency rows."
 	)
 	_check(
-		page.find_child("ResultTendencyContext", true, false) != null,
+		result_summary != null and result_summary.context_panel != null,
 		"Assessment result lost its Tendency hover context."
 	)
 	_check(
-		page.find_child("ResultAssignmentIntro", true, false) != null,
+		result_summary != null and result_summary.assignment_intro != null,
 		"Assessment result lost its assignment declaration."
 	)
 	_check(
@@ -72,7 +81,9 @@ func _run_test() -> void:
 	page._show_result_content(true)
 	await _wait_frames(2)
 
-	var tendency_rows := page.find_child("ResultTendencyRows", true, false) as VBoxContainer
+	var tendency_rows: VBoxContainer = (
+		result_summary.tendency_rows if result_summary != null else null
+	)
 	_check(
 		tendency_rows != null and tendency_rows.get_child_count() == 4,
 		"Assessment result must render exactly VALOUR, LOGIC, SYNC and SELF."
@@ -101,7 +112,9 @@ func _run_test() -> void:
 					"Tendency row did not settle back to native pixel scale."
 				)
 
-	var species := page.find_child("ResultAssignedSpecies", true, false) as Label
+	var species: Label = (
+		result_summary.assigned_species if result_summary != null else null
+	)
 	_check(
 		species != null and species.text == "REVQUIRE",
 		"Assessment result did not declare the assigned species."
