@@ -54,7 +54,6 @@ func _configure_result_presentation() -> void:
 	accept_result_button.custom_minimum_size = Vector2(190, 40)
 	retake_assessment_button.custom_minimum_size = Vector2(190, 40)
 	result_manual_button.custom_minimum_size = Vector2(170, 40)
-	_apply_primary_result_button_style(accept_result_button)
 
 
 func _build_tendency_rows(tendencies: Dictionary) -> void:
@@ -365,29 +364,3 @@ func _get_partner_overworld_sprite(apk: APKData) -> Texture2D:
 		return apk.portraits[0]
 	return apk.combat_icon
 
-
-func _apply_primary_result_button_style(button: Button) -> void:
-	if button == null:
-		return
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = Color(0.015, 0.18, 0.28, 0.96)
-	normal.border_width_left = 1
-	normal.border_width_top = 1
-	normal.border_width_right = 1
-	normal.border_width_bottom = 1
-	normal.border_color = Color(0.12, 0.68, 1.0, 0.9)
-	normal.corner_radius_top_left = 1
-	normal.corner_radius_top_right = 1
-	normal.corner_radius_bottom_right = 1
-	normal.corner_radius_bottom_left = 1
-	var hover := normal.duplicate() as StyleBoxFlat
-	hover.bg_color = Color(0.025, 0.28, 0.4, 0.98)
-	hover.border_color = Color(0.32, 0.86, 1.0, 1.0)
-	button.add_theme_stylebox_override("normal", normal)
-	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", hover)
-	button.add_theme_stylebox_override("focus", hover)
-	button.add_theme_color_override(
-		"font_color",
-		Color(0.9, 0.98, 1.0, 1.0)
-	)
