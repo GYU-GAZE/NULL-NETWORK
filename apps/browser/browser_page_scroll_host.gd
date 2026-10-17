@@ -1,77 +1,107 @@
-extends VBoxContainer
+extends Container
 class_name BrowserPageScrollHost
 
-## PAGE_SCROLL is semantically a single-page viewport even though Browser keeps
-## the outgoing and incoming page alive together for a short transition. A
-## VBoxContainer would normally stack those temporary siblings vertically,
-## which lets the incoming page capture a stale Y position and remain displaced
-## after the transition. Keep every page root pinned to local Y=0 while the host
-## still owns the shared width/minimum-size negotiation.
+## PAGE_SCROLL owns one logical document at a time. Browser navigation keeps the
+## outgoing and incoming page roots alive together while the horizontal page
+## transition plays, so this host must overlay those roots instead of stacking
+## them like a VBoxContainer.
+##
+## The host also exposes the largest page minimum size to ScrollContainer. That
+## lets authored page content determine the real scroll range instead of relying
+## on a fixed canvas height that can clip the first or last part of a document.
 
-var _origin_reset_revision: int = 0
+var _tracked_pages: Array[Control] = []
 
 
 func _ready() -> void:
-	if not child_entered_tree.is_connected(_on_child_structure_changed):
-		child_entered_tree.connect(_on_child_structure_changed)
-	if not child_exiting_tree.is_connected(_on_child_structure_changed):
-		child_exiting_tree.connect(_on_child_structure_changed)
-	if not child_order_changed.is_connected(_on_child_order_changed):
-		child_order_changed.connect(_on_child_order_changed)
-	set_process(true)
-	_queue_origin_reset()
+	if not child_entered_tree.is_connected(_on_child_entered):
+		child_entered_tree.connect(_on_child_entered)
+	if not child_exiting_tree.is_connected(_on_child_exiting):
+		child_exiting_tree.connect(_on_child_exiting)
 
-
-func _process(_delta: float) -> void:
-	_enforce_page_root_origin()
-
-
-func _on_child_structure_changed(child: Node) -> void:
-	if child is Control:
-		var control := child as Control
-		control.position.y = 0.0
-	_queue_origin_reset()
-
-
-func _on_child_order_changed() -> void:
-	_enforce_page_root_origin()
-	_queue_origin_reset()
-
-
-func _enforce_page_root_origin() -> void:
-	# Browser page motion is horizontal. Y belongs exclusively to the page-scroll
-	# viewport and must never be inherited from VBox sibling stacking.
 	for child: Node in get_children():
-		if child is Control:
-			var control := child as Control
-			if not is_zero_approx(control.position.y):
-				control.position.y = 0.0
+		_track_page(child as Control)
+
+	_refresh_layout()
 
 
-func _queue_origin_reset() -> void:
-	_origin_reset_revision += 1
-	var revision := _origin_reset_revision
-	call_deferred("_settle_origin_after_layout", revision)
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_SORT_CHILDREN:
+		_layout_page_roots()
 
 
-func _settle_origin_after_layout(revision: int) -> void:
-	# Let the Container and ScrollContainer consume the new minimum size, then
-	# reassert the one-page origin. The page root itself is already held at y=0
-	# during these frames, so presentation motion cannot capture a stacked offset.
-	await get_tree().process_frame
-	await get_tree().process_frame
-	if revision != _origin_reset_revision or not is_inside_tree():
+func _get_minimum_size() -> Vector2:
+	var resolved := Vector2.ZERO
+
+	for child: Node in get_children():
+		if not child is Control:
+			continue
+
+		var page := child as Control
+		if not page.visible:
+			continue
+
+		var page_minimum := page.get_combined_minimum_size()
+		resolved.x = maxf(resolved.x, page_minimum.x)
+		resolved.y = maxf(resolved.y, page_minimum.y)
+
+	return resolved
+
+
+func _on_child_entered(child: Node) -> void:
+	_track_page(child as Control)
+	call_deferred("_refresh_layout")
+
+
+func _on_child_exiting(child: Node) -> void:
+	_untrack_page(child as Control)
+	call_deferred("_refresh_layout")
+
+
+func _track_page(page: Control) -> void:
+	if page == null or _tracked_pages.has(page):
 		return
-	var scroll := get_parent() as ScrollContainer
-	if scroll == null:
+
+	_tracked_pages.append(page)
+	if not page.minimum_size_changed.is_connected(_on_page_minimum_size_changed):
+		page.minimum_size_changed.connect(_on_page_minimum_size_changed)
+
+	# Navigation motion is horizontal. Vertical placement belongs entirely to
+	# ScrollContainer and must always start at the document origin.
+	page.position.y = 0.0
+
+
+func _untrack_page(page: Control) -> void:
+	if page == null:
 		return
+
+	_tracked_pages.erase(page)
+	if page.minimum_size_changed.is_connected(_on_page_minimum_size_changed):
+		page.minimum_size_changed.disconnect(_on_page_minimum_size_changed)
+
+
+func _on_page_minimum_size_changed() -> void:
+	_refresh_layout()
+
+
+func _refresh_layout() -> void:
+	if not is_inside_tree():
+		return
+
+	update_minimum_size()
 	queue_sort()
-	_enforce_page_root_origin()
-	scroll.scroll_horizontal = 0
-	scroll.scroll_vertical = 0
-	await get_tree().process_frame
-	if revision != _origin_reset_revision or not is_instance_valid(scroll):
-		return
-	_enforce_page_root_origin()
-	scroll.scroll_horizontal = 0
-	scroll.scroll_vertical = 0
+
+
+func _layout_page_roots() -> void:
+	for child: Node in get_children():
+		if not child is Control:
+			continue
+
+		var page := child as Control
+		var animated_x := page.position.x
+
+		# Do not touch X: UiMotionPlayer owns that axis while navigating.
+		# The host owns the shared document width/height and vertical origin.
+		page.size = size
+		page.position.y = 0.0
+		page.position.x = animated_x

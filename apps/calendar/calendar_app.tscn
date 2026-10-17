@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://apps/calendar/calendar_app.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://apps/calendar/components/calendar_day_button.tscn" id="2_day_button"]
+[ext_resource type="PackedScene" path="res://apps/calendar/components/calendar_event_card.tscn" id="3_event_card"]
 
 [node name="CalendarApp" type="PanelContainer"]
 custom_minimum_size = Vector2(560, 340)
@@ -10,6 +12,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
+day_button_scene = ExtResource("2_day_button")
+event_card_scene = ExtResource("3_event_card")
 
 [node name="OuterMargin" type="MarginContainer" parent="."]
 layout_mode = 2

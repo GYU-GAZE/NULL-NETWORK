@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/calendar/components/calendar_day_button.gd" id="1_script"]
+
+[node name="CalendarDayButton" type="Button"]
+custom_minimum_size = Vector2(0, 48)
+toggle_mode = true
+alignment = 0
+script = ExtResource("1_script")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/register/operator_creation.gd" id="1_page"]
 [ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="2_theme"]
@@ -11,6 +11,8 @@
 [ext_resource type="Texture2D" path="res://data/assets/icons/nnw_portal_icons.svg" id="9_icons"]
 [ext_resource type="Texture2D" path="res://data/assets/icons/nnw_mascot.svg" id="10_mascot"]
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/components/null_network_frame.gd" id="11_frame"]
+[ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/register/assessment_result_summary.tscn" id="12_result_summary"]
+[ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/register/partner_arrival_stage.tscn" id="13_arrival_stage"]
 
 [sub_resource type="StyleBoxFlat" id="MainPanel"]
 bg_color = Color(0.006, 0.034, 0.062, 0.94)
@@ -49,6 +51,30 @@ corner_radius_top_left = 2
 corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="PrimaryResultNormal"]
+bg_color = Color(0.015, 0.18, 0.28, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.12, 0.68, 1, 0.9)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
+[sub_resource type="StyleBoxFlat" id="PrimaryResultHover"]
+bg_color = Color(0.025, 0.28, 0.4, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.86, 1, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
 
 [sub_resource type="StyleBoxEmpty" id="TransparentButton"]
 
@@ -878,6 +904,10 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "VALOUR --  LOGIC --  SYNC --  SELF --"
 horizontal_alignment = 1
+
+[node name="AssessmentResultSummary" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent" instance=ExtResource("12_result_summary")]
+unique_name_in_owner = true
+layout_mode = 2
 [node name="ResultPartnerPreviewHost" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -889,6 +919,11 @@ theme_override_constants/separation = 8
 unique_name_in_owner = true
 custom_minimum_size = Vector2(190, 44)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.98, 1, 1)
+theme_override_styles/normal = SubResource("PrimaryResultNormal")
+theme_override_styles/hover = SubResource("PrimaryResultHover")
+theme_override_styles/pressed = SubResource("PrimaryResultHover")
+theme_override_styles/focus = SubResource("PrimaryResultHover")
 text = "ACCEPT"
 [node name="RetakeAssessmentButton" type="Button" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/ResultPage/ResultContent/ResultActions"]
 unique_name_in_owner = true
@@ -908,6 +943,10 @@ layout_mode = 2
 theme_override_constants/separation = 12
 [node name="CompleteSpacer" type="Control" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/RegisteredPanel"]
 custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+
+[node name="PartnerArrivalStage" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/RegisteredPanel" instance=ExtResource("13_arrival_stage")]
+unique_name_in_owner = true
 layout_mode = 2
 [node name="RegisteredLabel" type="Label" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/RegisteredPanel"]
 unique_name_in_owner = true

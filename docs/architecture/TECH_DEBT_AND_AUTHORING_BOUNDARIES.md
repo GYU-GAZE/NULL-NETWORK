@@ -41,17 +41,22 @@ Do not reintroduce direct persistent-state mutation fields to the Button when a 
 
 UI-local presentation behavior may remain local when it is genuinely non-persistent.
 
-## Stabilizer: BrowserPageScrollHost
+## Browser PAGE_SCROLL host
 
-`apps/browser/browser_page_scroll_host.gd` waits for Godot container layout to settle before reasserting the page-scroll origin.
+`apps/browser/browser_page_scroll_host.gd` is the explicit layout owner for Browser-managed scrolling.
 
-Status: **intentional centralized stabilizer**.
+Status: **final shared Browser infrastructure**.
 
-This is acceptable while it is the single location handling the deferred `VBoxContainer -> ScrollContainer` layout interaction.
+The host is a `Container`, not a `VBoxContainer`. Browser navigation temporarily keeps the outgoing and incoming page roots alive together, so those roots must overlay at the same document origin while `UiMotionPlayer` owns their horizontal transition.
 
-Do not copy `await process_frame` / scroll-reset logic into individual sites.
+The host also reports the largest page minimum size to `ScrollContainer`. Scroll range therefore comes from authored page content instead of from frame waits or per-site pixel corrections.
 
-Refactor criterion: if another independent Browser layout bug requires additional frame-wait logic, replace this stabilizer with an explicit Browser site-host lifecycle rather than stacking more waits.
+Rules:
+
+- PAGE_SCROLL page roots must expose their real content minimum size through normal Container layout.
+- Do not add per-site scroll clamping, fake spacer heights or repeated `await process_frame` resets.
+- Do not make the page host own horizontal transition coordinates; that axis belongs to `UiMotionPlayer`.
+- Browser-managed and self-managed scrolling remain separate `WebsitePage.OverflowPolicy` contracts.
 
 ## Hotspot: OperatorCreationPage
 
@@ -79,6 +84,52 @@ RegistrationCompletePage
 Each page controller should own its local UI and expose signals/data to the coordinator. The coordinator remains responsible for flow order, shared saved state and registration completion.
 
 Perform this decomposition only as a dedicated refactor with regression coverage; do not split the file opportunistically while fixing unrelated bugs.
+
+## UI composition rule
+
+Repeated visual structures belong in scenes/components, while app controllers project data into those components.
+
+Current extracted examples:
+
+- Calendar day entries: `CalendarDayButton`.
+- Calendar event entries: `CalendarEventCard`.
+- Profile tendency entries: `ProfileTendencyRow`.
+- Profile key/value entries: `ProfileValueRow`.
+- Registration result summary: `AssessmentResultSummary` + `AssessmentResultTendencyRow`.
+- Registration partner arrival: `PartnerArrivalStage`.
+
+Creating a node in code is still valid when the node is genuinely ephemeral behavior, such as a short-lived materialization particle. A controller should not construct a reusable card, panel, row or authored layout tree with `.new()` calls.
+
+Do not create global helper managers merely to remove tiny local helpers. A three-line local cleanup function is preferable to a generic abstraction with no shared domain contract.
+
+## Hotspot: CombatManager
+
+`apps/combat/combat_manager.gd` remains the largest systemic decomposition target.
+
+Status: **stable enough to use, too broad to keep growing**.
+
+The manager currently owns encounter coordination together with effect execution, targeting, formulas, runtime slot state and save serialization. New combat features must not add another responsibility category directly to this file.
+
+Target extraction order:
+
+```text
+CombatManager
+  encounter lifecycle / cycle orchestration / public signals
+
+CombatTargetingService
+  target resolution / validity / slot relation queries
+
+CombatFormulaService
+  effective stats / damage and formula evaluation
+
+CombatEffectExecutor
+  effect application / status / stability / redirects / dummies
+
+CombatStateCodec
+  combat save serialization / deserialization
+```
+
+Extract these boundaries one at a time under the existing combat regression suite. Do not rewrite the 5k-line manager in one untestable migration.
 
 ## Compatibility layer: Operator succession presentation restore
 

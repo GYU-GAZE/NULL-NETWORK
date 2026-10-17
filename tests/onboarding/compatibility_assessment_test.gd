@@ -35,8 +35,7 @@ func _check_axis_measurement_balance() -> void:
 	var counts := {}
 	for axis: String in AXES:
 		counts[axis] = 0
-	for question_value in DATA.questions:
-		var question := question_value as CompatibilityQuestionData
+	for question in DATA.questions:
 		if question == null:
 			continue
 		for axis: String in question.measured_axes:
@@ -45,14 +44,12 @@ func _check_axis_measurement_balance() -> void:
 		_check(int(counts.get(axis, 0)) == 9, "Axis %s must be measured exactly nine times." % axis)
 
 func _check_per_question_axis_distribution() -> void:
-	for question_value in DATA.questions:
-		var question := question_value as CompatibilityQuestionData
+	for question in DATA.questions:
 		if question == null:
 			continue
 		for axis: String in question.measured_axes:
 			var weights: Array[int] = []
-			for answer_value in question.answers:
-				var answer := answer_value as CompatibilityAnswerData
+			for answer in question.answers:
 				if answer != null:
 					weights.append(int(answer.axis_weights.get(axis, 0)))
 			weights.sort()
@@ -64,8 +61,7 @@ func _check_per_question_axis_distribution() -> void:
 func _check_candidate_classes() -> void:
 	var standard_count := 0
 	var extended_count := 0
-	for candidate_value in DATA.candidates:
-		var candidate := candidate_value as CompatibilityCandidateData
+	for candidate in DATA.candidates:
 		if candidate == null:
 			continue
 		if candidate.candidate_class == CompatibilityCandidateData.CandidateClass.STANDARD:
@@ -77,11 +73,10 @@ func _check_candidate_classes() -> void:
 
 func _check_evaluation_contract() -> void:
 	var session := CompatibilitySessionData.new()
-	for question_value in DATA.questions:
-		var question := question_value as CompatibilityQuestionData
+	for question in DATA.questions:
 		if question == null or question.answers.is_empty():
 			continue
-		var answer := question.answers[0] as CompatibilityAnswerData
+		var answer = question.answers[0]
 		if answer == null:
 			continue
 		session.note_question_visit(question.question_id)

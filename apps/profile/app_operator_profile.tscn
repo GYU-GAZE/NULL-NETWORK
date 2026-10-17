@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://apps/profile/app_operator_profile.gd" id="1_app"]
 [ext_resource type="PackedScene" path="res://apps/profile/partner_stage/profile_partner_stage.tscn" id="2_stage"]
+[ext_resource type="PackedScene" path="res://apps/profile/components/profile_tendency_row.tscn" id="3_tendency_row"]
+[ext_resource type="PackedScene" path="res://apps/profile/components/profile_value_row.tscn" id="4_value_row"]
 
 [node name="OperatorProfileApp" type="PanelContainer"]
 clip_contents = true
@@ -14,6 +16,8 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_font_sizes/font_size = 14
 script = ExtResource("1_app")
+tendency_row_scene = ExtResource("3_tendency_row")
+value_row_scene = ExtResource("4_value_row")
 
 [node name="RootMargin" type="MarginContainer" parent="."]
 layout_mode = 2

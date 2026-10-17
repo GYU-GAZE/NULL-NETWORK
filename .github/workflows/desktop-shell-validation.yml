@@ -182,6 +182,26 @@ jobs:
             2>&1 | tee browser-page-scroll-origin-test.log
           grep -q "BROWSER_PAGE_SCROLL_ORIGIN_TEST: PASS" browser-page-scroll-origin-test.log
 
+      - name: Run Browser responsive site layout test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 45 \
+            tests/browser/browser_responsive_site_layout_test.tscn \
+            2>&1 | tee browser-responsive-site-layout-test.log
+          grep -q "BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: PASS" browser-responsive-site-layout-test.log
+
+      - name: Run NULL NETWORK homepage test
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 30 \
+            tests/browser/null_network_home_test.tscn \
+            2>&1 | tee null-network-home-test.log
+          grep -q "NULL_NETWORK_HOME_TEST: PASS" null-network-home-test.log
+
       - name: Run Browser tab order test
         shell: bash
         run: |
@@ -226,12 +246,14 @@ jobs:
             alert-layer-layout-test.log \
             operator-registration-restore-test.log \
             browser-page-scroll-origin-test.log \
+            browser-responsive-site-layout-test.log \
+            null-network-home-test.log \
             browser-tab-order-test.log \
             site-action-data-test.log \
             website-catalog-test.log \
             > desktop-shell-validation.log
 
-          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_INITIAL_MAXIMIZE_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|ALERT_LAYER_LAYOUT_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|BROWSER_TAB_ORDER_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" desktop-shell-validation.log; then
+          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_INITIAL_MAXIMIZE_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|ALERT_LAYER_LAYOUT_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: FAIL|NULL_NETWORK_HOME_TEST: FAIL|BROWSER_TAB_ORDER_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" desktop-shell-validation.log; then
             echo "Desktop shell validation reported an error."
             exit 1
           fi
@@ -256,6 +278,8 @@ jobs:
             alert-layer-layout-test.log
             operator-registration-restore-test.log
             browser-page-scroll-origin-test.log
+            browser-responsive-site-layout-test.log
+            null-network-home-test.log
             browser-tab-order-test.log
             site-action-data-test.log
             website-catalog-test.log

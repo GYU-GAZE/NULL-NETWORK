@@ -78,7 +78,7 @@ custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/margin_left = 1
-theme_override_constants/margin_top = 1
+theme_override_constants/margin_top = 0
 theme_override_constants/margin_right = 1
 theme_override_constants/margin_bottom = 0
 
@@ -153,7 +153,7 @@ grow_vertical = 2
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
-[node name="ScrollSiteContainer" type="VBoxContainer" parent="MainVBox/ContentArea/PageScroll"]
+[node name="ScrollSiteContainer" type="Container" parent="MainVBox/ContentArea/PageScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

@@ -81,10 +81,24 @@ func _run_test() -> void:
 		CampaignState.grant_item("healing_patch", 2) == 2,
 		"Could not grant Profile fixture inventory."
 	)
-	var exp_errors: PackedStringArray = APKProgressionService.grant_experience(20)
 	_check(
-		exp_errors.is_empty() and CampaignState.partner.level == 2,
-		"Profile fixture partner did not reach level 2."
+		CampaignState.partner.level == APKProgressionService.ONBOARDING_STARTER_LEVEL,
+		"Profile fixture starter did not use the onboarding starter level."
+	)
+	var exp_to_next_level: int = (
+		APKProgressionService.get_total_exp_for_level(
+			APKProgressionService.ONBOARDING_STARTER_LEVEL + 1
+		)
+		- CampaignState.partner.current_exp
+	)
+	var exp_errors: PackedStringArray = APKProgressionService.grant_experience(
+		exp_to_next_level
+	)
+	_check(
+		exp_errors.is_empty()
+		and CampaignState.partner.level
+		== APKProgressionService.ONBOARDING_STARTER_LEVEL + 1,
+		"Profile fixture partner did not reach the next level."
 	)
 	await _wait_frames(5)
 
@@ -181,8 +195,11 @@ func _assert_profile_projection(
 	)
 	_check(
 		str(partner_data.get("apk_id", "")) == "novire_init"
-		and int(partner_data.get("level", 0)) == 2
-		and app.get_partner_level_text() == "LEVEL 2",
+		and int(partner_data.get("level", 0))
+		== APKProgressionService.ONBOARDING_STARTER_LEVEL + 1
+		and app.get_partner_level_text() == "LEVEL %d" % (
+			APKProgressionService.ONBOARDING_STARTER_LEVEL + 1
+		),
 		"%s Profile did not project partner identity and level."
 		% boundary.capitalize()
 	)

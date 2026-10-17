@@ -65,14 +65,14 @@ func _test_registration_handoff_relay() -> void:
 		"Onboarding handoff relay did not wait for the registration page ready boundary before binding controls."
 	)
 
-	var relayed_operator_id := ""
+	var relay_capture := {"operator_id": ""}
 	var relay_callback := func(operator_id: String) -> void:
-		relayed_operator_id = operator_id
+		relay_capture["operator_id"] = operator_id
 	GlobalSignals.onboarding_handoff_requested.connect(relay_callback, CONNECT_ONE_SHOT)
 	page.onboarding_handoff_requested.emit("operator.test")
 	await get_tree().process_frame
 	_check(
-		relayed_operator_id == "operator.test",
+		str(relay_capture.get("operator_id", "")) == "operator.test",
 		"Registration completion did not relay the onboarding handoff globally."
 	)
 	_check(
