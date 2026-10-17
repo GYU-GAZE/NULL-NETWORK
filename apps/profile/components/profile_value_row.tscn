@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/profile/components/profile_value_row.gd" id="1_script"]
+
+[node name="ProfileValueRow" type="HBoxContainer"]
+script = ExtResource("1_script")
+
+[node name="LeftLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 2
+
+[node name="RightLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 2
