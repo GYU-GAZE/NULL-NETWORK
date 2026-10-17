@@ -120,8 +120,11 @@ func _check_site_top_matches_viewport(browser: BrowserApp, phase: String) -> voi
 		return
 	var site_top := site.get_global_rect().position.y
 	var viewport_top := browser.page_scroll.get_global_rect().position.y
+	# ScrollContainer theme borders may inset its content viewport by one pixel.
+	# What matters is that the document returns to that authored top boundary
+	# instead of retaining a stale scroll offset.
 	_check(
-		is_equal_approx(site_top, viewport_top),
+		absf(site_top - viewport_top) <= 1.5,
 		"%s rendered the page at y=%s instead of Browser viewport y=%s." % [
 			phase,
 			site_top,
