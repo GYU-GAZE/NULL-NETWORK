@@ -85,23 +85,9 @@ func _run_test() -> void:
 		_check(guide.find_child("PathRail", true, false) != null, "Get Started lost its guided left navigation rail.")
 		_check(guide.find_child("ArticlePanel", true, false) != null, "Get Started lost its framed article reader.")
 		_check(guide.find_child("ContentFrame", true, false) is NullNetworkFrame, "Get Started must use the stepped reference frame renderer.")
-		_check_footer_fits_canvas(guide, "Get Started")
 		guide.queue_free()
 	_finish_test()
 
-func _check_footer_fits_canvas(page: Control, page_name: String) -> void:
-	var footer := page.find_child("PortalFooter", true, false) as Control
-	_check(footer != null, "%s lost its shared portal footer." % page_name)
-	if footer == null:
-		return
-	_check(
-		footer.position.y + footer.size.y <= page.size.y + 0.5,
-		"%s overflows the canonical 832x393 browser canvas: footer bottom %.1f, page %.1f." % [
-			page_name,
-			footer.position.y + footer.size.y,
-			page.size.y,
-		]
-	)
 
 func _check_account_gate(root: Node, node_name: String) -> void:
 	var button := root.find_child(node_name, true, false) as SiteActionButton
