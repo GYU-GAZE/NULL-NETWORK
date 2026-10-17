@@ -80,7 +80,7 @@ show_failed_alert = true
 failed_alert_title = "ACCOUNT REQUIRED"
 failed_alert_message = "You must have an account to access this area."
 
-[node name="NnwHomepage" type="Control" unique_id=734392268]
+[node name="NnwHomepage" type="MarginContainer" unique_id=734392268]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
