@@ -7,9 +7,6 @@ signal display_state_changed(
 	logical_workspace_size: Vector2i
 )
 
-@export_category("Reference Workspace")
-@export var reference_workspace: Vector2 = Vector2(960, 540)
-
 @export_category("OS Chrome — Logical Units")
 @export var taskbar_height: float = 19.0
 @export_storage var dock_height: float = 0.0
@@ -33,11 +30,11 @@ var physical_size: Vector2i = Vector2i.ZERO
 var logical_workspace_size: Vector2i = Vector2i.ZERO
 
 func set_display_state(
-	new_pixel_scale: int,
+	_new_pixel_scale: int,
 	new_physical_size: Vector2i,
 	new_logical_workspace_size: Vector2i
 ) -> void:
-	var sanitized_scale: int = max(1, new_pixel_scale)
+	var sanitized_scale: int = KubuDisplaySettings.FIXED_PIXEL_SCALE
 	var state_changed: bool = (
 		pixel_scale != sanitized_scale
 		or physical_size != new_physical_size
@@ -67,10 +64,10 @@ func get_work_area_size(parent_size: Vector2) -> Vector2:
 	return get_work_area_rect(parent_size).size
 
 func get_work_area_rect(parent_size: Vector2) -> Rect2:
-	var safe_parent := snap_vector(Vector2(
+	var safe_parent := Vector2(
 		maxf(0.0, parent_size.x),
 		maxf(0.0, parent_size.y)
-	))
+	).floor()
 	var left := clampf(snap_value(reserved_left_width), 0.0, safe_parent.x)
 	var right := clampf(
 		snap_value(safe_parent.x - reserved_right_width),
@@ -92,28 +89,16 @@ func get_work_area_rect(parent_size: Vector2) -> Rect2:
 ## chrome and window clamping must derive from the same edge so a maximized
 ## window can neither leave a dead strip nor overlap the rail.
 func get_right_reserved_rect(parent_size: Vector2) -> Rect2:
-	var safe_parent := snap_vector(Vector2(
+	var safe_parent := Vector2(
 		maxf(0.0, parent_size.x),
 		maxf(0.0, parent_size.y)
-	))
+	).floor()
 	var work_rect := get_work_area_rect(safe_parent)
 	var right_width := maxf(0.0, safe_parent.x - work_rect.end.x)
 	return Rect2(
 		Vector2(work_rect.end.x, work_rect.position.y),
 		Vector2(right_width, maxf(0.0, safe_parent.y - work_rect.position.y))
 	)
-
-func get_window_visual_scale(window_pixel_density: int) -> float:
-	var desktop_density: float = float(max(1, pixel_scale))
-	var sanitized_window_density: float = float(clampi(window_pixel_density, 1, 2))
-	return sanitized_window_density / desktop_density
-
-func get_window_internal_size(
-	outer_size: Vector2,
-	window_pixel_density: int
-) -> Vector2:
-	var visual_scale: float = max(0.01, get_window_visual_scale(window_pixel_density))
-	return snap_vector(outer_size / visual_scale)
 
 func snap_value(value: float) -> float:
 	return round(value)

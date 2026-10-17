@@ -6,6 +6,7 @@ signal operation_finished(control: Control, operation: StringName)
 
 @export var profile: UiMotionProfileData
 
+var _next_revision: int = 0
 var _active_tweens: Dictionary = {}
 var _operation_revisions: Dictionary = {}
 var _target_states: Dictionary = {}
@@ -191,6 +192,7 @@ func transition_rect(control: Control, target_rect: Rect2, duration: float = -1.
 	tween.tween_method(_set_size.bind(control), control.size, target_size, seconds)
 	if not (await _wait_operation(control, revision, seconds)):
 		return
+	_kill_control_tween(control, false)
 	control.position = target_position
 	control.size = target_size
 	control.scale = Vector2.ONE
@@ -207,7 +209,7 @@ func flash_control(control: Control, peak: Color = Color(1.12, 1.12, 1.18, 1.0),
 		return
 	var seconds := profile.window_focus_duration if duration < 0.0 else duration
 	var revision := _begin_operation(control)
-	_remember_target(control, control.position, control.size, control.visible)
+	_remember_target(control, control.position, control.size, control.visible, false)
 	control.modulate = Color.WHITE
 	var tween := create_tween()
 	_register_tween(control, tween)
@@ -217,6 +219,7 @@ func flash_control(control: Control, peak: Color = Color(1.12, 1.12, 1.18, 1.0),
 	tween.tween_property(control, "modulate", Color.WHITE, seconds * 0.55)
 	if not (await _wait_operation(control, revision, seconds)):
 		return
+	_kill_control_tween(control, false)
 	control.modulate = Color.WHITE
 	_active_tweens.erase(control.get_instance_id())
 	_target_states.erase(control.get_instance_id())
@@ -300,6 +303,7 @@ func _exit_scaled_container_child(control: Control, end_scale: Vector2, duration
 func _finish_container_transform(control: Control, visible_state: bool, operation: StringName) -> void:
 	if not is_instance_valid(control):
 		return
+	_kill_control_tween(control, false)
 	control.scale = Vector2.ONE
 	control.rotation = 0.0
 	control.modulate = Color.WHITE
@@ -367,7 +371,8 @@ func _begin_operation(control: Control) -> int:
 
 func _increment_revision(control: Control) -> int:
 	var id := control.get_instance_id()
-	var revision := int(_operation_revisions.get(id, 0)) + 1
+	_next_revision += 1
+	var revision := _next_revision
 	_operation_revisions[id] = revision
 	return revision
 
@@ -403,7 +408,7 @@ func _register_tween(control: Control, tween: Tween) -> void:
 	_active_tweens[control.get_instance_id()] = tween
 
 
-func _kill_control_tween(control: Control) -> void:
+func _kill_control_tween(control: Control, settle: bool = true) -> void:
 	var control_id := control.get_instance_id()
 	var tween := _active_tweens.get(control_id) as Tween
 	if tween == null:
@@ -426,7 +431,7 @@ func _kill_control_tween(control: Control) -> void:
 		var linked_control: Control
 		if reference != null:
 			linked_control = reference.get_ref() as Control
-		if is_instance_valid(linked_control):
+		if settle and is_instance_valid(linked_control):
 			_apply_target_state(linked_control, target)
 			if id != control_id:
 				_increment_revision(linked_control)
@@ -437,13 +442,15 @@ func _remember_target(
 	control: Control,
 	position: Vector2,
 	size: Vector2,
-	visible_state: bool
+	visible_state: bool,
+	geometry: bool = true
 ) -> void:
 	_target_states[control.get_instance_id()] = {
 		"control": weakref(control),
 		"position": KubuOSMetrics.snap_vector(position),
 		"size": KubuOSMetrics.snap_vector(size),
 		"visible": visible_state,
+		"geometry": geometry,
 	}
 
 
@@ -460,8 +467,9 @@ func _settle_control_target(control: Control) -> void:
 func _apply_target_state(control: Control, target: Dictionary) -> void:
 	var target_position: Vector2 = target.get("position", control.position)
 	var target_size: Vector2 = target.get("size", control.size)
-	control.position = KubuOSMetrics.snap_vector(target_position)
-	control.size = KubuOSMetrics.snap_vector(target_size)
+	if bool(target.get("geometry", true)):
+		control.position = KubuOSMetrics.snap_vector(target_position)
+		control.size = KubuOSMetrics.snap_vector(target_size)
 	control.scale = Vector2.ONE
 	control.rotation = 0.0
 	control.modulate = Color.WHITE
@@ -471,6 +479,9 @@ func _apply_target_state(control: Control, target: Dictionary) -> void:
 func _finish_control(control: Control, resting_position: Vector2, visible_state: bool, operation: StringName) -> void:
 	if not is_instance_valid(control):
 		return
+	# Timer completion can precede the tween's final process tick. Retire it
+	# before emitting completion, or that tick can overwrite a new drag/resize.
+	_kill_control_tween(control, false)
 	control.position = KubuOSMetrics.snap_vector(resting_position)
 	control.scale = Vector2.ONE
 	control.rotation = 0.0

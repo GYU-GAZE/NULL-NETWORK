@@ -15,8 +15,8 @@ func _run_test() -> void:
 	workspace.set_script(preload("res://tests/window_manager/window_initial_maximize_host.gd"))
 	add_child(workspace)
 
-	var window := WINDOW_SCENE.instantiate() as AdaptiveScaleWindowBase
-	_check(window != null, "Adaptive WindowBase failed to instantiate.")
+	var window := WINDOW_SCENE.instantiate() as WindowBase
+	_check(window != null, "WindowBase failed to instantiate.")
 	if window == null:
 		workspace.queue_free()
 		_finish_test()
@@ -78,7 +78,7 @@ func _run_test() -> void:
 	_finish_test()
 
 
-func _check_surface_geometry(window: AdaptiveScaleWindowBase, phase: String) -> void:
+func _check_surface_geometry(window: WindowBase, phase: String) -> void:
 	var visual_size := window.visual_root.size * window.visual_root.scale
 	_check(
 		visual_size.is_equal_approx(window.size),
@@ -102,7 +102,7 @@ func _check_surface_geometry(window: AdaptiveScaleWindowBase, phase: String) -> 
 	)
 
 
-func _check_resize_edges(window: AdaptiveScaleWindowBase) -> void:
+func _check_resize_edges(window: WindowBase) -> void:
 	var border := window.resize_border
 	var inset := maxf(1.0, border.border_size * 0.5)
 	var center_x := border.size.x * 0.5

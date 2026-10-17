@@ -232,11 +232,22 @@ jobs:
             2>&1 | tee website-catalog-test.log
           grep -q "WEBSITE_CATALOG_TEST: PASS" website-catalog-test.log
 
+      - name: Run fixed 2x window contract and application integration
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . --quit-after 1800 \
+            tests/window_manager/window_contract_test.tscn \
+            2>&1 | tee window-contract-test.log
+          grep -q "WINDOW_CONTRACT_TEST: PASS" window-contract-test.log
+
       - name: Reject shell script errors
         shell: bash
         run: |
           cat \
             desktop-shell-import.log \
+            window-contract-test.log \
             desktop-app-rail-test.log \
             desktop-shell-presentation-test.log \
             desktop-work-area-test.log \
@@ -253,7 +264,7 @@ jobs:
             website-catalog-test.log \
             > desktop-shell-validation.log
 
-          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_INITIAL_MAXIMIZE_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|ALERT_LAYER_LAYOUT_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: FAIL|NULL_NETWORK_HOME_TEST: FAIL|BROWSER_TAB_ORDER_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" desktop-shell-validation.log; then
+          if grep -E "WINDOW_CONTRACT_TEST: FAIL|SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_INITIAL_MAXIMIZE_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|ALERT_LAYER_LAYOUT_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: FAIL|NULL_NETWORK_HOME_TEST: FAIL|BROWSER_TAB_ORDER_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" desktop-shell-validation.log; then
             echo "Desktop shell validation reported an error."
             exit 1
           fi
@@ -269,6 +280,7 @@ jobs:
           name: desktop-shell-validation-log
           path: |
             desktop-shell-import.log
+            window-contract-test.log
             desktop-app-rail-test.log
             desktop-shell-presentation-test.log
             desktop-work-area-test.log

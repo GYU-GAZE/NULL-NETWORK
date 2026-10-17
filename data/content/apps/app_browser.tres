@@ -14,5 +14,5 @@ installed_by_default = true
 sort_order = 10
 available_while_locked = true
 default_window_size = Vector2(600, 400)
-min_window_size = Vector2(400, 250)
+min_window_size = Vector2(400, 300)
 can_resize = true

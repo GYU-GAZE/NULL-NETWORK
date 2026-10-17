@@ -2,11 +2,6 @@ extends Control
 class_name NavigatorApp
 
 
-signal window_pixel_density_breakpoint_requested(
-	requested_size: Vector2
-)
-
-
 enum NavigatorMode {
 	WORLD_MAP,
 	LOCAL_AREA,
@@ -23,12 +18,6 @@ enum PendingActivityKind {
 
 const SESSION_STATE_VERSION: int = 5
 const APP_ID: String = "navigator"
-
-
-@export_category("Adaptive Presentation")
-@export var encounter_pixel_density_breakpoint: Vector2 = (
-	Vector2(530, 377)
-)
 
 
 @onready var world_map_view: NavigatorWorldMapView = (
@@ -239,27 +228,6 @@ func _set_mode(mode: NavigatorMode) -> void:
 			local_area_view.deactivate()
 			encounter_container.hide()
 			dialogue_container.show()
-
-	window_pixel_density_breakpoint_requested.emit(
-		get_requested_window_pixel_density_breakpoint()
-	)
-
-
-func get_requested_window_pixel_density_breakpoint() -> Vector2:
-	if _current_mode == NavigatorMode.ENCOUNTER:
-		return KubuOSMetrics.snap_vector(Vector2(
-			max(
-				1.0,
-				encounter_pixel_density_breakpoint.x
-			),
-			max(
-				1.0,
-				encounter_pixel_density_breakpoint.y
-			)
-		))
-
-	return Vector2.ZERO
-
 
 func show_world_map() -> void:
 	_set_mode(NavigatorMode.WORLD_MAP)

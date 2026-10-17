@@ -170,29 +170,29 @@ func _test_browser_window_density() -> void:
 	var workspace := Control.new()
 	workspace.size = Vector2(900, 600)
 	add_child(workspace)
-	var window := WINDOW_SCENE.instantiate() as AdaptiveScaleWindowBase
-	_check(window != null, "Adaptive WindowBase failed to instantiate for Browser density coverage.")
+	var window := WINDOW_SCENE.instantiate() as WindowBase
+	_check(window != null, "WindowBase failed to instantiate for Browser density coverage.")
 	if window == null:
 		workspace.queue_free()
 		return
 	workspace.add_child(window)
-	window.setup("browser_density", "Browser", Vector2(600, 400), Vector2(400, 250), true)
+	window.setup("browser_density", "Browser", Vector2(600, 400), Vector2(400, 300), true)
 	var browser := BROWSER_SCENE.instantiate() as BrowserApp
-	window.content_container.add_child(browser)
-	browser.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	window.mount_app(browser)
 	await get_tree().create_timer(0.35).timeout
-	_check(window.get_current_window_pixel_density() == AdaptiveScaleWindowBase.PIXEL_DENSITY_2X, "Browser did not begin at 2x window density.")
+	_check(window.visual_root.scale == Vector2.ONE, "Browser did not begin at 2x window density.")
 	_check(browser.get_browser_chrome_height() <= 40.0, "Browser chrome exceeded its budget at 2x density. Measured: %.1f px." % browser.get_browser_chrome_height())
 
-	window.size = Vector2(390, 240)
+	window.apply_resolved_geometry(window.resolve_geometry(Rect2(window.position, Vector2(390, 240))))
 	await _wait_frames(4)
-	_check(window.get_current_window_pixel_density() == AdaptiveScaleWindowBase.PIXEL_DENSITY_1X, "Shrinking Browser did not switch the window to 1x density.")
-	_check(browser.get_browser_chrome_height() <= 40.0, "Browser chrome exceeded its budget at 1x density. Measured: %.1f px." % browser.get_browser_chrome_height())
-	_check(browser.get_site_viewport_ratio() >= 0.80, "Browser chrome crushed the site viewport at 1x density.")
+	_check(window.visual_root.scale == Vector2.ONE, "Shrinking Browser changed its fixed 2x scale.")
+	_check(browser.get_browser_chrome_height() <= 40.0, "Browser chrome exceeded its budget in the small 2x window. Measured: %.1f px." % browser.get_browser_chrome_height())
+	_check(window.size == Vector2(400, 300), "Browser did not enforce its real minimum outer size.")
+	_check(browser.get_site_viewport_ratio() >= 0.80, "Browser chrome crushed small 2x viewport: app=%s content=%s chrome=%s ratio=%s" % [browser.size, browser.content_area.size, browser.get_browser_chrome_height(), browser.get_site_viewport_ratio()])
 
 	window.size = Vector2(430, 280)
 	await _wait_frames(4)
-	_check(window.get_current_window_pixel_density() == AdaptiveScaleWindowBase.PIXEL_DENSITY_2X, "Growing Browser beyond hysteresis did not restore 2x density.")
+	_check(window.visual_root.scale == Vector2.ONE, "Growing Browser changed its fixed 2x scale.")
 	await window.maximize()
 	_check(browser.get_browser_chrome_height() <= 40.0, "Maximized Browser chrome exceeded its logical budget. Measured: %.1f px." % browser.get_browser_chrome_height())
 	_check(browser.get_site_viewport_ratio() >= 0.85, "Maximized Browser did not preserve the site-dominant layout.")
