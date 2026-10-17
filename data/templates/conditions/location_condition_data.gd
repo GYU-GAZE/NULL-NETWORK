@@ -62,3 +62,7 @@ func _validate_rule(_active_path: Dictionary) -> PackedStringArray:
 		errors.append("location_id cannot be empty.")
 
 	return errors
+
+
+func get_change_dependencies(_active_path: Dictionary = {}) -> Dictionary:
+	return {"sections": PackedStringArray(["current_location", "discovered_locations"])}

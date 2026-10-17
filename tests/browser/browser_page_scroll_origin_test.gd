@@ -48,8 +48,8 @@ func _run_test() -> void:
 	_check_page_scroll_children_share_origin(browser, "Browser Back transition")
 	await get_tree().create_timer(0.45).timeout
 	_check(browser._get_current_tab().current_url == "null.net", "Browser Back did not return to NULL NETWORK home.")
-	_check(browser.page_scroll.scroll_vertical == 0, "Returned NULL NETWORK home kept a stale page-scroll offset.")
-	_check_site_top_matches_viewport(browser, "returned NULL NETWORK entry")
+	_check(browser.page_scroll.scroll_vertical == 40, "Browser Back did not restore its history-entry scroll offset.")
+	_check_site_top_matches_viewport(browser, "returned NULL NETWORK entry", 40)
 	await _check_scroll_reaches_true_bounds(browser, "returned NULL NETWORK entry")
 
 	browser.queue_free()
@@ -113,7 +113,7 @@ func _check_page_scroll_children_share_origin(browser: BrowserApp, phase: String
 			)
 
 
-func _check_site_top_matches_viewport(browser: BrowserApp, phase: String) -> void:
+func _check_site_top_matches_viewport(browser: BrowserApp, phase: String, expected_scroll: int = 0) -> void:
 	var site := browser._get_current_site() as Control
 	_check(site != null, "%s has no rendered site Control." % phase)
 	if site == null:
@@ -124,7 +124,7 @@ func _check_site_top_matches_viewport(browser: BrowserApp, phase: String) -> voi
 	# What matters is that the document returns to that authored top boundary
 	# instead of retaining a stale scroll offset.
 	_check(
-		absf(site_top - viewport_top) <= 1.5,
+		absf(site_top - (viewport_top - expected_scroll)) <= 1.5,
 		"%s rendered the page at y=%s instead of Browser viewport y=%s." % [
 			phase,
 			site_top,

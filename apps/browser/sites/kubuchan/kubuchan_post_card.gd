@@ -12,7 +12,8 @@ signal local_reference_requested(reference: String)
 
 @onready var indent: Control = %Indent
 @onready var post_panel: PanelContainer = %PostPanel
-@onready var meta_row: HBoxContainer = %MetaRow
+@onready var post_width: PreferredWidthContainer = %PostWidth
+@onready var meta_row: HFlowContainer = %MetaRow
 @onready var subject_label: Label = %SubjectLabel
 @onready var author_label: Label = %AuthorLabel
 @onready var uid_badge: PanelContainer = %UidBadge
@@ -131,17 +132,12 @@ func _refresh_post_width() -> void:
 	if not is_instance_valid(post_panel) or not is_instance_valid(indent):
 		return
 
-	var available_width: float = maxf(1.0, size.x - indent.custom_minimum_size.x)
-
 	if _is_op:
-		post_panel.custom_minimum_size.x = available_width
+		post_width.preferred_width = 0
 		return
 
 	var content_width: float = _measure_desired_content_width()
-	post_panel.custom_minimum_size.x = minf(
-		available_width,
-		clampf(content_width, reply_min_width, reply_max_width)
-	)
+	post_width.preferred_width = clampf(content_width, reply_min_width, reply_max_width)
 
 func _measure_desired_content_width() -> float:
 	var desired_width: float = reply_min_width

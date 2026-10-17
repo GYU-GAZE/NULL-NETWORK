@@ -15,11 +15,7 @@ func _ready() -> void:
 
 
 func normalize_url(raw_url: String) -> String:
-	var clean_url: String = raw_url.to_lower().strip_edges()
-	clean_url = clean_url.trim_prefix("https://")
-	clean_url = clean_url.trim_prefix("http://")
-	clean_url = clean_url.trim_prefix("www.")
-	return clean_url
+	return BrowserRoute.normalize(raw_url)
 
 
 func get_registered_pages() -> Array[WebsitePage]:
@@ -60,7 +56,7 @@ func fetch_page(url: String) -> WebsitePage:
 	for site in _prefix_routes:
 		var site_url: String = normalize_url(site.url)
 
-		if target_url.begins_with(site_url):
+		if BrowserRoute.matches_prefix(target_url, site_url):
 			return site
 
 	return null
@@ -99,9 +95,4 @@ func _register_site(site: WebsitePage) -> void:
 
 
 func _get_exact_key(url: String) -> String:
-	var key: String = normalize_url(url)
-
-	while key.ends_with("/"):
-		key = key.trim_suffix("/")
-
-	return key
+	return BrowserRoute.normalize(url)

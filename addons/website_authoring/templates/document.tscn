@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://apps/browser/components/browser_form_state.gd" id="1_state"]
+
+[node name="Document" type="VBoxContainer"]
+offset_right = 600.0
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Heading" type="Label" parent="."]
+layout_mode = 2
+text = "New Website"
+autowrap_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Introduction" type="Label" parent="Content"]
+layout_mode = 2
+text = "Author content here. Containers determine the document height."
+autowrap_mode = 2
+
+[node name="Footer" type="Label" parent="."]
+layout_mode = 2
+text = "End of document"
+autowrap_mode = 2
+
+[node name="FormState" type="Node" parent="."]
+script = ExtResource("1_state")

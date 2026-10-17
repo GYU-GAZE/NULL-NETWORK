@@ -24,3 +24,7 @@ func _validate_rule(_active_path: Dictionary) -> PackedStringArray:
 		errors.append("flag_name cannot be empty.")
 
 	return errors
+
+
+func get_change_dependencies(_active_path: Dictionary = {}) -> Dictionary:
+	return {"flags": PackedStringArray([flag_name])}

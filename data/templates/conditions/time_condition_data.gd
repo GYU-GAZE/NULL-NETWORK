@@ -52,3 +52,7 @@ func _validate_rule(_active_path: Dictionary) -> PackedStringArray:
 		errors.append("min_action_block cannot exceed max_action_block.")
 
 	return errors
+
+
+func get_change_dependencies(_active_path: Dictionary = {}) -> Dictionary:
+	return {"time": true}

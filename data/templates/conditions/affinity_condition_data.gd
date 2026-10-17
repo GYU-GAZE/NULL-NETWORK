@@ -47,3 +47,7 @@ func _resolve_npc_id(context: Dictionary) -> String:
 		clean_id = str(context.get("target_id", "")).strip_edges()
 
 	return clean_id
+
+
+func get_change_dependencies(_active_path: Dictionary = {}) -> Dictionary:
+	return {"sections": PackedStringArray(["social"])}

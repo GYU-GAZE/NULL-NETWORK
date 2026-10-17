@@ -1,6 +1,11 @@
 extends Resource
 class_name ConditionRuleData
 
+## Event dependencies used by reactive UI. A new condition type should override
+## this method with its actual state domains/keys. No polling or reflection.
+func get_change_dependencies(_active_path: Dictionary = {}) -> Dictionary:
+	return {"sections": PackedStringArray(["campaign"])}
+
 
 func is_met(context: Dictionary = {}) -> bool:
 	return _evaluate(context, {})

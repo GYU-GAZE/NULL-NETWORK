@@ -17,6 +17,19 @@ func push(title: String, message: String) -> void:
 	)
 
 
+func push_resource(definition: KubuNotificationData, source_app: String = "", source_url: String = "") -> KubuNotificationData:
+	if definition == null:
+		return null
+	# Copy the Resource itself so authored metadata survives too. Runtime state
+	# and identity are reset only on this instance, never on the definition.
+	var notification := definition.duplicate() as KubuNotificationData
+	notification.setup_runtime(definition.title, definition.message, definition.notification_type,
+		definition.target_url if not definition.target_url.is_empty() else source_url,
+		definition.source_app_id if not definition.source_app_id.is_empty() else source_app,
+		definition.source_thread_id, definition.priority, definition.icon)
+	return _publish(notification)
+
+
 func push_data(
 	title: String,
 	message: String,
@@ -40,6 +53,10 @@ func push_data(
 		icon
 	)
 
+	return _publish(notification)
+
+
+func _publish(notification: KubuNotificationData) -> KubuNotificationData:
 	_add_to_history(notification)
 
 	notification_requested.emit(notification.title, notification.message)

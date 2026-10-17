@@ -1,5 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://bpbbjyyqep1sg"]
 
+[ext_resource type="Script" path="res://systems/ui/layout/responsive_columns.gd" id="99_responsive"]
+
 [ext_resource type="Script" uid="uid://dferouqi83ljf" path="res://apps/forum/null_channel_header.gd" id="1_t7py2"]
 [ext_resource type="Texture2D" uid="uid://c30ys4pi4314n" path="res://icon.svg" id="2_tcew5"]
 [ext_resource type="Script" uid="uid://cfjvy337iobbp" path="res://apps/browser/site_action_button.gd" id="3_tcew5"]
@@ -37,7 +39,8 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 4
 
-[node name="HeaderHBox" type="HBoxContainer" parent="HeaderVBox/HeaderMargin" unique_id=24243142]
+[node name="HeaderHBox" type="Container" parent="HeaderVBox/HeaderMargin" unique_id=24243142]
+script = ExtResource("99_responsive")
 unique_name_in_owner = true
 layout_mode = 2
 

@@ -11,22 +11,19 @@ class_name WebsiteCatalog
 
 func validate_data() -> PackedStringArray:
 	var errors := PackedStringArray()
-	var exact_urls: Dictionary = {}
+	var routes := {}
 	for index: int in range(pages.size()):
-		var page: WebsitePage = pages[index]
+		var page := pages[index]
 		if page == null:
 			errors.append("Page %d is null." % index)
 			continue
-		var clean_url := page.url.strip_edges().to_lower()
-		if clean_url.is_empty():
-			errors.append("Page %d has an empty url." % index)
-			continue
-		if not page.match_as_prefix:
-			while clean_url.ends_with("/"):
-				clean_url = clean_url.trim_suffix("/")
-			if exact_urls.has(clean_url):
-				errors.append("Duplicate exact route '%s'." % clean_url)
-			exact_urls[clean_url] = true
-		if page.site_scene == null:
-			errors.append("Page '%s' has no site_scene." % page.url)
+		var key := BrowserRoute.normalize(page.url)
+		var kind := "prefix:" if page.match_as_prefix else "exact:"
+		if routes.has(kind + key):
+			errors.append("Duplicate %s route '%s'." % [kind.trim_suffix(":"), key])
+		routes[kind + key] = true
+		for error: String in page.validate_data():
+			errors.append(error)
+	# Nested prefixes are deliberate and deterministic: longest segment prefix
+	# wins. Exact routes override prefixes at the same URL, as in a normal router.
 	return errors

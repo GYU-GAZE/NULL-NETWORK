@@ -5,6 +5,11 @@ class_name BrowserErrorPage
 @onready var title_label: Label = %TitleLabel
 @onready var message_label: Label = %MessageLabel
 @onready var url_label: Label = %UrlLabel
+var _details: PackedStringArray = []
+
+
+func _ready() -> void:
+	_apply_details()
 
 
 func setup(
@@ -13,10 +18,16 @@ func setup(
 	error_message: String,
 	requested_url: String
 ) -> void:
-	code_label.text = error_code.strip_edges()
-	title_label.text = error_title.strip_edges()
-	message_label.text = error_message.strip_edges()
+	_details = PackedStringArray([error_code.strip_edges(), error_title.strip_edges(), error_message.strip_edges(), requested_url.strip_edges()])
+	if is_node_ready():
+		_apply_details()
 
-	var clean_url: String = requested_url.strip_edges()
-	url_label.text = clean_url
-	url_label.visible = not clean_url.is_empty()
+
+func _apply_details() -> void:
+	if _details.size() != 4:
+		return
+	code_label.text = _details[0]
+	title_label.text = _details[1]
+	message_label.text = _details[2]
+	url_label.text = _details[3]
+	url_label.visible = not _details[3].is_empty()

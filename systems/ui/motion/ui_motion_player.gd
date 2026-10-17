@@ -326,7 +326,7 @@ func cancel_control(
 	if not is_instance_valid(control):
 		return
 	_increment_revision(control)
-	_kill_control_tween(control)
+	_kill_control_tween(control, settle_to_target)
 	if settle_to_target and _target_states.has(control.get_instance_id()):
 		_settle_control_target(control)
 	elif normalize:

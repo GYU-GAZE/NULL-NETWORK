@@ -1,7 +1,7 @@
 extends Control
 class_name BrowserApp
 
-const SESSION_STATE_VERSION: int = 1
+const SESSION_STATE_VERSION: int = 2
 
 @export_category("Browser Scenes")
 @export var tab_button_scene: PackedScene
@@ -10,8 +10,6 @@ const SESSION_STATE_VERSION: int = 1
 
 @export_category("Browser Routes")
 @export var home_url: String = "home"
-
-@export_storage var fallback_site_canvas_size: Vector2 = Vector2(600, 320)
 
 @export_category("Tab Layout")
 @export var tab_width: float = 112.0
@@ -39,6 +37,7 @@ const SESSION_STATE_VERSION: int = 1
 @onready var url_line_edit: LineEdit = %UrlLineEdit
 @onready var go_button: Button = %GoButton
 @onready var browser_back_btn: Button = %BrowserBackBtn
+@onready var browser_forward_btn: Button = %BrowserForwardBtn
 @onready var favorite_button: Button = %FavoriteButton
 @onready var content_area: Control = %ContentArea
 @onready var site_container: Control = %SiteContainer
@@ -52,6 +51,17 @@ var _new_tab_button: Button
 var _tab_overflow_active: bool = false
 var _navigation_locked: bool = false
 var _navigation_revision: int = 0
+var _active_site: Control
+var _active_surface: BrowserPageSurface
+var _outgoing_surface: BrowserPageSurface
+var _incoming_surface: BrowserPageSurface
+var _active_context: BrowserPageContext
+var _active_policy: WebsitePage.OverflowPolicy = WebsitePage.OverflowPolicy.PAGE_SCROLL
+var _active_url: String = ""
+var _active_entry: BrowserHistoryEntry
+var _pending_scroll_y: int = -1
+var _tab_layout_queued: bool = false
+var _tab_close_in_progress: bool = false
 
 
 func _ready() -> void:
@@ -59,10 +69,16 @@ func _ready() -> void:
 	go_button.pressed.connect(_on_go_pressed)
 	url_line_edit.text_submitted.connect(_load_page)
 	browser_back_btn.pressed.connect(_on_browser_back_pressed)
+	browser_forward_btn.pressed.connect(_on_browser_forward_pressed)
 	favorite_button.pressed.connect(_on_favorite_pressed)
 	resized.connect(_queue_tab_layout_refresh)
 	tab_scroll.resized.connect(_queue_tab_layout_refresh)
-	_connect_browser_navigation_signals(self)
+	var chrome_context := BrowserPageContext.new()
+	add_child(chrome_context)
+	set_meta(BrowserPageContext.META, chrome_context)
+	chrome_context.navigation_requested.connect(_load_page)
+	page_scroll.get_v_scroll_bar().changed.connect(_restore_pending_scroll)
+	page_scroll.scroll_started.connect(func() -> void: _pending_scroll_y = -1)
 	if not GlobalSignals.request_browser_navigation.is_connected(_on_story_browser_navigation_requested):
 		GlobalSignals.request_browser_navigation.connect(_on_story_browser_navigation_requested)
 	_ensure_new_tab_button()
@@ -96,8 +112,6 @@ func _on_go_pressed() -> void:
 
 
 func _create_tab(start_url: String = "") -> void:
-	if _navigation_locked:
-		return
 	_save_current_site_state()
 	var tab := BrowserTabData.new()
 	tabs.append(tab)
@@ -112,15 +126,22 @@ func _create_tab(start_url: String = "") -> void:
 
 
 func _close_tab(tab_index: int) -> void:
-	if _navigation_locked or tabs.size() <= 1 or tab_index < 0 or tab_index >= tabs.size():
+	if _tab_close_in_progress or tabs.size() <= 1 or tab_index < 0 or tab_index >= tabs.size():
 		return
-	_navigation_locked = true
-	_set_chrome_interaction(false)
+	_tab_close_in_progress = true
+	var closing_tab := tabs[tab_index]
 	var closed_current := tab_index == current_tab_index
 	if closed_current:
 		_save_current_site_state()
 	var closing_button: BrowserTabButton = _tab_buttons[tab_index]
 	await motion_player.exit_scaled_control(closing_button, Vector2(0.92, 0.82), Vector2(0, -2), 0.10)
+	tab_index = tabs.find(closing_tab)
+	if tab_index < 0:
+		_tab_close_in_progress = false
+		return
+	closed_current = current_tab_index == tab_index
+	if closed_current:
+		_save_current_site_state()
 	if is_instance_valid(closing_button):
 		tab_button_container.remove_child(closing_button)
 		closing_button.queue_free()
@@ -131,14 +152,13 @@ func _close_tab(tab_index: int) -> void:
 	elif tab_index == current_tab_index:
 		current_tab_index = mini(tab_index, tabs.size() - 1)
 	_sync_tab_buttons()
-	_navigation_locked = false
-	_set_chrome_interaction(true)
+	_tab_close_in_progress = false
 	if closed_current:
 		_render_current_tab(false)
 
 
 func _switch_tab(tab_index: int) -> void:
-	if _navigation_locked or tab_index < 0 or tab_index >= tabs.size() or tab_index == current_tab_index:
+	if tab_index < 0 or tab_index >= tabs.size() or tab_index == current_tab_index:
 		return
 	_save_current_site_state()
 	var forward := tab_index > current_tab_index
@@ -205,10 +225,14 @@ func _calculate_tab_width() -> float:
 
 
 func _queue_tab_layout_refresh() -> void:
+	if _tab_layout_queued:
+		return
+	_tab_layout_queued = true
 	call_deferred("_refresh_tab_layout_only")
 
 
 func _refresh_tab_layout_only() -> void:
+	_tab_layout_queued = false
 	if not is_instance_valid(tab_scroll) or tabs.is_empty():
 		return
 	var resolved_width := _calculate_tab_width()
@@ -232,13 +256,7 @@ func _get_available_tab_strip_width() -> float:
 	return maxf(1.0, size.x - new_tab_width - chrome_separation - tab_bar_reserved_margin)
 
 
-func _load_page(
-	target_url: String,
-	is_history_nav: bool = false,
-	forward: bool = true
-) -> void:
-	if _navigation_locked:
-		return
+func _load_page(target_url: String, is_history_nav: bool = false, forward: bool = true) -> void:
 	var clean_url: String = SimulatedDNS.normalize_url(target_url)
 	if clean_url.is_empty():
 		return
@@ -247,20 +265,16 @@ func _load_page(
 		return
 	if not is_history_nav:
 		_save_current_site_state()
-		tab.clear_site_state()
 	var page: WebsitePage = SimulatedDNS.fetch_page(clean_url)
-	if page != null:
-		tab.set_page_title(page.page_title)
-		tab.set_favicon(page.favicon)
-	else:
-		tab.set_page_title(clean_url)
-		tab.set_favicon(null)
-	if page != null and page.record_in_browser_history:
-		GameState.register_browser_visit(clean_url, tab.page_title, tab.favicon)
+	var title: String = page.page_title if page != null else clean_url
+	var icon: Texture2D = page.favicon if page != null else null
 	if not is_history_nav:
-		tab.navigate_to(clean_url, tab.page_title, tab.favicon)
+		tab.navigate_to(clean_url, title, icon)
 	else:
-		tab.current_url = clean_url
+		tab.set_page_title(title)
+		tab.set_favicon(icon)
+	if page != null and page.record_in_browser_history:
+		GameState.register_browser_visit(clean_url, title, icon)
 	url_line_edit.text = clean_url
 	_sync_tab_buttons()
 	_refresh_favorite_button()
@@ -281,44 +295,74 @@ func _render_current_tab(forward: bool = true) -> void:
 
 
 func _present_url(target_url: String, page: WebsitePage, forward: bool) -> void:
+	_cancel_navigation_transition()
 	_navigation_locked = true
-	_navigation_revision += 1
 	var revision := _navigation_revision
 	_set_chrome_interaction(false)
 	var next_instance: Node
 	var policy := WebsitePage.OverflowPolicy.FIXED_VIEWPORT
-	var page_minimum_height := 0.0
 	if page == null:
 		next_instance = _build_error_page("403", "CONNECTION REFUSED", "The server refused the connection or the domain does not exist.", target_url)
 	elif page.site_scene == null:
-		_get_current_tab().clear_site_state()
-		next_instance = _build_error_page("500", "PAGE SCENE MISSING", "The route exists, but its WebsitePage has no site_scene configured.", page.url)
+		next_instance = _build_error_page("500", "PAGE SCENE MISSING", "The route exists, but has no page scene.", target_url)
 	else:
 		next_instance = page.site_scene.instantiate()
 		policy = page.overflow_policy
-		page_minimum_height = page.get_resolved_canvas_size().y
-	if next_instance == null:
-		next_instance = _build_fallback_error("500", "PAGE INSTANTIATION FAILED", target_url)
-	var old_site := _get_current_site()
-	var host := _get_host_for_policy(policy)
-	host.add_child(next_instance)
-	_configure_site_control(next_instance, policy, page_minimum_height)
-	_connect_browser_navigation_signals(next_instance)
-	var tab := _get_current_tab()
-	if next_instance.has_method("set_browser_url"):
-		next_instance.call_deferred("set_browser_url", tab.current_url)
-	if next_instance.has_method("restore_browser_state"):
-		next_instance.call_deferred("restore_browser_state", tab.site_state.duplicate(true))
+	if next_instance is not Control:
+		if next_instance != null:
+			next_instance.free()
+		next_instance = _build_fallback_error("500", "INVALID PAGE ROOT", target_url)
+	if is_instance_valid(_active_context):
+		_active_context.enabled = false
+	_outgoing_surface = _active_surface
+	var old_policy := _active_policy
+	_active_policy = policy
+	_active_url = target_url
+	_active_entry = _get_current_tab().current_entry()
+	_active_site = next_instance as Control
+	_incoming_surface = BrowserPageSurface.new()
+	_incoming_surface.name = "PageSurface"
+	_incoming_surface.size = content_area.size.floor()
+	_active_surface = _incoming_surface
+	_active_context = BrowserPageContext.new()
+	_active_context.url = target_url
+	_active_context.enabled = false
+	_incoming_surface.add_child(_active_context)
+	var context := _active_context
+	context.navigation_requested.connect(func(url: String) -> void:
+		if context == _active_context and context.enabled:
+			_load_page(url)
+	)
+	_get_host_for_policy(policy).add_child(_incoming_surface)
+	_active_context.bind_page(_active_site)
+	_incoming_surface.mount(_active_site, policy == WebsitePage.OverflowPolicy.PAGE_SCROLL)
 	_set_active_host(policy)
-	if old_site is Control and old_site != next_instance and next_instance is Control:
-		await motion_player.transition_between(old_site as Control, next_instance as Control, forward)
-		if is_instance_valid(old_site):
-			old_site.queue_free()
-	elif next_instance is Control:
-		await motion_player.enter_control(next_instance as Control, Vector2(4 if forward else -4, 0), 0.13)
+	if _active_site.has_method("set_browser_url"):
+		_active_site.call("set_browser_url", target_url)
+	if _active_entry != null:
+		await _active_context.restore_state(_active_entry.page_state.duplicate(true))
 	if revision != _navigation_revision:
 		return
-	_cleanup_inactive_hosts(next_instance)
+	_pending_scroll_y = _active_entry.scroll_y if _active_entry != null else 0
+	# Scroll range is calculated by Containers after mounting/restoring content.
+	# Listen for range changes and schedule one layout-bound application, not a
+	# frame loop. The transition's end clamps invalid legacy offsets once.
+	call_deferred("_restore_pending_scroll")
+	_active_context.enabled = true
+	if is_instance_valid(_outgoing_surface):
+		_outgoing_surface.process_mode = Node.PROCESS_MODE_DISABLED
+		if old_policy != policy:
+			_outgoing_surface.hide()
+		await motion_player.transition_between(_outgoing_surface, _incoming_surface, forward)
+	else:
+		await motion_player.enter_control(_incoming_surface, Vector2(4 if forward else -4, 0), 0.13)
+	if revision != _navigation_revision:
+		return
+	_dispose_surface(_outgoing_surface)
+	_outgoing_surface = null
+	_incoming_surface = null
+	_restore_pending_scroll()
+	_pending_scroll_y = -1
 	_navigation_locked = false
 	_set_chrome_interaction(true)
 
@@ -330,25 +374,15 @@ func _get_host_for_policy(policy: WebsitePage.OverflowPolicy) -> Control:
 
 
 func _set_active_host(policy: WebsitePage.OverflowPolicy) -> void:
-	var uses_page_scroll := policy == WebsitePage.OverflowPolicy.PAGE_SCROLL
-	page_scroll.visible = uses_page_scroll
-	site_container.visible = not uses_page_scroll
-	if uses_page_scroll:
+	var uses_scroll := policy == WebsitePage.OverflowPolicy.PAGE_SCROLL
+	page_scroll.visible = uses_scroll
+	site_container.visible = not uses_scroll
+	if uses_scroll:
+		scroll_site_container.active_page = _active_surface
 		page_scroll.scroll_vertical = 0
-
-
-func _configure_site_control(instance: Node, policy: WebsitePage.OverflowPolicy, page_minimum_height: float = 0.0) -> void:
-	if not instance is Control:
-		return
-	var control := instance as Control
-	control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	control.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	if policy == WebsitePage.OverflowPolicy.PAGE_SCROLL:
-		control.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-		control.custom_minimum_size = Vector2(0.0, page_minimum_height)
+		page_scroll.move_to_front()
 	else:
-		control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		control.custom_minimum_size = Vector2.ZERO
+		site_container.move_to_front()
 
 
 func _build_error_page(code: String, title: String, message: String, requested_url: String) -> Node:
@@ -370,18 +404,16 @@ func _build_fallback_error(code: String, title: String, detail: String) -> Label
 
 
 func _on_browser_back_pressed() -> void:
-	if _navigation_locked:
-		return
 	var current_site := _get_current_site()
 	if current_site != null and current_site.has_method("handle_browser_back"):
 		if bool(current_site.call("handle_browser_back")):
 			_save_current_site_state()
 			_refresh_favorite_button()
 			return
+	_save_current_site_state()
 	var tab := _get_current_tab()
 	if tab != null and tab.can_go_back():
-		var previous_url := tab.go_back()
-		_load_page(previous_url, true, false)
+		_load_page(tab.go_back(), true, false)
 
 
 func _on_favorite_pressed() -> void:
@@ -414,7 +446,8 @@ func _apply_favorite_button_visual(enabled: bool, button_text: String, button_ic
 func _set_chrome_interaction(enabled: bool) -> void:
 	go_button.disabled = not enabled
 	url_line_edit.editable = enabled
-	browser_back_btn.disabled = not enabled
+	browser_back_btn.disabled = not enabled or not _get_current_tab().can_go_back()
+	browser_forward_btn.disabled = not enabled or not _get_current_tab().can_go_forward()
 	for tab_button in _tab_buttons:
 		if is_instance_valid(tab_button):
 			tab_button.mouse_filter = Control.MOUSE_FILTER_STOP if enabled else Control.MOUSE_FILTER_IGNORE
@@ -423,50 +456,63 @@ func _set_chrome_interaction(enabled: bool) -> void:
 
 
 func _get_current_site() -> Node:
-	if site_container.get_child_count() > 0:
-		return site_container.get_child(site_container.get_child_count() - 1)
-	if scroll_site_container.get_child_count() > 0:
-		return scroll_site_container.get_child(scroll_site_container.get_child_count() - 1)
-	return null
+	return _active_site if is_instance_valid(_active_site) and not _active_site.is_queued_for_deletion() else null
 
 
 func _save_current_site_state() -> void:
-	if current_tab_index < 0 or current_tab_index >= tabs.size():
+	if _active_entry == null or not is_instance_valid(_active_site):
 		return
-	var tab := tabs[current_tab_index]
-	var current_site := _get_current_site()
-	if current_site == null or not current_site.has_method("get_browser_state"):
-		tab.clear_site_state()
-		return
-	var returned_state: Variant = current_site.call("get_browser_state")
-	if returned_state is Dictionary:
-		tab.site_state = (returned_state as Dictionary).duplicate(true)
-	else:
-		tab.clear_site_state()
+	if is_instance_valid(_active_context):
+		_active_entry.page_state = _active_context.capture_state()
+	if _active_policy == WebsitePage.OverflowPolicy.PAGE_SCROLL:
+		_active_entry.scroll_y = page_scroll.scroll_vertical
 
 
-func _cleanup_inactive_hosts(keep: Node) -> void:
-	for host: Node in [site_container, scroll_site_container]:
-		for child in host.get_children():
-			if child != keep:
-				child.queue_free()
+func _dispose_surface(surface: BrowserPageSurface) -> void:
+	if not is_instance_valid(surface):
+		return
+	motion_player.cancel_control(surface, false, false)
+	if surface.get_parent() != null:
+		surface.get_parent().remove_child(surface)
+	surface.queue_free()
+
+
+func _cancel_navigation_transition() -> void:
+	_navigation_revision += 1
+	_dispose_surface(_outgoing_surface)
+	_outgoing_surface = null
+	if is_instance_valid(_active_surface):
+		motion_player.cancel_control(_active_surface, false, false)
+		_active_surface.position = Vector2.ZERO
+		_active_surface.scale = Vector2.ONE
+		_active_surface.modulate = Color.WHITE
+	_incoming_surface = null
+	_navigation_locked = false
 
 
 func _clear_site_containers() -> void:
-	for host: Node in [site_container, scroll_site_container]:
-		for child in host.get_children():
-			host.remove_child(child)
-			child.queue_free()
+	_cancel_navigation_transition()
+	if is_instance_valid(_active_context):
+		_active_context.enabled = false
+	_dispose_surface(_active_surface)
+	_active_surface = null
+	_active_site = null
+	_active_context = null
+	_active_entry = null
+	_set_chrome_interaction(true)
 
 
-func _connect_browser_navigation_signals(root: Node) -> void:
-	if root.has_signal("browser_navigation_requested"):
-		var navigation_callable := Callable(self, "_load_page")
-		if not root.is_connected("browser_navigation_requested", navigation_callable):
-			root.connect("browser_navigation_requested", navigation_callable)
+func _on_browser_forward_pressed() -> void:
+	_save_current_site_state()
+	var tab := _get_current_tab()
+	if tab != null and tab.can_go_forward():
+		_load_page(tab.go_forward(), true, true)
+
+
+func _restore_pending_scroll() -> void:
+	if _pending_scroll_y < 0 or _active_policy != WebsitePage.OverflowPolicy.PAGE_SCROLL:
 		return
-	for child in root.get_children():
-		_connect_browser_navigation_signals(child)
+	page_scroll.scroll_vertical = _pending_scroll_y
 
 
 func _is_home_url(url: String) -> bool:
@@ -531,6 +577,7 @@ func restore_app_session_state(state: Dictionary) -> void:
 				restored_tabs.append(restored)
 	if restored_tabs.is_empty():
 		return
+	_clear_site_containers()
 	tabs = restored_tabs
 	current_tab_index = clampi(int(state.get("current_tab_index", 0)), 0, tabs.size() - 1)
 	_clear_site_containers()

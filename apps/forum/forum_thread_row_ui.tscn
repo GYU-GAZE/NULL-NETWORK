@@ -62,3 +62,9 @@ custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 horizontal_alignment = 1
 clip_text = true
+
+[node name="CompactMetadata" type="Label" parent="MainHBox/ThreadInfoVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+autowrap_mode = 2
