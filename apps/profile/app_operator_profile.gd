@@ -183,8 +183,8 @@ func _render_tendencies(entries: Array) -> void:
 		if row == null:
 			continue
 
-		row.setup(entry)
 		tendency_list.add_child(row)
+		row.setup(entry)
 
 
 func _render_partner(data: Dictionary) -> void:
@@ -325,8 +325,8 @@ func _add_value_row(
 	if row == null:
 		return
 
-	row.setup(left_text, right_text)
 	container.add_child(row)
+	row.setup(left_text, right_text)
 
 
 func _instantiate_tendency_row() -> ProfileTendencyRow:
