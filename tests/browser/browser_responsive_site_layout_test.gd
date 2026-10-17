@@ -32,7 +32,7 @@ func _run_test() -> void:
 	_check(not browser.is_tab_overflow_active(), "One Browser tab must not show horizontal overflow.")
 	_check(not browser.tab_scroll.get_h_scroll_bar().visible, "One Browser tab left a horizontal scrollbar visible.")
 	_check(browser.get_tab_button_count() == 1, "Browser did not preserve its initial tab button.")
-	_check(browser.get_browser_chrome_height() <= 40.0, "Browser chrome exceeded its 40 px logical budget. Measured: %.1f px." % browser.get_browser_chrome_height())
+	_check(browser.get_browser_chrome_height() <= 40.0, "Browser chrome exceeds budget (total %.1f, tabs %.1f, address %.1f)." % [browser.get_browser_chrome_height(), browser.tab_bar_margin.size.y, browser.address_bar_margin.size.y])
 	_check(browser.get_site_viewport_ratio() >= 0.85, "Browser site viewport must retain at least 85% of app height.")
 
 	for index in range(7):
