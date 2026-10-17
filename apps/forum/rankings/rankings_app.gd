@@ -43,6 +43,8 @@ func _ready() -> void:
 		refresh_btn.pressed.connect(_refresh_page)
 
 	_apply_column_widths()
+	resized.connect(_refresh_compact_table)
+	_refresh_compact_table()
 	_refresh_page()
 
 
@@ -158,3 +160,10 @@ func _add_empty_label(container: Control, message: String) -> void:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	container.add_child(label)
+
+
+func _refresh_compact_table() -> void:
+	var compact := size.x < rank_column_width + score_column_width + level_column_width + partner_column_width + server_column_width + 160.0
+	level_header_label.visible = not compact
+	partner_header_label.visible = not compact
+	server_header_label.visible = not compact

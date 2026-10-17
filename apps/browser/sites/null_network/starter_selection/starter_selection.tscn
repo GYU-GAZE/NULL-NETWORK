@@ -1,9 +1,13 @@
 [gd_scene load_steps=3 format=3]
 
+[ext_resource type="Script" path="res://systems/ui/layout/responsive_columns.gd" id="99_responsive"]
+
+[ext_resource type="Theme" path="res://data/assets/themes/browser_site_theme.tres" id="98_site_theme"]
+
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/starter_selection/starter_selection.gd" id="1_page"]
-[ext_resource type="Script" path="res://apps/browser/layout/adaptive_browser_page_layout.gd" id="2_adaptive"]
 
 [node name="StarterSelection" type="PanelContainer"]
+theme = ExtResource("98_site_theme")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -11,9 +15,6 @@ grow_horizontal = 2
 grow_vertical = 2
 clip_contents = true
 script = ExtResource("1_page")
-
-[node name="AdaptiveBrowserLayout" type="Node" parent="."]
-script = ExtResource("2_adaptive")
 
 [node name="MasterScroll" type="ScrollContainer" parent="."]
 layout_mode = 2
@@ -38,6 +39,7 @@ theme_override_constants/separation = 12
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "PARTNER SYNCHRONIZATION"
+autowrap_mode = 2
 horizontal_alignment = 1
 
 [node name="Intro" type="Label" parent="MasterScroll/PageMargin/Page"]
@@ -54,11 +56,11 @@ text = "CHECKING CAMPAIGN STATE..."
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="MainSplit" type="HSplitContainer" parent="MasterScroll/PageMargin/Page"]
+[node name="MainSplit" type="Container" parent="MasterScroll/PageMargin/Page"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-split_offset = 210
+script = ExtResource("99_responsive")
 
 [node name="IndexPanel" type="PanelContainer" parent="MasterScroll/PageMargin/Page/MainSplit"]
 custom_minimum_size = Vector2(200, 430)
@@ -86,7 +88,7 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
 [node name="DetailPanel" type="PanelContainer" parent="MasterScroll/PageMargin/Page/MainSplit"]
-custom_minimum_size = Vector2(430, 430)
+custom_minimum_size = Vector2(280, 430)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -173,7 +175,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.35, 0.35, 1)
 autowrap_mode = 2
 
-[node name="Actions" type="HBoxContainer" parent="MasterScroll/PageMargin/Page"]
+[node name="Actions" type="HFlowContainer" parent="MasterScroll/PageMargin/Page"]
 layout_mode = 2
 alignment = 2
 theme_override_constants/separation = 8

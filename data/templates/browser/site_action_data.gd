@@ -26,6 +26,9 @@ class_name SiteActionData
 )
 
 @export_category("Success Feedback")
+## The structured Resource is preferred. Legacy title/message fields remain
+## readable for existing content; when set, notification takes precedence.
+@export var notification: KubuNotificationData
 @export var show_notification: bool = false
 @export var notification_title: String = ""
 @export_multiline var notification_message: String = ""
@@ -62,7 +65,7 @@ func validate_data() -> PackedStringArray:
 	if show_failed_alert and failed_alert_title.strip_edges().is_empty() \
 		and failed_alert_message.strip_edges().is_empty():
 		errors.append("Failed-condition alert requires a title or message.")
-	if show_notification and notification_title.strip_edges().is_empty() \
+	if notification == null and show_notification and notification_title.strip_edges().is_empty() \
 		and notification_message.strip_edges().is_empty():
 		errors.append("Notification requires a title or message.")
 	if show_alert and alert_title.strip_edges().is_empty() \

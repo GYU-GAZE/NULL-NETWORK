@@ -59,3 +59,25 @@ func _validate_rule(active_path: Dictionary) -> PackedStringArray:
 			errors.append("Rule %d: %s" % [index, error])
 
 	return errors
+
+
+func get_change_dependencies(active_path: Dictionary = {}) -> Dictionary:
+	if active_path.has(get_instance_id()):
+		return {}
+	active_path[get_instance_id()] = true
+	var result := {}
+	for rule: ConditionRuleData in rules:
+		if rule == null:
+			continue
+		var dependencies := rule.get_change_dependencies(active_path)
+		for key: String in dependencies:
+			if key == "time":
+				result[key] = true
+			else:
+				if not result.has(key):
+					result[key] = PackedStringArray()
+				for value: String in dependencies[key]:
+					if value not in result[key]:
+						result[key].append(value)
+	active_path.erase(get_instance_id())
+	return result

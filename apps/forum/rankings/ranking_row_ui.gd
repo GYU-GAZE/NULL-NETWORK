@@ -21,6 +21,9 @@ signal profile_requested(url: String)
 @onready var server_flag_rect: TextureRect = %ServerFlagRect
 @onready var server_label: Label = %ServerLabel
 
+@onready var compact_metadata: Label = %CompactMetadata
+var compact: bool = false
+
 var user_data: NetworkUserData
 
 var _show_level_column: bool = true
@@ -33,7 +36,8 @@ func _ready() -> void:
 		name_button.pressed.connect(_on_name_pressed)
 
 	_apply_column_widths()
-	_apply_column_visibility()
+	resized.connect(_refresh_compact)
+	_refresh_compact()
 
 
 func apply_layout_widths(
@@ -91,7 +95,7 @@ func setup(user: NetworkUserData, highlight: bool = false) -> void:
 	_setup_avatar()
 	_setup_server_flag()
 	_apply_visual_state(highlight)
-	_apply_column_visibility()
+	_refresh_compact()
 
 
 func _apply_column_widths() -> void:
@@ -103,9 +107,9 @@ func _apply_column_widths() -> void:
 
 
 func _apply_column_visibility() -> void:
-	level_label.visible = _show_level_column
-	partner_apk_label.visible = _show_partner_column
-	server_hbox.visible = _show_server_column
+	level_label.visible = _show_level_column and not compact
+	partner_apk_label.visible = _show_partner_column and not compact
+	server_hbox.visible = _show_server_column and not compact
 
 
 func _setup_avatar() -> void:
@@ -144,3 +148,11 @@ func _on_name_pressed() -> void:
 
 	if not url.is_empty():
 		profile_requested.emit(url)
+
+
+func _refresh_compact() -> void:
+	compact = size.x < rank_column_width + score_column_width + level_column_width + partner_column_width + server_column_width + 160.0
+	_apply_column_visibility()
+	if is_instance_valid(compact_metadata):
+		compact_metadata.visible = compact
+		compact_metadata.text = "%s // %s // %s" % [level_label.text, partner_apk_label.text, server_label.text]

@@ -1,6 +1,7 @@
 extends Node
 
 const KUBUCHAN_SCENE: PackedScene = preload("res://apps/browser/sites/kubuchan/kubuchan.tscn")
+const POST_DATA = preload("res://data/templates/browser/kubuchan_post_data.gd")
 const THREAD_DATA: KubuchanThreadData = preload("res://apps/browser/sites/kubuchan/kubuchan_thread.tres")
 const SILVER_BASE_SIZE: int = 14
 
@@ -22,10 +23,14 @@ func _run_test() -> void:
 	var human_calls_it_admin_bot := false
 
 	for post_value in THREAD_DATA.posts:
-		var post := post_value as KubuchanPostData
+		# Godot's static analyzer resolves preloaded typed Resource arrays as a
+		# script path here. Verify the actual runtime script, then retain all
+		# authored-content assertions without an invalid redundant static cast.
+		var post = post_value
 		if post == null:
 			continue
-		var lowered := post.body_text.to_lower()
+		_check(post is Resource and post.get_script() == POST_DATA, "Kubuchan post does not use its declared Resource script.")
+		var lowered: String = post.body_text.to_lower()
 		if post.is_system_spam:
 			spam_posts.append(post)
 			continue
@@ -38,7 +43,7 @@ func _run_test() -> void:
 	_check(human_uids.size() == 6, "Kubuchan thread must keep six recurring human UIDs.")
 	_check(spam_posts.size() == 1, "Kubuchan thread must contain exactly one Null Network system spam post.")
 	if spam_posts.size() == 1:
-		var spam_post := spam_posts[0] as KubuchanPostData
+		var spam_post = spam_posts[0]
 		_check(spam_post != null, "Kubuchan spam post must resolve as KubuchanPostData.")
 		if spam_post != null:
 			_check(spam_post.link_url == "null.net", "System spam must route only to null.net.")
@@ -100,7 +105,7 @@ func _run_test() -> void:
 		_check(op_style != null and op_style.bg_color.a == 0.0, "Classic imageboard OP must sit directly on the page instead of inside a forum card.")
 		_check(reply_style != null and reply_style.bg_color.a > 0.0, "Imageboard replies must use compact tinted reply boxes.")
 		_check(reply_indent != null and reply_indent.custom_minimum_size.x > 0.0, "Imageboard replies must be indented relative to the OP.")
-		_check(op_panel != null and reply_panel != null and reply_panel.custom_minimum_size.x < op_panel.custom_minimum_size.x, "Replies must remain content-sized boxes instead of full-width forum cards.")
+		_check(op_panel != null and reply_panel != null and reply_panel.size.x < op_panel.size.x, "Replies must remain content-sized boxes instead of full-width forum cards.")
 
 		var timestamp_label := cards[0].find_child("TimestampLabel", true, false) as Label
 		var expected_date_prefix := "%02d/%02d/%02d(" % [
@@ -115,7 +120,7 @@ func _run_test() -> void:
 		if body_label != null:
 			_check(body_label.text.contains("ref:post:"), "Kubuchan quote markup must resolve to local post references.")
 			body_label.local_reference_requested.connect(_on_reference_requested)
-			body_label._run_meta_action("ref:post:%d" % (THREAD_DATA.posts[0] as KubuchanPostData).post_number)
+			body_label._run_meta_action("ref:post:%d" % THREAD_DATA.posts[0].post_number)
 			_check(_reference_value.begins_with("post:"), "SiteRichTextLabel did not emit the local reference action.")
 
 	var visible_buttons: Array[BaseButton] = []

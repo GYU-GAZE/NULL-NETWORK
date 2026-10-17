@@ -5,7 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://bsmlmh5xi4r03" path="res://apps/forum/forum_alert_card.tscn" id="4_jseev"]
 [ext_resource type="PackedScene" uid="uid://bpbbjyyqep1sg" path="res://apps/forum/null_channel_header.tscn" id="5_chltv"]
 [ext_resource type="PackedScene" uid="uid://v0ask2g51gcm" path="res://apps/forum/forum_thread_row_ui.tscn" id="5_jseev"]
-[ext_resource type="Script" path="res://apps/browser/layout/adaptive_browser_page_layout.gd" id="6_adaptive"]
 
 [node name="ForumApp" type="PanelContainer" unique_id=1643493238]
 anchors_preset = 15
@@ -19,10 +18,6 @@ script = ExtResource("1_goqfn")
 post_ui_scene = ExtResource("4_2d478")
 thread_row_scene = ExtResource("5_jseev")
 alert_card_scene = ExtResource("4_jseev")
-
-[node name="AdaptiveBrowserLayout" type="Node" parent="."]
-script = ExtResource("6_adaptive")
-apply_site_theme = false
 
 [node name="MasterScroll" type="ScrollContainer" parent="." unique_id=1604201622]
 unique_name_in_owner = true

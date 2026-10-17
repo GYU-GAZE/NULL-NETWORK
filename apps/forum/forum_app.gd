@@ -88,6 +88,8 @@ func _ready() -> void:
 	_reload_threads()
 	_apply_feature_visibility()
 	_apply_column_widths()
+	resized.connect(_refresh_compact_table)
+	_refresh_compact_table()
 
 	_connect_main_nav()
 	_connect_filter_tabs()
@@ -781,3 +783,13 @@ func _clear_container(container: Node) -> void:
 	for child in container.get_children():
 		container.remove_child(child)
 		child.queue_free()
+
+
+func _refresh_compact_table() -> void:
+	var compact := size.x < type_column_width + replies_column_width + last_reply_column_width + author_column_width + 200.0
+	replies_header_label.visible = not compact
+	last_reply_header_label.visible = not compact
+	author_header_label.visible = not compact
+	for row: Node in thread_list_container.get_children():
+		if row is ForumThreadRowUI:
+			(row as ForumThreadRowUI)._refresh_compact()

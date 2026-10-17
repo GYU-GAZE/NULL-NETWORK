@@ -134,7 +134,7 @@ func _test_null_network_overflow_policies(browser: BrowserApp) -> void:
 			continue
 		if page.overflow_policy == WebsitePage.OverflowPolicy.PAGE_SCROLL:
 			_check(browser.page_scroll.visible, "%s silently clipped instead of using page-level scroll." % url)
-			_check(site.custom_minimum_size.y >= page.get_resolved_canvas_size().y, "%s lost its authored scrolling height." % url)
+			_check(site.size.y >= site.get_combined_minimum_size().y, "%s lost its natural document height." % url)
 		else:
 			_check(not browser.page_scroll.visible, "%s received an unintended second Browser scrollbar." % url)
 			_check(site.custom_minimum_size == Vector2.ZERO, "%s retained a fixed minimum inside its self-managed viewport." % url)

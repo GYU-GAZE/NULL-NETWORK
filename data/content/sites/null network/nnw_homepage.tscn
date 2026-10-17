@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://dfghm5hb81mbt"]
 
+[ext_resource type="Script" path="res://systems/ui/layout/responsive_columns.gd" id="99_responsive"]
+
 [ext_resource type="Theme" uid="uid://d20vfd373sakv" path="res://data/assets/themes/null_network_home_theme.tres" id="1_theme"]
 [ext_resource type="Shader" uid="uid://btw02eqrtb8ds" path="res://data/assets/shaders/null_network_portal_background.gdshader" id="2_shader"]
 [ext_resource type="PackedScene" uid="uid://75jckqsrgkir" path="res://apps/browser/sites/null_network/components/null_network_portal_header.tscn" id="3_header"]
@@ -144,7 +146,8 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 7
 
-[node name="HeroContent" type="HBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox" unique_id=1427113256]
+[node name="HeroContent" type="Container" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox/HeroVBox" unique_id=1427113256]
+script = ExtResource("99_responsive")
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 16
@@ -259,7 +262,8 @@ text = "›        GET STARTED        ‹"
 script = ExtResource("7_action")
 action_data = SubResource("ActionGetStarted")
 
-[node name="PortalLinks" type="HBoxContainer" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox" unique_id=1903470322]
+[node name="PortalLinks" type="Container" parent="PageMargin/Page/MainFrame/MainMargin/MainVBox" unique_id=1903470322]
+script = ExtResource("99_responsive")
 layout_mode = 2
 theme_override_constants/separation = 10
 

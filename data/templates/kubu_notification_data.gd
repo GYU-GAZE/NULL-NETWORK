@@ -1,5 +1,6 @@
 extends Resource
 class_name KubuNotificationData
+static var _runtime_sequence: int = 0
 
 enum NotificationType {
 	SYSTEM,
@@ -106,8 +107,10 @@ func has_target() -> bool:
 
 
 func _generate_runtime_id() -> String:
-	return "%s_%d_%d" % [
+	_runtime_sequence += 1
+	return "%s_%d_%d_%d" % [
 		get_type_label().to_lower(),
 		TimeManager.get_total_action_index(),
-		Time.get_ticks_msec()
+		Time.get_ticks_msec(),
+		_runtime_sequence
 	]

@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://bgvj70mu5l7r8"]
 
+[ext_resource type="Script" path="res://systems/ui/layout/responsive_columns.gd" id="99_responsive"]
+
 [ext_resource type="Script" uid="uid://d3idkxqdsfriq" path="res://data/content/sites/null network/nnw_getstarted.gd" id="1_page"]
 [ext_resource type="Theme" uid="uid://d20vfd373sakv" path="res://data/assets/themes/null_network_home_theme.tres" id="2_theme"]
 [ext_resource type="Shader" uid="uid://btw02eqrtb8ds" path="res://data/assets/shaders/null_network_portal_background.gdshader" id="3_shader"]
@@ -29,7 +31,7 @@ shader_parameter/vignette_strength = 0.48
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3lb10"]
 
-[node name="NnwGetStarted" type="Control" unique_id=1507562126]
+[node name="NnwGetStarted" type="MarginContainer" unique_id=1507562126]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -90,7 +92,8 @@ theme_override_constants/margin_bottom = 6
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="GuideBody" type="HBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox" unique_id=1990986997]
+[node name="GuideBody" type="Container" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox" unique_id=1990986997]
+script = ExtResource("99_responsive")
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 10
@@ -123,7 +126,8 @@ text = "01  INTRODUCTION"
 [node name="ArticleRule" type="HSeparator" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox" unique_id=2014860065]
 layout_mode = 2
 
-[node name="PostBody" type="HBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox"]
+[node name="PostBody" type="Container" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox"]
+script = ExtResource("99_responsive")
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 10
@@ -164,11 +168,10 @@ theme_override_colors/font_color = Color(0.55, 0.69, 0.81, 1)
 theme_override_font_sizes/font_size = 14
 autowrap_mode = 2
 
-[node name="ArticleScroll" type="ScrollContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/PostBody" unique_id=1626373018]
+[node name="ArticleScroll" type="MarginContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/PostBody" unique_id=1626373018]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-horizontal_scroll_mode = 0
 
 [node name="ArticleContent" type="VBoxContainer" parent="PageMargin/Page/ContentFrame/ContentMargin/ContentVBox/GuideBody/ArticlePanel/ArticleMargin/ArticleVBox/PostBody/ArticleScroll" unique_id=1490145210]
 layout_mode = 2

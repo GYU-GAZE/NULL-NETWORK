@@ -78,3 +78,9 @@ custom_minimum_size = Vector2(14, 10)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
+
+[node name="CompactMetadata" type="Label" parent="MainHBox/PlayerVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+autowrap_mode = 2

@@ -1,5 +1,7 @@
 [gd_scene load_steps=21 format=3]
 
+[ext_resource type="Script" path="res://systems/ui/layout/responsive_columns.gd" id="99_responsive"]
+
 [ext_resource type="Script" path="res://apps/browser/sites/null_network/register/operator_creation.gd" id="1_page"]
 [ext_resource type="Theme" path="res://data/assets/themes/null_network_home_theme.tres" id="2_theme"]
 [ext_resource type="Resource" path="res://data/content/onboarding/compatibility_assessment_v1_1.tres" id="3_assessment"]
@@ -190,7 +192,8 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="AccountColumns" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage"]
+[node name="AccountColumns" type="Container" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage"]
+script = ExtResource("99_responsive")
 layout_mode = 2
 theme_override_constants/separation = 12
 
@@ -296,7 +299,8 @@ unique_name_in_owner = true
 layout_mode = 2
 disabled = true
 
-[node name="ExpressionRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+[node name="ExpressionRow" type="Container" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+script = ExtResource("99_responsive")
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
@@ -349,7 +353,8 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "PERSONAL INFORMATION"
 
-[node name="NamesRow" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+[node name="NamesRow" type="Container" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AccountPage/AccountColumns/AccountForm"]
+script = ExtResource("99_responsive")
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
@@ -467,7 +472,8 @@ text = "CREATE YOUR APPEARANCE"
 layout_mode = 2
 text = "Select a category, then choose a visual part. Your choices are layered into the portrait and overworld previews."
 autowrap_mode = 2
-[node name="AppearanceColumns" type="HBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage"]
+[node name="AppearanceColumns" type="Container" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage"]
+script = ExtResource("99_responsive")
 layout_mode = 2
 theme_override_constants/separation = 14
 [node name="PreviewColumn" type="VBoxContainer" parent="MasterScroll/PageMargin/Page/BodyPanel/BodyMargin/PageHost/AppearancePage/AppearanceColumns"]

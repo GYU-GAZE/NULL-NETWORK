@@ -4,88 +4,13 @@ This document describes the intended content-authoring path. Content creation sh
 
 ## Browser page workflow
 
-A normal simulated website is three things:
+The supported creation path is Project → Tools → Create Website in the Godot Editor. Enter the internal name, normalized domain/page URL, title, destination folder and optional favicon. Choose Document for an ordinary website. The enabled Website Authoring plugin creates the scene and WebsitePage Resource, registers it in the selected WebsiteCatalog and opens the scene for editing.
 
-1. A `.tscn` scene containing the page UI.
-2. A `WebsitePage` `.tres` describing its route and overflow behavior.
-3. One entry in `data/content/sites/website_catalog.tres`.
+Edit the generated Content container and save. Use natural-height Containers and wrapping text. Documents use Browser-owned vertical scroll by default. Application pages fill the viewport and provide their own scroll. Viewport pages deliberately clip. There is no canvas_size field or required per-page resize script.
 
-### 1. Create the page scene
+Use ResponsiveColumns for columns that must stack when their child minima no longer fit. Use SiteActionButton or a SiteActionBinding child on another Control with a shared SiteActionData Resource for conditions, effects, feedback and navigation. SiteRichTextLabel supports an Inspector actions dictionary with `[url=action:key]` links. BrowserFormState stores Inspector-selected form/disclosure fields per history entry without a custom page script. Dynamic descendants obtain scoped navigation from their BrowserPageContext automatically.
 
-Put site-specific scenes under a clear site folder, for example:
-
-```text
-apps/browser/sites/example_site/example_page.tscn
-```
-
-The page scene owns only that page's UI. Do not add Browser tabs, address bars, window borders, or Browser-level scrolling to it.
-
-### 2. Create the WebsitePage Resource
-
-Create a `.tres` using `WebsitePage` and configure:
-
-- `url`
-- `page_title`
-- `site_scene`
-- `favicon` when available
-- `overflow_policy`
-
-Overflow rules:
-
-- `FIXED_VIEWPORT`: the page is a viewport-like application and Browser clipping is intentional.
-- `PAGE_SCROLL`: Browser owns the vertical page scroll. Use this for ordinary long websites.
-- `SELF_MANAGED_SCROLL`: the page already owns its scrolling, such as Kubuchan.
-
-Do not solve overflow by adding arbitrary offsets or resize callbacks inside each website.
-
-### 3. Register the page once
-
-Open:
-
-```text
-data/content/sites/website_catalog.tres
-```
-
-Add the `WebsitePage` Resource to `pages`.
-
-Do not edit `core/autoloads/simulated_dns.tscn` for each new website. `SimulatedDNS` now consumes the catalog Resource.
-
-## Site buttons and interactions
-
-Gameplay-aware site buttons use:
-
-```text
-SiteActionButton
-└── action_data: SiteActionData
-```
-
-`SiteActionData` owns:
-
-- availability conditions (`ConditionRuleData` / `ConditionSetData`)
-- gameplay effects (`GameEffectData`)
-- Browser target URL
-- failed-condition alert
-- optional success alert / notification
-
-This means a website uses the same condition/effect language as dialogues and story systems instead of inventing flag logic inside Button scripts.
-
-Example conceptual setup:
-
-```text
-SiteActionData
-├── conditions
-│   └── FlagConditionData
-│       └── flag_name = "operator.registered"
-├── effects = []
-├── target_url = "null.net/forums"
-└── show_failed_alert = true
-```
-
-The Null Network homepage is the reference implementation.
-
-Direct flag/number/gameplay-state fields were removed from `SiteActionButton` after existing Browser content was migrated. If a new interaction needs to change persistent game state, create/reuse a `GameEffectData` Resource instead of adding another special-purpose property to the Button.
-
-Local UI-only visibility manipulation may remain local to a site when it genuinely represents presentation rather than persistent game state.
+Full instructions, route inventory, lifecycle/session contracts, Inspector configuration, compatibility details and reproducible Editor/runtime checks are in [Browser architecture and website authoring](../browser-architecture.md). That document also records validation limits and the dependency-base failures.
 
 ## Dialogue workflow
 

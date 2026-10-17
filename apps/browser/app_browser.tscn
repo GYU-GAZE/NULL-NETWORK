@@ -92,6 +92,13 @@ custom_minimum_size = Vector2(18, 16)
 layout_mode = 2
 text = "<"
 
+[node name="BrowserForwardBtn" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(18, 16)
+layout_mode = 2
+text = ">"
+tooltip_text = "Forward"
+
 [node name="HomeBtn" type="Button" parent="MainVBox/AddressBarMargin/AddressBarHBox" unique_id=1371956060]
 custom_minimum_size = Vector2(18, 16)
 layout_mode = 2
@@ -129,7 +136,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="SiteContainer" type="Control" parent="MainVBox/ContentArea" unique_id=608180596]
+[node name="SiteContainer" type="Container" parent="MainVBox/ContentArea" unique_id=608180596]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 1
@@ -140,6 +147,8 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+script = ExtResource("10_scroll_host")
+document_sizing = false
 
 [node name="PageScroll" type="ScrollContainer" parent="MainVBox/ContentArea"]
 unique_name_in_owner = true

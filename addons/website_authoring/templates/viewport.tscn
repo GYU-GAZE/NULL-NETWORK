@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[node name="ViewportPage" type="PanelContainer"]
+offset_right = 600.0
+offset_bottom = 400.0
+clip_contents = true
+
+[node name="Heading" type="Label" parent="."]
+layout_mode = 2
+text = "Intentional clipped viewport"
+autowrap_mode = 2

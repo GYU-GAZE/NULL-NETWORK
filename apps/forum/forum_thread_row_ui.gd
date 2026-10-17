@@ -20,6 +20,9 @@ signal thread_selected(thread: ForumThread)
 @onready var last_reply_label: Label = %LastReplyLabel
 @onready var author_label: Label = %AuthorLabel
 
+@onready var compact_metadata: Label = %CompactMetadata
+var compact: bool = false
+
 var thread_data: ThreadButtonData
 
 var _show_replies_column: bool = true
@@ -35,7 +38,8 @@ func _ready() -> void:
 		thread_title_button.pressed.connect(_on_thread_pressed)
 
 	_apply_column_widths()
-	_apply_column_visibility()
+	resized.connect(_refresh_compact)
+	_refresh_compact()
 
 
 func apply_layout_widths(
@@ -84,7 +88,7 @@ func setup(data: ThreadButtonData) -> void:
 	_setup_activity_columns(thread)
 	_setup_new_badge(thread)
 	_apply_visual_state(thread)
-	_apply_column_visibility()
+	_refresh_compact()
 
 
 func _apply_column_widths() -> void:
@@ -107,13 +111,13 @@ func _apply_column_widths() -> void:
 
 func _apply_column_visibility() -> void:
 	if is_instance_valid(replies_label):
-		replies_label.visible = _show_replies_column
+		replies_label.visible = _show_replies_column and not compact
 
 	if is_instance_valid(last_reply_label):
-		last_reply_label.visible = _show_last_reply_column
+		last_reply_label.visible = _show_last_reply_column and not compact
 
 	if is_instance_valid(author_label):
-		author_label.visible = _show_author_column
+		author_label.visible = _show_author_column and not compact
 
 
 func _setup_type_icon(thread: ForumThread) -> void:
@@ -196,3 +200,11 @@ func _on_thread_pressed() -> void:
 		return
 
 	thread_selected.emit(thread_data.thread_ref)
+
+
+func _refresh_compact() -> void:
+	compact = size.x < type_column_width + replies_column_width + last_reply_column_width + author_column_width + 180.0 + 20.0
+	_apply_column_visibility()
+	if is_instance_valid(compact_metadata):
+		compact_metadata.visible = compact
+		compact_metadata.text = "%s // %s replies // %s" % [author_label.text, replies_label.text, last_reply_label.text.replace("\n", " ")]

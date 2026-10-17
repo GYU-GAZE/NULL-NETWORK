@@ -1,0 +1,488 @@
+{
+  "dependency_commit": "e40649b615775c4138cdab67fbab7e439810fbff",
+  "dependency_pr": 41,
+  "branch": "refactor/browser-authoring-pipeline",
+  "local_engine": "Godot 4.6 stable / Windows / headless runtime and native OpenGL NVIDIA RTX 3050",
+  "baseline": {
+    "scenes": 56,
+    "passed": 40,
+    "failed": 16
+  },
+  "final": {
+    "scenes": 58,
+    "passed": 42,
+    "failed": 16
+  },
+  "newly_failing_scenes": [],
+  "previously_passing_scenes_lost": [],
+  "passing_scenes_with_script_errors": [],
+  "new_tests": [
+    {
+      "scene": "tests/browser/browser_authoring_pipeline_test.tscn",
+      "code": 0,
+      "seconds": 15.24,
+      "errors": [
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "passed": true
+    },
+    {
+      "scene": "tests/browser/browser_contract_unit_test.tscn",
+      "code": 0,
+      "seconds": 3.06,
+      "errors": [
+        "ERROR: SiteActionButton '@Button@85': Condition: occupation_id is required for the selected requirement.",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "passed": true
+    }
+  ],
+  "existing_failures": [
+    {
+      "scene": "tests/activity/activity_manager_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: Confirmed travel did not enter Akihabara Local Area.",
+        "ERROR: Rattildus does not use a two-block voluntary combat activity.",
+        "ACTIVITY_MANAGER_TEST: FAIL (2)",
+        "ERROR: 6 RID allocations of type 'P12GodotShape2D' were leaked at exit.",
+        "ERROR: 66 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: Confirmed travel did not enter Akihabara Local Area.",
+        "ERROR: Rattildus does not use a two-block voluntary combat activity.",
+        "ACTIVITY_MANAGER_TEST: FAIL (2)",
+        "ERROR: 6 RID allocations of type 'P12GodotShape2D' were leaked at exit.",
+        "ERROR: 66 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/apps/app_catalog_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: Browser was not installed from installed_by_default.",
+        "ERROR: Social was not installed from installed_by_default.",
+        "ERROR: Dock did not project the installed default Browser and Social apps.",
+        "ERROR: Dock did not add Navigator live in catalog order.",
+        "ERROR: Navigator installation did not publish exactly one notification.",
+        "ERROR: Save/load did not preserve installed apps in Dock order.",
+        "APP_CATALOG_TEST: FAIL (6)",
+        "ERROR: 6 RID allocations of type 'P12GodotShape2D' were leaked at exit.",
+        "ERROR: 4 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+        "ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+        "ERROR: 101 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: Browser was not installed from installed_by_default.",
+        "ERROR: Social was not installed from installed_by_default.",
+        "ERROR: Dock did not project the installed default Browser and Social apps.",
+        "ERROR: Dock did not add Navigator live in catalog order.",
+        "ERROR: Navigator installation did not publish exactly one notification.",
+        "ERROR: Save/load did not preserve installed apps in Dock order.",
+        "APP_CATALOG_TEST: FAIL (6)",
+        "ERROR: 6 RID allocations of type 'P12GodotShape2D' were leaked at exit.",
+        "ERROR: 4 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+        "ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+        "ERROR: 100 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/browser/kubuchan_thread_test.tscn",
+      "baseline_code": "timeout",
+      "baseline_errors": [
+        "SCRIPT ERROR: Parse Error: Invalid cast. Cannot convert from \"res://data/templates/browser/kubuchan_post_data.gd\" to \"KubuchanPostData\".",
+        "ERROR: Failed to load script \"res://tests/browser/kubuchan_thread_test.gd\" with error \"Parse error\"."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: Human posters must explain the public assumption that the spammer is an admin bot.",
+        "KUBUCHAN_THREAD_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/combat/combat_action_loadout_stats_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: Level-1 NOVIRE no longer follows its canonical HP curve.",
+        "ERROR: Level-1 Rattildus did not use catalog APK progression and Modules.",
+        "ERROR: Akihabara Rattildus still uses the legacy 100-HP fixed loadout.",
+        "COMBAT_ACTION_LOADOUT_STATS_TEST: FAIL (3)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: Level-1 NOVIRE no longer follows its canonical HP curve.",
+        "ERROR: Level-1 Rattildus did not use catalog APK progression and Modules.",
+        "ERROR: Akihabara Rattildus still uses the legacy 100-HP fixed loadout.",
+        "COMBAT_ACTION_LOADOUT_STATS_TEST: FAIL (3)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/combat/combat_layout_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: COMBAT_LAYOUT_TEST: Combat text 'ChangeModulesBtn' still overrides the global font size.",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: COMBAT_LAYOUT_TEST: Combat text 'ChangeModulesBtn' still overrides the global font size.",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/combat/combat_runtime_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: COMBAT_RUNTIME_TEST: Turret CYCLE_END trigger caused no damage.",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: COMBAT_RUNTIME_TEST: Turret CYCLE_END trigger caused no damage.",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/commitment/initial_starter_selection_page_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: First Operator registration did not navigate to starter selection.",
+        "INITIAL_STARTER_SELECTION_PAGE_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: First Operator registration did not navigate to starter selection.",
+        "INITIAL_STARTER_SELECTION_PAGE_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/commitment/operator_loss_real_damage_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: Could not register the Operator Loss damage regression Operator: [\"Initial tendencies must total exactly 15 points; received 16.\"]",
+        "ERROR: Could not select the Operator Loss damage regression starter: [\"An Operator must be registered before choosing a starter.\"]",
+        "OPERATOR_LOSS_REAL_DAMAGE_TEST: FAIL (2)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: Could not register the Operator Loss damage regression Operator: [\"Initial tendencies must total exactly 15 points; received 16.\"]",
+        "ERROR: Could not select the Operator Loss damage regression starter: [\"An Operator must be registered before choosing a starter.\"]",
+        "OPERATOR_LOSS_REAL_DAMAGE_TEST: FAIL (2)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/commitment/operator_loss_succession_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: Operator-scoped progression was not cleared for succession.",
+        "OPERATOR_LOSS_SUCCESSION_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: Operator-scoped progression was not cleared for succession.",
+        "OPERATOR_LOSS_SUCCESSION_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/commitment/starter_selection_page_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: Successor registration did not navigate to the starter selection route.",
+        "STARTER_SELECTION_PAGE_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: Successor registration did not navigate to the starter selection route.",
+        "STARTER_SELECTION_PAGE_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/dialogue/dialogue_system_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: StoryEvent did not start the cataloged dialogue at its initial node.",
+        "ERROR: Dialogue did not preserve the external StoryEvent boundary.",
+        "ERROR: Initial node effect did not execute exactly once.",
+        "ERROR: Initial DialoguePlayer is not visible in DIALOGUE mode.",
+        "ERROR: Initial DialoguePlayer did not render all six GDD portrait slots.",
+        "ERROR: Linear dialogue could not advance.",
+        "ERROR: Linear dialogue did not enter the decision node.",
+        "ERROR: The locked conditional choice was not hidden.",
+        "ERROR: Reload did not restore the exact dialogue node.",
+        "ERROR: Reload reapplied an already executed node effect.",
+        "ERROR: Executed node-effect IDs were not restored.",
+        "ERROR: Reloaded DialoguePlayer is not visible in DIALOGUE mode.",
+        "ERROR: Reloaded DialoguePlayer did not render all six GDD portrait slots.",
+        "ERROR: Changing authoritative state did not reveal the conditional choice.",
+        "ERROR: Paid dialogue choice was rejected before ActivityManager.",
+        "ERROR: Paid choice did not expose one transparent one-block confirmation.",
+        "ERROR: Paid choice did not charge exactly one action.",
+        "ERROR: Confirmed paid choice did not enter its target node.",
+        "ERROR: Choice effects and tendency changes were not applied by the service.",
+        "ERROR: Selected choice was not recorded by stable node and choice IDs.",
+        "ERROR: Choice history and target node did not survive reload.",
+        "ERROR: Reload duplicated the paid choice cost or tendency change.",
+        "ERROR: Post-choice DialoguePlayer is not visible in DIALOGUE mode.",
+        "ERROR: Post-choice DialoguePlayer did not render all six GDD portrait slots.",
+        "ERROR: Final linear node could not complete.",
+        "DIALOGUE_SYSTEM_TEST: FAIL (25)",
+        "ERROR: 6 RID allocations of type 'P12GodotShape2D' were leaked at exit.",
+        "ERROR: 5 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+        "ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+        "ERROR: 94 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: StoryEvent did not start the cataloged dialogue at its initial node.",
+        "ERROR: Dialogue did not preserve the external StoryEvent boundary.",
+        "ERROR: Initial node effect did not execute exactly once.",
+        "ERROR: Initial DialoguePlayer is not visible in DIALOGUE mode.",
+        "ERROR: Initial DialoguePlayer did not render all six GDD portrait slots.",
+        "ERROR: Linear dialogue could not advance.",
+        "ERROR: Linear dialogue did not enter the decision node.",
+        "ERROR: The locked conditional choice was not hidden.",
+        "ERROR: Reload did not restore the exact dialogue node.",
+        "ERROR: Reload reapplied an already executed node effect.",
+        "ERROR: Executed node-effect IDs were not restored.",
+        "ERROR: Reloaded DialoguePlayer is not visible in DIALOGUE mode.",
+        "ERROR: Reloaded DialoguePlayer did not render all six GDD portrait slots.",
+        "ERROR: Changing authoritative state did not reveal the conditional choice.",
+        "ERROR: Paid dialogue choice was rejected before ActivityManager.",
+        "ERROR: Paid choice did not expose one transparent one-block confirmation.",
+        "ERROR: Paid choice did not charge exactly one action.",
+        "ERROR: Confirmed paid choice did not enter its target node.",
+        "ERROR: Choice effects and tendency changes were not applied by the service.",
+        "ERROR: Selected choice was not recorded by stable node and choice IDs.",
+        "ERROR: Choice history and target node did not survive reload.",
+        "ERROR: Reload duplicated the paid choice cost or tendency change.",
+        "ERROR: Post-choice DialoguePlayer is not visible in DIALOGUE mode.",
+        "ERROR: Post-choice DialoguePlayer did not render all six GDD portrait slots.",
+        "ERROR: Final linear node could not complete.",
+        "DIALOGUE_SYSTEM_TEST: FAIL (25)",
+        "ERROR: 6 RID allocations of type 'P12GodotShape2D' were leaked at exit.",
+        "ERROR: 7 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+        "ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+        "ERROR: 94 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/encyclopedia/encyclopedia_app_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: Initial Encyclopedia did not list and select Rattildus.",
+        "ERROR: Initial Encyclopedia did not render seven independent milestones.",
+        "ERROR: Restored Encyclopedia did not list and select Rattildus.",
+        "ERROR: Restored Encyclopedia did not render seven independent milestones.",
+        "ENCYCLOPEDIA_APP_TEST: FAIL (4)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: Initial Encyclopedia did not list and select Rattildus.",
+        "ERROR: Initial Encyclopedia did not render seven independent milestones.",
+        "ERROR: Restored Encyclopedia did not list and select Rattildus.",
+        "ERROR: Restored Encyclopedia did not render seven independent milestones.",
+        "ENCYCLOPEDIA_APP_TEST: FAIL (4)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/events/story_event_manager_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: The eligible StoryEvent did not become active.",
+        "ERROR: The StoryEvent did not stop at the external dialogue boundary.",
+        "ERROR: START_DIALOGUE did not emit exactly one typed intent.",
+        "ERROR: Step 'start_welcome_dialogue' was not dispatched exactly once.",
+        "ERROR: NAVIGATE_BROWSER did not navigate the active Browser tab to null.net.",
+        "ERROR: Reload did not restore the exact StoryEvent step boundary.",
+        "ERROR: Reload duplicated the already-started dialogue intent.",
+        "ERROR: Dialogue did not advance to its choice node.",
+        "ERROR: Dialogue test choice could not be selected.",
+        "ERROR: Dialogue did not complete its final node.",
+        "STORY_EVENT_MANAGER_TEST: FAIL (10)",
+        "ERROR: 6 RID allocations of type 'P12GodotShape2D' were leaked at exit.",
+        "ERROR: 5 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+        "ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+        "ERROR: 94 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: The eligible StoryEvent did not become active.",
+        "ERROR: The StoryEvent did not stop at the external dialogue boundary.",
+        "ERROR: START_DIALOGUE did not emit exactly one typed intent.",
+        "ERROR: Step 'start_welcome_dialogue' was not dispatched exactly once.",
+        "ERROR: NAVIGATE_BROWSER did not navigate the active Browser tab to null.net.",
+        "ERROR: Reload did not restore the exact StoryEvent step boundary.",
+        "ERROR: Reload duplicated the already-started dialogue intent.",
+        "ERROR: Dialogue did not advance to its choice node.",
+        "ERROR: Dialogue test choice could not be selected.",
+        "ERROR: Dialogue did not complete its final node.",
+        "STORY_EVENT_MANAGER_TEST: FAIL (10)",
+        "ERROR: 6 RID allocations of type 'P12GodotShape2D' were leaked at exit.",
+        "ERROR: 7 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+        "ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+        "ERROR: 94 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/save/save_runtime_integration_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: Bootstrap did not instantiate one desktop after load.",
+        "SAVE_RUNTIME_INTEGRATION_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: Bootstrap did not instantiate one desktop after load.",
+        "SAVE_RUNTIME_INTEGRATION_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/startup/first_run_experience_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: Fresh campaigns must expose Browser as the only default-installed app.",
+        "FIRST_RUN_EXPERIENCE_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: Fresh campaigns must expose Browser as the only default-installed app.",
+        "FIRST_RUN_EXPERIENCE_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "scene": "tests/startup/startup_menu_test.tscn",
+      "baseline_code": 1,
+      "baseline_errors": [
+        "ERROR: Startup minimum canvas lets SurfaceHost escape the viewport.",
+        "STARTUP_MENU_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ],
+      "final_code": 1,
+      "final_errors": [
+        "ERROR: Startup minimum canvas lets SurfaceHost escape the viewport.",
+        "STARTUP_MENU_TEST: FAIL (1)",
+        "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+      ]
+    }
+  ],
+  "base_ci": [
+    {
+      "name": "validate-partner-loss-turd",
+      "conclusion": "success",
+      "url": "https://github.com/GYU-GAZE/NULL-NETWORK/actions/runs/39015694163/job/117347245080"
+    },
+    {
+      "name": "validate-encyclopedia-app",
+      "conclusion": "failure",
+      "url": "https://github.com/GYU-GAZE/NULL-NETWORK/actions/runs/39015694186/job/117347245065"
+    },
+    {
+      "name": "validate-desktop-shell",
+      "conclusion": "success",
+      "url": "https://github.com/GYU-GAZE/NULL-NETWORK/actions/runs/39015694162/job/117347245017"
+    },
+    {
+      "name": "validate-browser",
+      "conclusion": "success",
+      "url": "https://github.com/GYU-GAZE/NULL-NETWORK/actions/runs/39015694160/job/117347244988"
+    },
+    {
+      "name": "validate-profile-app",
+      "conclusion": "success",
+      "url": "https://github.com/GYU-GAZE/NULL-NETWORK/actions/runs/39015694175/job/117347244974"
+    },
+    {
+      "name": "validate-operator-loss-succession",
+      "conclusion": "failure",
+      "url": "https://github.com/GYU-GAZE/NULL-NETWORK/actions/runs/39015694174/job/117347244971"
+    },
+    {
+      "name": "validate-calendar-app",
+      "conclusion": "success",
+      "url": "https://github.com/GYU-GAZE/NULL-NETWORK/actions/runs/39015694172/job/117347244912"
+    },
+    {
+      "name": "validate-project",
+      "conclusion": "failure",
+      "url": "https://github.com/GYU-GAZE/NULL-NETWORK/actions/runs/39015694152/job/117347244857"
+    },
+    {
+      "name": "validate-social-foundation",
+      "conclusion": "success",
+      "url": "https://github.com/GYU-GAZE/NULL-NETWORK/actions/runs/39015694149/job/117347244827"
+    },
+    {
+      "name": "validate-starter-selection",
+      "conclusion": "failure",
+      "url": "https://github.com/GYU-GAZE/NULL-NETWORK/actions/runs/39015694161/job/117347244815"
+    },
+    {
+      "name": "assessment-result",
+      "conclusion": "success",
+      "url": "https://github.com/GYU-GAZE/NULL-NETWORK/actions/runs/39015694151/job/117347244814"
+    }
+  ],
+  "native_acceptance": {
+    "result": "PASS",
+    "screenshot_count": 18,
+    "dimensions": [
+      [
+        600,
+        400
+      ],
+      [
+        320,
+        250
+      ],
+      [
+        430,
+        320
+      ],
+      [
+        700,
+        480
+      ]
+    ],
+    "production_browser_dimensions": [
+      390,
+      300
+    ]
+  },
+  "native_editor": {
+    "result": "PASS",
+    "workflow": "Production dialog creates/registers page, opens generated scene; canonical duplicate rejected without catalog mutation",
+    "log": "browser-editor-native-final.log"
+  },
+  "test_changes": [
+    "Scroll-origin test now expects the previous entry scroll position on Back, as required by the new history contract.",
+    "Responsive test asserts natural minimum height instead of removed canvas API.",
+    "Kubuchan invalid redundant cast repaired; authored narrative assertion remains failing. Reply width uses rendered rectangles rather than obsolete custom minima."
+  ],
+  "limits": [
+    "Sixteen scenes failed on the dependency base. The same scene set fails after this change; unchanged scene identity does not imply identical errors.",
+    "Kubuchan was blocked by a parser error in the baseline. It now executes and reports the existing content assertion about the public admin-bot assumption. Post text was not changed.",
+    "A fresh baseline Editor scan separately reproduced compatibility_assessment_test.gd:26 Array(null). The runtime scene passes. Website workflow PASS does not establish an error-free complete Editor scan.",
+    "Some logs contain existing ObjectDB/resource-leak warnings on shutdown; these remain visible in the evidence.",
+    "Local production-site screenshots use startup game state. They do not cover every narrative branch. CI uses its existing asset-placeholder preparation and Godot 4.6.3 on Linux.",
+    "GameEffectData remains nontransactional: earlier effects may apply before a later effect fails; no success feedback or navigation follows failure."
+  ]
+}

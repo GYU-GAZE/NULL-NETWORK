@@ -133,12 +133,32 @@ jobs:
             2>&1 | tee website-catalog-test.log
           grep -q "WEBSITE_CATALOG_TEST: PASS" website-catalog-test.log
 
+      - name: Run Browser authoring acceptance and contract units
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 90s ./Godot_v4.6.3-stable_linux.x86_64 --headless --path . tests/browser/browser_authoring_pipeline_test.tscn 2>&1 | tee browser-authoring-pipeline-test.log
+          grep -q "BROWSER_AUTHORING_PIPELINE_TEST: PASS" browser-authoring-pipeline-test.log
+          timeout 30s ./Godot_v4.6.3-stable_linux.x86_64 --headless --path . tests/browser/browser_contract_unit_test.tscn 2>&1 | tee browser-contract-unit-test.log
+          grep -q "BROWSER_CONTRACT_UNIT_TEST: PASS" browser-contract-unit-test.log
+
+      - name: Verify production authoring plugin in isolated Editor
+        shell: bash
+        run: |
+          python3 tests/browser/run_editor_smoke.py \
+            --godot ./Godot_v4.6.3-stable_linux.x86_64 \
+            --workspace "$RUNNER_TEMP/nnw-website-editor" \
+            --output "$GITHUB_WORKSPACE/website-authoring-editor.log" \
+            --headless
+
       - name: Reject Browser script and resource errors
         shell: bash
         run: |
           set -euo pipefail
           cat \
             godot-browser-import.log \
+            browser-authoring-pipeline-test.log \
+            browser-contract-unit-test.log \
             browser-page-scroll-origin-test.log \
             browser-responsive-site-layout-test.log \
             null-network-home-test.log \
@@ -162,7 +182,7 @@ jobs:
             }
           done
 
-          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|Parse Error|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: FAIL|NULL_NETWORK_HOME_TEST: FAIL|BROWSER_TAB_ORDER_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" godot-browser-validation.log; then
+          if grep -E "BROWSER_AUTHORING_PIPELINE_TEST: FAIL|BROWSER_CONTRACT_UNIT_TEST: FAIL|SCRIPT ERROR|Failed to load script|Cannot get class|Parse Error|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: FAIL|NULL_NETWORK_HOME_TEST: FAIL|BROWSER_TAB_ORDER_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" godot-browser-validation.log; then
             exit 1
           fi
 
@@ -177,6 +197,10 @@ jobs:
           name: browser-validation-log
           path: |
             godot-browser-import.log
+            browser-authoring-pipeline-test.log
+            browser-contract-unit-test.log
+            website-authoring-editor.log
+            website-authoring-editor.import.log
             browser-page-scroll-origin-test.log
             browser-responsive-site-layout-test.log
             null-network-home-test.log

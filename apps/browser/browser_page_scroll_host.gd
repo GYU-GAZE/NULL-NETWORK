@@ -10,6 +10,8 @@ class_name BrowserPageScrollHost
 ## lets authored page content determine the real scroll range instead of relying
 ## on a fixed canvas height that can clip the first or last part of a document.
 
+var active_page: Control
+@export var document_sizing: bool = true
 var _tracked_pages: Array[Control] = []
 
 
@@ -31,6 +33,10 @@ func _notification(what: int) -> void:
 
 
 func _get_minimum_size() -> Vector2:
+	if not document_sizing:
+		return Vector2.ZERO
+	if is_instance_valid(active_page):
+		return active_page.get_combined_minimum_size()
 	var resolved := Vector2.ZERO
 
 	for child: Node in get_children():
@@ -102,6 +108,6 @@ func _layout_page_roots() -> void:
 
 		# Do not touch X: UiMotionPlayer owns that axis while navigating.
 		# The host owns the shared document width/height and vertical origin.
-		page.size = size
+		page.size = size.floor()
 		page.position.y = 0.0
 		page.position.x = animated_x

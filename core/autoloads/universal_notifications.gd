@@ -17,6 +17,17 @@ func push(title: String, message: String) -> void:
 	)
 
 
+func push_resource(definition: KubuNotificationData, source_app: String = "", source_url: String = "") -> KubuNotificationData:
+	if definition == null:
+		return null
+	# setup_runtime creates a fresh instance and identity. Shared definitions are
+	# never marked read, timestamped or mutated when publishing a notification.
+	return push_data(definition.title, definition.message, definition.notification_type,
+		definition.target_url if not definition.target_url.is_empty() else source_url,
+		definition.source_app_id if not definition.source_app_id.is_empty() else source_app,
+		definition.source_thread_id, definition.priority, definition.icon)
+
+
 func push_data(
 	title: String,
 	message: String,

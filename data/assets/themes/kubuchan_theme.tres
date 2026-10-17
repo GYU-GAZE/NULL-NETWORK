@@ -18,6 +18,7 @@ bg_color = Color(0.858824, 0.87451, 0.917647, 1)
 default_base_scale = 1.0
 default_font = ExtResource("1_font")
 default_font_size = 14
+ScrollContainer/styles/panel = SubResource("Empty")
 Label/colors/font_color = Color(0.145098, 0.160784, 0.211765, 1)
 Label/colors/font_outline_color = Color(0, 0, 0, 0)
 Label/colors/font_shadow_color = Color(0, 0, 0, 0)

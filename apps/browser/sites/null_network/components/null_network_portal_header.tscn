@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://75jckqsrgkir"]
 
+[ext_resource type="Script" path="res://systems/ui/layout/responsive_columns.gd" id="99_responsive"]
+
 [ext_resource type="Script" uid="uid://u38kbsxuqvle" path="res://apps/browser/sites/null_network/components/null_network_portal_header.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://d1ikfbaxfrmtk" path="res://data/assets/icons/nnwicon.png" id="2_logo"]
 [ext_resource type="Texture2D" uid="uid://ib5573tullh7" path="res://data/assets/icons/nnw_portal_icons.svg" id="3_icons"]
@@ -43,7 +45,8 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 4
 
-[node name="HeaderRow" type="HBoxContainer" parent="HeaderMargin" unique_id=1662671087]
+[node name="HeaderRow" type="Container" parent="HeaderMargin" unique_id=1662671087]
+script = ExtResource("99_responsive")
 layout_mode = 2
 theme_override_constants/separation = 10
 

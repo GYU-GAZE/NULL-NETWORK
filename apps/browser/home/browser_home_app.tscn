@@ -42,6 +42,7 @@ text = "KubuOS Browser Home"
 [node name="SubtitleLabel" type="Label" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=1866958631]
 layout_mode = 2
 text = "Recently accessed network locations and pinned sites."
+autowrap_mode = 2
 
 [node name="Separator1" type="HSeparator" parent="ScrollContainer/MarginContainer/MainVBox" unique_id=1394830103]
 layout_mode = 2
