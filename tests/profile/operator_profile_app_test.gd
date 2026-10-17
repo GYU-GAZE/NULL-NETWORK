@@ -195,7 +195,8 @@ func _assert_profile_projection(
 	)
 	_check(
 		str(partner_data.get("apk_id", "")) == "novire_init"
-		and int(partner_data.get("level", 0)) == 2
+		and int(partner_data.get("level", 0))
+		== APKProgressionService.ONBOARDING_STARTER_LEVEL + 1
 		and app.get_partner_level_text() == "LEVEL %d" % (
 			APKProgressionService.ONBOARDING_STARTER_LEVEL + 1
 		),
