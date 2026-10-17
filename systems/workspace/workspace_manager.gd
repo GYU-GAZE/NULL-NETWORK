@@ -20,6 +20,7 @@ func _ready() -> void:
 
 	_connect_global_signals()
 	_connect_metrics_signals()
+	resized.connect(_queue_layout_refresh)
 
 	call_deferred("_refresh_workspace_geometry")
 
@@ -180,9 +181,9 @@ func _instantiate_workspace(app: AppResource) -> Control:
 
 	var workspace_control := instance as Control
 
-	active_workspace_container.add_child(workspace_control)
-
+	_refresh_workspace_geometry()
 	_configure_workspace_control(workspace_control)
+	active_workspace_container.add_child(workspace_control)
 	workspace_control.show()
 
 	return workspace_control
@@ -191,8 +192,8 @@ func _instantiate_workspace(app: AppResource) -> Control:
 func _configure_workspace_control(
 	workspace_control: Control
 ) -> void:
-	workspace_control.set_anchors_preset(
-		Control.PRESET_FULL_RECT
+	workspace_control.set_anchors_and_offsets_preset(
+		Control.PRESET_TOP_LEFT
 	)
 	workspace_control.position = Vector2.ZERO
 	workspace_control.size = active_workspace_container.size

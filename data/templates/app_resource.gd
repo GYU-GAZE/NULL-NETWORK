@@ -34,12 +34,14 @@ enum PresentationMode {
 @export var available_while_locked: bool = false
 
 @export_category("Window Settings")
-@export var default_window_size: Vector2 = Vector2(900, 600)
+## Intended outer window size in logical desktop units (1 unit = 2 screen pixels).
+## Used directly, then fitted to the available work area; never proportional.
+@export var default_window_size: Vector2 = Vector2(600, 400)
 
-## Breakpoint da janela adaptativa.
-## Em 2x enquanto largura e altura forem iguais ou maiores que este valor;
-## em 1x quando qualquer eixo ficar abaixo dele.
-@export var min_window_size: Vector2 = Vector2(400, 300)
+## Real minimum outer size in the same units, including chrome. When the display
+## cannot fit it, the effective minimum is capped per axis to the work area.
+## Content keeps its scale and uses the window's overflow scroll surface.
+@export var min_window_size: Vector2 = Vector2(400, 250)
 
 @export var can_resize: bool = false
 
@@ -64,6 +66,13 @@ func validate_data() -> PackedStringArray:
 
 	if app_name.strip_edges().is_empty():
 		errors.append("app_name cannot be empty.")
+
+	if not default_window_size.is_finite() or default_window_size.x <= 0 or default_window_size.y <= 0:
+		errors.append("default_window_size must contain positive finite logical dimensions.")
+	if not min_window_size.is_finite() or min_window_size.x <= 0 or min_window_size.y <= 0:
+		errors.append("min_window_size must contain positive finite logical dimensions.")
+	if default_window_size.x < min_window_size.x or default_window_size.y < min_window_size.y:
+		errors.append("default_window_size must be at least min_window_size.")
 
 	if app_scene == null:
 		errors.append("app_scene cannot be null.")

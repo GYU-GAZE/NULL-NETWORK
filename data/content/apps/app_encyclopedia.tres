@@ -34,6 +34,6 @@ auto_install_when_unlocked = true
 unlock_conditions = SubResource("Conditions_has_entry")
 sort_order = 27
 notification_data = SubResource("Notification_installed")
-default_window_size = Vector2(820, 560)
+default_window_size = Vector2(640, 420)
 min_window_size = Vector2(560, 340)
 can_resize = true

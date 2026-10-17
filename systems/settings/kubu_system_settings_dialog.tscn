@@ -110,7 +110,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.48, 0.66, 0.8, 1)
 theme_override_font_sizes/font_size = 14
-text = "Internal windows switch between 2× and 1× density without fractional pixels."
+text = "Windows keep the same 2× scale at every size."
 autowrap_mode = 2
 
 [node name="Actions" type="HBoxContainer" parent="Margin/Content"]

@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://cseroyflpgr45"]
+[gd_scene load_steps=5 format=3 uid="uid://cseroyflpgr45"]
 
-[ext_resource type="Script" path="res://systems/window_manager/window_base_adaptive_scale.gd" id="1_ok15t"]
+[ext_resource type="Script" path="res://systems/window_manager/window_base.gd" id="1_ok15t"]
 [ext_resource type="Script" uid="uid://q5f0xi531joq" path="res://systems/window_manager/resize_border.gd" id="2_w5ju6"]
 [ext_resource type="PackedScene" path="res://systems/ui/kubu_font_scope.tscn" id="3_font_scope"]
+
+[sub_resource type="StyleBoxEmpty" id="ContentViewport"]
 
 [node name="WindowBase" type="Control" unique_id=2099198820]
 clip_contents = true
@@ -61,11 +63,13 @@ flat = true
 
 [node name="SystemFontScope" parent="VisualRoot/Background/MainVBox/TopBar" instance=ExtResource("3_font_scope")]
 
-[node name="ContentContainer" type="MarginContainer" parent="VisualRoot/Background/MainVBox" unique_id=1333449598]
+[node name="ContentContainer" type="ScrollContainer" parent="VisualRoot/Background/MainVBox" unique_id=1333449598]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
 size_flags_vertical = 3
+follow_focus = true
+theme_override_styles/panel = SubResource("ContentViewport")
 
 [node name="ResizeBorder" type="Control" parent="." unique_id=1413723440]
 unique_name_in_owner = true

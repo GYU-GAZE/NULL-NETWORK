@@ -13,10 +13,6 @@ func _ready() -> void:
 func _run_test() -> void:
 	var manager := WindowManager.new()
 	manager.size = Vector2(960, 540)
-	manager.reserved_top_height = KubuOSMetrics.taskbar_height
-	manager.reserved_bottom_height = 0.0
-	manager.reserved_left_width = KubuOSMetrics.reserved_left_width
-	manager.reserved_right_width = KubuOSMetrics.reserved_right_width
 
 	var window_work_rect: Rect2 = manager.get_work_area_rect()
 	var workspace_work_rect: Rect2 = KubuOSMetrics.get_work_area_rect(manager.size)
@@ -77,16 +73,16 @@ func _test_window_motion_contract() -> void:
 	await get_tree().process_frame
 	_check(window.is_maximized, "Animated maximize did not preserve maximized state.")
 	_check(window.position == Vector2.ZERO and window.size == workspace.size, "Animated maximize did not settle on snapped workspace geometry.")
-	_check_adaptive_surfaces_match_outer_window(window, "maximized")
+	_check_surfaces_match_outer_window(window, "maximized")
 	await window.restore_from_maximized()
 	await get_tree().process_frame
 	_check(not window.is_maximized, "Animated restore did not clear maximized state.")
 	_check(Rect2(window.position, window.size).is_equal_approx(restore_rect), "Animated restore did not return to the authoritative restore rectangle.")
-	_check_adaptive_surfaces_match_outer_window(window, "restored")
+	_check_surfaces_match_outer_window(window, "restored")
 
 	window.size = Vector2(533, 337)
 	await get_tree().process_frame
-	_check_adaptive_surfaces_match_outer_window(window, "directly resized")
+	_check_surfaces_match_outer_window(window, "directly resized")
 
 	var close_state := {"emitted": false}
 	window.window_closed.connect(func() -> void: close_state["emitted"] = true)
@@ -97,28 +93,24 @@ func _test_window_motion_contract() -> void:
 	workspace.queue_free()
 
 
-func _check_adaptive_surfaces_match_outer_window(window: WindowBase, phase: String) -> void:
-	var adaptive := window as AdaptiveScaleWindowBase
-	_check(adaptive != null, "%s window is not AdaptiveScaleWindowBase." % phase)
-	if adaptive == null:
-		return
+func _check_surfaces_match_outer_window(window: WindowBase, phase: String) -> void:
 	var rendered_visual_size := KubuOSMetrics.snap_vector(
-		adaptive.visual_root.size * adaptive.visual_root.scale
+		window.visual_root.size * window.visual_root.scale
 	)
 	_check(
-		rendered_visual_size == adaptive.size,
-		"%s visual surface %s does not cover outer window %s." % [phase, rendered_visual_size, adaptive.size]
+		rendered_visual_size == window.size,
+		"%s visual surface %s does not cover outer window %s." % [phase, rendered_visual_size, window.size]
 	)
 	_check(
-		adaptive.resize_border.position == Vector2.ZERO,
+		window.resize_border.position == Vector2.ZERO,
 		"%s resize overlay no longer starts at the outer window origin." % phase
 	)
 	_check(
-		adaptive.resize_border.size == adaptive.size,
+		window.resize_border.size == window.size,
 		"%s resize overlay %s does not cover outer window %s; right/bottom handles would be stale." % [
 			phase,
-			adaptive.resize_border.size,
-			adaptive.size,
+			window.resize_border.size,
+			window.size,
 		]
 	)
 

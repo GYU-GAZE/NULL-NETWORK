@@ -96,8 +96,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/desktop/kubu_app_rail_test.tscn \
             2>&1 | tee desktop-app-rail-test.log
           grep -q "KUBU_APP_RAIL_TEST: PASS" desktop-app-rail-test.log
@@ -106,8 +106,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/desktop/kubu_shell_presentation_test.tscn \
             2>&1 | tee desktop-shell-presentation-test.log
           grep -q "KUBU_SHELL_PRESENTATION_TEST: PASS" desktop-shell-presentation-test.log
@@ -116,8 +116,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/window_manager/window_work_area_test.tscn \
             2>&1 | tee desktop-work-area-test.log
           grep -q "WINDOW_WORK_AREA_TEST: PASS" desktop-work-area-test.log
@@ -126,8 +126,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/window_manager/window_initial_maximize_test.tscn \
             2>&1 | tee window-initial-maximize-test.log
           grep -q "WINDOW_INITIAL_MAXIMIZE_TEST: PASS" window-initial-maximize-test.log
@@ -136,8 +136,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/window_manager/window_sidebar_alignment_test.tscn \
             2>&1 | tee desktop-sidebar-alignment-test.log
           grep -q "WINDOW_SIDEBAR_ALIGNMENT_TEST: PASS" desktop-sidebar-alignment-test.log
@@ -146,8 +146,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/ui/typewriter_reveal_test.tscn \
             2>&1 | tee typewriter-reveal-test.log
           grep -q "TYPEWRITER_REVEAL_TEST: PASS" typewriter-reveal-test.log
@@ -156,8 +156,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/ui/alert_layer_layout_test.tscn \
             2>&1 | tee alert-layer-layout-test.log
           grep -q "ALERT_LAYER_LAYOUT_TEST: PASS" alert-layer-layout-test.log
@@ -166,8 +166,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/operator/operator_registration_restore_test.tscn \
             2>&1 | tee operator-registration-restore-test.log
           grep -q "OPERATOR_REGISTRATION_RESTORE_TEST: PASS" operator-registration-restore-test.log
@@ -176,8 +176,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/browser/browser_page_scroll_origin_test.tscn \
             2>&1 | tee browser-page-scroll-origin-test.log
           grep -q "BROWSER_PAGE_SCROLL_ORIGIN_TEST: PASS" browser-page-scroll-origin-test.log
@@ -186,8 +186,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 45 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/browser/browser_responsive_site_layout_test.tscn \
             2>&1 | tee browser-responsive-site-layout-test.log
           grep -q "BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: PASS" browser-responsive-site-layout-test.log
@@ -196,8 +196,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/browser/null_network_home_test.tscn \
             2>&1 | tee null-network-home-test.log
           grep -q "NULL_NETWORK_HOME_TEST: PASS" null-network-home-test.log
@@ -206,8 +206,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/browser/browser_tab_order_test.tscn \
             2>&1 | tee browser-tab-order-test.log
           grep -q "BROWSER_TAB_ORDER_TEST: PASS" browser-tab-order-test.log
@@ -216,8 +216,8 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/browser/site_action_data_test.tscn \
             2>&1 | tee site-action-data-test.log
           grep -q "SITE_ACTION_DATA_TEST: PASS" site-action-data-test.log
@@ -226,17 +226,28 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./Godot_v4.6.3-stable_linux.x86_64 \
-            --headless --path . --quit-after 30 \
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
             tests/browser/website_catalog_test.tscn \
             2>&1 | tee website-catalog-test.log
           grep -q "WEBSITE_CATALOG_TEST: PASS" website-catalog-test.log
+
+      - name: Run fixed 2x window contract and application integration
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 60s ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --path . \
+            tests/window_manager/window_contract_test.tscn \
+            2>&1 | tee window-contract-test.log
+          grep -q "WINDOW_CONTRACT_TEST: PASS" window-contract-test.log
 
       - name: Reject shell script errors
         shell: bash
         run: |
           cat \
             desktop-shell-import.log \
+            window-contract-test.log \
             desktop-app-rail-test.log \
             desktop-shell-presentation-test.log \
             desktop-work-area-test.log \
@@ -253,7 +264,7 @@ jobs:
             website-catalog-test.log \
             > desktop-shell-validation.log
 
-          if grep -E "SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_INITIAL_MAXIMIZE_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|ALERT_LAYER_LAYOUT_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: FAIL|NULL_NETWORK_HOME_TEST: FAIL|BROWSER_TAB_ORDER_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" desktop-shell-validation.log; then
+          if grep -E "WINDOW_CONTRACT_TEST: FAIL|SCRIPT ERROR|Failed to load script|Cannot get class|KUBU_APP_RAIL_TEST: FAIL|KUBU_SHELL_PRESENTATION_TEST: FAIL|WINDOW_WORK_AREA_TEST: FAIL|WINDOW_INITIAL_MAXIMIZE_TEST: FAIL|WINDOW_SIDEBAR_ALIGNMENT_TEST: FAIL|TYPEWRITER_REVEAL_TEST: FAIL|ALERT_LAYER_LAYOUT_TEST: FAIL|OPERATOR_REGISTRATION_RESTORE_TEST: FAIL|BROWSER_PAGE_SCROLL_ORIGIN_TEST: FAIL|BROWSER_RESPONSIVE_SITE_LAYOUT_TEST: FAIL|NULL_NETWORK_HOME_TEST: FAIL|BROWSER_TAB_ORDER_TEST: FAIL|SITE_ACTION_DATA_TEST: FAIL|WEBSITE_CATALOG_TEST: FAIL" desktop-shell-validation.log; then
             echo "Desktop shell validation reported an error."
             exit 1
           fi
@@ -269,6 +280,7 @@ jobs:
           name: desktop-shell-validation-log
           path: |
             desktop-shell-import.log
+            window-contract-test.log
             desktop-app-rail-test.log
             desktop-shell-presentation-test.log
             desktop-work-area-test.log

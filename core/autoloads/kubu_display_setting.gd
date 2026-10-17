@@ -127,8 +127,7 @@ func _apply_window_mode() -> void:
 
 
 func _apply_content_scale() -> void:
-	## O desktop inteiro opera permanentemente em 2x. A redução para 1x
-	## acontece apenas no conteúdo de cada janela interna.
+	## Physical display pixels = logical desktop units * 2, for all content.
 	_root_window.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	_root_window.content_scale_size = Vector2i.ZERO
 	_root_window.content_scale_factor = float(FIXED_PIXEL_SCALE)

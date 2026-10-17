@@ -6,11 +6,11 @@ const COMBAT_SCENE: PackedScene = preload(
 const TEST_ENCOUNTER: CombatEncounter = preload(
 	"res://data/content/combat/1v1.tres"
 )
-const ENCOUNTER_2X_BREAKPOINT := Vector2(530, 377)
+const COMPACT_COMBAT_MINIMUM := Vector2(530, 377)
 const LARGE_2X_COMBAT_SIZE := Vector2(640, 377)
 const DEFAULT_OUTER_COMBAT_SIZE := Vector2(640, 255)
 const LAYOUT_EPSILON: float = 1.0
-const DENSITY_1X_VISUAL_SCALE := Vector2(0.5, 0.5)
+const WINDOW_VISUAL_SCALE := Vector2.ONE
 const KUBU_DEFAULT_FONT_SIZE: int = 19
 
 
@@ -42,14 +42,14 @@ func _run_test() -> void:
 	)
 	theme = kubu_density_theme
 
-	var adaptive_visual_root := Control.new()
-	adaptive_visual_root.name = "AdaptiveVisualRoot"
-	adaptive_visual_root.set_anchors_preset(
+	var visual_root := Control.new()
+	visual_root.name = "VisualRoot"
+	visual_root.set_anchors_preset(
 		Control.PRESET_TOP_LEFT
 	)
-	adaptive_visual_root.position = Vector2.ZERO
-	adaptive_visual_root.size = LARGE_2X_COMBAT_SIZE
-	add_child(adaptive_visual_root)
+	visual_root.position = Vector2.ZERO
+	visual_root.size = LARGE_2X_COMBAT_SIZE
+	add_child(visual_root)
 
 	var combat_app := COMBAT_SCENE.instantiate() as CombatApp
 
@@ -57,7 +57,7 @@ func _run_test() -> void:
 		_fail("Combat scene did not instantiate CombatApp.")
 		return
 
-	adaptive_visual_root.add_child(combat_app)
+	visual_root.add_child(combat_app)
 	combat_app.set_anchors_preset(
 		Control.PRESET_TOP_LEFT
 	)
@@ -88,17 +88,17 @@ func _run_test() -> void:
 
 	if (
 		combined_minimum.x
-		> ENCOUNTER_2X_BREAKPOINT.x
+		> COMPACT_COMBAT_MINIMUM.x
 		+ LAYOUT_EPSILON
 		or combined_minimum.y
-		> ENCOUNTER_2X_BREAKPOINT.y
+		> COMPACT_COMBAT_MINIMUM.y
 		+ LAYOUT_EPSILON
 	):
 		_fail(
-			"Combat minimum %s exceeds its 2x breakpoint %s."
+			"Combat minimum %s exceeds its compact logical budget %s."
 			% [
 				combined_minimum,
-				ENCOUNTER_2X_BREAKPOINT
+				COMPACT_COMBAT_MINIMUM
 			]
 		)
 		return
@@ -174,9 +174,9 @@ func _run_test() -> void:
 	if not _timeline_slots_are_square(combat_app):
 		return
 
-	if not await _combat_inherits_adaptive_scale(
+	if not await _combat_inherits_fixed_scale(
 		combat_app,
-		adaptive_visual_root
+		visual_root
 	):
 		return
 
@@ -492,9 +492,9 @@ func _timeline_slots_are_square(
 	return true
 
 
-func _combat_inherits_adaptive_scale(
+func _combat_inherits_fixed_scale(
 	combat_app: CombatApp,
-	adaptive_visual_root: Control
+	visual_root: Control
 ) -> bool:
 	var overlay_controls: Array[Control] = [
 		combat_app,
@@ -516,13 +516,13 @@ func _combat_inherits_adaptive_scale(
 		) as Control
 	]
 
-	adaptive_visual_root.size = DEFAULT_OUTER_COMBAT_SIZE
-	adaptive_visual_root.scale = (
-		DENSITY_1X_VISUAL_SCALE
+	visual_root.size = DEFAULT_OUTER_COMBAT_SIZE
+	visual_root.scale = (
+		WINDOW_VISUAL_SCALE
 	)
 	combat_app.size = (
 		DEFAULT_OUTER_COMBAT_SIZE
-		/ DENSITY_1X_VISUAL_SCALE
+		/ WINDOW_VISUAL_SCALE
 	)
 
 	await get_tree().process_frame
@@ -537,10 +537,10 @@ func _combat_inherits_adaptive_scale(
 		)
 
 		if not inherited_scale.is_equal_approx(
-			DENSITY_1X_VISUAL_SCALE
+			WINDOW_VISUAL_SCALE
 		):
 			_fail(
-				"Combat control '%s' escaped adaptive 1x scale: %s."
+				"Combat control '%s' escaped fixed 2x presentation: %s."
 				% [control.name, inherited_scale]
 			)
 			return false
@@ -553,7 +553,7 @@ func _combat_inherits_adaptive_scale(
 		DEFAULT_OUTER_COMBAT_SIZE
 	):
 		_fail(
-			"Combat 1x visual size %s does not match outer area %s."
+			"Combat fixed-scale size %s does not match outer area %s."
 			% [
 				visual_combat_size,
 				DEFAULT_OUTER_COMBAT_SIZE
@@ -566,8 +566,8 @@ func _combat_inherits_adaptive_scale(
 	):
 		return false
 
-	adaptive_visual_root.scale = Vector2.ONE
-	adaptive_visual_root.size = LARGE_2X_COMBAT_SIZE
+	visual_root.scale = Vector2.ONE
+	visual_root.size = LARGE_2X_COMBAT_SIZE
 	combat_app.size = LARGE_2X_COMBAT_SIZE
 	await get_tree().process_frame
 	return true
@@ -614,7 +614,7 @@ func _combat_overlay_coordinates_are_transform_safe(
 		expected_swap_position
 	):
 		_fail(
-			"Module inventory local position %s does not match %s at 1x."
+			"Module inventory local position %s does not match %s in the fixed-scale viewport."
 			% [
 				module_swap_ui.position,
 				expected_swap_position
@@ -676,7 +676,7 @@ func _combat_overlay_coordinates_are_transform_safe(
 		expected_floating_position
 	):
 		_fail(
-			"Floating text local position %s does not match %s at 1x."
+			"Floating text local position %s does not match %s in the fixed-scale viewport."
 			% [
 				floating_label.position,
 				expected_floating_position

@@ -68,11 +68,8 @@ func _refresh_status() -> void:
 
 
 func _play_applied_feedback() -> void:
-	status_label.pivot_offset = status_label.size * 0.5
-	status_label.scale = Vector2(1.04, 1.0)
 	status_label.modulate = Color(0.45, 1.0, 0.78, 1.0)
 	var tween := create_tween().set_parallel(true)
 	tween.set_trans(Tween.TRANS_QUAD)
 	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property(status_label, "scale", Vector2.ONE, 0.18)
 	tween.tween_property(status_label, "modulate", Color.WHITE, 0.28)
