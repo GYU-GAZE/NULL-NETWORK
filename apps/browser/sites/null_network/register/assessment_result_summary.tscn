@@ -1,0 +1,64 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://apps/browser/sites/null_network/register/assessment_result_summary.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://apps/browser/sites/null_network/register/assessment_result_tendency_row.tscn" id="2_row"]
+
+[sub_resource type="StyleBoxFlat" id="ContextPanelStyle"]
+bg_color = Color(0.004, 0.03, 0.052, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.05, 0.3, 0.5, 0.85)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+
+[node name="AssessmentResultSummary" type="VBoxContainer"]
+visible = false
+theme_override_constants/separation = 7
+script = ExtResource("1_script")
+tendency_row_scene = ExtResource("2_row")
+
+[node name="TendencyTitle" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.94, 1, 1)
+text = "YOUR TENDENCIES ARE:"
+
+[node name="TendencyRows" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ContextPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_styles/panel = SubResource("ContextPanelStyle")
+
+[node name="ContextLabel" type="Label" parent="ContextPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.64, 0.74, 1)
+text = "HOVER A TENDENCY FOR CONTEXT."
+autowrap_mode = 3
+
+[node name="AssignmentIntro" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.78, 0.9, 1)
+text = "YOU HAVE BEEN ASSIGNED TO..."
+horizontal_alignment = 1
+
+[node name="AssignedSpecies" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
