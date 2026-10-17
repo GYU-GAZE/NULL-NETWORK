@@ -2,6 +2,11 @@ extends PanelContainer
 class_name OperatorProfileApp
 
 
+@export_category("Profile Components")
+@export var tendency_row_scene: PackedScene
+@export var value_row_scene: PackedScene
+
+
 @onready var operator_avatar: TextureRect = %OperatorAvatar
 @onready var operator_name: Label = %OperatorName
 @onready var username_label: Label = %UsernameLabel
@@ -174,25 +179,11 @@ func _render_tendencies(entries: Array) -> void:
 			continue
 
 		var entry: Dictionary = entry_value as Dictionary
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 6)
-		var tendency_name := Label.new()
-		tendency_name.custom_minimum_size.x = 86.0
-		tendency_name.text = str(entry.get("display_name", "—"))
-		var bar := ProgressBar.new()
-		bar.custom_minimum_size = Vector2(120, 18)
-		bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		bar.min_value = 0.0
-		bar.max_value = 100.0
-		bar.value = clampf(float(entry.get("share", 0.0)) * 100.0, 0.0, 100.0)
-		bar.show_percentage = false
-		var value := Label.new()
-		value.custom_minimum_size.x = 48.0
-		value.text = str(int(entry.get("value", 0)))
-		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		row.add_child(tendency_name)
-		row.add_child(bar)
-		row.add_child(value)
+		var row := _instantiate_tendency_row()
+		if row == null:
+			continue
+
+		row.setup(entry)
 		tendency_list.add_child(row)
 
 
@@ -330,17 +321,34 @@ func _add_value_row(
 	left_text: String,
 	right_text: String
 ) -> void:
-	var row := HBoxContainer.new()
-	var left := Label.new()
-	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left.text = left_text
-	left.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var right := Label.new()
-	right.text = right_text
-	right.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	row.add_child(left)
-	row.add_child(right)
+	var row := _instantiate_value_row()
+	if row == null:
+		return
+
+	row.setup(left_text, right_text)
 	container.add_child(row)
+
+
+func _instantiate_tendency_row() -> ProfileTendencyRow:
+	if tendency_row_scene == null:
+		push_error("OperatorProfileApp requires tendency_row_scene.")
+		return null
+
+	var instance := tendency_row_scene.instantiate() as ProfileTendencyRow
+	if instance == null:
+		push_error("OperatorProfileApp tendency_row_scene must instantiate ProfileTendencyRow.")
+	return instance
+
+
+func _instantiate_value_row() -> ProfileValueRow:
+	if value_row_scene == null:
+		push_error("OperatorProfileApp requires value_row_scene.")
+		return null
+
+	var instance := value_row_scene.instantiate() as ProfileValueRow
+	if instance == null:
+		push_error("OperatorProfileApp value_row_scene must instantiate ProfileValueRow.")
+	return instance
 
 
 func _add_empty_label(container: VBoxContainer, text: String) -> void:
