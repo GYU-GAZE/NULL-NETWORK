@@ -61,6 +61,7 @@ func run() -> void:
 	await settle(0.25)
 	check(predator.global_position.distance_to(before) > 2 and predator.motor.state == FieldEXEMotor.State.CHASING, "Predator did not pursue using real field physics")
 	await capture("ecology_predator_chasing")
+	check(area.ecology_projection.overlay.visible and area.ecology_projection.overlay.get_parent() == navigator.local_area_view, "Restored ecological HUD is detached from the camera-independent view")
 	Input.action_press("local_area_move_left")
 	var player_before := area.player.global_position
 	await settle(0.4)
@@ -96,6 +97,7 @@ func run() -> void:
 		KubuDisplaySetting.set_windowed_size(Vector2i(1280, 720))
 		await settle(0.15)
 		check(get_window().content_scale_factor == 2.0, "Ecological presentation lost fixed 2x scaling")
+		check(get_viewport().get_visible_rect().encloses(area.ecology_projection.status_label.get_global_rect()), "Collapsed status leaves the 1280x720 logical viewport")
 		await capture("ecology_collapsed_1280")
 	await dispose()
 	finish("ECOLOGY_COLLAPSE_PREDATOR_TEST")

@@ -3,15 +3,15 @@ class_name FieldEcologyProjection
 
 var area: NavigatorLocalAreaScene
 var predator: LocalAreaExeActor
-var overlay: CanvasLayer
+var overlay: Control
 var status_label: Label
 var feedback_label: Label
 var _queued: bool = false
 
 func bind(owner_area: NavigatorLocalAreaScene) -> void:
 	area = owner_area
-	overlay = CanvasLayer.new()
-	overlay.layer = 2
+	overlay = Control.new()
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(overlay)
 	var box := VBoxContainer.new()
 	box.position = Vector2(10, 82)
@@ -35,6 +35,17 @@ func bind(owner_area: NavigatorLocalAreaScene) -> void:
 			feedback_label.text = message
 			queue_refresh())
 	queue_refresh()
+
+func attach_hud(hud_root: Control) -> void:
+	# The viewport owns world/camera rendering; diegetic text belongs to its
+	# containing view, alongside the existing header and interaction prompt.
+	overlay.reparent(hud_root, false)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+func _exit_tree() -> void:
+	if is_instance_valid(overlay) and overlay.get_parent() != self:
+		overlay.hide()
+		overlay.queue_free()
 
 func _zone_id() -> String:
 	return area.map_location.ecology_zone.ecology_zone_id if area.map_location != null and area.map_location.ecology_zone != null else ""

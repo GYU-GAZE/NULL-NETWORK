@@ -106,7 +106,7 @@ jobs:
         if: always()
         run: cp /tmp/project.godot.original project.godot
 
-      - name: Upload Field EXEs validation logs
+      - name: Upload ecology validation logs
         if: always()
         uses: actions/upload-artifact@v4
         with:

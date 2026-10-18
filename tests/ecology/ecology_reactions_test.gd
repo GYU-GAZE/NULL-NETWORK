@@ -18,11 +18,12 @@ func run() -> void:
 	check(not snapshot.is_empty() and str(snapshot.get("ecology", [])).contains("LOCALLY ABSENT"), "Known Encyclopedia subject did not expose local ecological absence")
 	check(str(ProfileProjectionService.build_snapshot().get("ecology_status", "")).contains("COLLAPSED"), "Profile did not project current ecological world status")
 	var manager := (load("res://systems/window_manager/window_manager.tscn") as PackedScene).instantiate() as WindowManager
-	manager.size = Vector2(850, 520)
 	add_child(manager)
+	manager.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	manager._on_request_open_app(ContentRegistry.get_app("browser"))
 	var window := manager.open_windows.browser as WindowBase
 	await window.wait_until_opened()
+	await window.maximize()
 	var browser := window.content_container.get_child(0) as BrowserApp
 	browser.url_line_edit.text = "null.net/forums/thread/ecology_akiba_collapse"
 	browser.go_button.pressed.emit()
