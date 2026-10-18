@@ -82,6 +82,8 @@ func _configure_filters() -> void:
 
 
 func _connect_signals() -> void:
+	CampaignState.campaign_changed.connect(func(section: StringName) -> void:
+		if section == &"ecology": _queue_refresh())
 	search_input.text_changed.connect(_on_search_changed)
 	kind_filter.item_selected.connect(_on_kind_selected)
 
@@ -186,6 +188,7 @@ func _render_selected_entry() -> void:
 	entry_subtitle.text = str(snapshot.get("subtitle", ""))
 	entry_kind.text = str(snapshot.get("kind_label", "UNKNOWN"))
 	summary_label.text = str(snapshot.get("summary", ""))
+	for text: String in snapshot.get("ecology", []): summary_label.text += "\n" + text
 	var subject: Dictionary = snapshot.get("subject", {}) as Dictionary
 	subject_label.text = (
 		"APK  %s  ·  FORM  %s" % [

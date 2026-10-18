@@ -4,6 +4,9 @@
 [ext_resource type="Script" uid="uid://cl5xmdj7jac4e" path="res://data/templates/social/chat_message_data.gd" id="2_message"]
 [ext_resource type="Script" uid="uid://b2q1y6st3vmaj" path="res://data/templates/social/chat_choice_data.gd" id="3_choice"]
 
+[ext_resource type="Script" path="res://data/templates/conditions/condition_set_data.gd" id="eco_set"]
+[ext_resource type="Script" path="res://data/templates/conditions/flag_condition_data.gd" id="eco_flag"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_rule_data.gd" id="eco_rule"]
 [sub_resource type="Resource" id="Choice_field_test"]
 script = ExtResource("3_choice")
 choice_id = "ask_about_field_test"
@@ -28,6 +31,19 @@ script = ExtResource("2_message")
 message_id = "ganbare.response.field_test"
 text_bbcode = "Enough to know it is worth checking in person. I marked the relay route on your Navigator and joined your party for this Lead. Do not let a suspicious signal scare you off!"
 
+[sub_resource type="Resource" id="eco_flag"]
+script = ExtResource("eco_flag")
+flag_name = "ecology.akiba.electric_town.collapsed"
+[sub_resource type="Resource" id="eco_conditions"]
+script = ExtResource("eco_set")
+rules = Array[ExtResource("eco_rule")]([SubResource("eco_flag")])
+[sub_resource type="Resource" id="eco_message"]
+script = ExtResource("2_message")
+message_id = "ganbare.ecology.collapse"
+text_bbcode = "I checked Electric Town. The signals really are gone. Don't wait for the weekly update to fix this one. And if something NULL has your signature, keep moving."
+delivery_conditions = SubResource("eco_conditions")
+unread_when_delivered = true
+
 [resource]
 script = ExtResource("1_conversation")
 conversation_id = "dm.ganbarekun"
@@ -35,6 +51,6 @@ profile_id = "chat.ganbarekun"
 npc_id = "ganbarekun"
 title = "GANBAREkun"
 auto_add_friend_on_unlock = true
-initial_message_ids = PackedStringArray("ganbare.intro.001")
-messages = Array[ExtResource("2_message")]([SubResource("Message_intro"), SubResource("Message_operator_field_test"), SubResource("Message_response_field_test")])
+initial_message_ids = PackedStringArray("ganbare.intro.001", "ganbare.ecology.collapse")
+messages = Array[ExtResource("2_message")]([SubResource("Message_intro"), SubResource("Message_operator_field_test"), SubResource("Message_response_field_test"), SubResource("eco_message")])
 choices = Array[ExtResource("3_choice")]([SubResource("Choice_field_test")])

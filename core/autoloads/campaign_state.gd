@@ -841,6 +841,10 @@ func validate_save_data(data: Dictionary) -> PackedStringArray:
 			"incident_progress"
 		)
 
+	var world: Variant = data.get("world_state", {})
+	if world is Dictionary: errors.append_array(WorldStateData.validate_ecology(world))
+	else: errors.append("WorldState must be a dictionary.")
+
 	return errors
 
 

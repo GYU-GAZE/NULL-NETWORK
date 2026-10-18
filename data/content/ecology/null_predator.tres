@@ -6,6 +6,7 @@
 [sub_resource type="Resource" id="assimilation"]
 script = ExtResource("stage")
 minimum_collapses = 2
+active_module_ids = PackedStringArray("heavy_attack")
 assimilate_destroyed_modules = true
 unresolved_design_notes = "Node-specific battle effects, exact phase/evolution curves and extra pursuit scaling remain unresolved. No fabricated numeric formula."
 [resource]

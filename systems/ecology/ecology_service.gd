@@ -7,7 +7,10 @@ signal zone_collapsed(zone_id: String)
 signal feedback_requested(zone_id: String, text: String)
 signal predator_changed
 var _busy: bool = false
+var _event_action_index: int = -1
 var _resuming: bool = false
+var _condition_bindings: Dictionary = {}
+var _pressure_signatures: Dictionary = {}
 
 func _ready() -> void:
 	GlobalSignals.time_advanced.connect(_on_time)
@@ -15,6 +18,8 @@ func _ready() -> void:
 	SaveManager.campaign_loaded.connect(func(_id: String, _backup: bool) -> void: _resume())
 	ContentRegistry.registry_rebuilt.connect(func() -> void: _resume.call_deferred())
 	SaveManager.register_save_section(self)
+	CampaignState.campaign_changed.connect(_on_world_section)
+	GameState.number_changed.connect(_on_danger)
 
 func get_save_section_id() -> String:
 	return "ecology_lifecycle"
@@ -58,6 +63,10 @@ func zone_for_location(location_id: String) -> EcologyZoneData:
 func context(zone: EcologyZoneData) -> Dictionary:
 	var location_id := zone.location_ids[0] if not zone.location_ids.is_empty() else ""
 	var result := {"ecology_zone_id": zone.ecology_zone_id, "location_id": location_id, "days_passed": TimeManager.days_passed, "current_period": int(TimeManager.current_period), "current_action_block": TimeManager.current_action_block, "infestation": CampaignState.world_state.get_infestation(location_id)}
+	if _event_action_index >= 0:
+		result["days_passed"] = int(_event_action_index / 24) + 1
+		result["current_period"] = int((_event_action_index % 24) / 12)
+		result["current_action_block"] = _event_action_index % 12
 	if not zone.danger_number_key.is_empty(): result["danger"] = GameState.get_number(zone.danger_number_key)
 	return result
 
@@ -69,9 +78,12 @@ func ensure_zone(zone: EcologyZoneData) -> Dictionary:
 		var remaining := zone.population_capacity
 		for entry: EcologySpeciesData in zone.species:
 			var base := mini(remaining, _base(entry, context(zone)))
-			species[entry.species_line_id] = {"species_line_id": entry.species_line_id, "population_base": base, "population_current": base, "purify_resonance": 0}
+			species[entry.species_line_id] = {"species_line_id": entry.species_line_id, "population_base": base, "population_capacity": entry.population_capacity, "population_current": base, "purify_resonance": 0, "ecology_status": "STABLE" if base > 0 else "LOCALLY ABSENT", "last_update": TimeManager.get_total_action_index()}
 			remaining -= base
-		zones[zone.ecology_zone_id] = {"version": 1, "ecology_zone_id": zone.ecology_zone_id, "species": species, "collapsed": false, "ecology_status": "HEALTHY", "last_update": TimeManager.get_total_action_index(), "last_micro_update_day": TimeManager.days_passed, "revision": 0, "projection_epoch": 0, "applied_effect_receipts": {}, "history": []}
+		zones[zone.ecology_zone_id] = {"version": 1, "ecology_zone_id": zone.ecology_zone_id, "population_capacity": zone.population_capacity, "species": species, "collapsed": false, "ecology_status": "HEALTHY", "last_update": TimeManager.get_total_action_index(), "last_micro_update_day": TimeManager.days_passed, "revision": 0, "projection_epoch": 0, "applied_effect_receipts": {}, "history": []}
+		zones[zone.ecology_zone_id]["ecology_status"] = status(zone, zones[zone.ecology_zone_id])
+		for entry: Dictionary in zones[zone.ecology_zone_id].species.values():
+			entry["ecology_status"] = zones[zone.ecology_zone_id].ecology_status if int(entry.population_current) > 0 else "LOCALLY ABSENT"
 	return zones[zone.ecology_zone_id]
 
 func snapshot(id: String) -> Dictionary:
@@ -165,6 +177,8 @@ func _resume() -> void:
 	if _resuming or not CampaignState.has_campaign() or SaveManager.is_runtime_busy(): return
 	_resuming = true
 	for zone: EcologyZoneData in definitions(): ensure_zone(zone)
+	_bind_conditions()
+	_update_route_completeness()
 	consume_pending_receipts()
 	_process_time()
 	_resuming = false
@@ -175,19 +189,32 @@ func _on_time(_period: int, _days: int, _day: int, _month: String) -> void:
 func _process_time() -> void:
 	if _busy: return
 	_busy = true
+	var through := TimeManager.get_total_action_index()
+	var events: Array[Dictionary] = []
 	for zone: EcologyZoneData in definitions():
 		var state := ensure_zone(zone)
-		var previous := int(state.get("last_update", TimeManager.get_total_action_index()))
+		var previous := int(state.get("last_update", through))
 		var previous_day := int(state.get("last_micro_update_day", TimeManager.days_passed))
 		for day: int in range(previous_day + 1, TimeManager.days_passed + 1):
 			if int(TimeManager.get_date_for_game_day(day).weekday) == zone.micro_update_weekday:
-				_micro_update(zone, day)
+				events.append({"at": (day - 1) * 24, "priority": 0, "zone": zone, "day": day, "id": zone.ecology_zone_id})
 		for activity: EcologyNPCActivityData in zone.npc_activities:
 			var first := int(previous / activity.interval_blocks) + 1
-			var last := int(TimeManager.get_total_action_index() / activity.interval_blocks)
-			for cycle: int in range(first, last + 1): _npc_activity(zone, activity, cycle)
-		state = ensure_zone(zone)
-		state["last_update"] = TimeManager.get_total_action_index()
+			var last := int(through / activity.interval_blocks)
+			for cycle: int in range(first, last + 1):
+				events.append({"at": cycle * activity.interval_blocks, "priority": 1, "zone": zone, "activity": activity, "cycle": cycle, "id": zone.ecology_zone_id + "." + activity.activity_id})
+	events.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		if a.at != b.at: return int(a.at) < int(b.at)
+		if a.priority != b.priority: return int(a.priority) < int(b.priority)
+		return str(a.id) < str(b.id))
+	for event: Dictionary in events:
+		_event_action_index = int(event.at)
+		if int(event.priority) == 0: _micro_update(event.zone, int(event.day))
+		else: _npc_activity(event.zone, event.activity, int(event.cycle))
+	_event_action_index = -1
+	for zone: EcologyZoneData in definitions():
+		var state := ensure_zone(zone)
+		state["last_update"] = through
 		state["last_micro_update_day"] = TimeManager.days_passed
 	_busy = false
 
@@ -195,8 +222,10 @@ func _micro_update(zone: EcologyZoneData, day: int) -> void:
 	var state := ensure_zone(zone)
 	var receipt := "micro_update.%s.%d" % [zone.ecology_zone_id, day]
 	if bool(state.collapsed) or state.applied_effect_receipts.has(receipt): return
+	if zone.conditions != null and not zone.conditions.is_met(context(zone)): return
 	var rules_context := context(zone)
 	for species: EcologySpeciesData in zone.species:
+		if species.conditions != null and not species.conditions.is_met(rules_context): continue
 		var entry: Dictionary = state.species[species.species_line_id]
 		var recovery := species.weekly_recovery
 		for rule: EcologyPressureRuleData in species.pressure_rules:
@@ -215,6 +244,7 @@ func _micro_update(zone: EcologyZoneData, day: int) -> void:
 		if source_entry.is_empty(): continue
 		var target_entry: Dictionary = state.species[migration.species_line_id]
 		var count := mini(migration.maximum_units, maxi(0, int(source_entry.population_current) - migration.leave_in_source))
+		count = mini(count, maxi(0, total(source_state) - 1))
 		count = mini(count, mini(zone.get_species(migration.species_line_id).population_capacity - int(target_entry.population_current), zone.population_capacity - total(state)))
 		if count > 0:
 			source_entry.population_current -= count
@@ -226,16 +256,14 @@ func _micro_update(zone: EcologyZoneData, day: int) -> void:
 	feedback_requested.emit(zone.ecology_zone_id, zone.presentation.weekly_feedback)
 
 func _npc_activity(zone: EcologyZoneData, activity: EcologyNPCActivityData, cycle: int) -> void:
+	if zone.conditions != null and not zone.conditions.is_met(context(zone)): return
 	if activity.conditions != null and not activity.conditions.is_met(context(zone)): return
 	if ContentRegistry.get_npc(activity.npc_id) == null: return
 	var operation: String = EcologyNPCActivityData.Operation.keys()[activity.operation]
 	var receipt := {"operation_id": "npc.%s.%s.%d" % [zone.ecology_zone_id, activity.activity_id, cycle], "zone_id": zone.ecology_zone_id, "species_line_id": activity.species_line_id, "operation": operation, "source": "npc", "target_id": activity.npc_id, "formal_result": true, "provenance": activity.resource_path}
-	if apply_operation(receipt):
-		var location := zone.location_ids[0]
-		if activity.infestation_delta != 0:
-			CampaignState.world_state.set_infestation(location, maxi(0, CampaignState.world_state.get_infestation(location) + activity.infestation_delta))
-			CampaignState.campaign_changed.emit(&"world_infestation")
-		if activity.danger_delta != 0 and not zone.danger_number_key.is_empty(): GameState.set_number(zone.danger_number_key, GameState.get_number(zone.danger_number_key) + activity.danger_delta)
+	receipt["infestation_delta"] = activity.infestation_delta
+	receipt["danger_delta"] = activity.danger_delta
+	apply_operation(receipt)
 
 func apply_operation(operation: Dictionary) -> bool:
 	var zone := definition(str(operation.get("zone_id", "")))
@@ -247,7 +275,8 @@ func apply_operation(operation: Dictionary) -> bool:
 	var kind := str(operation.get("operation", ""))
 	var entry: Dictionary = state.species.get(species_id, {})
 	if entry.is_empty() and kind in ["PURGE", "PURIFY"]: return false
-	if bool(state.collapsed): return false
+	if bool(state.collapsed) and kind in ["PURGE", "PURIFY"]: return false
+	var previous_busy := _busy
 	var delta := 0
 	if kind == "PURGE":
 		if int(entry.population_current) <= 0: return false
@@ -257,27 +286,42 @@ func apply_operation(operation: Dictionary) -> bool:
 		delta = -1
 	elif kind == "PURIFY": entry.purify_resonance = mini(3, int(entry.purify_resonance) + 1)
 	elif kind not in ["CONTAIN_SWARM", "WORLD_PRESSURE"]: return false
+	_busy = true
 	state.applied_effect_receipts[id] = operation.merged({"applied": true, "applied_population_delta": delta}, true)
+	var location_id := zone.location_ids[0]
+	var infestation_delta := int(operation.get("infestation_delta", 0))
+	if infestation_delta != 0:
+		CampaignState.world_state.set_infestation(location_id, maxi(0, CampaignState.world_state.get_infestation(location_id) + infestation_delta))
+		CampaignState.campaign_changed.emit(&"world_infestation")
+	var danger_delta := int(operation.get("danger_delta", 0))
+	if danger_delta != 0 and not zone.danger_number_key.is_empty(): GameState.set_number(zone.danger_number_key, GameState.get_number(zone.danger_number_key) + danger_delta)
 	if total(state) == 0 and kind == "PURGE":
 		state.collapsed = true
 		for value: Dictionary in state.species.values(): value.purify_resonance = 0
 		_register_collapse(zone)
 	_changed(zone, PackedStringArray([species_id]), kind)
 	if kind in ["PURGE", "PURIFY"]: feedback_requested.emit(zone.ecology_zone_id, zone.presentation.purge_feedback if kind == "PURGE" else zone.presentation.purify_feedback)
+	_busy = previous_busy
 	return true
 
 func _changed(zone: EcologyZoneData, species_ids: PackedStringArray, reason: String) -> void:
 	var state := ensure_zone(zone)
 	state.revision = int(state.revision) + 1
 	state.ecology_status = status(zone, state)
-	state.last_update = TimeManager.get_total_action_index()
-	state.history.append({"at": TimeManager.get_total_action_index(), "reason": reason, "status": state.ecology_status})
+	state.last_update = _event_action_index if _event_action_index >= 0 else TimeManager.get_total_action_index()
+	for id: String in state.species:
+		var species_state: Dictionary = state.species[id]
+		species_state["ecology_status"] = "COLLAPSED" if bool(state.collapsed) else ("LOCALLY ABSENT" if int(species_state.population_current) == 0 else str(state.ecology_status))
+		if id in species_ids: species_state["last_update"] = state.last_update
+	state.history.append({"at": state.last_update, "reason": reason, "status": state.ecology_status})
 	if state.history.size() > 24: state.history.pop_front()
 	GameState.set_flag("ecology.%s.collapsed" % zone.ecology_zone_id, bool(state.collapsed))
 	GameState.set_flag("ecology.%s.last_signature" % zone.ecology_zone_id, total(state) == 1 and not bool(state.collapsed))
 	for species_id: String in species_ids:
 		GameState.set_flag("ecology.%s.%s.absent" % [zone.ecology_zone_id, species_id], population(zone.ecology_zone_id, species_id) == 0)
+		GameState.set_number("ecology.%s.%s.resonance" % [zone.ecology_zone_id, species_id], resonance(zone.ecology_zone_id, species_id))
 	CampaignState.campaign_changed.emit(&"ecology")
+	SaveManager.request_checkpoint(&"ecology.settled")
 	zone_changed.emit(zone.ecology_zone_id, species_ids, reason)
 
 func _register_collapse(zone: EcologyZoneData) -> void:
@@ -287,15 +331,25 @@ func _register_collapse(zone: EcologyZoneData) -> void:
 	collapsed.append(zone.ecology_zone_id)
 	route["collapsed_zone_ids"] = collapsed
 	route["collapse_count"] = collapsed.size()
-	if zone.predator != null:
+	var predator_definition := zone.predator
+	var existing_path := str(route.get("predator", {}).get("profile_path", ""))
+	if existing_path.begins_with("res://") and ResourceLoader.exists(existing_path): predator_definition = load(existing_path) as EcologyPredatorData
+	if predator_definition == null:
+		for known: EcologyZoneData in definitions():
+			if known.predator != null:
+				predator_definition = known.predator
+				break
+	if predator_definition != null:
 		var predator: Dictionary = route.get("predator", {})
-		predator["id"] = zone.predator.predator_id + "." + CampaignState.campaign_id
-		predator["profile_path"] = zone.predator.resource_path
+		if str(predator.get("id", "")).is_empty(): predator["id"] = predator_definition.predator_id + "." + CampaignState.campaign_id
+		predator["profile_path"] = predator_definition.resource_path
+		if str(predator.get("status", "")) == "RECOMPILING": predator["locations"] = {}
 		predator["status"] = "ACTIVE"
 		predator["identified_operator_id"] = CampaignState.operator.operator_id
+		predator["identified_campaign_id"] = CampaignState.campaign_id
 		predator["collapse_count"] = collapsed.size()
 		var modules: Array = predator.get("assimilated_module_ids", [])
-		for stage: EcologyPredatorStageData in zone.predator.stages:
+		for stage: EcologyPredatorStageData in predator_definition.stages:
 			if stage.minimum_collapses <= collapsed.size():
 				for id: String in stage.active_module_ids:
 					if ContentRegistry.get_module(id) != null and id not in modules: modules.append(id)
@@ -304,13 +358,18 @@ func _register_collapse(zone: EcologyZoneData) -> void:
 						var apk := resource as APKData
 						if apk != null and zone.get_species(apk.species_line_id) != null:
 							for module: ModuleData in apk.default_active_modules:
-								if module.module_id not in modules: modules.append(module.module_id)
+								if str(module.module_id) not in modules: modules.append(str(module.module_id))
+							if apk.field_encounter != null and apk.field_encounter.reward_profile != null:
+								for id: String in apk.field_encounter.reward_profile.active_module_ids:
+									var module := ContentRegistry.get_module(id)
+									if module != null and module.module_kind == ModuleData.ModuleKind.ACTIVE and id not in modules: modules.append(id)
 		predator["assimilated_module_ids"] = modules
 		route["predator"] = predator
 		predator_changed.emit()
 		feedback_requested.emit(zone.ecology_zone_id, zone.presentation.predator_feedback)
 	GameState.set_flag("ecology.extinction_route", true)
 	GameState.set_number("ecology.collapsed_zone_count", collapsed.size())
+	_update_route_completeness()
 	zone_collapsed.emit(zone.ecology_zone_id)
 
 func consume_pending_receipts() -> void:
@@ -394,3 +453,91 @@ func commit_combat(encounter: CombatEncounter, records: Array[Dictionary], outco
 		CampaignState.world_state.persistent_objects[key] = {"version": 2, "call_id": battle_id, "zone_id": encounter.ecology_zone_id, "location_id": str(encounter.field_formation.get("location_id", CampaignState.current_location_id)), "outcome": int(outcome), "ecology_requests": operations, "collapse_authorized": not authorization.is_empty(), "consent_provenance": authorization.duplicate(true), "submitted_at": TimeManager.get_total_action_index()}
 	consume_pending_receipts()
 	return key
+
+
+func _bind_conditions() -> void:
+	for child: Variant in _condition_bindings.values():
+		remove_child(child)
+		child.queue_free()
+	_condition_bindings.clear()
+	for zone: EcologyZoneData in definitions():
+		var conditions: Array[ConditionRuleData] = [zone.conditions]
+		for species: EcologySpeciesData in zone.species:
+			conditions.append(species.conditions)
+			for variant: EcologyVariantData in species.variants: conditions.append(variant.conditions)
+			for rule: EcologyPressureRuleData in species.pressure_rules: conditions.append(rule.conditions)
+		var subscription := ConditionChangeSubscription.new()
+		add_child(subscription)
+		subscription.configure(conditions)
+		subscription.changed.connect(func() -> void:
+			if definition(zone.ecology_zone_id) == zone: zone_changed.emit(zone.ecology_zone_id, PackedStringArray(), "conditions"))
+		_condition_bindings[zone.ecology_zone_id] = subscription
+		_pressure_signatures[zone.ecology_zone_id] = int(context(zone).get("infestation", 0))
+
+func _on_world_section(section: StringName) -> void:
+	if section != &"world_infestation": return
+	for zone: EcologyZoneData in definitions():
+		var pressure := int(context(zone).get("infestation", 0))
+		if int(_pressure_signatures.get(zone.ecology_zone_id, -1)) != pressure:
+			_pressure_signatures[zone.ecology_zone_id] = pressure
+			zone_changed.emit(zone.ecology_zone_id, PackedStringArray(), "infestation")
+
+func _on_danger(key: String, _value: int) -> void:
+	for zone: EcologyZoneData in definitions():
+		if not zone.danger_number_key.is_empty() and zone.danger_number_key == key:
+			zone_changed.emit(zone.ecology_zone_id, PackedStringArray(), "danger")
+func predator_state() -> Dictionary:
+	return CampaignState.world_state.ecology_route.get("predator", {}).duplicate(true)
+
+func predator_profile() -> EcologyPredatorData:
+	var path := str(predator_state().get("profile_path", ""))
+	return load(path) as EcologyPredatorData if path.begins_with("res://") and ResourceLoader.exists(path) else null
+
+func predator_spawn_entry() -> SpawnEntry:
+	var profile := predator_profile()
+	if profile == null or str(predator_state().get("status", "")) != "ACTIVE": return null
+	var entry := SpawnEntry.new()
+	entry.spawn_id = profile.predator_id
+	entry.display_name = profile.display_name
+	entry.environmental_apk = ContentRegistry.get_apk(profile.apk_id)
+	entry.behavior_override = profile.behavior_profile
+	entry.encounter_override = profile.encounter_profile
+	entry.field_level = profile.level
+	return entry
+
+func commit_predator_result(id: String, outcome: CombatResult.Outcome) -> void:
+	var route := CampaignState.world_state.ecology_route
+	var state: Dictionary = route.get("predator", {})
+	if id.is_empty() or str(state.get("id", "")) != id: return
+	state["last_outcome"] = int(outcome)
+	if outcome == CombatResult.Outcome.VICTORY:
+		state["status"] = "RECOMPILING"
+		state["defeated_at"] = TimeManager.get_total_action_index()
+		GameState.set_flag("ecology.null_predator_defeated", true)
+	elif outcome == CombatResult.Outcome.ESCAPED:
+		GameState.set_flag("ecology.null_predator_evaded", true)
+	CampaignState.campaign_changed.emit(&"ecology")
+	predator_changed.emit()
+
+
+func presence_summaries(species_id: String, precise: bool = false) -> PackedStringArray:
+	var result := PackedStringArray()
+	for zone: EcologyZoneData in definitions():
+		if zone.get_species(species_id) == null: continue
+		var text := zone.display_name + " // "
+		text += zone.presentation.absent_text if population(zone.ecology_zone_id, species_id) == 0 else status_text(zone)
+		if precise: text += " // %d SIGNATURES // RESONANCE %d" % [population(zone.ecology_zone_id, species_id), resonance(zone.ecology_zone_id, species_id)]
+		result.append(text)
+	return result
+
+
+func _update_route_completeness() -> void:
+	var relevant := 0
+	var collapsed := 0
+	for zone: EcologyZoneData in definitions():
+		if not zone.counts_towards_extinction_route: continue
+		relevant += 1
+		if bool(ensure_zone(zone).get("collapsed", false)): collapsed += 1
+	var complete := relevant > 0 and collapsed == relevant
+	CampaignState.world_state.ecology_route["all_authored_zones_collapsed"] = complete
+	GameState.set_flag("ecology.all_zones_collapsed", complete)

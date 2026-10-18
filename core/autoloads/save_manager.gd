@@ -934,3 +934,7 @@ func _is_plain_save_value(value: Variant) -> bool:
 		TYPE_FLOAT,
 		TYPE_STRING
 	]
+
+
+func is_restoring_campaign() -> bool:
+	return _is_loading

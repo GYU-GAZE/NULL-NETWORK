@@ -126,7 +126,8 @@ func _render_snapshot() -> void:
 		_snapshot.get("inventory", []) as Array,
 		int(_snapshot.get("money", 0))
 	)
-	status_label.text = "PROFILE SYNCHRONIZED"
+	status_label.text = str(_snapshot.get("ecology_status", ""))
+	if status_label.text.is_empty(): status_label.text = "PROFILE SYNCHRONIZED"
 
 
 func _render_no_campaign() -> void:

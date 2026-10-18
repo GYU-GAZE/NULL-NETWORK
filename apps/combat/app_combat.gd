@@ -760,6 +760,7 @@ func _on_defeat() -> void:
 
 
 func _resolve_and_show(outcome: CombatResult.Outcome) -> void:
+	_pending_outcome = outcome
 	execute_btn.disabled = true
 	change_modules_btn.disabled = true
 	player_actions_btn.disabled = true
@@ -882,10 +883,15 @@ func _read_string_array(value: Variant) -> PackedStringArray:
 
 
 func _on_ecology_confirmation(message: String) -> void:
+	_present_ecology_confirmation.call_deferred(message)
+
+func _present_ecology_confirmation(message: String) -> void:
 	if not _encounter_active or not is_visible_in_tree(): return
 	if not is_instance_valid(ecology_confirmation_dialog):
 		ecology_confirmation_dialog = ConfirmationDialog.new()
 		ecology_confirmation_dialog.title = "LAST ACTIVE EXE SIGNATURE"
+		ecology_confirmation_dialog.content_scale_factor = 2.0
+		ecology_confirmation_dialog.dialog_autowrap = true
 		ecology_confirmation_dialog.ok_button_text = "CONFIRM PURGE"
 		ecology_confirmation_dialog.cancel_button_text = "CANCEL PURGE"
 		add_child(ecology_confirmation_dialog)
@@ -896,4 +902,4 @@ func _on_ecology_confirmation(message: String) -> void:
 			CombatManager.confirm_ecological_purge(false)
 			_resolve_and_show(_pending_outcome))
 	ecology_confirmation_dialog.dialog_text = message
-	ecology_confirmation_dialog.popup_centered(Vector2i(560, 200))
+	ecology_confirmation_dialog.popup_centered(Vector2i(480, 210))

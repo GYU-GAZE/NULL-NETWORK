@@ -731,6 +731,8 @@ func _on_campaign_reset() -> void:
 
 
 func _on_campaign_changed(section: StringName) -> void:
+	if section == &"ecology":
+		SocialInboxProjectionService.synchronize_available_conversations.call_deferred()
 	if _is_committing:
 		return
 

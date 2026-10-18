@@ -15,6 +15,15 @@ var _clock: float = 0.0
 
 func _ready() -> void:
 	set_process(false)
+	CombatManager.combat_resolution_applied.connect(_on_formal_resolution)
+
+func _on_formal_resolution(outcome: CombatResult.Outcome, metadata: Dictionary) -> void:
+	var encounter := CombatManager.get_current_encounter()
+	if not busy or formation.is_empty() or encounter == null or str(formation.get("call_id", "")) != encounter.encounter_id:
+		return
+	# Persist physical tombstones at the same stable boundary as ecological
+	# effects, before an automatic checkpoint or an eligibility refresh can run.
+	apply_result(CombatResult.create(outcome, encounter.encounter_id, metadata))
 
 func begin(actor: LocalAreaExeActor, involuntary: bool = false) -> bool:
 	if busy or actor == null or actor.encounter_profile == null or not actor.can_interact() or not area.is_field_active():

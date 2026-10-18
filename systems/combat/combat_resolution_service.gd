@@ -132,7 +132,13 @@ static func resolve(
 			% ", ".join(failed_effects)
 		)
 
+	EcologyService.commit_predator_result(str(encounter.field_formation.get("predator_id", "")), outcome)
 	var ecology_receipt := EcologyService.commit_combat(encounter, resolved_enemies, outcome, ecology_battle_id if not ecology_battle_id.is_empty() else encounter.encounter_id, ecology_authorization)
+	if outcome not in [CombatResult.Outcome.ESCAPED, CombatResult.Outcome.CANCELLED] and not encounter.ecology_zone_id.is_empty():
+		for state: PlayerActionProgressData in progress_states:
+			var action := encounter.resolution.get_player_action(state.action_id)
+			if state.completed and action != null and action.action_kind == PlayerActionData.ActionKind.SCAN:
+				GameState.set_flag("ecology.%s.surveyed" % encounter.ecology_zone_id, true)
 	var action_targets: Array[Dictionary] = []
 	for record: Dictionary in resolved_enemies:
 		if outcome not in [CombatResult.Outcome.ESCAPED, CombatResult.Outcome.CANCELLED] and (bool(record.get("purged", false)) or bool(record.get("purified", false))):
@@ -142,6 +148,7 @@ static func resolve(
 		"errors": errors,
 		"metadata": {
 			"ecology_receipt_id": ecology_receipt,
+			"irreversible": not ecology_receipt.is_empty() and action_targets.any(func(target: Dictionary) -> bool: return bool(target.purged) and bool(target.defeated)),
 			"action_targets": action_targets,
 			"experience": experience,
 			"experience_assigned": int(
@@ -281,6 +288,7 @@ static func _build_plan(
 			)
 			continue
 
+		if bool(enemy.get("purged", false)) and action.action_kind in [PlayerActionData.ActionKind.PURIFY, PlayerActionData.ActionKind.TAME]: continue
 		for gain: CombatTendencyGainData in action.permanent_tendency_gains:
 			if gain != null and gain.is_available():
 				tendency_gains.append({

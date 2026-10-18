@@ -3,6 +3,7 @@ class_name NavigatorLocalAreaScene
 signal field_contact_requested(actor: LocalAreaExeActor)
 var field_navigation := FieldNavigationGrid.new()
 var field_calls: FieldCombatCallCoordinator
+var ecology_projection: FieldEcologyProjection
 var _field_active: bool = false
 var _geometry_queued: bool = false
 
@@ -37,6 +38,9 @@ func _ready() -> void:
 	field_calls = FieldCombatCallCoordinator.new()
 	add_child(field_calls)
 	field_calls.area = self
+	ecology_projection = FieldEcologyProjection.new()
+	add_child(ecology_projection)
+	ecology_projection.bind(self)
 	if (
 		is_instance_valid(player)
 		and not player.interaction_target_changed.is_connected(
@@ -221,6 +225,7 @@ func get_interact_action() -> StringName:
 
 
 func get_runtime_state() -> Dictionary:
+	if ecology_projection != null: ecology_projection.sync_predator()
 	var interactable_states: Dictionary = {}
 
 	if population_controller != null:

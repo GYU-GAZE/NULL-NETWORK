@@ -153,6 +153,9 @@ func _on_campaign_delete_requested(campaign_id: String) -> void:
 func _launch_desktop() -> void:
 	if is_instance_valid(_desktop_instance):
 		return
+	if is_instance_valid(_startup_settings_window):
+		_startup_settings_window.queue_free()
+		_startup_settings_window = null
 
 	await KubuTransitionManager.cover_screen()
 	_desktop_instance = MAIN_SCENE.instantiate()

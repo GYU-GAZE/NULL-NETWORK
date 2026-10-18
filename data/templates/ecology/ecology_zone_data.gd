@@ -4,6 +4,7 @@ class_name EcologyZoneData
 
 @export var ecology_zone_id: String = ""
 @export var display_name: String = ""
+@export var counts_towards_extinction_route: bool = true
 @export var location_ids: PackedStringArray = PackedStringArray()
 @export_range(1, 100000) var population_capacity: int = 8
 @export var conditions: ConditionRuleData
@@ -26,6 +27,13 @@ func validate_data() -> PackedStringArray:
 	var errors := PackedStringArray()
 	if ecology_zone_id.is_empty() or location_ids.is_empty() or presentation == null:
 		errors.append("Ecological zone requires identity, locations and presentation.")
+	if population_capacity < 1: errors.append("Zone capacity must be positive.")
+	if presentation != null and not (presentation.healthy_ratio >= presentation.stable_ratio and presentation.stable_ratio >= presentation.declining_ratio): errors.append("Ecological presentation thresholds must descend.")
+	if conditions != null: errors.append_array(conditions.validate_data())
+	for migration: EcologyMigrationData in migrations:
+		if migration == null or migration.migration_id.is_empty() or migration.source_zone_id.is_empty() or get_species(migration.species_line_id) == null or migration.maximum_units < 0 or migration.leave_in_source < 0: errors.append("Invalid authored ecological migration.")
+	for activity: EcologyNPCActivityData in npc_activities:
+		if activity == null or activity.activity_id.is_empty() or activity.npc_id.is_empty() or activity.interval_blocks < 1: errors.append("Invalid authored NPC ecological activity.")
 	var ids := {}
 	var base := 0
 	for definition: EcologySpeciesData in species:

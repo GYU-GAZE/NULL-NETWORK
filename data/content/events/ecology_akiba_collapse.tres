@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="StoryEventData" format=3]
+[ext_resource type="Script" path="res://data/templates/events/story_event_data.gd" id="event"]
+[ext_resource type="Script" path="res://data/templates/events/story_event_trigger_data.gd" id="trigger"]
+[ext_resource type="Script" path="res://data/templates/events/story_event_step_data.gd" id="step"]
+[sub_resource type="Resource" id="trigger"]
+script = ExtResource("trigger")
+trigger_type = 3
+watched_flag_name = "ecology.akiba.electric_town.collapsed"
+[sub_resource type="Resource" id="notification"]
+script = ExtResource("step")
+step_id = "ecological_collapse_report"
+step_type = 1
+title = "ECOLOGICALLY COLLAPSED"
+message = "Electric Town has lost its last active EXE signature. Ordinary Micro-Updates cannot restore this zone. New reports are appearing on the forum."
+source_app_id = "navigator"
+target_url = "null.net/forums/thread/ecology_akiba_collapse"
+[resource]
+script = ExtResource("event")
+event_id = "ecology.akiba.collapse_report"
+trigger = SubResource("trigger")
+steps = Array[ExtResource("step")]([SubResource("notification")])

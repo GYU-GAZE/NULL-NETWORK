@@ -608,7 +608,7 @@ func resolve_encounter(outcome: CombatResult.Outcome) -> PackedStringArray:
 	_pending_outcome = outcome
 	SaveManager.request_checkpoint(
 		StringName("combat_resolved.%s" % _current_encounter.encounter_id),
-		not str(_resolution_metadata.get("tamed_apk_id", "")).is_empty()
+		not str(_resolution_metadata.get("tamed_apk_id", "")).is_empty() or bool(_resolution_metadata.get("irreversible", false))
 	)
 	combat_resolution_applied.emit(outcome, _resolution_metadata.duplicate(true))
 	return errors

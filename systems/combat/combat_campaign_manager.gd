@@ -268,6 +268,11 @@ func _resolve_slot_loadout(
 				slot_data.apk_level,
 				slot_data.apk_integrity_state
 			)
+			if loadout != null and not slot_data.field_module_ids.is_empty():
+				for index: int in range(mini(4, slot_data.field_module_ids.size())):
+					var module := ContentRegistry.get_module(slot_data.field_module_ids[index])
+					loadout.equipped_modules[index] = module
+					if module not in loadout.module_pool: loadout.module_pool.append(module)
 			if loadout != null and not slot_data.field_unit_id.is_empty():
 				loadout.starting_hp = maxi(1, roundi(loadout.max_hp * slot_data.initial_hp_fraction))
 				loadout.starting_stability = roundi(loadout.max_stability * slot_data.initial_stability_fraction)

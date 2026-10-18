@@ -243,7 +243,9 @@ func _on_time_advanced(
 	_last_day = days_passed
 	_last_days_until_update = current_countdown
 
-	if not _runtime_active:
+	# Development stepping keeps every temporal event, but does not enqueue
+	# a cinematic for each crossed boundary while QA is processing 24 hours.
+	if not _runtime_active or TimeManager.is_development_advancing():
 		_apply_period_theme(period)
 		return
 

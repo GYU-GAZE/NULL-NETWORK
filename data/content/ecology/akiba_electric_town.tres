@@ -4,6 +4,9 @@
 [ext_resource type="Resource" path="res://data/content/ecology/akiba_rattildus.tres" id="species"]
 [ext_resource type="Resource" path="res://data/content/ecology/akiba_presentation.tres" id="presentation"]
 [ext_resource type="Resource" path="res://data/content/ecology/null_predator.tres" id="predator"]
+[ext_resource type="Script" path="res://data/templates/ecology/ecology_npc_activity_data.gd" id="npc_type"]
+[ext_resource type="Resource" path="res://data/content/ecology/akiba_npc_stewardship.tres" id="npc"]
+
 [resource]
 script = ExtResource("s")
 ecology_zone_id = "akiba.electric_town"
@@ -13,3 +16,5 @@ population_capacity = 8
 species = Array[ExtResource("type")]([ExtResource("species")])
 presentation = ExtResource("presentation")
 predator = ExtResource("predator")
+
+npc_activities = Array[ExtResource("npc_type")]([ExtResource("npc")])

@@ -283,6 +283,22 @@ func _build_indexes(new_catalog: GameContentCatalog) -> Dictionary:
 
 		proposed_indexes[category] = category_index
 
+	var ecology_index: Dictionary = proposed_indexes.get(CATEGORY_ECOLOGY_ZONES, {})
+	var species_lines := {}
+	for apk: APKData in new_catalog.apks:
+		if apk != null: species_lines[apk.species_line_id] = true
+	for zone: EcologyZoneData in new_catalog.ecology_zones:
+		if zone == null: continue
+		for species: EcologySpeciesData in zone.species:
+			if species != null and not species_lines.has(species.species_line_id): errors.append("Ecological zone references an unknown APK species line.")
+		for migration: EcologyMigrationData in zone.migrations:
+			if migration != null and not ecology_index.has(migration.source_zone_id): errors.append("Ecological migration references an unknown zone.")
+		for activity: EcologyNPCActivityData in zone.npc_activities:
+			if activity != null and not proposed_indexes.get(CATEGORY_NPCS, {}).has(activity.npc_id): errors.append("Ecological NPC activity references an unknown NPC.")
+		if zone.predator != null and not proposed_indexes.get(CATEGORY_APKS, {}).has(zone.predator.apk_id): errors.append("Predator references an unknown catalog APK.")
+	for location: MapLocation in new_catalog.locations:
+		if location != null and location.ecology_zone != null and not ecology_index.has(location.ecology_zone.ecology_zone_id): errors.append("Location references an unregistered ecological zone.")
+
 	var location_index: Dictionary = proposed_indexes.get(
 		CATEGORY_LOCATIONS,
 		{}

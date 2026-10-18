@@ -8,6 +8,8 @@
 [ext_resource type="Resource" path="res://data/content/events/integration_field_test_ready.tres" id="7_field_test"]
 [ext_resource type="Resource" path="res://data/content/events/integration_field_test_resume.tres" id="8_field_test_resume"]
 
+[ext_resource type="Resource" path="res://data/content/events/ecology_akiba_collapse.tres" id="ecology"]
+
 [resource]
 script = ExtResource("1_catalog")
-events = Array[ExtResource("2_event_type")]([ExtResource("4_registration_started"), ExtResource("5_registration_completed"), ExtResource("3_welcome"), ExtResource("7_field_test"), ExtResource("8_field_test_resume")])
+events = Array[ExtResource("2_event_type")]([ExtResource("4_registration_started"), ExtResource("5_registration_completed"), ExtResource("3_welcome"), ExtResource("7_field_test"), ExtResource("8_field_test_resume"), ExtResource("ecology")])

@@ -79,6 +79,7 @@ static func build_entry_snapshot(entry_id: String) -> Dictionary:
 		"display_name": display_name,
 		"subtitle": entry.subtitle.strip_edges() if entry != null else "",
 		"summary": entry.summary.strip_edges() if entry != null else "",
+		"ecology": Array(EcologyService.presence_summaries(apk.species_line_id, record.scanned)) if apk != null else [],
 		"sort_order": entry.sort_order if entry != null else 100000,
 		"texture": _resolve_entry_texture(entry, apk),
 		"subject": _build_subject_snapshot(apk),

@@ -156,3 +156,26 @@ func _string_array_to_array(value: PackedStringArray) -> Array[String]:
 		result.append(entry)
 
 	return result
+
+
+static func validate_ecology(data: Dictionary) -> PackedStringArray:
+	var errors := PackedStringArray()
+	if data.get("ecology_zones", {}) is not Dictionary or data.get("ecology_route", {}) is not Dictionary:
+		return PackedStringArray(["World ecology state must use dictionaries."])
+	for id: Variant in data.get("ecology_zones", {}):
+		var zone: Variant = data.ecology_zones[id]
+		if zone is not Dictionary or int(zone.get("version", -1)) != 1 or zone.get("species", {}) is not Dictionary or zone.get("applied_effect_receipts", {}) is not Dictionary:
+			errors.append("Invalid ecological zone state: " + str(id))
+			continue
+		var total := 0
+		for species: Variant in zone.species.values():
+			if species is not Dictionary:
+				errors.append("Ecological species state must be a dictionary.")
+				continue
+			var current := int(species.get("population_current", -1))
+			var resonance := int(species.get("purify_resonance", -1))
+			if current < 0 or current > int(species.get("population_capacity", 2147483647)) or int(species.get("population_base", -1)) < 0 or resonance < 0 or resonance > 3:
+				errors.append("Invalid ecological population/resonance.")
+			total += current
+		if total > int(zone.get("population_capacity", 2147483647)) or (bool(zone.get("collapsed", false)) and total != 0): errors.append("Ecological capacity/collapse invariant violated.")
+	return errors
