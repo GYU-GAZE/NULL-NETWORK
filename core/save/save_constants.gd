@@ -19,6 +19,7 @@ const SECTION_APP_SESSIONS: StringName = &"app_sessions"
 const SECTION_WINDOW_STATES: StringName = &"window_states"
 const SECTION_NAVIGATOR_STATE: StringName = &"navigator_state"
 const SECTION_WORLD_STATE: StringName = &"world_state"
+const SECTION_ACTIVITY_TRANSACTIONS: StringName = &"activity_transactions"
 const SECTION_COMBAT_SESSION: StringName = &"combat_session"
 const SECTION_DIALOGUE_SESSION: StringName = &"dialogue_session"
 
@@ -35,6 +36,7 @@ const RESTORE_SECTION_ORDER: Array[StringName] = [
 	SECTION_GAME_STATE,
 	SECTION_CAMPAIGN_STATE,
 	SECTION_APP_SESSIONS,
+	SECTION_ACTIVITY_TRANSACTIONS,
 	SECTION_DIALOGUE_SESSION,
 	SECTION_COMBAT_SESSION,
 	SECTION_NAVIGATOR_STATE,

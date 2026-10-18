@@ -1,3 +1,4 @@
+@tool
 extends ConditionRuleData
 class_name TendencyConditionData
 

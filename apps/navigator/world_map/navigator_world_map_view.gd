@@ -78,12 +78,19 @@ func _connect_signals() -> void:
 	if not map_viewport.resized.is_connected(_on_map_viewport_resized):
 		map_viewport.resized.connect(_on_map_viewport_resized)
 	
-	if not GameState.game_state_changed.is_connected(
-		_on_game_state_changed
-	):
-		GameState.game_state_changed.connect(
-			_on_game_state_changed
-		)
+	var subscription := ConditionChangeSubscription.new()
+	add_child(subscription)
+	var conditions: Array[ConditionRuleData] = []
+	var flags: Array[String] = []
+	if world_data != null:
+		for location: MapLocation in world_data.locations:
+			if location == null:
+				continue
+			conditions.append_array([location.unlock_conditions, location.availability_conditions])
+			flags.append_array(location.required_flags)
+			flags.append_array([NavigatorLocationStateResolver.get_discovered_flag(location), NavigatorLocationStateResolver.get_announced_flag(location), NavigatorLocationStateResolver.get_viewed_flag(location)])
+	subscription.configure(conditions, flags, ["discovered_locations", "current_location"], true)
+	subscription.changed.connect(_queue_location_state_refresh)
 
 	if not LeadIncidentManager.lead_state_changed.is_connected(
 		_on_lead_state_changed
@@ -92,13 +99,7 @@ func _connect_signals() -> void:
 			_on_lead_state_changed
 		)
 
-	if not GlobalSignals.time_advanced.is_connected(
-		_on_navigator_time_advanced
-	):
-		GlobalSignals.time_advanced.connect(
-			_on_navigator_time_advanced
-		)
-		
+
 	if not enter_area_button.pressed.is_connected(
 		_on_enter_area_button_pressed
 	):
@@ -171,21 +172,13 @@ func _apply_map_geometry() -> void:
 	)
 	map_content.size = clean_map_size
 
-	map_background.set_anchors_preset(
-		Control.PRESET_FULL_RECT
-	)
-	map_background.position = Vector2.ZERO
-	map_background.size = clean_map_size
+	map_background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
-	marker_layer.set_anchors_preset(
-		Control.PRESET_FULL_RECT
-	)
-	marker_layer.position = Vector2.ZERO
-	marker_layer.size = clean_map_size
+	marker_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
 func _rebuild_markers() -> void:
-	_clear_markers()
+	var retained := {}
 
 	if marker_scene == null:
 		push_error(
@@ -206,60 +199,29 @@ func _rebuild_markers() -> void:
 			)
 		)
 
-		if (
-			runtime_state.is_progression_unlocked
-			and not runtime_state.is_discovered
-		):
-			NavigatorLocationStateResolver.discover(
-				location
-			)
 
-			runtime_state = (
-				NavigatorLocationStateResolver.resolve(
-					location
-				)
-			)
-
-		if not runtime_state.should_show:
-			continue
-
-		var marker := (
-			marker_scene.instantiate()
-			as NavigatorLocationMarker
-		)
-
+		var location_id := location.get_display_id()
+		retained[location_id] = true
+		var marker := _markers_by_location_id.get(location_id) as NavigatorLocationMarker
 		if marker == null:
-			push_error(
-				"NavigatorWorldMapView: marker_scene must "
-				+ "instantiate "
-				+ "NavigatorLocationMarker."
-			)
-			return
-
-		marker_layer.add_child(marker)
-
-		marker.setup(
-			location,
-			runtime_state,
-			world_data.new_location_badge
-		)
-
-		marker.marker_selected.connect(
-			_on_marker_selected
-		)
-
-		var location_id: String = (
-			location.get_display_id()
-		)
-
-		_markers_by_location_id[
-			location_id
-		] = marker
+			marker = marker_scene.instantiate() as NavigatorLocationMarker
+			if marker == null:
+				push_error("Navigator marker_scene must instantiate NavigatorLocationMarker.")
+				return
+			marker_layer.add_child(marker)
+			marker.marker_selected.connect(_on_marker_selected)
+			_markers_by_location_id[location_id] = marker
+		marker.setup(location, runtime_state, world_data.new_location_badge)
 
 		if runtime_state.needs_discovery_announcement:
 			_enqueue_location_discovery(
 				location_id
 			)
+
+	for id: String in _markers_by_location_id.keys():
+		if not retained.has(id):
+			(_markers_by_location_id[id] as Node).queue_free()
+			_markers_by_location_id.erase(id)
 
 	call_deferred(
 		"_refresh_marker_positions"
@@ -584,13 +546,13 @@ func _clamp_map_position() -> void:
 	var content_size: Vector2 = map_content.size
 	var clean_position: Vector2 = map_content.position
 
-	clean_position.x = _clamp_map_axis(
+	clean_position.x = NavigatorMapGeometry.clamp_axis(
 		clean_position.x,
 		viewport_size.x,
 		content_size.x
 	)
 
-	clean_position.y = _clamp_map_axis(
+	clean_position.y = NavigatorMapGeometry.clamp_axis(
 		clean_position.y,
 		viewport_size.y,
 		content_size.y
@@ -599,21 +561,6 @@ func _clamp_map_position() -> void:
 	map_content.position = KubuOSMetrics.snap_vector(clean_position)
 
 
-func _clamp_map_axis(
-	current_position: float,
-	viewport_length: float,
-	content_length: float
-) -> float:
-	if content_length <= viewport_length:
-		return (viewport_length - content_length) * 0.5
-
-	var minimum_position: float = viewport_length - content_length
-
-	return clampf(
-		current_position,
-		minimum_position,
-		0.0
-	)
 
 
 func set_pan_normalized(normalized_pan: Vector2) -> void:
@@ -624,12 +571,12 @@ func set_pan_normalized(normalized_pan: Vector2) -> void:
 	_current_pan_normalized = clean_pan
 
 	map_content.position = Vector2(
-		_normalized_pan_to_axis_position(
+		NavigatorMapGeometry.pan_to_axis(
 			clean_pan.x,
 			map_viewport.size.x,
 			map_content.size.x
 		),
-		_normalized_pan_to_axis_position(
+		NavigatorMapGeometry.pan_to_axis(
 			clean_pan.y,
 			map_viewport.size.y,
 			map_content.size.y
@@ -641,12 +588,12 @@ func set_pan_normalized(normalized_pan: Vector2) -> void:
 
 func get_pan_normalized() -> Vector2:
 	return Vector2(
-		_axis_position_to_normalized_pan(
+		NavigatorMapGeometry.axis_to_pan(
 			map_content.position.x,
 			map_viewport.size.x,
 			map_content.size.x
 		),
-		_axis_position_to_normalized_pan(
+		NavigatorMapGeometry.axis_to_pan(
 			map_content.position.y,
 			map_viewport.size.y,
 			map_content.size.y
@@ -654,41 +601,8 @@ func get_pan_normalized() -> Vector2:
 	)
 
 
-func _normalized_pan_to_axis_position(
-	normalized_value: float,
-	viewport_length: float,
-	content_length: float
-) -> float:
-	if content_length <= viewport_length:
-		return (viewport_length - content_length) * 0.5
-
-	var minimum_position: float = viewport_length - content_length
-
-	return lerpf(
-		0.0,
-		minimum_position,
-		normalized_value
-	)
 
 
-func _axis_position_to_normalized_pan(
-	current_position: float,
-	viewport_length: float,
-	content_length: float
-) -> float:
-	if content_length <= viewport_length:
-		return 0.5
-
-	var minimum_position: float = viewport_length - content_length
-
-	if is_zero_approx(minimum_position):
-		return 0.5
-
-	return clampf(
-		current_position / minimum_position,
-		0.0,
-		1.0
-	)
 
 
 func center_map_on_location(
@@ -734,13 +648,13 @@ func _get_centered_map_position(
 		- map_position
 	)
 
-	target_position.x = _clamp_map_axis(
+	target_position.x = NavigatorMapGeometry.clamp_axis(
 		target_position.x,
 		map_viewport.size.x,
 		map_content.size.x
 	)
 
-	target_position.y = _clamp_map_axis(
+	target_position.y = NavigatorMapGeometry.clamp_axis(
 		target_position.y,
 		map_viewport.size.y,
 		map_content.size.y
@@ -771,9 +685,8 @@ func _on_marker_selected(
 		location_id
 	)
 
-	NavigatorLocationStateResolver.mark_viewed(
-		location
-	)
+	if runtime_state.is_discovered:
+		NavigatorLocationStateResolver.mark_viewed(location)
 
 	_set_selected_location(location)
 	location_selected.emit(location)
@@ -811,18 +724,10 @@ func _set_selected_location(location: MapLocation) -> void:
 	location_subtitle_label.text = location.location_subtitle
 	location_subtitle_label.visible = not location.location_subtitle.strip_edges().is_empty()
 	location_description_label.text = location.location_description
-	if location.local_area == null:
-		enter_area_button.disabled = true
-		enter_area_button.text = "ENTER"
-	else:
-		enter_area_button.disabled = (
-			not location.local_area.is_valid()
-		)
-
-		enter_area_button.text = (
-			location.local_area.enter_button_text
-		)
-		
+	var runtime_state := NavigatorLocationStateResolver.resolve(location)
+	enter_area_button.disabled = not runtime_state.can_enter()
+	enter_area_button.text = location.local_area.enter_button_text if runtime_state.can_enter() else runtime_state.availability_message
+	enter_area_button.tooltip_text = runtime_state.availability_message
 
 func _select_location_by_id(location_id: String) -> void:
 	if world_data == null:
@@ -978,7 +883,7 @@ func _on_enter_area_button_pressed() -> void:
 		)
 	)
 
-	if not runtime_state.can_select():
+	if not runtime_state.can_enter():
 		return
 
 	if _selected_location.local_area == null:

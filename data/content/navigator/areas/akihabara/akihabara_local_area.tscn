@@ -148,4 +148,10 @@ script = ExtResource("7_spawn_point")
 spawn_point_id = "legacy_a"
 spawn_kind = 4
 
+[node name="NpcA" type="Marker2D" parent="PopulationController/SpawnPoints"]
+position = Vector2(720, 360)
+script = ExtResource("7_spawn_point")
+spawn_point_id = "npc_a"
+spawn_kind = 2
+
 [node name="PopulationActors" type="Node2D" parent="PopulationController"]

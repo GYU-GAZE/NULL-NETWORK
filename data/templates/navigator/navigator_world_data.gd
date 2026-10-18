@@ -1,3 +1,4 @@
+@tool
 extends Resource
 class_name NavigatorWorldData
 
@@ -33,3 +34,7 @@ func get_resolved_map_size() -> Vector2:
 		return Vector2(map_texture.get_size())
 
 	return Vector2.ZERO
+
+
+func validate_data(catalog: GameContentCatalog = null) -> PackedStringArray:
+	return NavigatorContentValidator.validate_world(self, catalog)

@@ -1,3 +1,4 @@
+@tool
 extends Resource
 class_name SpawnEntry
 
@@ -6,7 +7,11 @@ class_name SpawnEntry
 @export var display_name: String = ""
 
 @export_category("Rules")
-@export var conditions: ConditionSetData
+@export var conditions: ConditionRuleData
+## Optional authored encounter. Environmental projections do not require a
+## fixed formation; future Combat Call resolution plugs in at this boundary.
+@export var environmental_apk: APKData
+@export_multiline var environmental_description: String = ""
 @export var encounter: CombatEncounter
 @export var activity: ActivityDefinitionData
 @export_range(1, 100000, 1, "or_greater")
@@ -27,12 +32,12 @@ func validate_data() -> PackedStringArray:
 	if get_display_id().is_empty():
 		errors.append("spawn_id cannot be empty.")
 
-	if encounter == null:
-		errors.append("encounter cannot be null.")
+	if encounter == null and environmental_apk == null:
+		errors.append("An authored encounter or environmental APK is required.")
 
-	if activity == null:
+	if encounter != null and activity == null:
 		errors.append("activity cannot be null.")
-	else:
+	elif activity != null:
 		for error: String in activity.validate_data():
 			errors.append("Activity: %s" % error)
 

@@ -1,0 +1,67 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://apps/navigator/local_area/navigator_local_area_scene.gd" id="area"]
+[ext_resource type="Script" path="res://apps/navigator/local_area/local_area_entry_point.gd" id="entry"]
+[ext_resource type="PackedScene" path="res://apps/navigator/local_area/player_controller_2d.tscn" id="player"]
+[ext_resource type="Script" path="res://apps/navigator/local_area/spawning/legacy_aware_population_controller.gd" id="population"]
+[ext_resource type="Script" path="res://apps/navigator/local_area/spawning/local_area_spawn_point.gd" id="point"]
+
+[node name="LocalAreaRoot" type="Node2D"]
+script = ExtResource("area")
+
+[node name="Environment" type="Node2D" parent="."]
+
+[node name="Ground" type="Polygon2D" parent="Environment"]
+polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
+color = Color(0.035, 0.055, 0.08, 1)
+
+[node name="WorldCollision" type="Node2D" parent="."]
+
+[node name="EntryPoints" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="DefaultEntry" type="Marker2D" parent="EntryPoints"]
+position = Vector2(160, 180)
+script = ExtResource("entry")
+entry_id = "default"
+
+[node name="Actors" type="Node2D" parent="."]
+
+[node name="Player" parent="Actors" instance=ExtResource("player")]
+unique_name_in_owner = true
+position = Vector2(160, 180)
+
+[node name="Interactables" type="Node2D" parent="."]
+
+[node name="PopulationController" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("population")
+spawn_points_path = NodePath("SpawnPoints")
+population_actors_path = NodePath("PopulationActors")
+
+[node name="SpawnPoints" type="Node2D" parent="PopulationController"]
+
+[node name="Common" type="Marker2D" parent="PopulationController/SpawnPoints"]
+position = Vector2(360, 180)
+script = ExtResource("point")
+spawn_point_id = "common_01"
+
+[node name="NPC" type="Marker2D" parent="PopulationController/SpawnPoints"]
+position = Vector2(200, 180)
+script = ExtResource("point")
+spawn_point_id = "npc_01"
+spawn_kind = 2
+
+[node name="Incident" type="Marker2D" parent="PopulationController/SpawnPoints"]
+position = Vector2(440, 180)
+script = ExtResource("point")
+spawn_point_id = "incident_01"
+spawn_kind = 1
+
+[node name="Legacy" type="Marker2D" parent="PopulationController/SpawnPoints"]
+position = Vector2(300, 260)
+script = ExtResource("point")
+spawn_point_id = "legacy_01"
+spawn_kind = 4
+
+[node name="PopulationActors" type="Node2D" parent="PopulationController"]
