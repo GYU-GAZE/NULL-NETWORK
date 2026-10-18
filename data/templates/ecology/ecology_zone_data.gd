@@ -12,6 +12,7 @@ class_name EcologyZoneData
 @export var danger_number_key: String = ""
 ## Micro-Update uses the existing calendar. Monday=1, not a second clock.
 @export_range(0, 6) var micro_update_weekday: int = 1
+@export var recompile_on_micro_update: bool = true
 @export var migrations: Array[EcologyMigrationData] = []
 @export var npc_activities: Array[EcologyNPCActivityData] = []
 @export_range(0.0, 1.0) var resonance_presence_bonus: float = 0.1

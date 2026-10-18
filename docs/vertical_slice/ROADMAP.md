@@ -2407,3 +2407,8 @@ A próxima sequência prática do projeto é:
 
 Até esses dez passos terminarem, não deve haver nova expansão de animações, novos tipos de Module, arte final de app ou produção extensa de conteúdo. O combate já possui uma fundação técnica avançada; o projeto precisa agora adquirir campanha, causalidade e persistência.
 
+
+
+## Fase 05 — ecologia finita e QA Time
+
+Implementação dependente da PR #44, sem merge automático. QA seguro no prólogo em desenvolvimento, diagnóstico visível, autoridade ecológica global no WorldState, PURGE/PURIFY canônicos, recibos duráveis, limites de projeção/Combat Call, Micro-Update, NPCs, ausência local, colapso confirmado e Predador NULL único. Reações usam Forum/Social/Encyclopedia/Profile/StoryEvents existentes. Ver guias ECOLOGY_AUTHORING e arquitetura ECOLOGY_PHASE_05; resultados e falhas herdadas em docs/validation/ecology-phase05-results.json.

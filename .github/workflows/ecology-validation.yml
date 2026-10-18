@@ -1,0 +1,115 @@
+name: Ecology Validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-ecology:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare CI-only asset placeholders
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp project.godot /tmp/project.godot.original
+
+          while IFS= read -r -d '' import_file; do
+            source_file="${import_file%.import}"
+
+            if [ ! -f "$source_file" ]; then
+              extension="${source_file##*.}"
+
+              case "$extension" in
+                png)
+                  printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4////fwAJ+wP9KobjigAAAABJRU5ErkJggg==' \
+                    | base64 --decode > "$source_file"
+                  ;;
+                ttf)
+                  cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf "$source_file"
+                  ;;
+                *)
+                  echo "Unsupported missing asset type: $source_file"
+                  exit 1
+                  ;;
+              esac
+            fi
+
+            rm -f "$import_file"
+          done < <(find data -type f -name '*.import' -print0)
+
+          sed -i '/^theme\/custom=/d' project.godot
+
+      - name: Download Godot 4.6.3
+        run: |
+          curl --fail --location --retry 3 \
+            --output godot.zip \
+            https://godot-releases.nbg1.your-objectstorage.com/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip
+          unzip -q godot.zip
+          chmod +x Godot_v4.6.3-stable_linux.x86_64
+
+      - name: Import project
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --editor --path . --import --verbose \
+            2>&1 | tee godot-ecology-import.log
+
+      - name: Run canonical ecology, QA and field integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          scenes=(
+            "ecology/qa_time_test:QA_TIME_TEST"
+            "ecology/ecology_authority_test:ECOLOGY_AUTHORITY_TEST"
+            "ecology/ecology_rewards_test:ECOLOGY_REWARDS_TEST"
+            "ecology/ecology_projection_test:ECOLOGY_PROJECTION_TEST"
+            "ecology/ecology_weekly_npc_test:ECOLOGY_WEEKLY_NPC_TEST"
+            "ecology/ecology_flow_test:ECOLOGY_FLOW_TEST"
+            "ecology/ecology_collapse_predator_test:ECOLOGY_COLLAPSE_PREDATOR_TEST"
+            "ecology/ecology_reactions_test:ECOLOGY_REACTIONS_TEST"
+            "field/field_movement_test:FIELD_MOVEMENT_TEST"
+            "field/field_combat_call_test:FIELD_COMBAT_CALL_TEST"
+            "field/field_actions_aggro_test:FIELD_ACTIONS_AGGRO_TEST"
+            "field/field_npc_time_test:FIELD_NPC_TIME_TEST"
+            "field/field_exploration_flow_test:FIELD_EXPLORATION_FLOW_TEST"
+            "field/field_legacy_save_test:FIELD_LEGACY_SAVE_TEST"
+            "navigator/navigator_activity_contract_test:NAVIGATOR_ACTIVITY_CONTRACT_TEST"
+            "leads/lead_incident_population_test:LEAD_INCIDENT_POPULATION_TEST"
+            "combat/combat_campaign_resolution_test:COMBAT_CAMPAIGN_RESOLUTION_TEST"
+            "social/npc_social_foundation_test:NPC_SOCIAL_FOUNDATION_TEST"
+            "save/save_manager_test:SAVE_MANAGER_TEST"
+            "window_manager/window_contract_test:WINDOW_CONTRACT_TEST"
+          )
+          for entry in "${scenes[@]}"; do
+            scene="${entry%%:*}"
+            marker="${entry#*:}"
+            logfile="$(basename "$scene").log"
+            timeout 180s ./Godot_v4.6.3-stable_linux.x86_64 --headless --path . "tests/$scene.tscn" 2>&1 | tee "$logfile"
+            grep -q "$marker: PASS" "$logfile"
+            if grep -E 'SCRIPT ERROR|Failed to load script|Parse Error|Cannot get class' "$logfile"; then exit 1; fi
+          done
+
+      - name: Restore project settings
+        if: always()
+        run: cp /tmp/project.godot.original project.godot
+
+      - name: Upload Field EXEs validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecology-validation-logs
+          path: '*.log'
+          if-no-files-found: ignore

@@ -251,7 +251,7 @@ func _micro_update(zone: EcologyZoneData, day: int) -> void:
 			target_entry.population_current += count
 			_changed(source, PackedStringArray([migration.species_line_id]), "migration")
 	state.applied_effect_receipts[receipt] = {"source": "micro_update", "day": day}
-	state.projection_epoch = int(state.projection_epoch) + 1
+	if zone.recompile_on_micro_update: state.projection_epoch = int(state.projection_epoch) + 1
 	_changed(zone, PackedStringArray(state.species.keys()), "micro_update")
 	feedback_requested.emit(zone.ecology_zone_id, zone.presentation.weekly_feedback)
 

@@ -8,7 +8,6 @@ class_name EcologySpeciesData
 @export_range(0.0, 100.0) var frequency: float = 1.0
 @export_range(0, 100000) var weekly_recovery: int = 2
 @export_range(0, 3) var weekly_resonance_decay: int = 1
-@export var recompile_on_micro_update: bool = true
 @export var conditions: ConditionRuleData
 @export var variants: Array[EcologyVariantData] = []
 @export var pressure_rules: Array[EcologyPressureRuleData] = []

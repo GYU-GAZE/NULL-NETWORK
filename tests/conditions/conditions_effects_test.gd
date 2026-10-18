@@ -75,6 +75,7 @@ func _configure_fixture_catalog() -> void:
 	fixture_catalog.occupations.append_array(source.occupations)
 	fixture_catalog.app_catalog = source.app_catalog
 	fixture_catalog.locations.append_array(source.locations)
+	fixture_catalog.ecology_zones.append_array(source.ecology_zones)
 	fixture_catalog.dialogues.append_array(source.dialogues)
 	fixture_catalog.story_event_catalog = source.story_event_catalog
 	fixture_catalog.lead_catalog = LeadCatalog.new()
