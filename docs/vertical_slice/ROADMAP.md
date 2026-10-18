@@ -99,7 +99,7 @@ Esses conceitos podem aparecer apenas como texto de apresentação.
 Atividade livre: 0 blocos
 Ação simples: normalmente 1 bloco
 Ação complexa: normalmente 2 blocos ou mais
-Combate voluntário: 2 blocos
+Combate voluntário independente: 1 bloco (1–4 inimigos)
 Viagem entre distritos: normalmente 1 bloco
 ```
 
@@ -107,7 +107,7 @@ Combates já incluídos em uma etapa paga de Lead, Incidente, Data Center ou eve
 
 Uma mesma unidade narrativa nunca pode cobrar tempo duas vezes.
 
-Na Fase 03 (DVS-039), combate voluntário reserva os 2 blocos na confirmação e liquida o custo ao concluir um resultado pago. Run Away bem-sucedido libera a reserva com custo 0 e sem recompensas permanentes. A viagem liquida seu custo após carregar a área de destino. Incidentes pagos preservam a cobrança única na confirmação. `ActivityDefinitionData.commit_time_on_completion` é opt-in; os demais Resources mantêm o comportamento anterior.
+Na Fase 04 (DVS-041), combate voluntário independente reserva 1 bloco na confirmação e liquida o custo ao concluir um resultado pago, independentemente de haver 1–4 inimigos. Run Away bem-sucedido libera a reserva com custo 0 e sem recompensas permanentes. A viagem liquida seu custo após carregar a área de destino. Incidentes pagos preservam a cobrança única na confirmação. A política de aggro imposto é explícita e não inventa custo obrigatório adicional. DVS-041 substitui o custo 2 da Fase 03; reservas antigas ainda não cobradas são reconciliadas com a definição atual.
 
 Toda atividade paga deverá mostrar antes da confirmação:
 
@@ -641,7 +641,7 @@ do Navigator e encaminhar tudo pelo `ActivityManager`.
 ## Gate
 
 * Viajar custa exatamente uma vez.
-* Combate voluntário reserva dois blocos na confirmação e cobra ao concluir um resultado pago; fuga bem-sucedida custa zero (DVS-039).
+* Combate voluntário independente reserva um bloco na confirmação e cobra ao concluir um resultado pago; fuga bem-sucedida custa zero (DVS-041).
 * Combate interno de Incidente custa zero adicional.
 * Ação de dois blocos pode atravessar DAY para NIGHT.
 * Ação não ultrapassa o fim do dia.
@@ -2333,7 +2333,7 @@ O vertical slice só estará finalizado quando todos os itens abaixo forem verda
 [ ] NIGHT possui 12 blocos
 [ ] Ações atravessam período
 [ ] Ações não ultrapassam o dia
-[ ] Combate voluntário custa 2
+[ ] Combate voluntário independente custa 1, com reserva até resolução (DVS-041)
 [ ] Combate incluído não cobra de novo
 [ ] Ocupação bloqueia horários
 [ ] Custos aparecem antes da ação
