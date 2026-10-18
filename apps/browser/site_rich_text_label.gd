@@ -5,6 +5,9 @@ signal browser_navigation_requested(url: String)
 signal local_reference_requested(reference: String)
 
 @export var actions: Dictionary[String, SiteActionData] = {}
+## Some embedded readers consume local protocols (for example Lead intents)
+## before delegating ordinary links to their page's navigation signal.
+@export var use_local_navigation_handler: bool = false
 
 @export_category("Rich Text")
 @export var force_bbcode_enabled: bool = true
@@ -55,7 +58,7 @@ func _run_local_reference(reference: String) -> void:
 func _run_navigation(url: String) -> void:
 	var clean_url := url.strip_edges()
 	if not clean_url.is_empty():
-		if not BrowserPageContext.navigate(self, clean_url):
+		if use_local_navigation_handler or not BrowserPageContext.navigate(self, clean_url):
 			browser_navigation_requested.emit(clean_url)
 
 func _run_dialogue(dialogue_id: String) -> void:

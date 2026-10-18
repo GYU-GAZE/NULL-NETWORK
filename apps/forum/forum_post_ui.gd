@@ -228,6 +228,7 @@ func _build_location_text() -> String:
 
 
 func _setup_content() -> void:
+	text_content.use_local_navigation_handler = true
 	text_content.bbcode_enabled = true
 	text_content.fit_content = true
 	text_content.autowrap_mode = TextServer.AUTOWRAP_WORD
