@@ -18,6 +18,7 @@ const CATEGORY_STATUS_EFFECTS: StringName = &"status_effects"
 const CATEGORY_DUMMIES: StringName = &"dummies"
 const CATEGORY_OCCUPATIONS: StringName = &"occupations"
 const CATEGORY_APPS: StringName = &"apps"
+const CATEGORY_ECOLOGY_ZONES: StringName = &"ecology_zones"
 const CATEGORY_LOCATIONS: StringName = &"locations"
 const CATEGORY_DIALOGUES: StringName = &"dialogues"
 const CATEGORY_STORY_EVENTS: StringName = &"story_events"
@@ -417,3 +418,7 @@ func _resource_has_property(
 			return true
 
 	return false
+
+
+func get_ecology_zone(zone_id: String) -> EcologyZoneData:
+	return resolve(CATEGORY_ECOLOGY_ZONES, zone_id) as EcologyZoneData

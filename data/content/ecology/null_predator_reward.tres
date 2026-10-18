@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="CombatRewardData" format=3]
+[ext_resource type="Script" path="res://data/templates/combat/combat_reward_data.gd" id="s"]
+[resource]
+script = ExtResource("s")
+reward_id = "reward.null_predator.no_farming"
+base_experience = 0

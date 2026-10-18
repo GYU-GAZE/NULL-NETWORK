@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="FieldBehaviorProfileData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://data/templates/field/field_behavior_profile_data.gd" id="script"]
+[resource]
+script = ExtResource("script")
+profile_id = "field.null_predator"
+behavior = 1
+minimum_pause = 0.4
+maximum_pause = 1.2
+
+maximum_pursuit = 1800.0
+perception_radius = 1500.0
+speed = 90.0

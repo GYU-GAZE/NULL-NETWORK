@@ -7,6 +7,8 @@ var numeric_vars: Dictionary = {}
 var location_infestation: Dictionary = {}
 var persistent_objects: Dictionary = {}
 var population_states: Dictionary = {}
+var ecology_zones: Dictionary = {}
+var ecology_route: Dictionary = {}
 var completed_incident_ids: PackedStringArray = PackedStringArray()
 
 
@@ -16,6 +18,8 @@ func reset() -> void:
 	location_infestation.clear()
 	persistent_objects.clear()
 	population_states.clear()
+	ecology_zones.clear()
+	ecology_route.clear()
 	completed_incident_ids.clear()
 
 
@@ -95,6 +99,8 @@ func to_save_data() -> Dictionary:
 		"location_infestation": location_infestation.duplicate(true),
 		"persistent_objects": persistent_objects.duplicate(true),
 		"population_states": population_states.duplicate(true),
+		"ecology_zones": ecology_zones.duplicate(true),
+		"ecology_route": ecology_route.duplicate(true),
 		"completed_incident_ids": _string_array_to_array(
 			completed_incident_ids
 		)
@@ -114,6 +120,8 @@ func load_save_data(data: Dictionary) -> void:
 	population_states = _read_dictionary(
 		data.get("population_states", {})
 	)
+	ecology_zones = _read_dictionary(data.get("ecology_zones", {}))
+	ecology_route = _read_dictionary(data.get("ecology_route", {}))
 	completed_incident_ids = _read_id_array(
 		data.get("completed_incident_ids", [])
 	)
