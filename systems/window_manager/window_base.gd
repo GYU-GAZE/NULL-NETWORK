@@ -34,6 +34,7 @@ enum ResizeMode {
 @export var restore_button_icon: Texture2D = preload("res://data/assets/ui/window_restore.svg")
 
 var app_id: String = ""
+var has_window_focus: bool = false
 
 var is_dragging: bool = false
 var drag_offset: Vector2 = Vector2.ZERO
@@ -160,9 +161,18 @@ func _finish_open_animation() -> void:
 		window_opened.emit()
 
 
-func _gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and not _is_closing:
+func _is_activation_click(event: InputEvent) -> bool:
+	return event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE] and not _is_closing
+
+
+func _request_window_focus() -> void:
+	if not has_window_focus and not _is_closing:
 		window_focused.emit()
+
+
+func _gui_input(event: InputEvent) -> void:
+	if _is_activation_click(event):
+		_request_window_focus()
 
 
 func _on_top_bar_gui_input(event: InputEvent) -> void:
@@ -179,7 +189,7 @@ func _on_top_bar_gui_input(event: InputEvent) -> void:
 		_settle_opening_motion()
 		is_dragging = true
 		drag_offset = _control_point_in_parent(top_bar, event.position) - position
-		window_focused.emit()
+		_request_window_focus()
 		accept_event()
 
 
@@ -195,7 +205,7 @@ func maximize(animated: bool = true) -> void:
 		return
 
 	_settle_opening_motion()
-	window_focused.emit()
+	_request_window_focus()
 
 	restore_position = KubuOSMetrics.snap_vector(position)
 	restore_size = KubuOSMetrics.snap_vector(size)
@@ -220,7 +230,7 @@ func restore_from_maximized(animated: bool = true) -> void:
 		return
 
 	_cancel_geometry_motion()
-	window_focused.emit()
+	_request_window_focus()
 	is_maximized = false
 
 	var target_size := KubuOSMetrics.snap_vector(Vector2(
@@ -360,7 +370,7 @@ func _on_resize_border_gui_input(event: InputEvent) -> void:
 			resize_start_size = KubuOSMetrics.snap_vector(size)
 			resize_start_position = KubuOSMetrics.snap_vector(position)
 
-			window_focused.emit()
+			_request_window_focus()
 			accept_event()
 
 
@@ -402,10 +412,10 @@ func close() -> void:
 func _input(event: InputEvent) -> void:
 	# GUI controls may consume clicks before they bubble to the window root.
 	# The actual hovered GUI control also excludes modal chrome and other windows.
-	if event is InputEventMouseButton and event.pressed and not _is_closing:
+	if _is_activation_click(event):
 		var hovered := get_viewport().gui_get_hovered_control()
 		if hovered != null and is_ancestor_of(hovered):
-			window_focused.emit()
+			_request_window_focus()
 	if not is_resizing and not is_dragging:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:

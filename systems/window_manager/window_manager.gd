@@ -154,7 +154,7 @@ func _on_request_open_app(app: AppResource) -> void:
 		return
 
 	if open_windows.has(app_id):
-		focus_window(app_id)
+		focus_window(app_id, true)
 		return
 
 	var new_window: WindowBase = window_base_scene.instantiate() as WindowBase
@@ -212,7 +212,7 @@ func _on_request_open_system_settings() -> void:
 	_on_request_open_app(settings_app)
 
 
-func focus_window(app_id: String) -> void:
+func focus_window(app_id: String, request_feedback: bool = false) -> void:
 	if not open_windows.has(app_id):
 		return
 
@@ -221,10 +221,14 @@ func focus_window(app_id: String) -> void:
 	if not is_instance_valid(window) or window.is_closing():
 		return
 
+	var changed := focused_app_id != app_id
 	focused_app_id = app_id
-
+	for candidate: WindowBase in open_windows.values():
+		if is_instance_valid(candidate):
+			candidate.has_window_focus = candidate == window
 	window.move_to_front()
-	window.pulse()
+	if changed or request_feedback:
+		window.pulse()
 
 	GlobalSignals.app_focused.emit(app_id)
 
