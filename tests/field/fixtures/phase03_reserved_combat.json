@@ -1,0 +1,588 @@
+{
+	"save_version": 1,
+	"metadata": {
+		"campaign_id": "navigator_activity",
+		"display_name": "navigator_activity",
+		"save_mode": 1,
+		"created_at": "2026-10-18T04:07:52",
+		"updated_at": "2026-10-18T04:07:54",
+		"last_checkpoint": "manual",
+		"last_checkpoint_file_id": "001792296474_000004_manual",
+		"checkpoint_order": 4,
+		"irreversible": false,
+		"manual": true
+	},
+	"sections": {
+		"time": {
+			"version": 1,
+			"days_passed": 1,
+			"days_until_update": 7,
+			"current_period": 0,
+			"current_action_block": 1
+		},
+		"dialogue_session": {
+			"version": 1,
+			"dialogue_id": "",
+			"current_node_id": "",
+			"executed_node_effects": [],
+			"selected_choices": [],
+			"source_story_event_id": "",
+			"source_story_step_id": ""
+		},
+		"combat_session": {
+			"version": 2,
+			"active": true,
+			"encounter_id": "akihabara_rattildus_1v1",
+			"activity_transaction_id": "activity_transaction_00000002",
+			"activity_id": "combat.voluntary.rattildus",
+			"cycle_index": 0,
+			"next_uid": 3,
+			"next_event_id": 18,
+			"next_dynamic_action_id": 1,
+			"awaiting_resolution": false,
+			"pending_outcome": 3,
+			"resolution_applied": false,
+			"resolution_metadata": {
+
+			},
+			"player_action_progress": [],
+			"combat_tendency_log": {
+				"combat_valour": 0,
+				"combat_logic": 0,
+				"combat_sync": 0,
+				"combat_self": 0,
+				"cycle_damage_dealt": 0,
+				"highest_cycle_damage": 0,
+				"highest_single_hit_damage": 0,
+				"total_damage_dealt": 0,
+				"cycles_elapsed": 0,
+				"scan_uses": 0,
+				"support_uses": 0,
+				"offensive_uses": 0,
+				"corrupted_uses": 0,
+				"critical_hits": 0,
+				"allies_saved": 0,
+				"allies_defeated": 0,
+				"enemies_defeated": 0,
+				"stability_breaks": 0,
+				"run_attempts": 0
+			},
+			"resolved_enemy_records": [],
+			"player_resolution_record": {
+
+			},
+			"pending_player_action_choice": {
+
+			},
+			"pending_evolution_branch_id": "",
+			"completed_evolution_branch_ids": [],
+			"ally_team": [
+				{
+					"uid": 1,
+					"character_id": "novire_init",
+					"source_kind": 1,
+					"encounter_slot_index": 0,
+					"name": "Navigator acceptance",
+					"level": 90,
+					"type": 0,
+					"hp": 208.0,
+					"max_hp": 208.0,
+					"stability": 100.0,
+					"max_stability": 100.0,
+					"stability_recovery": 20.0,
+					"atk": 64.0,
+					"def": 46.0,
+					"matk": 55.0,
+					"mdef": 50.0,
+					"dodge": 0.05,
+					"crit": 0.05,
+					"modules": [
+						"basic_attack",
+						"basic_defense",
+						"basic_dodge",
+						"basic_attack"
+					],
+					"player_action_assignments": [
+						null,
+						null,
+						null,
+						null
+					],
+					"purged": false,
+					"purified": false,
+					"tamed": false,
+					"defeated": false,
+					"is_ally": true,
+					"is_player": true,
+					"is_dummy": false,
+					"dummy_id": "",
+					"creator_uid": -1,
+					"remaining_cycles": -1,
+					"spawned_cycle": -1,
+					"active_statuses": [],
+					"runtime_effects": [],
+					"module_targeting_history": [],
+					"party_member_id": "",
+					"defeated_in_combat": false
+				},
+				null,
+				null,
+				null
+			],
+			"enemy_team": [
+				null,
+				{
+					"uid": 2,
+					"character_id": "rattildus_init",
+					"source_kind": 3,
+					"encounter_slot_index": 1,
+					"name": "RATTILDUS",
+					"level": 1,
+					"type": 0,
+					"hp": 8.0,
+					"max_hp": 8.0,
+					"stability": 100.0,
+					"max_stability": 100.0,
+					"stability_recovery": 18.0,
+					"atk": 6.0,
+					"def": 5.0,
+					"matk": 5.0,
+					"mdef": 5.0,
+					"dodge": 0.05,
+					"crit": 0.05,
+					"modules": [
+						"basic_attack",
+						"basic_heal",
+						"basic_defense",
+						"basic_dodge"
+					],
+					"player_action_assignments": [
+						null,
+						null,
+						null,
+						null
+					],
+					"purged": false,
+					"purified": false,
+					"tamed": false,
+					"defeated": false,
+					"is_ally": false,
+					"is_player": false,
+					"is_dummy": false,
+					"dummy_id": "",
+					"creator_uid": -1,
+					"remaining_cycles": -1,
+					"spawned_cycle": -1,
+					"active_statuses": [],
+					"runtime_effects": [],
+					"module_targeting_history": [],
+					"party_member_id": "",
+					"defeated_in_combat": false
+				},
+				null,
+				null
+			],
+			"ally_position_slots": [
+				{
+					"slot_id": "ally.position.0",
+					"slot_kind": 0,
+					"is_ally": true,
+					"logical_index": 0,
+					"order_index": 0,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "ally.position.1",
+					"slot_kind": 0,
+					"is_ally": true,
+					"logical_index": 1,
+					"order_index": 1,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "ally.position.2",
+					"slot_kind": 0,
+					"is_ally": true,
+					"logical_index": 2,
+					"order_index": 2,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "ally.position.3",
+					"slot_kind": 0,
+					"is_ally": true,
+					"logical_index": 3,
+					"order_index": 3,
+					"enabled": true,
+					"is_dynamic": false
+				}
+			],
+			"enemy_position_slots": [
+				{
+					"slot_id": "enemy.position.0",
+					"slot_kind": 0,
+					"is_ally": false,
+					"logical_index": 0,
+					"order_index": 0,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "enemy.position.1",
+					"slot_kind": 0,
+					"is_ally": false,
+					"logical_index": 1,
+					"order_index": 1,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "enemy.position.2",
+					"slot_kind": 0,
+					"is_ally": false,
+					"logical_index": 2,
+					"order_index": 2,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "enemy.position.3",
+					"slot_kind": 0,
+					"is_ally": false,
+					"logical_index": 3,
+					"order_index": 3,
+					"enabled": true,
+					"is_dynamic": false
+				}
+			],
+			"action_slots": [
+				{
+					"slot_id": "ally.action.0",
+					"slot_kind": 1,
+					"is_ally": true,
+					"logical_index": 0,
+					"order_index": 0,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "enemy.action.0",
+					"slot_kind": 1,
+					"is_ally": false,
+					"logical_index": 0,
+					"order_index": 1,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "ally.action.1",
+					"slot_kind": 1,
+					"is_ally": true,
+					"logical_index": 1,
+					"order_index": 2,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "enemy.action.1",
+					"slot_kind": 1,
+					"is_ally": false,
+					"logical_index": 1,
+					"order_index": 3,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "ally.action.2",
+					"slot_kind": 1,
+					"is_ally": true,
+					"logical_index": 2,
+					"order_index": 4,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "enemy.action.2",
+					"slot_kind": 1,
+					"is_ally": false,
+					"logical_index": 2,
+					"order_index": 5,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "ally.action.3",
+					"slot_kind": 1,
+					"is_ally": true,
+					"logical_index": 3,
+					"order_index": 6,
+					"enabled": true,
+					"is_dynamic": false
+				},
+				{
+					"slot_id": "enemy.action.3",
+					"slot_kind": 1,
+					"is_ally": false,
+					"logical_index": 3,
+					"order_index": 7,
+					"enabled": true,
+					"is_dynamic": false
+				}
+			]
+		},
+		"activity_transactions": {
+			"version": 1,
+			"transactions": {
+				"activity_transaction_00000002": {
+					"transaction_id": "activity_transaction_00000002",
+					"root_activity_id": "combat.voluntary.rattildus",
+					"source_id": "navigator",
+					"action_cost": 2,
+					"deferred_cost": true,
+					"charged": false,
+					"initial_day": 1,
+					"initial_period": 0,
+					"initial_action_block": 1,
+					"included_activity_ids": [],
+					"completed_activity_ids": []
+				}
+			},
+			"next_transaction": 3,
+			"next_request": 3
+		},
+		"navigator_state": {
+			"version": 6,
+			"areas": {
+				"akihabara": {
+					"entry_id": "default",
+					"position": {
+						"x": 760.0,
+						"y": 518.0
+					},
+					"runtime": {
+						"interactables": {
+							"akihabara_kiosk": {
+								"available": true
+							}
+						}
+					}
+				}
+			},
+			"mode_before_dialogue": 0,
+			"mode": 2,
+			"selected_location_id": "akihabara",
+			"current_location_id": "akihabara",
+			"current_local_area_id": "akihabara_local",
+			"current_entry_id": "default",
+			"has_player_position": true,
+			"player_position": {
+				"x": 760.0,
+				"y": 518.0
+			},
+			"local_area_runtime_state": {
+				"interactables": {
+					"akihabara_kiosk": {
+						"available": true
+					}
+				}
+			},
+			"pending_exe_interaction_id": "akihabara.common.akihabara.rattildus.1v1.0",
+			"pending_incident_id": "",
+			"activity_transaction_id": "activity_transaction_00000002",
+			"activity_id": "combat.voluntary.rattildus"
+		},
+		"app_sessions": {
+			"version": 1,
+			"app_states": {
+
+			}
+		},
+		"campaign_state": {
+			"schema_version": 5,
+			"campaign_id": "navigator_activity",
+			"campaign_phase": 2,
+			"save_mode": 1,
+			"operator": {
+				"operator_id": "",
+				"display_name": " ",
+				"occupation_id": "",
+				"profile": {
+					"first_name": "",
+					"last_name": "",
+					"nickname": "",
+					"username": "",
+					"server_id": "tokyo_japan",
+					"occupation_id": "",
+					"gender": "",
+					"pronoun_set_id": "",
+					"avatar_id": "",
+					"writing_style_id": "normal",
+					"kaomoji_preference_id": "never"
+				},
+				"appearance": {
+					"body_type_id": "",
+					"face_id": "",
+					"eye_id": "",
+					"outer_layer_id": "",
+					"middle_layer_id": "",
+					"lower_layer_id": "",
+					"hat_id": "",
+					"facial_accessory_id": "",
+					"appearance_part_ids": []
+				},
+				"appearance_part_ids": [],
+				"partner_continuity": {
+					"turd_reserve": {
+
+					},
+					"lost_partner_history": []
+				},
+				"onboarding_metadata": {
+
+				},
+				"level": 1,
+				"experience": 0,
+				"registration_day": 1,
+				"last_income_day": 1,
+				"archived": false
+			},
+			"partner": {
+				"apk_id": "novire_init",
+				"nickname": "Navigator acceptance",
+				"level": 90,
+				"current_exp": 2405369899,
+				"current_hp": 208,
+				"current_stability": 100,
+				"affinity": 0,
+				"personality_id": "brave",
+				"address_term_id": "boss",
+				"active_module_ids": [
+					"basic_attack",
+					"basic_defense",
+					"basic_dodge",
+					"basic_attack"
+				],
+				"known_active_module_ids": [
+					"basic_attack",
+					"basic_defense",
+					"basic_dodge"
+				],
+				"secondary_passive_module_id": "",
+				"allocation_points": 89,
+				"allocated_stats": {
+
+				},
+				"growth_lineage": "",
+				"integrity_state": 0
+			},
+			"tendencies": {
+				"valour": 0,
+				"logic": 0,
+				"sync": 0,
+				"self": 0
+			},
+			"money": 0,
+			"inventory": {
+				"entries": []
+			},
+			"known_module_ids": [],
+			"installed_app_ids": [
+				"browser",
+				"profile",
+				"system_settings"
+			],
+			"discovered_location_ids": [],
+			"current_location_id": "akihabara",
+			"active_lead_ids": [],
+			"completed_lead_ids": [],
+			"lead_progress": {
+
+			},
+			"incident_progress": {
+
+			},
+			"queued_story_event_ids": [],
+			"active_story_event_id": "",
+			"active_story_event_step_index": 0,
+			"active_story_event_step_id": "",
+			"active_story_event_waiting": false,
+			"completed_story_event_ids": [],
+			"story_event_repeat_state": {
+
+			},
+			"social_state": {
+
+			},
+			"encyclopedia_state": {
+				"version": 1,
+				"entries": {
+
+				},
+				"metadata": {
+
+				}
+			},
+			"world_state": {
+				"story_flags": {
+					"prologue.onboarding_world_revealed": true
+				},
+				"numeric_vars": {
+
+				},
+				"location_infestation": {
+
+				},
+				"persistent_objects": {
+
+				},
+				"population_states": {
+					"akihabara": {
+						"version": 2,
+						"generation_key": "1:0",
+						"seed": 3972915683,
+						"actors": [
+							{
+								"actor_id": "akihabara.common.akihabara.rattildus.1v1.0",
+								"kind": 0,
+								"content_id": "akihabara.rattildus.1v1",
+								"spawn_point_id": "common_a",
+								"resolved": false,
+								"available": true
+							},
+							{
+								"actor_id": "akihabara.npc.ganbarekun.0",
+								"kind": 2,
+								"content_id": "ganbarekun",
+								"spawn_point_id": "npc_a",
+								"resolved": false,
+								"available": true
+							}
+						],
+						"common_slots": [
+							"akihabara.common.akihabara.rattildus.1v1.0"
+						]
+					}
+				},
+				"completed_incident_ids": []
+			},
+			"operator_history": []
+		},
+		"game_state": {
+			"read_threads": {
+
+			},
+			"watched_threads": {
+
+			},
+			"thread_visibility_signatures": {
+
+			},
+			"browser_site_history": [],
+			"browser_history_visit_counter": 0,
+			"pinned_browser_sites": []
+		}
+	}
+}

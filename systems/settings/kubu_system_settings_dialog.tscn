@@ -45,23 +45,28 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 8
 
-[node name="Content" type="VBoxContainer" parent="Margin"]
+[node name="SettingsScroll" type="ScrollContainer" parent="Margin"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Content" type="VBoxContainer" parent="Margin/SettingsScroll"]
+size_flags_horizontal = 3
 layout_mode = 2
 theme_override_constants/separation = 7
 
-[node name="Eyebrow" type="Label" parent="Margin/Content"]
+[node name="Eyebrow" type="Label" parent="Margin/SettingsScroll/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.25, 0.75, 1, 1)
 theme_override_font_sizes/font_size = 14
 text = "KUBU CONTROL DECK  //  VIDEO OUTPUT"
 
-[node name="Title" type="Label" parent="Margin/Content"]
+[node name="Title" type="Label" parent="Margin/SettingsScroll/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.97, 1, 1)
 theme_override_font_sizes/font_size = 28
 text = "SYSTEM SETTINGS"
 
-[node name="StatusLabel" type="Label" parent="Margin/Content"]
+[node name="StatusLabel" type="Label" parent="Margin/SettingsScroll/Content"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 1, 0.78, 1)
@@ -70,54 +75,96 @@ theme_override_styles/normal = SubResource("Status")
 text = "LOCKED INTEGER PIPELINE  //  2×  //  NEAREST FILTER"
 horizontal_alignment = 1
 
-[node name="DisplaySection" type="PanelContainer" parent="Margin/Content"]
+[node name="DisplaySection" type="PanelContainer" parent="Margin/SettingsScroll/Content"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("Section")
 
-[node name="DisplayMargin" type="MarginContainer" parent="Margin/Content/DisplaySection"]
+[node name="DisplayMargin" type="MarginContainer" parent="Margin/SettingsScroll/Content/DisplaySection"]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 7
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 7
 
-[node name="DisplayForm" type="VBoxContainer" parent="Margin/Content/DisplaySection/DisplayMargin"]
+[node name="DisplayForm" type="VBoxContainer" parent="Margin/SettingsScroll/Content/DisplaySection/DisplayMargin"]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="ModeLabel" type="Label" parent="Margin/Content/DisplaySection/DisplayMargin/DisplayForm"]
+[node name="ModeLabel" type="Label" parent="Margin/SettingsScroll/Content/DisplaySection/DisplayMargin/DisplayForm"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "01  DISPLAY MODE"
 
-[node name="DisplayModeSelect" type="OptionButton" parent="Margin/Content/DisplaySection/DisplayMargin/DisplayForm"]
+[node name="DisplayModeSelect" type="OptionButton" parent="Margin/SettingsScroll/Content/DisplaySection/DisplayMargin/DisplayForm"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 
-[node name="SizeLabel" type="Label" parent="Margin/Content/DisplaySection/DisplayMargin/DisplayForm"]
+[node name="SizeLabel" type="Label" parent="Margin/SettingsScroll/Content/DisplaySection/DisplayMargin/DisplayForm"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "02  WINDOW SIZE"
 
-[node name="WindowSizeSelect" type="OptionButton" parent="Margin/Content/DisplaySection/DisplayMargin/DisplayForm"]
+[node name="WindowSizeSelect" type="OptionButton" parent="Margin/SettingsScroll/Content/DisplaySection/DisplayMargin/DisplayForm"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 
-[node name="Hint" type="Label" parent="Margin/Content/DisplaySection/DisplayMargin/DisplayForm"]
+[node name="Hint" type="Label" parent="Margin/SettingsScroll/Content/DisplaySection/DisplayMargin/DisplayForm"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.48, 0.66, 0.8, 1)
 theme_override_font_sizes/font_size = 14
 text = "Windows keep the same 2× scale at every size."
 autowrap_mode = 2
 
-[node name="Actions" type="HBoxContainer" parent="Margin/Content"]
+[node name="TimeSection" type="PanelContainer" parent="Margin/SettingsScroll/Content"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Section")
+
+[node name="TimeMargin" type="MarginContainer" parent="Margin/SettingsScroll/Content/TimeSection"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_bottom = 7
+
+[node name="TimeControls" type="VBoxContainer" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin"]
+layout_mode = 2
+
+[node name="Heading" type="Label" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
+layout_mode = 2
+text = "DEVELOPMENT / QA TIME"
+theme_override_font_sizes/font_size = 14
+
+[node name="CurrentTimeLabel" type="Label" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Current time"
+autowrap_mode = 2
+
+[node name="AdvanceHourButton" type="Button" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "QA: ADVANCE 1 HOUR"
+
+[node name="NextDayButton" type="Button" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "QA: SAME HOUR NEXT DAY"
+
+[node name="TimeStatusLabel" type="Label" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Development only. Canonical sleep and routines still apply during play."
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 14
+
+[node name="Actions" type="HBoxContainer" parent="Margin/SettingsScroll/Content"]
 layout_mode = 2
 alignment = 2
 
-[node name="LogoutButton" type="Button" parent="Margin/Content/Actions"]
+[node name="LogoutButton" type="Button" parent="Margin/SettingsScroll/Content/Actions"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(110, 28)
 layout_mode = 2
@@ -125,7 +172,7 @@ theme_override_colors/font_color = Color(1, 0.45, 0.5, 1)
 theme_override_font_sizes/font_size = 14
 text = "LOG OUT"
 
-[node name="ApplyButton" type="Button" parent="Margin/Content/Actions"]
+[node name="ApplyButton" type="Button" parent="Margin/SettingsScroll/Content/Actions"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 28)
 layout_mode = 2

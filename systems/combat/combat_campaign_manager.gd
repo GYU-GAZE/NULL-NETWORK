@@ -71,6 +71,7 @@ func resolve_encounter(
 		return errors
 
 	_resolution_metadata = result.get("metadata", {}).duplicate(true)
+	_append_field_resolution_metadata()
 	var tamed_apk_id: String = str(
 		_resolution_metadata.get("tamed_apk_id", "")
 	).strip_edges()
@@ -254,11 +255,15 @@ func _resolve_slot_loadout(
 
 	match slot_data.participant_source:
 		CombatSlotData.ParticipantSource.CATALOG_APK:
-			return APKCombatLoadoutFactory.create_loadout(
+			var loadout := APKCombatLoadoutFactory.create_loadout(
 				slot_data.apk_id,
 				slot_data.apk_level,
 				slot_data.apk_integrity_state
 			)
+			if loadout != null and not slot_data.field_unit_id.is_empty():
+				loadout.starting_hp = maxi(1, roundi(loadout.max_hp * slot_data.initial_hp_fraction))
+				loadout.starting_stability = roundi(loadout.max_stability * slot_data.initial_stability_fraction)
+			return loadout
 
 		CombatSlotData.ParticipantSource.PARTY_MEMBER:
 			return SocialService.create_party_partner_combat_loadout(

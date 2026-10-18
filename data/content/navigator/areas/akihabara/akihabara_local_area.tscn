@@ -127,14 +127,24 @@ population_actors_path = NodePath("PopulationActors")
 [node name="SpawnPoints" type="Node2D" parent="PopulationController"]
 
 [node name="CommonA" type="Marker2D" parent="PopulationController/SpawnPoints"]
-position = Vector2(760, 540)
+position = Vector2(760, 470)
 script = ExtResource("7_spawn_point")
 spawn_point_id = "common_a"
 
 [node name="CommonB" type="Marker2D" parent="PopulationController/SpawnPoints"]
-position = Vector2(1160, 540)
+position = Vector2(850, 430)
 script = ExtResource("7_spawn_point")
 spawn_point_id = "common_b"
+
+[node name="CommonC" type="Marker2D" parent="PopulationController/SpawnPoints"]
+position = Vector2(830, 570)
+script = ExtResource("7_spawn_point")
+spawn_point_id = "common_c"
+
+[node name="CommonD" type="Marker2D" parent="PopulationController/SpawnPoints"]
+position = Vector2(740, 580)
+script = ExtResource("7_spawn_point")
+spawn_point_id = "common_d"
 
 [node name="IncidentA" type="Marker2D" parent="PopulationController/SpawnPoints"]
 position = Vector2(960, 360)

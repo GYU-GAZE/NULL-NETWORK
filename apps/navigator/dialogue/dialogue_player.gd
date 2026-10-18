@@ -264,6 +264,11 @@ func _render_choices() -> void:
 
 	choice_container.hide()
 	call_deferred("_reset_text_scroll")
+	# Population/save notifications can refresh Conditions after the text has
+	# finished. Keep real choices visible without replaying or skipping the VN.
+	if _typewriter != null and not _typewriter.is_running() and not DialogueManager.is_choice_pending():
+		_set_input_enabled(true)
+		_reveal_choices_sequentially()
 
 
 func _on_dialogue_reveal_completed() -> void:

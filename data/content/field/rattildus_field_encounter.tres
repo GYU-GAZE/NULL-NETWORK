@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FieldEncounterProfileData" load_steps=6 format=3]
+[ext_resource type="Script" path="res://data/templates/field/field_encounter_profile_data.gd" id="script"]
+[ext_resource type="Resource" path="res://data/content/activities/fight_rattildus.tres" id="voluntary"]
+[ext_resource type="Resource" path="res://data/content/activities/forced_field_combat.tres" id="forced"]
+[ext_resource type="Resource" path="res://data/content/combat/resolutions/default_exe_resolution.tres" id="resolution"]
+[ext_resource type="Resource" path="res://data/content/combat/rewards/rattildus_reward.tres" id="reward"]
+[resource]
+script = ExtResource("script")
+profile_id = "field.rattildus"
+voluntary_activity = ExtResource("voluntary")
+forced_activity = ExtResource("forced")
+resolution = ExtResource("resolution")
+reward_profile = ExtResource("reward")
+call_radius = 190.0
+signal_seconds = 0.6
+aggro_policy = 0

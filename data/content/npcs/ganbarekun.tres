@@ -28,6 +28,7 @@ status_text = "Offline until the next day cycle."
 [resource]
 script = ExtResource("1_npc")
 npc_id = "ganbarekun"
+default_dialogue_id = "npc.ganbarekun.field_meeting"
 network_user = ExtResource("3_user")
 personality = ExtResource("4_personality")
 tags = PackedStringArray("ranking", "forum", "integration")

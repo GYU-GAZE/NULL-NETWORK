@@ -11,6 +11,11 @@ class_name SpawnEntry
 ## Optional authored encounter. Environmental projections do not require a
 ## fixed formation; future Combat Call resolution plugs in at this boundary.
 @export var environmental_apk: APKData
+@export var behavior_override: FieldBehaviorProfileData
+@export var encounter_override: FieldEncounterProfileData
+@export var presentation_override: FieldPresentationData
+@export_range(1, 100) var field_level: int = 1
+@export var variant_node_id: String = ""
 @export_multiline var environmental_description: String = ""
 @export var encounter: CombatEncounter
 @export var activity: ActivityDefinitionData
@@ -28,6 +33,12 @@ func is_available(context: Dictionary = {}) -> bool:
 
 func validate_data() -> PackedStringArray:
 	var errors := PackedStringArray()
+	if environmental_apk != null:
+		if get_field_behavior() == null or get_field_encounter() == null:
+			errors.append("Environmental APK requires species defaults or authored field behavior/encounter overrides.")
+		else:
+			errors.append_array(get_field_behavior().validate_data())
+			errors.append_array(get_field_encounter().validate_data())
 
 	if get_display_id().is_empty():
 		errors.append("spawn_id cannot be empty.")
@@ -49,3 +60,9 @@ func validate_data() -> PackedStringArray:
 			errors.append("Condition: %s" % error)
 
 	return errors
+
+func get_field_behavior() -> FieldBehaviorProfileData:
+	return behavior_override if behavior_override != null else (environmental_apk.field_behavior if environmental_apk != null else null)
+
+func get_field_encounter() -> FieldEncounterProfileData:
+	return encounter_override if encounter_override != null else (environmental_apk.field_encounter if environmental_apk != null else null)

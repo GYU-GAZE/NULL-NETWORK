@@ -1,0 +1,1413 @@
+{
+  "base_commit": "c0d139f26a14a782eed92ac5c3a7ba4073f97f93",
+  "baseline_executed_commit": "bb22b8eecfa8d2fd6cd85c9fde645005122b4f84",
+  "baseline_equivalence": "c0d139f adds only docs/gdd/NULL_NETWORK_GDD_CANONICO_v5.md; runtime source and Resources match executed baseline",
+  "tested_implementation_commit": "f28c8a343ce697830056d0e61aa115e787b82a59",
+  "engine": "Godot 4.6 stable Windows; native OpenGL NVIDIA RTX 3050",
+  "baseline": {
+    "total": 64,
+    "passed": 49,
+    "results": [
+      {
+        "scene": "tests/activity/activity_manager_test.tscn",
+        "code": 0,
+        "seconds": 7.78,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/apps/app_catalog_test.tscn",
+        "code": 1,
+        "seconds": 5.38,
+        "errors": [
+          "ERROR: Browser was not installed from installed_by_default.",
+          "ERROR: Social was not installed from installed_by_default.",
+          "ERROR: Dock did not project the installed default Browser and Social apps.",
+          "ERROR: Dock did not add Navigator live in catalog order.",
+          "ERROR: Navigator installation did not publish exactly one notification.",
+          "ERROR: Save/load did not preserve installed apps in Dock order.",
+          "APP_CATALOG_TEST: FAIL (6)",
+          "ERROR: 4 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+          "ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+          "ERROR: 36 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/browser/browser_authoring_pipeline_test.tscn",
+        "code": 0,
+        "seconds": 16.88,
+        "errors": [
+          "ERROR: Cannot save file 'res://.godot/browser_authoring_fixture/catalog.pending.tres'.",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/browser_contract_unit_test.tscn",
+        "code": 0,
+        "seconds": 4.86,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/browser_page_scroll_origin_test.tscn",
+        "code": 0,
+        "seconds": 4.3,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/browser_responsive_site_layout_test.tscn",
+        "code": 0,
+        "seconds": 9.36,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/browser_tab_order_test.tscn",
+        "code": 0,
+        "seconds": 4.16,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/kubuchan_thread_test.tscn",
+        "code": 1,
+        "seconds": 2.98,
+        "errors": [
+          "ERROR: Human posters must explain the public assumption that the spammer is an admin bot.",
+          "KUBUCHAN_THREAD_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/browser/null_network_home_test.tscn",
+        "code": 0,
+        "seconds": 2.98,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/site_action_data_test.tscn",
+        "code": 0,
+        "seconds": 2.88,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/website_catalog_test.tscn",
+        "code": 0,
+        "seconds": 3.14,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/calendar/calendar_app_test.tscn",
+        "code": 0,
+        "seconds": 3.61,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/campaign/campaign_state_test.tscn",
+        "code": 0,
+        "seconds": 3.34,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/combat/combat_action_loadout_stats_test.tscn",
+        "code": 1,
+        "seconds": 3.56,
+        "errors": [
+          "ERROR: Level-1 NOVIRE no longer follows its canonical HP curve.",
+          "ERROR: Level-1 Rattildus did not use catalog APK progression and Modules.",
+          "ERROR: Akihabara Rattildus still uses the legacy 100-HP fixed loadout.",
+          "COMBAT_ACTION_LOADOUT_STATS_TEST: FAIL (3)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/combat/combat_campaign_resolution_test.tscn",
+        "code": 0,
+        "seconds": 3.44,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/combat/combat_layout_test.tscn",
+        "code": 1,
+        "seconds": 3.36,
+        "errors": [
+          "ERROR: COMBAT_LAYOUT_TEST: Combat text 'ChangeModulesBtn' still overrides the global font size.",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/combat/combat_numbers_formula_test.tscn",
+        "code": 0,
+        "seconds": 3.14,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/combat/combat_runtime_test.tscn",
+        "code": 1,
+        "seconds": 3.05,
+        "errors": [
+          "ERROR: COMBAT_RUNTIME_TEST: Turret CYCLE_END trigger caused no damage.",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/combat/party_experience_distribution_test.tscn",
+        "code": 0,
+        "seconds": 3.23,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/commitment/initial_starter_selection_page_test.tscn",
+        "code": 1,
+        "seconds": 3.33,
+        "errors": [
+          "ERROR: First Operator registration did not navigate to starter selection.",
+          "INITIAL_STARTER_SELECTION_PAGE_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/commitment/operator_loss_real_damage_test.tscn",
+        "code": 1,
+        "seconds": 3.34,
+        "errors": [
+          "ERROR: Could not register the Operator Loss damage regression Operator: [\"Initial tendencies must total exactly 15 points; received 16.\"]",
+          "ERROR: Could not select the Operator Loss damage regression starter: [\"An Operator must be registered before choosing a starter.\"]",
+          "OPERATOR_LOSS_REAL_DAMAGE_TEST: FAIL (2)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/commitment/operator_loss_succession_test.tscn",
+        "code": 1,
+        "seconds": 3.97,
+        "errors": [
+          "ERROR: Operator-scoped progression was not cleared for succession.",
+          "OPERATOR_LOSS_SUCCESSION_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/commitment/partner_loss_turd_continuity_test.tscn",
+        "code": 0,
+        "seconds": 3.8,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/commitment/starter_selection_page_test.tscn",
+        "code": 1,
+        "seconds": 3.72,
+        "errors": [
+          "ERROR: Successor registration did not navigate to the starter selection route.",
+          "STARTER_SELECTION_PAGE_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/conditions/conditions_effects_test.tscn",
+        "code": 0,
+        "seconds": 3.64,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/desktop/kubu_app_rail_test.tscn",
+        "code": 0,
+        "seconds": 3.14,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/desktop/kubu_shell_presentation_test.tscn",
+        "code": 0,
+        "seconds": 3.12,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/desktop/kubu_top_taskbar_test.tscn",
+        "code": 0,
+        "seconds": 3.06,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/dialogue/dialogue_player_layout_input_test.tscn",
+        "code": 0,
+        "seconds": 3.06,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/dialogue/dialogue_system_test.tscn",
+        "code": 1,
+        "seconds": 4.72,
+        "errors": [
+          "ERROR: StoryEvent did not start the cataloged dialogue at its initial node.",
+          "ERROR: Dialogue did not preserve the external StoryEvent boundary.",
+          "ERROR: Initial node effect did not execute exactly once.",
+          "ERROR: Initial DialoguePlayer is not visible in DIALOGUE mode.",
+          "ERROR: Initial DialoguePlayer did not render all six GDD portrait slots.",
+          "ERROR: Linear dialogue could not advance.",
+          "ERROR: Linear dialogue did not enter the decision node.",
+          "ERROR: The locked conditional choice was not hidden.",
+          "ERROR: Reload did not restore the exact dialogue node.",
+          "ERROR: Reload reapplied an already executed node effect.",
+          "ERROR: Executed node-effect IDs were not restored.",
+          "ERROR: Reloaded DialoguePlayer is not visible in DIALOGUE mode.",
+          "ERROR: Reloaded DialoguePlayer did not render all six GDD portrait slots.",
+          "ERROR: Changing authoritative state did not reveal the conditional choice.",
+          "ERROR: Paid dialogue choice was rejected before ActivityManager.",
+          "ERROR: Paid choice did not expose one transparent one-block confirmation.",
+          "ERROR: Paid choice did not charge exactly one action.",
+          "ERROR: Confirmed paid choice did not enter its target node.",
+          "ERROR: Choice effects and tendency changes were not applied by the service.",
+          "ERROR: Selected choice was not recorded by stable node and choice IDs.",
+          "ERROR: Choice history and target node did not survive reload.",
+          "ERROR: Reload duplicated the paid choice cost or tendency change.",
+          "ERROR: Post-choice DialoguePlayer is not visible in DIALOGUE mode.",
+          "ERROR: Post-choice DialoguePlayer did not render all six GDD portrait slots.",
+          "ERROR: Final linear node could not complete.",
+          "DIALOGUE_SYSTEM_TEST: FAIL (25)",
+          "ERROR: 7 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+          "ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+          "ERROR: 30 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/encyclopedia/encyclopedia_app_test.tscn",
+        "code": 1,
+        "seconds": 3.52,
+        "errors": [
+          "ERROR: Initial Encyclopedia did not list and select Rattildus.",
+          "ERROR: Initial Encyclopedia did not render seven independent milestones.",
+          "ERROR: Restored Encyclopedia did not list and select Rattildus.",
+          "ERROR: Restored Encyclopedia did not render seven independent milestones.",
+          "ENCYCLOPEDIA_APP_TEST: FAIL (4)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/events/story_event_manager_test.tscn",
+        "code": 1,
+        "seconds": 4.47,
+        "errors": [
+          "ERROR: The eligible StoryEvent did not become active.",
+          "ERROR: The StoryEvent did not stop at the external dialogue boundary.",
+          "ERROR: START_DIALOGUE did not emit exactly one typed intent.",
+          "ERROR: Step 'start_welcome_dialogue' was not dispatched exactly once.",
+          "ERROR: NAVIGATE_BROWSER did not navigate the active Browser tab to null.net.",
+          "ERROR: Reload did not restore the exact StoryEvent step boundary.",
+          "ERROR: Reload duplicated the already-started dialogue intent.",
+          "ERROR: Dialogue did not advance to its choice node.",
+          "ERROR: Dialogue test choice could not be selected.",
+          "ERROR: Dialogue did not complete its final node.",
+          "STORY_EVENT_MANAGER_TEST: FAIL (10)",
+          "ERROR: 7 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+          "ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+          "ERROR: 30 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/leads/lead_incident_population_test.tscn",
+        "code": 0,
+        "seconds": 3.33,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/navigator/browser_forum_focus_test.tscn",
+        "code": 0,
+        "seconds": 9.14,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/navigator/navigator_activity_contract_test.tscn",
+        "code": 0,
+        "seconds": 8.88,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/navigator/navigator_authoring_test.tscn",
+        "code": 0,
+        "seconds": 3.44,
+        "errors": [
+          "ERROR: Cannot save file 'res://.godot/navigator_authoring_fixture/run_3060047/world.pending.tres'.",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/navigator/navigator_exploration_flow_test.tscn",
+        "code": 0,
+        "seconds": 12.01,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/navigator/navigator_map_contract_test.tscn",
+        "code": 0,
+        "seconds": 3.31,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/navigator/navigator_population_test.tscn",
+        "code": 0,
+        "seconds": 3.7,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/onboarding/compatibility_assessment_test.tscn",
+        "code": 0,
+        "seconds": 2.95,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/onboarding/onboarding_world_reveal_test.tscn",
+        "code": 0,
+        "seconds": 4.34,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/operator/operator_creation_test.tscn",
+        "code": 0,
+        "seconds": 6.94,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/operator/operator_registration_restore_test.tscn",
+        "code": 0,
+        "seconds": 3.23,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/operator/operator_result_presentation_test.tscn",
+        "code": 0,
+        "seconds": 3.23,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/profile/operator_profile_app_test.tscn",
+        "code": 0,
+        "seconds": 3.52,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/progression/apk_progression_test.tscn",
+        "code": 0,
+        "seconds": 3.22,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/save/save_manager_test.tscn",
+        "code": 0,
+        "seconds": 3.24,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/save/save_runtime_integration_test.tscn",
+        "code": 1,
+        "seconds": 3.78,
+        "errors": [
+          "ERROR: Bootstrap did not instantiate one desktop after load.",
+          "SAVE_RUNTIME_INTEGRATION_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/social/friend_party_combat_test.tscn",
+        "code": 0,
+        "seconds": 3.22,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/social/npc_social_foundation_test.tscn",
+        "code": 0,
+        "seconds": 3.14,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/social/social_app_test.tscn",
+        "code": 0,
+        "seconds": 3.33,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/social/social_conversation_engine_test.tscn",
+        "code": 0,
+        "seconds": 3.42,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/startup/first_run_experience_test.tscn",
+        "code": 1,
+        "seconds": 3.24,
+        "errors": [
+          "ERROR: Fresh campaigns must expose Browser as the only default-installed app.",
+          "FIRST_RUN_EXPERIENCE_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/startup/startup_menu_test.tscn",
+        "code": 1,
+        "seconds": 4.19,
+        "errors": [
+          "ERROR: Startup minimum canvas lets SurfaceHost escape the viewport.",
+          "STARTUP_MENU_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/startup/startup_presentation_test.tscn",
+        "code": 0,
+        "seconds": 3.51,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/startup/startup_user_delete_test.tscn",
+        "code": 0,
+        "seconds": 3.44,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/transitions/kubu_transition_manager_test.tscn",
+        "code": 0,
+        "seconds": 3.23,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/transitions/time_transition_underlay_test.tscn",
+        "code": 0,
+        "seconds": 3.14,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/ui/alert_layer_layout_test.tscn",
+        "code": 0,
+        "seconds": 3.33,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/ui/typewriter_reveal_test.tscn",
+        "code": 0,
+        "seconds": 3.05,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/window_manager/window_contract_test.tscn",
+        "code": 0,
+        "seconds": 5.64,
+        "errors": [
+          "ERROR: 1 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+          "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/window_manager/window_initial_maximize_test.tscn",
+        "code": 0,
+        "seconds": 3.62,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/window_manager/window_sidebar_alignment_test.tscn",
+        "code": 0,
+        "seconds": 3.5,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/window_manager/window_work_area_test.tscn",
+        "code": 0,
+        "seconds": 4.08,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      }
+    ]
+  },
+  "final": {
+    "total": 70,
+    "passed": 55,
+    "results": [
+      {
+        "scene": "tests/activity/activity_manager_test.tscn",
+        "code": 0,
+        "seconds": 7.59,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/apps/app_catalog_test.tscn",
+        "code": 1,
+        "seconds": 4.74,
+        "errors": [
+          "ERROR: Browser was not installed from installed_by_default.",
+          "ERROR: Social was not installed from installed_by_default.",
+          "ERROR: Dock did not project the installed default Browser and Social apps.",
+          "ERROR: Dock did not add Navigator live in catalog order.",
+          "ERROR: Navigator installation did not publish exactly one notification.",
+          "ERROR: Save/load did not preserve installed apps in Dock order.",
+          "APP_CATALOG_TEST: FAIL (6)",
+          "ERROR: 4 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+          "ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+          "ERROR: 36 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/browser/browser_authoring_pipeline_test.tscn",
+        "code": 0,
+        "seconds": 16.31,
+        "errors": [
+          "ERROR: Cannot save file 'res://.godot/browser_authoring_fixture/catalog.pending.tres'.",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/browser_contract_unit_test.tscn",
+        "code": 0,
+        "seconds": 4.0,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/browser_page_scroll_origin_test.tscn",
+        "code": 0,
+        "seconds": 4.62,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/browser_responsive_site_layout_test.tscn",
+        "code": 0,
+        "seconds": 9.73,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/browser_tab_order_test.tscn",
+        "code": 0,
+        "seconds": 4.64,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/kubuchan_thread_test.tscn",
+        "code": 1,
+        "seconds": 3.52,
+        "errors": [
+          "ERROR: Human posters must explain the public assumption that the spammer is an admin bot.",
+          "KUBUCHAN_THREAD_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/browser/null_network_home_test.tscn",
+        "code": 0,
+        "seconds": 3.14,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/site_action_data_test.tscn",
+        "code": 0,
+        "seconds": 3.14,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/browser/website_catalog_test.tscn",
+        "code": 0,
+        "seconds": 3.14,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/calendar/calendar_app_test.tscn",
+        "code": 0,
+        "seconds": 3.64,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/campaign/campaign_state_test.tscn",
+        "code": 0,
+        "seconds": 3.33,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/combat/combat_action_loadout_stats_test.tscn",
+        "code": 1,
+        "seconds": 3.33,
+        "errors": [
+          "ERROR: Level-1 NOVIRE no longer follows its canonical HP curve.",
+          "ERROR: Level-1 Rattildus did not use catalog APK progression and Modules.",
+          "ERROR: Akihabara Rattildus still uses the legacy 100-HP fixed loadout.",
+          "COMBAT_ACTION_LOADOUT_STATS_TEST: FAIL (3)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/combat/combat_campaign_resolution_test.tscn",
+        "code": 0,
+        "seconds": 3.25,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/combat/combat_layout_test.tscn",
+        "code": 1,
+        "seconds": 3.14,
+        "errors": [
+          "ERROR: COMBAT_LAYOUT_TEST: Combat text 'ChangeModulesBtn' still overrides the global font size.",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/combat/combat_numbers_formula_test.tscn",
+        "code": 0,
+        "seconds": 3.05,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/combat/combat_runtime_test.tscn",
+        "code": 1,
+        "seconds": 3.05,
+        "errors": [
+          "ERROR: COMBAT_RUNTIME_TEST: Turret CYCLE_END trigger caused no damage.",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/combat/party_experience_distribution_test.tscn",
+        "code": 0,
+        "seconds": 3.06,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/commitment/initial_starter_selection_page_test.tscn",
+        "code": 1,
+        "seconds": 3.16,
+        "errors": [
+          "ERROR: First Operator registration did not navigate to starter selection.",
+          "INITIAL_STARTER_SELECTION_PAGE_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/commitment/operator_loss_real_damage_test.tscn",
+        "code": 1,
+        "seconds": 3.16,
+        "errors": [
+          "ERROR: Could not register the Operator Loss damage regression Operator: [\"Initial tendencies must total exactly 15 points; received 16.\"]",
+          "ERROR: Could not select the Operator Loss damage regression starter: [\"An Operator must be registered before choosing a starter.\"]",
+          "OPERATOR_LOSS_REAL_DAMAGE_TEST: FAIL (2)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/commitment/operator_loss_succession_test.tscn",
+        "code": 1,
+        "seconds": 3.25,
+        "errors": [
+          "ERROR: Operator-scoped progression was not cleared for succession.",
+          "OPERATOR_LOSS_SUCCESSION_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/commitment/partner_loss_turd_continuity_test.tscn",
+        "code": 0,
+        "seconds": 3.24,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/commitment/starter_selection_page_test.tscn",
+        "code": 1,
+        "seconds": 3.33,
+        "errors": [
+          "ERROR: Successor registration did not navigate to the starter selection route.",
+          "STARTER_SELECTION_PAGE_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/conditions/conditions_effects_test.tscn",
+        "code": 0,
+        "seconds": 3.24,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/desktop/kubu_app_rail_test.tscn",
+        "code": 0,
+        "seconds": 3.36,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/desktop/kubu_shell_presentation_test.tscn",
+        "code": 0,
+        "seconds": 3.44,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/desktop/kubu_top_taskbar_test.tscn",
+        "code": 0,
+        "seconds": 3.53,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/dialogue/dialogue_player_layout_input_test.tscn",
+        "code": 0,
+        "seconds": 3.53,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/dialogue/dialogue_system_test.tscn",
+        "code": 1,
+        "seconds": 5.3,
+        "errors": [
+          "ERROR: StoryEvent did not start the cataloged dialogue at its initial node.",
+          "ERROR: Dialogue did not preserve the external StoryEvent boundary.",
+          "ERROR: Initial node effect did not execute exactly once.",
+          "ERROR: Initial DialoguePlayer is not visible in DIALOGUE mode.",
+          "ERROR: Initial DialoguePlayer did not render all six GDD portrait slots.",
+          "ERROR: Linear dialogue could not advance.",
+          "ERROR: Linear dialogue did not enter the decision node.",
+          "ERROR: The locked conditional choice was not hidden.",
+          "ERROR: Reload did not restore the exact dialogue node.",
+          "ERROR: Reload reapplied an already executed node effect.",
+          "ERROR: Executed node-effect IDs were not restored.",
+          "ERROR: Reloaded DialoguePlayer is not visible in DIALOGUE mode.",
+          "ERROR: Reloaded DialoguePlayer did not render all six GDD portrait slots.",
+          "ERROR: Changing authoritative state did not reveal the conditional choice.",
+          "ERROR: Paid dialogue choice was rejected before ActivityManager.",
+          "ERROR: Paid choice did not expose one transparent one-block confirmation.",
+          "ERROR: Paid choice did not charge exactly one action.",
+          "ERROR: Confirmed paid choice did not enter its target node.",
+          "ERROR: Choice effects and tendency changes were not applied by the service.",
+          "ERROR: Selected choice was not recorded by stable node and choice IDs.",
+          "ERROR: Choice history and target node did not survive reload.",
+          "ERROR: Reload duplicated the paid choice cost or tendency change.",
+          "ERROR: Post-choice DialoguePlayer is not visible in DIALOGUE mode.",
+          "ERROR: Post-choice DialoguePlayer did not render all six GDD portrait slots.",
+          "ERROR: Final linear node could not complete.",
+          "DIALOGUE_SYSTEM_TEST: FAIL (25)",
+          "ERROR: 7 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+          "ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+          "ERROR: 30 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/encyclopedia/encyclopedia_app_test.tscn",
+        "code": 1,
+        "seconds": 4.0,
+        "errors": [
+          "ERROR: Initial Encyclopedia did not list and select Rattildus.",
+          "ERROR: Initial Encyclopedia did not render seven independent milestones.",
+          "ERROR: Restored Encyclopedia did not list and select Rattildus.",
+          "ERROR: Restored Encyclopedia did not render seven independent milestones.",
+          "ENCYCLOPEDIA_APP_TEST: FAIL (4)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/events/story_event_manager_test.tscn",
+        "code": 1,
+        "seconds": 4.92,
+        "errors": [
+          "ERROR: The eligible StoryEvent did not become active.",
+          "ERROR: The StoryEvent did not stop at the external dialogue boundary.",
+          "ERROR: START_DIALOGUE did not emit exactly one typed intent.",
+          "ERROR: Step 'start_welcome_dialogue' was not dispatched exactly once.",
+          "ERROR: NAVIGATE_BROWSER did not navigate the active Browser tab to null.net.",
+          "ERROR: Reload did not restore the exact StoryEvent step boundary.",
+          "ERROR: Reload duplicated the already-started dialogue intent.",
+          "ERROR: Dialogue did not advance to its choice node.",
+          "ERROR: Dialogue test choice could not be selected.",
+          "ERROR: Dialogue did not complete its final node.",
+          "STORY_EVENT_MANAGER_TEST: FAIL (10)",
+          "ERROR: 7 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+          "ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.",
+          "ERROR: 30 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/field/field_actions_aggro_test.tscn",
+        "code": 0,
+        "seconds": 10.3,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/field/field_combat_call_test.tscn",
+        "code": 0,
+        "seconds": 5.83,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/field/field_exploration_flow_test.tscn",
+        "code": 0,
+        "seconds": 17.12,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/field/field_legacy_save_test.tscn",
+        "code": 0,
+        "seconds": 5.38,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/field/field_movement_test.tscn",
+        "code": 0,
+        "seconds": 11.02,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/field/field_npc_time_test.tscn",
+        "code": 0,
+        "seconds": 5.95,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/leads/lead_incident_population_test.tscn",
+        "code": 0,
+        "seconds": 3.33,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/navigator/browser_forum_focus_test.tscn",
+        "code": 0,
+        "seconds": 9.24,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/navigator/navigator_activity_contract_test.tscn",
+        "code": 0,
+        "seconds": 10.09,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/navigator/navigator_authoring_test.tscn",
+        "code": 0,
+        "seconds": 3.44,
+        "errors": [
+          "ERROR: Cannot save file 'res://.godot/navigator_authoring_fixture/run_2991641/world.pending.tres'.",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/navigator/navigator_exploration_flow_test.tscn",
+        "code": 0,
+        "seconds": 12.03,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/navigator/navigator_map_contract_test.tscn",
+        "code": 0,
+        "seconds": 3.33,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/navigator/navigator_population_test.tscn",
+        "code": 0,
+        "seconds": 3.61,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/onboarding/compatibility_assessment_test.tscn",
+        "code": 0,
+        "seconds": 3.14,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/onboarding/onboarding_world_reveal_test.tscn",
+        "code": 0,
+        "seconds": 4.55,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/operator/operator_creation_test.tscn",
+        "code": 0,
+        "seconds": 7.03,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/operator/operator_registration_restore_test.tscn",
+        "code": 0,
+        "seconds": 2.95,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/operator/operator_result_presentation_test.tscn",
+        "code": 0,
+        "seconds": 2.86,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/profile/operator_profile_app_test.tscn",
+        "code": 0,
+        "seconds": 3.23,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/progression/apk_progression_test.tscn",
+        "code": 0,
+        "seconds": 2.97,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/save/save_manager_test.tscn",
+        "code": 0,
+        "seconds": 3.06,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/save/save_runtime_integration_test.tscn",
+        "code": 1,
+        "seconds": 3.42,
+        "errors": [
+          "ERROR: Bootstrap did not instantiate one desktop after load.",
+          "SAVE_RUNTIME_INTEGRATION_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/social/friend_party_combat_test.tscn",
+        "code": 0,
+        "seconds": 2.95,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/social/npc_social_foundation_test.tscn",
+        "code": 0,
+        "seconds": 2.86,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/social/social_app_test.tscn",
+        "code": 0,
+        "seconds": 3.05,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/social/social_conversation_engine_test.tscn",
+        "code": 0,
+        "seconds": 2.95,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/startup/first_run_experience_test.tscn",
+        "code": 1,
+        "seconds": 2.97,
+        "errors": [
+          "ERROR: Fresh campaigns must expose Browser as the only default-installed app.",
+          "FIRST_RUN_EXPERIENCE_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/startup/startup_menu_test.tscn",
+        "code": 1,
+        "seconds": 3.8,
+        "errors": [
+          "ERROR: Startup minimum canvas lets SurfaceHost escape the viewport.",
+          "STARTUP_MENU_TEST: FAIL (1)",
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": false
+      },
+      {
+        "scene": "tests/startup/startup_presentation_test.tscn",
+        "code": 0,
+        "seconds": 3.05,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/startup/startup_user_delete_test.tscn",
+        "code": 0,
+        "seconds": 3.05,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/transitions/kubu_transition_manager_test.tscn",
+        "code": 0,
+        "seconds": 2.95,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/transitions/time_transition_underlay_test.tscn",
+        "code": 0,
+        "seconds": 2.95,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/ui/alert_layer_layout_test.tscn",
+        "code": 0,
+        "seconds": 3.24,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/ui/typewriter_reveal_test.tscn",
+        "code": 0,
+        "seconds": 2.97,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/window_manager/window_contract_test.tscn",
+        "code": 0,
+        "seconds": 5.47,
+        "errors": [
+          "ERROR: 1 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.",
+          "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/window_manager/window_initial_maximize_test.tscn",
+        "code": 0,
+        "seconds": 3.25,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/window_manager/window_sidebar_alignment_test.tscn",
+        "code": 0,
+        "seconds": 3.05,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      },
+      {
+        "scene": "tests/window_manager/window_work_area_test.tscn",
+        "code": 0,
+        "seconds": 3.7,
+        "errors": [
+          "ERROR: 1 resources still in use at exit (run with --verbose for details)."
+        ],
+        "passed": true
+      }
+    ]
+  },
+  "regressions": [],
+  "new_script_errors": [],
+  "new_passing": [
+    "tests/field/field_actions_aggro_test.tscn",
+    "tests/field/field_combat_call_test.tscn",
+    "tests/field/field_exploration_flow_test.tscn",
+    "tests/field/field_legacy_save_test.tscn",
+    "tests/field/field_movement_test.tscn",
+    "tests/field/field_npc_time_test.tscn"
+  ],
+  "recovered": [],
+  "native_pass_logs": [
+    "field-native-delivery-flow.log",
+    "field-native-delivery-movement.log",
+    "field-native-delivery-npc-time.log"
+  ],
+  "editor_native": {
+    "log": "field-editor-delivery.log",
+    "marker": "LOCATION_AUTHORING_EDITOR_SMOKE: PASS",
+    "baseline_scan_diagnostic": "tests/onboarding/compatibility_assessment_test.gd:26: Array(null) constructor"
+  },
+  "notes": [
+    "PASS requires exit 0, PASS marker and no SCRIPT ERROR.",
+    "Known ObjectDB/resource warnings are retained in raw logs.",
+    "CI records are packaged separately after the PR finishes."
+  ]
+}

@@ -525,6 +525,9 @@ func get_last_errors() -> PackedStringArray:
 	return PackedStringArray()
 
 
+func is_runtime_busy() -> bool:
+	return _save_in_progress or _is_loading
+
 func request_checkpoint(
 	checkpoint: StringName,
 	irreversible: bool = false

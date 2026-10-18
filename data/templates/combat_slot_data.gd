@@ -16,6 +16,11 @@ enum ParticipantSource {
 
 @export_category("Catalog APK")
 @export var apk_id: String = ""
+## Stable individual population identity, separate from species/apk_id.
+@export var field_unit_id: String = ""
+@export var field_variant_node_id: String = ""
+@export_range(0.0, 1.0) var initial_hp_fraction: float = 1.0
+@export_range(0.0, 1.0) var initial_stability_fraction: float = 1.0
 @export_range(1, 100, 1) var apk_level: int = 1
 @export var apk_integrity_state: PartnerStateData.IntegrityState = (
 	PartnerStateData.IntegrityState.EXE

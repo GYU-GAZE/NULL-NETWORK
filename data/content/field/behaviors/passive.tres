@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="FieldBehaviorProfileData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://data/templates/field/field_behavior_profile_data.gd" id="script"]
+[ext_resource type="Script" path="res://data/templates/field/field_behavior_modifier_data.gd" id="modifier"]
+[ext_resource type="Script" path="res://data/templates/conditions/time_condition_data.gd" id="time"]
+[sub_resource type="Resource" id="night"]
+script = ExtResource("time")
+required_period = 2
+[sub_resource type="Resource" id="night_caution"]
+script = ExtResource("modifier")
+conditions = SubResource("night")
+behavior_override = 3
+speed_multiplier = 1.2
+[resource]
+script = ExtResource("script")
+profile_id = "field.passive"
+modifiers = Array[ExtResource("modifier")]([SubResource("night_caution")])
+behavior = 0
+speed = 40.0
+minimum_pause = 0.4
+maximum_pause = 1.2
+patrol_offsets = PackedVector2Array(-56, 0, 56, 0, 56, 40, -56, 40)

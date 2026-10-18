@@ -47,6 +47,7 @@
 [ext_resource type="Script" path="res://data/templates/incidents/incident_data.gd" id="47_incident_type"]
 [ext_resource type="Resource" path="res://data/content/incidents/akihabara_aquarium_relay.tres" id="48_aquarium_incident"]
 [ext_resource type="Resource" path="res://data/content/dialogues/akihabara_aquarium_relay.tres" id="49_aquarium_dialogue"]
+[ext_resource type="Resource" path="res://data/content/dialogues/ganbarekun_field_meeting.tres" id="58_ganbare_dialogue"]
 [ext_resource type="Resource" path="res://data/content/npcs/npc_catalog.tres" id="50_npc_catalog"]
 [ext_resource type="Resource" path="res://data/content/social/social_content_catalog.tres" id="51_social_catalog"]
 [ext_resource type="Resource" path="res://data/content/combat/loadouts/ganbarekun_party_partner.tres" id="53_party_loadout"]
@@ -71,7 +72,7 @@ npc_catalog = ExtResource("50_npc_catalog")
 social_catalog = ExtResource("51_social_catalog")
 encyclopedia_catalog = ExtResource("54_encyclopedia_catalog")
 calendar_catalog = ExtResource("55_calendar_catalog")
-dialogues = Array[ExtResource("30_dialogue_type")]([ExtResource("29_welcome_dialogue"), ExtResource("49_aquarium_dialogue")])
+dialogues = Array[ExtResource("30_dialogue_type")]([ExtResource("29_welcome_dialogue"), ExtResource("49_aquarium_dialogue"), ExtResource("58_ganbare_dialogue")])
 story_event_catalog = ExtResource("28_story_events")
 lead_catalog = ExtResource("46_lead_catalog")
 incidents = Array[ExtResource("47_incident_type")]([ExtResource("48_aquarium_incident")])

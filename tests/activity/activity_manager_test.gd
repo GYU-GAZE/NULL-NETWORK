@@ -423,6 +423,7 @@ func _test_navigator_travel_and_voluntary_combat() -> void:
 		NAVIGATOR_SCENE.instantiate() as NavigatorApp
 	)
 	add_child(navigator)
+	GlobalSignals.workspace_activated.emit("navigator")
 	await get_tree().process_frame
 	await get_tree().process_frame
 
@@ -485,14 +486,19 @@ func _test_navigator_travel_and_voluntary_combat() -> void:
 		exe_actor != null
 		and exe_actor.interaction_data != null
 		and exe_actor.interaction_data.activity != null
-		and exe_actor.interaction_data.activity.action_cost == 2,
-		"Rattildus does not use a two-block voluntary combat activity."
+		and exe_actor.interaction_data.activity.action_cost == 1,
+		"Rattildus does not use a one-block voluntary combat activity."
 	)
 
 	if exe_actor == null or exe_actor.interaction_data == null:
 		navigator.queue_free()
 		return
 
+	# Field contact is spatial; production no longer accepts a remote encounter
+	# intent from the district's entry position.
+	area_instance.player.global_position = exe_actor.global_position - Vector2(0, 22)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
 	navigator._on_local_area_interaction_requested(exe_actor)
 	await get_tree().process_frame
 	var combat_request_id: String = (
@@ -513,7 +519,7 @@ func _test_navigator_travel_and_voluntary_combat() -> void:
 	)
 	_check(
 		TimeManager.current_action_block == 1,
-		"Phase 03 voluntary combat must reserve its two-block cost until a paid resolution."
+		"Voluntary combat must reserve its one-block cost until a paid resolution."
 	)
 	_check(
 		navigator.combat_app.is_encounter_active()

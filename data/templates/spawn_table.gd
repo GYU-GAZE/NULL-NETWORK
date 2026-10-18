@@ -8,6 +8,9 @@ enum RefreshPolicy { PERIOD, DAY, ACTION_BLOCK, CAMPAIGN }
 @export_range(0, 16, 1, "or_greater")
 var rolls_per_population: int = 1
 @export var entries: Array[SpawnEntry] = []
+## Lookup-only migration content; never rolled as ambient population.
+@export var retired_entries: Array[SpawnEntry] = []
+@export var field_population: FieldPopulationData
 
 
 func get_display_id() -> String:
@@ -17,7 +20,7 @@ func get_display_id() -> String:
 func get_entry(spawn_id: String) -> SpawnEntry:
 	var clean_id: String = spawn_id.strip_edges()
 
-	for entry: SpawnEntry in entries:
+	for entry: SpawnEntry in entries + retired_entries:
 		if entry != null and entry.get_display_id() == clean_id:
 			return entry
 
@@ -43,6 +46,15 @@ func roll_entries(
 ) -> Array[SpawnEntry]:
 	var result: Array[SpawnEntry] = []
 	var available: Array[SpawnEntry] = get_available_entries(context)
+	var desired := rolls_per_population
+	if field_population != null:
+		if field_population.conditions != null and not field_population.conditions.is_met(context):
+			return result
+		desired = clampi(desired, field_population.minimum_units, field_population.maximum_units)
+		for id: String in field_population.guaranteed_spawn_ids:
+			var entry := get_entry(id)
+			if entry != null and entry in available and result.size() < desired:
+				result.append(entry)
 
 	if available.is_empty() or rolls_per_population <= 0:
 		return result
@@ -50,7 +62,7 @@ func roll_entries(
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 
-	for _roll_index: int in range(rolls_per_population):
+	for _roll_index: int in range(maxi(0, desired - result.size())):
 		var selected: SpawnEntry = _roll_one(available, rng)
 
 		if selected != null:
@@ -70,13 +82,19 @@ func roll_encounter() -> CombatEncounter:
 
 func validate_data() -> PackedStringArray:
 	var errors := PackedStringArray()
+	if field_population != null:
+		errors.append_array(field_population.validate_data())
+		for id: String in field_population.guaranteed_spawn_ids:
+			if get_entry(id) == null:
+				errors.append("Guaranteed field spawn ID is not in this table: " + id)
 	var spawn_ids: Dictionary = {}
 
 	if get_display_id().is_empty():
 		errors.append("table_id cannot be empty.")
 
-	for index: int in range(entries.size()):
-		var entry: SpawnEntry = entries[index]
+	var all_entries: Array[SpawnEntry] = entries + retired_entries
+	for index: int in range(all_entries.size()):
+		var entry: SpawnEntry = all_entries[index]
 
 		if entry == null:
 			errors.append("Entry %d is null." % index)

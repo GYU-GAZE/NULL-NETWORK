@@ -224,6 +224,12 @@ func has_active_transaction(transaction_id: String) -> bool:
 		transaction_id.strip_edges()
 	)
 
+func has_pending_requests() -> bool:
+	return not _pending_requests.is_empty()
+
+func has_any_active_transaction() -> bool:
+	return not _active_transactions.is_empty()
+
 
 func get_active_transaction(
 	transaction_id: String
@@ -240,6 +246,21 @@ func get_active_transaction(
 		as Dictionary
 	).duplicate(true)
 
+
+func reconcile_reserved_cost(transaction_id: String, definition: ActivityDefinitionData) -> bool:
+	# An uncharged saved reservation follows its current authored definition.
+	# Included/paid owners and already committed legacy costs are preserved.
+	if definition == null or not has_active_transaction(transaction_id):
+		return false
+	var transaction: Dictionary = _active_transactions[transaction_id]
+	if str(transaction.get("root_activity_id", "")) != definition.get_display_id() or not bool(transaction.get("deferred_cost", false)) or bool(transaction.get("charged", false)):
+		return false
+	var previous := int(transaction.get("action_cost", 0))
+	if previous != definition.action_cost:
+		transaction["migrated_cost_from"] = previous
+		transaction["action_cost"] = definition.action_cost
+		_active_transactions[transaction_id] = transaction
+	return true
 
 func register_availability_provider(
 	provider_id: StringName,

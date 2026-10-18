@@ -1,5 +1,10 @@
 extends Node2D
 class_name NavigatorLocalAreaScene
+signal field_contact_requested(actor: LocalAreaExeActor)
+var field_navigation := FieldNavigationGrid.new()
+var field_calls: FieldCombatCallCoordinator
+var _field_active: bool = false
+var _geometry_queued: bool = false
 
 
 signal interaction_target_changed(
@@ -29,6 +34,9 @@ var active_entry_id: String = ""
 
 
 func _ready() -> void:
+	field_calls = FieldCombatCallCoordinator.new()
+	add_child(field_calls)
+	field_calls.area = self
 	if (
 		is_instance_valid(player)
 		and not player.interaction_target_changed.is_connected(
@@ -120,15 +128,82 @@ func setup_local_area(
 
 	apply_runtime_state(restored_runtime_state)
 	player.set_input_enabled(false)
+	queue_field_geometry_refresh()
 
 	return true
 
 
 func set_area_active(active: bool) -> void:
+	_field_active = active
 	if not is_instance_valid(player):
 		return
 
 	player.set_input_enabled(active)
+
+func is_field_active() -> bool:
+	return _field_active and not TimeManager.is_development_advancing() and not DialogueManager.is_dialogue_active() and not CombatManager.is_encounter_active() and not ActivityManager.has_pending_requests()
+
+func get_field_exes() -> Array[LocalAreaExeActor]:
+	var result: Array[LocalAreaExeActor] = []
+	for target: LocalAreaInteractable in _get_interactables():
+		if target is LocalAreaExeActor and target.environmental_apk != null and target.visible and target.available:
+			result.append(target)
+	return result
+
+func queue_field_geometry_refresh() -> void:
+	if not _geometry_queued:
+		_geometry_queued = true
+		_prepare_field_geometry.call_deferred()
+
+func _prepare_field_geometry() -> void:
+	if not is_inside_tree():
+		return
+	await get_tree().physics_frame
+	if not is_inside_tree():
+		return
+	await get_tree().process_frame
+	if not is_inside_tree():
+		return
+	_geometry_queued = false
+	field_navigation.rebuild(self)
+	var placed: Array[Vector2] = []
+	var separation := map_location.spawn_table.field_population.spawn_separation if map_location != null and map_location.spawn_table != null and map_location.spawn_table.field_population != null else 32.0
+	for actor: LocalAreaExeActor in get_field_exes():
+		var position := to_local(actor.global_position)
+		# Spawn spacing is an authoring safeguard, not a constraint on valid
+		# positions reached by physical movement or restored from a checkpoint.
+		var enforce_spacing := not actor.motor.placement_initialized and not actor.motor.restored_position
+		var valid := field_navigation.is_position_valid(position)
+		for other: Vector2 in placed:
+			valid = valid and (not enforce_spacing or position.distance_to(other) >= separation)
+		if not valid:
+			var point := field_navigation.nearest_open(position)
+			if point == Vector2i(-1, -1):
+				actor.get_parent().remove_child(actor)
+				actor.queue_free()
+				continue
+			position = field_navigation.grid.get_point_position(point)
+			var found_clear := false
+			# Deterministic nearby clear cells prevent stacking if authored points overlap.
+			for offset: Vector2 in [Vector2.ZERO, Vector2(48, 0), Vector2(-48, 0), Vector2(0, 48), Vector2(0, -48), Vector2(72, 72), Vector2(-72, -72)]:
+				var candidate := position + offset
+				var clear := field_navigation.is_position_valid(candidate)
+				for other: Vector2 in placed:
+					clear = clear and candidate.distance_to(other) >= separation
+				if clear:
+					position = candidate
+					found_clear = true
+					break
+			if not found_clear:
+				actor.get_parent().remove_child(actor)
+				actor.queue_free()
+				continue
+			actor.global_position = to_global(position)
+			actor.motor.global_position = actor.global_position
+			if not field_navigation.is_position_valid(actor.motor.home):
+				actor.motor.home = position
+		placed.append(position)
+		actor.motor.placement_initialized = true
 
 
 func get_player_position() -> Vector2:

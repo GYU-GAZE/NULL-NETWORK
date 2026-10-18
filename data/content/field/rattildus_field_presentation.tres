@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="FieldPresentationData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://data/templates/field/field_presentation_data.gd" id="script"]
+[resource]
+script = ExtResource("script")
+sprite_origin = Vector2(12, 20)
+visual_scale = 1.5
+tint = Color(1, 0.65, 0.85, 1)
+digital_effect = true
