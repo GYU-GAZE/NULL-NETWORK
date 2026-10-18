@@ -65,6 +65,12 @@ func populate(location: MapLocation) -> bool:
 	else:
 		_clear_runtime_actors()
 	_location = location
+	# Standalone projections (including Legacy Sites) can populate before the
+	# Navigator presentation calls setup_local_area. Bind the authoritative
+	# location before any field actor evaluates its context.
+	var area := get_parent() as NavigatorLocalAreaScene
+	if area != null:
+		area.map_location = location
 	_configure_subscription()
 	_population_state = CampaignState.get_location_population_state(
 		_location.get_display_id()
@@ -84,7 +90,6 @@ func populate(location: MapLocation) -> bool:
 	_ensure_npcs()
 	_save_population_state()
 	_instantiate_population()
-	var area := get_parent() as NavigatorLocalAreaScene
 	if area != null:
 		area.queue_field_geometry_refresh()
 	return true
