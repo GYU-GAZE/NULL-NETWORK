@@ -75,6 +75,48 @@ theme_override_styles/normal = SubResource("Status")
 text = "LOCKED INTEGER PIPELINE  //  2×  //  NEAREST FILTER"
 horizontal_alignment = 1
 
+[node name="TimeSection" type="PanelContainer" parent="Margin/SettingsScroll/Content"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Section")
+
+[node name="TimeMargin" type="MarginContainer" parent="Margin/SettingsScroll/Content/TimeSection"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_bottom = 7
+
+[node name="TimeControls" type="VBoxContainer" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin"]
+layout_mode = 2
+
+[node name="Heading" type="Label" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
+layout_mode = 2
+text = "DEVELOPMENT / QA TIME"
+theme_override_font_sizes/font_size = 14
+
+[node name="CurrentTimeLabel" type="Label" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Current time"
+autowrap_mode = 2
+
+[node name="TimeStatusLabel" type="Label" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Development only. Canonical sleep and routines still apply during play."
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 14
+
+[node name="AdvanceHourButton" type="Button" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "QA: ADVANCE 1 HOUR"
+
+[node name="NextDayButton" type="Button" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "QA: SAME HOUR NEXT DAY"
+
 [node name="DisplaySection" type="PanelContainer" parent="Margin/SettingsScroll/Content"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -117,48 +159,6 @@ theme_override_colors/font_color = Color(0.48, 0.66, 0.8, 1)
 theme_override_font_sizes/font_size = 14
 text = "Windows keep the same 2× scale at every size."
 autowrap_mode = 2
-
-[node name="TimeSection" type="PanelContainer" parent="Margin/SettingsScroll/Content"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("Section")
-
-[node name="TimeMargin" type="MarginContainer" parent="Margin/SettingsScroll/Content/TimeSection"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_top = 7
-theme_override_constants/margin_bottom = 7
-
-[node name="TimeControls" type="VBoxContainer" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin"]
-layout_mode = 2
-
-[node name="Heading" type="Label" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
-layout_mode = 2
-text = "DEVELOPMENT / QA TIME"
-theme_override_font_sizes/font_size = 14
-
-[node name="CurrentTimeLabel" type="Label" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Current time"
-autowrap_mode = 2
-
-[node name="AdvanceHourButton" type="Button" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "QA: ADVANCE 1 HOUR"
-
-[node name="NextDayButton" type="Button" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "QA: SAME HOUR NEXT DAY"
-
-[node name="TimeStatusLabel" type="Label" parent="Margin/SettingsScroll/Content/TimeSection/TimeMargin/TimeControls"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Development only. Canonical sleep and routines still apply during play."
-autowrap_mode = 2
-theme_override_font_sizes/font_size = 14
 
 [node name="Actions" type="HBoxContainer" parent="Margin/SettingsScroll/Content"]
 layout_mode = 2

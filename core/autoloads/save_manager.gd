@@ -1,6 +1,8 @@
 extends Node
 
 
+signal busy_state_changed
+
 signal save_started(campaign_id: String, checkpoint: StringName)
 signal save_completed(
 	campaign_id: String,
@@ -168,6 +170,7 @@ func save_checkpoint(
 		return false
 
 	_save_in_progress = true
+	busy_state_changed.emit()
 	save_started.emit(CampaignState.campaign_id, clean_checkpoint)
 	_checkpoint_sequence += 1
 
@@ -191,6 +194,7 @@ func save_checkpoint(
 
 	if not errors.is_empty():
 		_save_in_progress = false
+		busy_state_changed.emit()
 		_fail_save(errors)
 		return false
 
@@ -206,6 +210,7 @@ func save_checkpoint(
 	if not _write_document_atomically(document, live_path, backup_path):
 		errors.append("Atomic replacement of the live save failed.")
 		_save_in_progress = false
+		busy_state_changed.emit()
 		_fail_save(errors)
 		return false
 
@@ -223,6 +228,7 @@ func save_checkpoint(
 
 	_active_metadata = metadata
 	_save_in_progress = false
+	busy_state_changed.emit()
 
 	if not errors.is_empty():
 		_fail_save(errors)
@@ -290,8 +296,10 @@ func load_campaign(
 		document = checkpoint_result.get("document", {})
 
 	_is_loading = true
+	busy_state_changed.emit()
 	errors.append_array(_restore_document(document))
 	_is_loading = false
+	busy_state_changed.emit()
 
 	if not errors.is_empty():
 		_fail_load(clean_id, errors)
@@ -375,9 +383,11 @@ func delete_campaign(campaign_id: String) -> PackedStringArray:
 		# Provider resets can emit time signals. Treat this as a restore boundary so
 		# those resets cannot enqueue fresh checkpoints for the deleted account.
 		_is_loading = true
+		busy_state_changed.emit()
 		_registry.reset_registered_providers()
 		_registry.clear_pending_sections()
 		_is_loading = false
+		busy_state_changed.emit()
 		_queued_checkpoint = &""
 		_queued_irreversible = false
 

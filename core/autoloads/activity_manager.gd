@@ -1,6 +1,8 @@
 extends Node
 
 
+signal runtime_state_changed
+
 signal activity_started(
 	transaction_id: String,
 	activity_id: String,
@@ -76,6 +78,7 @@ func request_activity(
 		)
 	}
 
+	runtime_state_changed.emit()
 	call_deferred("_evaluate_request", request_id)
 	return request_id
 
@@ -171,6 +174,7 @@ func complete_activity(
 		transaction["completed_activity_ids"] = completed_children
 		_active_transactions[clean_transaction_id] = transaction
 
+	runtime_state_changed.emit()
 	activity_completed.emit(
 		clean_transaction_id,
 		completed_activity_id,
@@ -210,6 +214,7 @@ func fail_activity(
 	):
 		_active_transactions.erase(clean_transaction_id)
 
+	runtime_state_changed.emit()
 	activity_failed.emit(
 		clean_transaction_id,
 		failed_activity_id,
@@ -292,6 +297,7 @@ func reset_runtime_state() -> void:
 	_active_transactions.clear()
 	_next_request_number = 1
 	_next_transaction_number = 1
+	runtime_state_changed.emit()
 
 
 func _evaluate_request(request_id: String) -> void:
@@ -658,6 +664,7 @@ func _start_pending_request(request_id: String) -> void:
 	if preview.charged_action_cost > 0 and not definition.commit_time_on_completion:
 		_advance_time(preview.charged_action_cost, source_id)
 
+	runtime_state_changed.emit()
 	activity_started.emit(
 		transaction_id,
 		definition.get_display_id(),
@@ -687,6 +694,7 @@ func _reject_pending_request(
 	)
 	_pending_requests.erase(request_id)
 
+	runtime_state_changed.emit()
 	GlobalSignals.activity_request_cancelled.emit(request_id)
 	activity_rejected.emit(
 		request_id,
@@ -717,6 +725,7 @@ func _cancel_pending_request(
 	)
 	_pending_requests.erase(request_id)
 
+	runtime_state_changed.emit()
 	GlobalSignals.activity_request_cancelled.emit(request_id)
 	activity_cancelled.emit(
 		request_id,
@@ -784,6 +793,7 @@ func import_save_data(data: Dictionary) -> void:
 	_active_transactions = raw.duplicate(true) if raw is Dictionary else {}
 	_next_transaction_number = maxi(1, int(data.get("next_transaction", 1)))
 	_next_request_number = maxi(1, int(data.get("next_request", 1)))
+	runtime_state_changed.emit()
 
 
 func reset_save_data() -> void:

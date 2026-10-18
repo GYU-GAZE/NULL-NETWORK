@@ -8,6 +8,8 @@ enum TimelineActionKind {
 }
 
 
+signal lifecycle_changed
+
 signal encounter_started(encounter: CombatEncounter)
 signal combat_victory
 signal combat_defeat
@@ -108,6 +110,7 @@ func load_encounter(
 
 	_current_encounter = encounter
 	_encounter_active = true
+	lifecycle_changed.emit()
 	_initialize_runtime_slots()
 
 	_load_team_from_slots(
@@ -166,6 +169,7 @@ func reset_encounter() -> void:
 	_resolution_applied = false
 	_resolution_metadata.clear()
 	EvolutionManager.reset()
+	lifecycle_changed.emit()
 
 
 func is_encounter_active() -> bool:
@@ -334,6 +338,7 @@ func import_save_data(data: Dictionary) -> void:
 		data.get("completed_evolution_branch_ids", [])
 	)
 	_encounter_active = true
+	lifecycle_changed.emit()
 	_is_executing_cycle = false
 	runtime_slots_changed.emit()
 	stats_updated.emit()
@@ -606,6 +611,7 @@ func finalize_resolved_encounter() -> bool:
 		return false
 
 	_encounter_active = false
+	lifecycle_changed.emit()
 	return true
 
 

@@ -22,16 +22,15 @@ func _ready() -> void:
 	next_day_button.pressed.connect(func() -> void: _advance_development_time(24))
 	TimeManager.development_time_state_changed.connect(_refresh_time_controls)
 	GlobalSignals.time_advanced.connect(func(_period: int, _days: int, _day: int, _month: String) -> void: _refresh_time_controls())
-	var refresh := Timer.new()
-	refresh.wait_time = 0.25
-	refresh.timeout.connect(_refresh_time_controls)
-	add_child(refresh)
-	refresh.start()
 	_refresh_time_controls()
 
 func _refresh_time_controls() -> void:
 	current_time_label.text = "%02d %s %d // %s %s // BLOCK %d/12" % [TimeManager.current_calendar_day, TimeManager.MONTH_NAMES[TimeManager.current_month_index], TimeManager.current_year, TimeManager.get_current_period_name(), TimeManager.format_action_block_hour(TimeManager.current_period, TimeManager.current_action_block), TimeManager.current_action_block + 1]
 	var denial := TimeManager.development_time_denial_reason()
+	var phase: String = CampaignState.CampaignPhase.keys()[CampaignState.campaign_phase]
+	var operation := str(get_meta("qa_last_result", ""))
+	time_status_label.text = "PHASE: %s\n%s%s" % [phase, "READY // DEVELOPMENT" if denial.is_empty() else "PROTECTED // " + denial, "\n" + operation if not operation.is_empty() else ""]
+	get_node("Margin/SettingsScroll/Content/TimeSection").visible = OS.is_debug_build()
 	advance_hour_button.disabled = not denial.is_empty()
 	next_day_button.disabled = not denial.is_empty()
 	advance_hour_button.tooltip_text = denial
@@ -40,7 +39,7 @@ func _refresh_time_controls() -> void:
 func _advance_development_time(hours: int) -> void:
 	time_status_label.text = "DEVELOPMENT: processing intermediate hours..."
 	var result := await TimeManager.advance_development_hours(hours)
-	time_status_label.text = "QA advanced %d hour(s). %s" % [int(result.advanced), str(result.reason)]
+	set_meta("qa_last_result", "QA advanced %d hour(s). %s" % [int(result.advanced), str(result.reason)])
 	_refresh_time_controls()
 
 
