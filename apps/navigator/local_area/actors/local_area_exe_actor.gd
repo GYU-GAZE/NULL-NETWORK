@@ -11,7 +11,7 @@ class_name LocalAreaExeActor
 @onready var contact_sensor: Area2D = %ContactSensor
 @onready var presentation: FieldEXEPresentation = %Presentation
 var population_actor_id: String = ""
-var population_unit_id: String = ""
+var field_unit_id: String = ""
 var spawn_entry: SpawnEntry
 var behavior_profile: FieldBehaviorProfileData
 var encounter_profile: FieldEncounterProfileData
@@ -36,7 +36,7 @@ func configure_population_actor(new_actor_id: String, entry: SpawnEntry) -> bool
 	if entry == null or (entry.encounter == null and entry.environmental_apk == null):
 		return false
 	population_actor_id = new_actor_id.strip_edges()
-	population_unit_id = population_actor_id
+	field_unit_id = population_actor_id
 	spawn_entry = entry
 	encounter = entry.encounter
 	environmental_apk = entry.environmental_apk
@@ -57,7 +57,7 @@ func bind_field(area: NavigatorLocalAreaScene, seed_value: int) -> void:
 	if environmental_apk == null or behavior_profile == null or not is_node_ready():
 		return
 	field_area = area
-	presentation.configure(environmental_apk.field_presentation)
+	presentation.configure(spawn_entry.presentation_override if spawn_entry.presentation_override != null else environmental_apk.field_presentation)
 	motor.bind(area, seed_value)
 	motor.restore(_pending_motor_data)
 	_pending_motor_data.clear()
@@ -123,6 +123,12 @@ func release_call(grace: bool = false) -> void:
 		motor.disengage()
 
 func apply_unit_result(record: Dictionary, outcome: CombatResult.Outcome) -> void:
+	if outcome in [CombatResult.Outcome.ESCAPED, CombatResult.Outcome.CANCELLED]:
+		# Enemy defeats/extractions are pending until formal paid resolution.
+		# Escape discards them, including ecological requests and field tombstones.
+		release_call(true)
+		notify_persistent_state_changed()
+		return
 	if not record.is_empty():
 		hp_fraction = clampf(float(record.get("hp", 1)) / maxf(1, float(record.get("max_hp", 1))), 0, 1)
 		stability_fraction = clampf(float(record.get("stability", 100)) / maxf(1, float(record.get("max_stability", 100))), 0, 1)
@@ -140,17 +146,21 @@ func apply_combat_result(result: CombatResult) -> void:
 
 func get_persistent_state() -> Dictionary:
 	var state := super.get_persistent_state()
-	state.merge({"resolved": _resolved, "population_unit_id": population_unit_id, "hp_fraction": hp_fraction, "stability_fraction": stability_fraction}, true)
+	state.merge({"resolved": _resolved, "field_unit_id": field_unit_id, "hp_fraction": hp_fraction, "stability_fraction": stability_fraction}, true)
+	if is_instance_valid(presentation):
+		state["facing_left"] = presentation.facing_left
 	if is_instance_valid(motor) and field_area != null:
 		state["field_motion"] = motor.to_data()
 	return state
 
 func apply_persistent_state(state: Dictionary) -> void:
 	super.apply_persistent_state(state)
-	population_unit_id = str(state.get("population_unit_id", population_actor_id))
+	field_unit_id = str(state.get("field_unit_id", state.get("population_unit_id", population_actor_id)))
 	hp_fraction = clampf(float(state.get("hp_fraction", 1)), 0, 1)
 	stability_fraction = clampf(float(state.get("stability_fraction", 1)), 0, 1)
 	_pending_motor_data = state.get("field_motion", {}).duplicate(true)
+	if is_instance_valid(presentation):
+		presentation.facing_left = bool(state.get("facing_left", false))
 	if field_area != null:
 		motor.restore(_pending_motor_data)
 		_pending_motor_data.clear()

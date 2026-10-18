@@ -170,9 +170,12 @@ func _prepare_field_geometry() -> void:
 	var separation := map_location.spawn_table.field_population.spawn_separation if map_location != null and map_location.spawn_table != null and map_location.spawn_table.field_population != null else 32.0
 	for actor: LocalAreaExeActor in get_field_exes():
 		var position := to_local(actor.global_position)
+		# Spawn spacing is an authoring safeguard, not a constraint on valid
+		# positions reached by physical movement or restored from a checkpoint.
+		var enforce_spacing := not actor.motor.placement_initialized and not actor.motor.restored_position
 		var valid := field_navigation.is_position_valid(position)
 		for other: Vector2 in placed:
-			valid = valid and position.distance_to(other) >= separation
+			valid = valid and (not enforce_spacing or position.distance_to(other) >= separation)
 		if not valid:
 			var point := field_navigation.nearest_open(position)
 			if point == Vector2i(-1, -1):
@@ -200,6 +203,7 @@ func _prepare_field_geometry() -> void:
 			if not field_navigation.is_position_valid(actor.motor.home):
 				actor.motor.home = position
 		placed.append(position)
+		actor.motor.placement_initialized = true
 
 
 func get_player_position() -> Vector2:

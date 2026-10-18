@@ -3,6 +3,7 @@ class_name FieldEXEPresentation
 
 const FALLBACK_PATH := "res://data/assets/field/field_exe_fallback.svg"
 var _fallback: Texture2D
+var _fallback_step: Texture2D
 var definition: FieldPresentationData
 var moving: bool = false
 var facing_left: bool = false
@@ -12,6 +13,7 @@ var _clock: float = 0.0
 
 func _ready() -> void:
 	_fallback = load(FALLBACK_PATH)
+	_fallback_step = load("res://data/assets/field/field_exe_step_fallback.svg")
 
 func configure(data: FieldPresentationData) -> void:
 	definition = data
@@ -35,10 +37,14 @@ func _draw() -> void:
 	var factor := 1.0
 	var color := tint
 	var flip := facing_left
+	var fps := definition.frames_per_second if definition != null else 6.0
+	var stepping := moving and int(_clock * fps) % 2 == 1
+	if stepping:
+		texture = _fallback_step
 	if definition != null:
-		var frames: Array[Texture2D] = definition.step_frames if moving and not definition.step_frames.is_empty() else definition.idle_frames
-		if not frames.is_empty():
-			texture = frames[int(_clock * definition.frames_per_second) % frames.size()]
+		var frame := definition.field_step if stepping else definition.field_idle
+		if frame != null:
+			texture = frame
 		origin = definition.sprite_origin
 		factor = definition.visual_scale
 		color *= definition.tint

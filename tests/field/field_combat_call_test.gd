@@ -22,9 +22,31 @@ func run() -> void:
 	check(area.field_calls.begin(main), "Valid main interaction did not acquire call ownership")
 	check(not area.field_calls.begin(main), "A duplicate contact acquired another call")
 	var solo := await area.field_calls.build_encounter()
-	check(solo != null and solo.enemy_slots.size() == 1 and solo.enemy_slots[0].field_unit_id == main.population_unit_id, "No-response call was not an individual 1v1 with the main EXE")
+	check(solo != null and solo.enemy_slots.size() == 1 and solo.enemy_slots[0].field_unit_id == main.field_unit_id, "No-response call was not an individual 1v1 with the main EXE")
 	check(solo.enemy_slots[0].participant_source == CombatSlotData.ParticipantSource.CATALOG_APK, "Dynamic encounter bypassed catalog APK progression")
 	area.field_calls.cancel()
+	# Canonical HESITATE advances partially then desists; FLEE moves away;
+	# OBSERVE remains nearby. None is silently converted into a JOIN.
+	var hesitation := FieldCallResponseRule.new()
+	hesitation.response = FieldCallResponseRule.Response.HESITATE
+	actors[1].behavior_profile.response_rules = [hesitation]
+	actors[2].behavior_profile.behavior = FieldBehaviorProfileData.Behavior.COWARDLY
+	actors[3].behavior_profile.behavior = FieldBehaviorProfileData.Behavior.CURIOUS
+	actors[2].refresh_field_context()
+	actors[3].refresh_field_context()
+	var hesitant_start := actors[1].global_position.distance_to(main.global_position)
+	var fleeing_start := actors[2].global_position.distance_to(main.global_position)
+	var observer_start := actors[3].global_position
+	check(area.field_calls.begin(main), "Reaction call did not begin")
+	var reactions := await area.field_calls.build_encounter()
+	check(reactions != null and reactions.enemy_slots.size() == 1, "Hesitating/fleeing/observing actors joined the formation")
+	check(actors[1].global_position.distance_to(main.global_position) < hesitant_start, "HESITATE did not physically approach before desisting")
+	check(actors[2].global_position.distance_to(main.global_position) > fleeing_start, "FLEE did not physically withdraw during the call")
+	check(actors[3].global_position.distance_to(observer_start) < 24.0, "OBSERVE did not remain nearby outside the formation")
+	var escaped_id := main.field_unit_id
+	var escape_call := reactions.encounter_id
+	area.field_calls.apply_result(CombatResult.create(CombatResult.Outcome.ESCAPED, escape_call, {"field_units": [{"unit_id": escaped_id, "hp": 0, "max_hp": 10, "defeated": true, "purged": true}]}))
+	check(main.available and not CampaignState.world_state.persistent_objects.has("field_resolution." + escape_call), "Escape committed a pending field/ecology removal")
 	# A real fifth actor is eligible, but the formation still cannot exceed four.
 	var extra := (load("res://apps/navigator/local_area/actors/local_area_exe_actor.tscn") as PackedScene).instantiate() as LocalAreaExeActor
 	extra.configure_population_actor("field_test.extra", main.spawn_entry)
@@ -35,6 +57,7 @@ func run() -> void:
 		var actor := actors[index]
 		actor.behavior_profile = actor.behavior_profile.duplicate() as FieldBehaviorProfileData
 		actor.behavior_profile.speed = 0
+		actor.behavior_profile.response_rules = []
 		actor.behavior_profile.behavior = FieldBehaviorProfileData.Behavior.AGGRESSIVE
 		actor.refresh_field_context()
 		_place(area, actor, Vector2(400 + index * 35, 700))
@@ -42,9 +65,16 @@ func run() -> void:
 	area.field_navigation.rebuild(area)
 	area.player.global_position = main.global_position - Vector2(0, 22)
 	check(area.field_calls.begin(main), "Multiple call could not begin")
+	var before_positions := {}
+	for actor: LocalAreaExeActor in actors:
+		before_positions[actor.field_unit_id] = actor.global_position
 	var multiple := await area.field_calls.build_encounter()
+	var approached := false
+	for actor: LocalAreaExeActor in actors:
+		approached = approached or actor.global_position.distance_to(before_positions[actor.field_unit_id]) > 2
+	check(approached, "Selected responders did not physically approach during Combat Call")
 	check(multiple != null and multiple.enemy_slots.size() == 4, "Eligible visible responders did not produce a four-enemy formation")
-	check(multiple.enemy_slots[0].field_unit_id == main.population_unit_id, "Responder displaced the main EXE")
+	check(multiple.enemy_slots[0].field_unit_id == main.field_unit_id, "Responder displaced the main EXE")
 	var original := FileAccess.get_file_as_bytes("res://data/content/combat/3v1.tres")
 	check(CombatManager.load_encounter(multiple), "Existing CombatManager rejected the dynamic field formation")
 	check(CombatManager.enemy_team.filter(func(value: Variant) -> bool: return value != null).size() == 4, "CATALOG_APK slots did not instantiate four real combatants")
@@ -64,10 +94,14 @@ func run() -> void:
 	# is a coordinator contract fixture; the UI suite executes real terminal fights.
 	var members: Array = multiple.field_formation.members
 	var defeated_id := str(members[1].unit_id)
-	area.field_calls.apply_result(CombatResult.create(CombatResult.Outcome.DEFEAT, multiple.encounter_id, {"field_units": [{"unit_id": defeated_id, "hp": 0.0, "max_hp": 10.0, "defeated": true}]}))
+	var effects: Array[Dictionary] = []
+	area.field_calls.ecology_effects_requested.connect(func(_receipt: String, _location: String, requests: Array[Dictionary]) -> void: effects.append_array(requests))
+	area.field_calls.apply_result(CombatResult.create(CombatResult.Outcome.DEFEAT, multiple.encounter_id, {"field_units": [{"unit_id": defeated_id, "hp": 0.0, "max_hp": 10.0, "defeated": true, "purged": true}]}))
+	check(effects.size() == 1 and int(effects[0].population_delta) == -1, "Formal PURGE result did not emit one ecological request")
+	check(CampaignState.world_state.persistent_objects.has("field_resolution." + multiple.encounter_id), "Committed field/ecology receipt was not persisted")
 	check(not (area.find_interactable_by_id(defeated_id) as LocalAreaExeActor).available, "Defeated participant was not individually spent")
 	check(main.available and extra.available, "Resolving one participant removed healthy/unselected EXEs")
-	var all_ids := actors.map(func(value: LocalAreaExeActor) -> String: return value.population_unit_id)
+	var all_ids := actors.map(func(value: LocalAreaExeActor) -> String: return value.field_unit_id)
 	area.population_controller.sync_population_state()
 	area.population_controller.populate(location)
 	check(area.find_interactable_by_id(defeated_id) == null, "Resolved field unit respawned in the same generation")
@@ -96,7 +130,6 @@ func _test_responses() -> void:
 		check(int(result.response) == expected[behavior], "Behavior %s returned the wrong individual call decision" % FieldBehaviorProfileData.Behavior.keys()[behavior])
 	var rule := FieldCallResponseRule.new()
 	rule.response = FieldCallResponseRule.Response.HESITATE
-	rule.join_after_hesitation = true
 	rule.minimum_danger = 2
 	rule.minimum_infestation = 3
 	rule.variant_node_ids = PackedStringArray(["alpha"])
@@ -104,7 +137,7 @@ func _test_responses() -> void:
 	check(int(FieldResponseEvaluator.evaluate(profile, 0, context, 1).response) == FieldCallResponseRule.Response.IGNORE, "Missing Danger/Variant authorities were fabricated to satisfy a response rule")
 	context.merge({"danger": 2, "infestation": 3, "variant_node_id": "alpha"})
 	var hesitant := FieldResponseEvaluator.evaluate(profile, 0, context, 1)
-	check(int(hesitant.response) == FieldCallResponseRule.Response.HESITATE and bool(hesitant.join) and float(hesitant.delay) > 0, "Authored conditional hesitation was not respected")
+	check(int(hesitant.response) == FieldCallResponseRule.Response.HESITATE and not bool(hesitant.join) and float(hesitant.delay) > 0, "Canonical hesitation must approach partially and desist")
 	check(hesitant == FieldResponseEvaluator.evaluate(profile, 0, context, 1), "Seeded response changed on reevaluation")
 
 func _place(area: NavigatorLocalAreaScene, actor: LocalAreaExeActor, position: Vector2) -> void:

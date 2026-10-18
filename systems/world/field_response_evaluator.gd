@@ -10,7 +10,7 @@ static func evaluate(profile: FieldBehaviorProfileData, behavior: int, context: 
 		if rule != null and rule.matches(context):
 			if rng.randf() > rule.probability:
 				return _result(FieldCallResponseRule.Response.IGNORE)
-			return {"response": int(rule.response), "join": rule.response in [FieldCallResponseRule.Response.JOIN, FieldCallResponseRule.Response.INTERCEPT] or (rule.response == FieldCallResponseRule.Response.HESITATE and rule.join_after_hesitation), "delay": rule.hesitation_seconds if rule.response == FieldCallResponseRule.Response.HESITATE else 0.0}
+			return {"response": int(rule.response), "join": rule.response in [FieldCallResponseRule.Response.JOIN, FieldCallResponseRule.Response.INTERCEPT], "delay": rule.hesitation_seconds if rule.response == FieldCallResponseRule.Response.HESITATE else 0.0}
 	if rng.randf() > profile.response_probability:
 		return _result(FieldCallResponseRule.Response.IGNORE)
 	match behavior:
@@ -19,7 +19,7 @@ static func evaluate(profile: FieldBehaviorProfileData, behavior: int, context: 
 		FieldBehaviorProfileData.Behavior.PACK:
 			return _result(FieldCallResponseRule.Response.JOIN if bool(context.get("same_species", false)) else FieldCallResponseRule.Response.IGNORE)
 		FieldBehaviorProfileData.Behavior.PROTECTIVE:
-			return _result(FieldCallResponseRule.Response.INTERCEPT if bool(context.get("same_species", false)) else FieldCallResponseRule.Response.OBSERVE)
+			return _result(FieldCallResponseRule.Response.INTERCEPT if bool(context.get("same_species", false)) or bool(context.get("caller_protected", false)) else FieldCallResponseRule.Response.OBSERVE)
 		FieldBehaviorProfileData.Behavior.TERRITORIAL:
 			return _result(FieldCallResponseRule.Response.INTERCEPT if bool(context.get("caller_in_territory", false)) else FieldCallResponseRule.Response.IGNORE)
 		FieldBehaviorProfileData.Behavior.CAUTIOUS, FieldBehaviorProfileData.Behavior.COWARDLY:

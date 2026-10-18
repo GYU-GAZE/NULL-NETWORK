@@ -18,6 +18,9 @@ var _path_index: int = 0
 var _patrol_index: int = 0
 var _returning: bool = false
 var _last_seen: Vector2
+var _call_time: float = 0.0
+var placement_initialized: bool = false
+var restored_position: bool = false
 
 func _ready() -> void:
 	top_level = true
@@ -36,6 +39,10 @@ func bind(owner_area: NavigatorLocalAreaScene, seed_value: int) -> void:
 func _physics_process(delta: float) -> void:
 	if area == null or actor.behavior_profile == null:
 		return
+	if _call_time > 0 and area.field_calls.presenting and area.field_navigation.ready:
+		_call_time = maxf(0, _call_time - delta)
+		_move_physics(delta, true)
+		return
 	var running := area.is_field_active() and actor.can_move_in_field() and area.field_navigation.ready
 	if not running:
 		velocity = Vector2.ZERO
@@ -48,8 +55,29 @@ func _physics_process(delta: float) -> void:
 	if _perception_left <= 0:
 		_perception_left = actor.behavior_profile.perception_interval
 		_decide()
+	_move_physics(delta)
+	var local := area.to_local(global_position)
+	if state == State.CHASING and grace_seconds <= 0 and not needs_separation:
+		for index: int in range(get_slide_collision_count()):
+			if get_slide_collision(index).get_collider() == area.player:
+				actor.request_field_contact()
+				break
+		if actor.contact_sensor.overlaps_body(area.player) and global_position.distance_to(area.player.global_position) <= 22 and area.field_navigation.line_clear(local, area.to_local(area.player.global_position)):
+			actor.request_field_contact()
+
+func begin_call_motion(target: Vector2, seconds: float) -> void:
+	destination = _bounded(target)
+	_call_time = seconds
+	_path_left = 0
+	state = State.COMBAT_CALL
+
+func end_call_motion() -> void:
+	_call_time = 0
+	velocity = Vector2.ZERO
+
+func _move_physics(delta: float, during_call: bool = false) -> void:
 	var direction := Vector2.ZERO
-	if state not in [State.IDLE, State.COMBAT_CALL, State.DISABLED]:
+	if during_call or state not in [State.IDLE, State.COMBAT_CALL, State.DISABLED]:
 		if _path_left <= 0:
 			_path_left = 0.35
 			_path = area.field_navigation.path(area.to_local(global_position), destination)
@@ -63,20 +91,13 @@ func _physics_process(delta: float) -> void:
 			else:
 				direction = global_position.direction_to(target)
 	var profile := actor.behavior_profile
-	velocity = velocity.move_toward(direction * profile.speed * actor.speed_multiplier, profile.acceleration * delta)
+	velocity = velocity.move_toward(direction * (profile.call_speed if during_call else profile.speed * actor.speed_multiplier), profile.acceleration * delta)
 	move_and_slide()
 	var local := area.to_local(global_position)
 	local = local.clamp(area.area_bounds.position + Vector2.ONE * 12, area.area_bounds.end - Vector2.ONE * 12)
 	global_position = area.to_global(local)
 	actor.global_position = global_position
 	actor.presentation.advance(delta, velocity, true)
-	if state == State.CHASING and grace_seconds <= 0 and not needs_separation:
-		for index: int in range(get_slide_collision_count()):
-			if get_slide_collision(index).get_collider() == area.player:
-				actor.request_field_contact()
-				break
-		if actor.contact_sensor.overlaps_body(area.player) and global_position.distance_to(area.player.global_position) <= 22 and area.field_navigation.line_clear(local, area.to_local(area.player.global_position)):
-			actor.request_field_contact()
 
 func _decide() -> void:
 	var profile := actor.behavior_profile
@@ -119,7 +140,10 @@ func _decide() -> void:
 		var attacks := behavior in [FieldBehaviorProfileData.Behavior.AGGRESSIVE, FieldBehaviorProfileData.Behavior.TERRITORIAL, FieldBehaviorProfileData.Behavior.SWARM]
 		if behavior in [FieldBehaviorProfileData.Behavior.PACK, FieldBehaviorProfileData.Behavior.PROTECTIVE]:
 			for friend: LocalAreaExeActor in area.get_field_exes():
-				if friend != actor and friend.environmental_apk.species_line_id == actor.environmental_apk.species_line_id and friend.global_position.distance_to(global_position) < profile.perception_radius:
+				if friend != actor and friend.global_position.distance_to(global_position) < profile.perception_radius:
+					var protected := friend.environmental_apk.species_line_id == actor.environmental_apk.species_line_id or friend.environmental_apk.form_type == APKData.FormType.INIT or friend.hp_fraction <= profile.protection_hp_threshold
+					if not protected:
+						continue
 					attacks = behavior == FieldBehaviorProfileData.Behavior.PACK or friend.global_position.distance_to(area.player.global_position) < profile.following_distance
 					if attacks:
 						break
@@ -133,6 +157,13 @@ func _decide() -> void:
 		state = State.INVESTIGATING
 		destination = _last_seen
 		return
+	if behavior == FieldBehaviorProfileData.Behavior.PACK and not seen:
+		for friend: LocalAreaExeActor in area.get_field_exes():
+			if friend != actor and friend.environmental_apk.species_line_id == actor.environmental_apk.species_line_id:
+				if global_position.distance_to(friend.global_position) > profile.following_distance:
+					state = State.FOLLOWING
+					destination = area.to_local(friend.global_position)
+					return
 	if behavior == FieldBehaviorProfileData.Behavior.SOLITARY:
 		for other: LocalAreaExeActor in area.get_field_exes():
 			if other != actor and other.global_position.distance_to(global_position) < profile.following_distance:
@@ -176,6 +207,7 @@ func restore(data: Dictionary) -> void:
 	var saved_home: Dictionary = data.get("home", {})
 	var target: Dictionary = data.get("destination", {})
 	if not position.is_empty():
+		restored_position = true
 		global_position = area.to_global(Vector2(float(position.get("x", 0)), float(position.get("y", 0))))
 		actor.global_position = global_position
 	if not saved_home.is_empty():

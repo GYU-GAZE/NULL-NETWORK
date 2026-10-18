@@ -14,7 +14,6 @@ enum Response { JOIN, IGNORE, HESITATE, FLEE, INTERCEPT, OBSERVE }
 @export var minimum_infestation: int = -1
 @export_range(0.0, 1.0) var probability: float = 1.0
 @export_range(0.0, 3.0) var hesitation_seconds: float = 0.4
-@export var join_after_hesitation: bool = false
 
 func matches(context: Dictionary) -> bool:
 	var distance := float(context.get("distance", INF))

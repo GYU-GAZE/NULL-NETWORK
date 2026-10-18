@@ -39,6 +39,7 @@ static func create(data: Dictionary) -> CombatEncounter:
 		if slot.apk_level < 1 or slot.apk_level > 100:
 			return null
 		slot.field_unit_id = id
+		slot.field_variant_node_id = str(member.get("variant_node_id", ""))
 		slot.initial_hp_fraction = clampf(float(member.get("hp_fraction", 1)), 0, 1)
 		slot.initial_stability_fraction = clampf(float(member.get("stability_fraction", 1)), 0, 1)
 		var reward_path := str(member.get("reward_path", ""))

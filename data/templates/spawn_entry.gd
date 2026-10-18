@@ -13,6 +13,7 @@ class_name SpawnEntry
 @export var environmental_apk: APKData
 @export var behavior_override: FieldBehaviorProfileData
 @export var encounter_override: FieldEncounterProfileData
+@export var presentation_override: FieldPresentationData
 @export_range(1, 100) var field_level: int = 1
 @export var variant_node_id: String = ""
 @export_multiline var environmental_description: String = ""

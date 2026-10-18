@@ -10,6 +10,8 @@ enum Behavior { PASSIVE, AGGRESSIVE, TERRITORIAL, CAUTIOUS, COWARDLY, CURIOUS, P
 @export var modifiers: Array[FieldBehaviorModifierData] = []
 @export var response_rules: Array[FieldCallResponseRule] = []
 @export_range(0.0, 300.0) var speed: float = 48.0
+@export_range(1.0, 300.0) var call_speed: float = 64.0
+@export_range(0.0, 1.0) var protection_hp_threshold: float = 0.4
 @export_range(1.0, 2000.0) var acceleration: float = 240.0
 @export_range(0.0, 1000.0) var perception_radius: float = 140.0
 @export_range(8.0, 1000.0) var roaming_radius: float = 80.0

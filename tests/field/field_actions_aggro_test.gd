@@ -70,7 +70,7 @@ func run() -> void:
 	finish("FIELD_ACTIONS_AGGRO_TEST")
 
 func _test_actions(actor: LocalAreaExeActor) -> void:
-	var original_id := actor.population_unit_id
+	var original_id := actor.field_unit_id
 	for action: String in ["scan", "purge", "tame"]:
 		CombatManager.reset_encounter()
 		var partner := APKProgressionService.create_partner_state("novire_init", "Field action acceptance", 0, 0)

@@ -2,9 +2,9 @@
 
 ## Contrato e autoridades
 
-Esta fase implementa as decisões fechadas do pedido canônico da Fase 04. O GDD v5 completo não está presente no checkout; nenhum detalhe ausente de Danger, Variant Node ou ecologia global foi preenchido com uma autoridade paralela.
+Esta fase segue as decisões fechadas do pedido e o [GDD canônico v5](../gdd/NULL_NETWORK_GDD_CANONICO_v5.md), incorporado pela atualização da PR #43. Os capítulos 1, 7 e 9 orientam custo reservado, fuga, projeções individuais e Combat Call. Dimensões ainda sem autoridade implementada usam contexto extensível, sem criar sistemas paralelos.
 
-`APKData` continua sendo a espécie/forma. Cada projeção ambiental é uma unidade individual do estado de população existente em `CampaignState.world_state.population_states`. O ID inclui local, entrada, índice e geração; nunca é substituído pelo ID da espécie durante o combate. `ContentRegistry`, Conditions, rotinas, ActivityManager, TimeManager, DialogueManager, CombatManager e SaveManager mantêm suas responsabilidades.
+`APKData` continua sendo a espécie/forma. Cada projeção ambiental possui identidade individual no estado de população existente em `CampaignState.world_state.population_states`. Essa identidade de campo é distinta das Population Units ecológicas finitas do GDD. O ID inclui local, entrada, índice e geração; nunca é substituído pelo ID da espécie durante o combate. `ContentRegistry`, Conditions, rotinas, ActivityManager, TimeManager, DialogueManager, CombatManager e SaveManager mantêm suas responsabilidades.
 
 ## Configurar uma espécie/forma
 
@@ -12,7 +12,7 @@ No Inspector de `APKData`, atribua:
 
 | Resource | Campos e responsabilidade |
 | --- | --- |
-| `field_presentation: FieldPresentationData` | `idle_frames`, `step_frames`, `sprite_origin` em pixels da imagem, `visual_scale`, `frames_per_second`, `faces_right`, `tint` e `digital_effect`. Independente de ator runtime e reutilizável futuramente pelo Profile. |
+| `field_presentation: FieldPresentationData` | `field_idle`, `field_step`, `sprite_origin` em pixels da imagem, `visual_scale`, `frames_per_second`, `faces_right`, `tint` e `digital_effect`. Independente de ator runtime e reutilizável futuramente pelo Profile. |
 | `field_behavior: FieldBehaviorProfileData` | Identidade comportamental padrão da espécie/forma, parâmetros de movimento, percepção e resposta. |
 | `field_encounter: FieldEncounterProfileData` | Atividades voluntária/imposta, perfil de resolução/recompensa, raio e duração da chamada e política de aggro. |
 
@@ -41,13 +41,13 @@ O motor possui estados Idle, Roaming, Patrol, Investigating, Following, Chasing,
 
 O ator conserva a raiz `LocalAreaInteractable`/Area2D e o contrato do sensor existente na layer 2. O movimento pertence a um `CharacterBody2D` composto com `top_level`, layer/mask 1; a raiz de interação acompanha o corpo. Não se desloca um StaticBody2D. A apresentação arredonda sua própria posição, mantendo subpixels no corpo físico.
 
-Cada área mantém uma grade `AStarGrid2D` compartilhada de 24 pixels. Ela amostra obstáculos físicos com folga para o corpo e impede cortes diagonais por cantos bloqueados. O motor recalcula caminhos em intervalos, enquanto `move_and_slide()` continua sendo a autoridade final de colisão. O mapa usa `area_bounds` e as colisões existentes, incluindo NPCs estáticos. Pontos inválidos/ocupados são corrigidos para posições livres próximas; se não há espaço válido, a unidade não é apresentada. Ajuste colisões e spawn points no editor para evitar depender dessa recuperação.
+Cada área mantém uma grade `AStarGrid2D` compartilhada de 24 pixels. Ela amostra obstáculos físicos com folga para o corpo e impede cortes diagonais por cantos bloqueados. O motor recalcula caminhos em intervalos, enquanto `move_and_slide()` continua sendo a autoridade final de colisão. O mapa usa `area_bounds` e as colisões existentes, incluindo NPCs estáticos. A separação autorada é aplicada apenas no spawn inicial. Posições válidas alcançadas pelo movimento ou restauradas de um checkpoint conservam suas coordenadas mesmo quando os indivíduos estão próximos. Pontos inválidos/ocupados são corrigidos para posições livres próximas; se não há espaço válido, a unidade não é apresentada. Ajuste colisões e spawn points no editor para evitar depender dessa recuperação.
 
 O Player e os motores ambientais são pausados pela apresentação local quando Navigator fica inativo, entra em diálogo/combate ou há confirmação. O avanço temporal de QA também pausa os motores durante a operação. Proximidade visual não inicia batalha: o motor exige contato físico/sensor compatível antes de emitir a intenção automática. A interação deliberada usa o sensor existente do Player e verifica distância/linha livre.
 
 ## População ambiental
 
-Use `SpawnEntry.environmental_apk` e deixe `encounter` vazio para fauna comum. O Resource herda os três perfis da espécie. Use `behavior_override` ou `encounter_override` apenas quando a ocorrência precisar de uma variação. `field_level` define o nível do indivíduo; `variant_node_id` é um identificador autoral opcional transmitido no contexto. Não coloque IDs de espécie no controlador ou no coordenador.
+Use `SpawnEntry.environmental_apk` e deixe `encounter` vazio para fauna comum. O Resource herda os três perfis da espécie. Use `presentation_override`, `behavior_override` ou `encounter_override` apenas quando a ocorrência precisar de uma variação. `field_level` define o nível do indivíduo; `variant_node_id` é um identificador autoral opcional transmitido no contexto. Não coloque IDs de espécie no controlador ou no coordenador.
 
 Em `SpawnTable.field_population`, configure `FieldPopulationData`: mínimo/máximo visível (referência comum 2–5), `conditions`, `guaranteed_spawn_ids`, `spawn_separation` e `danger_number_key` opcional. `rolls_per_population` informa a quantidade desejada e os pesos completam a composição dentro do orçamento. As entradas garantidas permitem demonstrar diversidade comportamental sem depender de um sorteio favorável. A disponibilidade real de pontos compatíveis e espaço físico limita a projeção.
 
@@ -59,7 +59,7 @@ Akiba usa quatro entradas individuais de `rattildus_init`: patrulha, agressiva, 
 
 O principal sempre ocupa o slot inimigo 0. O coordenador consulta atores ambientais realmente presentes, disponíveis, com linha livre e dentro de `call_radius`. Avalia cada resposta separadamente e inclui até três respondedores. INTERCEPT tem prioridade; demais empates usam distância/ID estáveis. Quem não entra continua na área.
 
-As respostas são JOIN, IGNORE, HESITATE, FLEE, INTERCEPT e OBSERVE. As identidades do perfil fornecem padrões; `response_rules` ordenadas permitem condições específicas. `FieldCallResponseRule` define resposta, distância mínima/máxima, mesma espécie, variantes aceitas, limites opcionais de Danger/Infestation, probabilidade, tempo de hesitação e `join_after_hesitation`. HESITATE pode responder depois do atraso; FLEE inicia o retorno/recuo protegido após a chamada. O resultado usa seed de chamada/unidade, não sorteio independente de inimigos.
+As respostas são JOIN, IGNORE, HESITATE, FLEE, INTERCEPT e OBSERVE. As identidades do perfil fornecem padrões; `response_rules` ordenadas permitem condições específicas. `FieldCallResponseRule` define resposta, distância mínima/máxima, mesma espécie, variantes aceitas, limites opcionais de Danger/Infestation, probabilidade e tempo de hesitação. HESITATE aproxima-se parcialmente e desiste; FLEE afasta-se durante a chamada. JOIN e INTERCEPT aproximam-se usando o mesmo corpo físico/navegação antes da transição. O resultado usa seed de chamada/unidade, não sorteio independente de inimigos.
 
 Infestation vem de `CampaignState.world_state.get_infestation(location_id)`. Danger só entra no contexto quando o conteúdo aponta uma chave numérica existente de GameState. Variant Node é metadado autoral da projeção. Regras que exigem uma dimensão ausente não recebem um valor universal inventado. Sistemas futuros podem preencher esses mesmos contextos pelas autoridades existentes.
 
@@ -77,7 +77,7 @@ Escolha explicitamente `aggro_policy`:
 | OFFER_VOLUNTARY | Oferece a atividade voluntária normal. Confirmação/cancelamento e indisponibilidade de horas são respeitados; a recusa libera a chamada e aplica graça. |
 | DISABLED | Não emite intenção de combate automático. Interação deliberada continua disponível. |
 
-Incidentes e atividades proprietárias continuam usando a transação existente; combate incluído não paga novamente. A reserva só é liquidada em resolução paga. Run Away bem-sucedido libera a reserva com custo 0 e sem recompensas persistentes. Dano/estado já ocorrido e unidades efetivamente neutralizadas são reconciliados pelos resultados individuais, sem recriar a formação inteira.
+Incidentes e atividades proprietárias continuam usando a transação existente; combate incluído não paga novamente. A reserva só é liquidada em resolução paga. Run Away bem-sucedido libera a reserva com custo 0 e sem recompensas persistentes. O snapshot do parceiro conserva o dano já sofrido. Fuga descarta as alterações inimigas pendentes; resultados formais são reconciliados individualmente, sem recriar a formação inteira.
 
 `escape_grace_seconds` e `reengage_distance` evitam loops no retorno: perseguidores recebem graça e precisam permitir separação antes de aggro automático. A chamada possui ownership por área; contatos repetidos não abrem novas atividades. Cancelar/recusar libera os atores. O jogador pode provocar deliberadamente outra luta durante a graça.
 
@@ -100,3 +100,7 @@ Execute as seis cenas `tests/field/*test.tscn`: movimento, formação/respostas,
 As capturas nativas demonstram movimento, perseguição, fuga, chamada, formação, resolução, VN e controles temporais com os assets provisórios. PASS headless valida contratos; a inspeção nativa é uma evidência separada.
 
 Referências de implementação do Godot 4.6: [AStarGrid2D](https://docs.godotengine.org/en/4.6/classes/class_astargrid2d.html) e [PhysicsDirectSpaceState2D](https://docs.godotengine.org/en/4.6/classes/class_physicsdirectspacestate2d.html).
+
+### Fronteira da ecologia finita
+
+Projeções visíveis não equivalem às Population Units finitas do capítulo 9. Normal defeat, SCAN e TAME não debitam um contador ecológico fictício. Na resolução formal, cada alvo PURGE derrotado produz um pedido de delta -1 por espécie/zona, com receipt idempotente em `world_state.persistent_objects` e sinal `ecology_effects_requested`. Uma autoridade ecológica futura pode consumir esse pedido; esta fase não inventa populações-base semanais. Run Away não emite nem persiste esse pedido. Atores físicos podem sair da apresentação atual sem significar extinção ecológica. Os contratos de recompensas/Player Actions existentes foram preservados conforme o pedido; o balanceamento e novas Interaction Sequences do GDD são fronteiras distintas.

@@ -5,16 +5,16 @@ func run() -> void:
 	await boot("field_end_to_end")
 	var positions: Dictionary = {}
 	for actor: LocalAreaExeActor in area.get_field_exes():
-		positions[actor.population_unit_id] = actor.global_position
+		positions[actor.field_unit_id] = actor.global_position
 	await settle(0.8)
 	var moved := false
 	for actor: LocalAreaExeActor in area.get_field_exes():
-		moved = moved or actor.global_position.distance_to(positions[actor.population_unit_id]) > 2
+		moved = moved or actor.global_position.distance_to(positions[actor.field_unit_id]) > 2
 	check(moved, "Production field projections remained stationary")
 	await capture("field_akiba_individuals")
 	var actors := configure_call_actors(false)
 	var main := actors[0]
-	var main_id := main.population_unit_id
+	var main_id := main.field_unit_id
 	var initial := TimeManager.get_total_action_index()
 	await request_fight(main)
 	check(CombatManager.get_current_encounter().enemy_slots.size() == 1, "Independent solo contact was not 1v1")
@@ -44,14 +44,14 @@ func run() -> void:
 	var transaction := navigator._active_combat_transaction_id
 	var saved_motions := {}
 	for unit: LocalAreaExeActor in area.get_field_exes():
-		saved_motions[unit.population_unit_id] = unit.motor.to_data()
+		saved_motions[unit.field_unit_id] = unit.motor.to_data()
 	check(SaveManager.manual_save(), "Real SaveManager could not save a stable dynamic encounter")
 	check(SaveManager.load_campaign("field_end_to_end").is_empty(), "Dynamic encounter could not be restored from disk")
 	await settle(0.2)
 	area = navigator.local_area_view.get_current_area_instance()
 	for unit: LocalAreaExeActor in area.get_field_exes():
-		check(unit.motor.to_data().rng == saved_motions[unit.population_unit_id].rng, "Disk JSON changed the individual 64-bit field RNG state")
-		check(unit.motor.to_data().position == saved_motions[unit.population_unit_id].position, "Disk load changed a paused field unit's physical position")
+		check(unit.motor.to_data().rng == saved_motions[unit.field_unit_id].rng, "Disk JSON changed the individual 64-bit field RNG state")
+		check(unit.motor.to_data().position == saved_motions[unit.field_unit_id].position, "Disk load changed a paused field unit's physical position")
 	var restored_ids: Array[String] = []
 	for slot: CombatSlotData in CombatManager.get_current_encounter().enemy_slots:
 		restored_ids.append(slot.field_unit_id)
@@ -81,7 +81,7 @@ func run() -> void:
 	await win_current_fight()
 	await return_from_fight()
 	check(TimeManager.get_total_action_index() == initial + 1, "Voluntary 1v4 did not cost exactly one block")
-	check(area.get_field_exes().is_empty(), "Defeated/tamed participants did not reconcile individually to spent Population Units")
+	check(area.get_field_exes().is_empty(), "Defeated/tamed field participants did not reconcile individually")
 	check(ActivityManager.export_save_data().transactions.is_empty(), "Four-enemy resolution left an orphan transaction")
 	await capture("field_after_resolution")
 	var position := area.get_player_position()

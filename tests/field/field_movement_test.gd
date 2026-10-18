@@ -40,7 +40,7 @@ func run() -> void:
 	_place(area, actor, Vector2(650, 700))
 	area.player.global_position = area.to_global(Vector2(810, 700))
 	var contacts: Array[String] = []
-	area.field_contact_requested.connect(func(target: LocalAreaExeActor) -> void: contacts.append(target.population_unit_id))
+	area.field_contact_requested.connect(func(target: LocalAreaExeActor) -> void: contacts.append(target.field_unit_id))
 	await _frames(24)
 	check(actor.motor.state == FieldEXEMotor.State.CHASING and actor.global_position.x > 680, "Aggressive EXE did not physically pursue the Player")
 	check(contacts.is_empty(), "Perception opened combat before contact")

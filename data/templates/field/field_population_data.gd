@@ -2,8 +2,8 @@
 extends Resource
 class_name FieldPopulationData
 
-## Ecological presentation budget, scoped to this authored subarea. World
-## population descriptors are the Population Units; this is not another store.
+## Presentation budget scoped to an authored subarea. Visible field identities
+## are separate from the finite ecological Population Units defined by the GDD.
 @export_range(0, 16) var minimum_units: int = 2
 @export_range(0, 16) var maximum_units: int = 5
 @export var conditions: ConditionRuleData

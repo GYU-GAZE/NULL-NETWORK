@@ -1442,6 +1442,7 @@ func _load_team_from_slots(
 			slot_data.reward_profile
 		)
 		target_team[index]["field_unit_id"] = slot_data.field_unit_id
+		target_team[index]["variant_node_id"] = slot_data.field_variant_node_id
 
 
 func _resolve_slot_loadout(slot_data: CombatSlotData) -> CharacterLoadout:
@@ -4421,6 +4422,7 @@ func _serialize_actor(actor: Dictionary) -> Dictionary:
 		"uid": int(actor.get("uid", -1)),
 		"character_id": str(actor.get("character_id", "")),
 		"field_unit_id": str(actor.get("field_unit_id", "")),
+		"variant_node_id": str(actor.get("variant_node_id", "")),
 		"source_kind": int(actor.get("source_kind", CombatSlotData.ParticipantSource.FIXED_LOADOUT)),
 		"encounter_slot_index": int(actor.get("encounter_slot_index", -1)),
 		"name": str(actor.get("name", "Entity")),
@@ -4506,6 +4508,7 @@ func _deserialize_actor(data: Dictionary) -> Dictionary:
 		"uid": int(data.get("uid", -1)),
 		"character_id": character_id,
 		"field_unit_id": str(data.get("field_unit_id", "")),
+		"variant_node_id": str(data.get("variant_node_id", "")),
 		"source_kind": source_kind,
 		"encounter_slot_index": encounter_slot_index,
 		"reward_profile": _reward_profile_for_actor(bool(data.get("is_ally", false)), encounter_slot_index),

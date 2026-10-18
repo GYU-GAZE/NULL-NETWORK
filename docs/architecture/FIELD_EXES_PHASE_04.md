@@ -1,13 +1,13 @@
 # Field EXEs — arquitetura e verificação da Fase 04
 
-Base: PR #43 aberta, `refactor/navigator-exploration-pipeline`, `bb22b8eecfa8d2fd6cd85c9fde645005122b4f84`. Implementação em branch dependente `feat/field-exes-combat-call`, sem merge automático.
+Base atualizada: PR #43 aberta, `refactor/navigator-exploration-pipeline`, `c0d139f26a14a782eed92ac5c3a7ba4073f97f93`. O commit adicional em relação a `bb22b8e` adiciona apenas o GDD v5; código e Resources do baseline são idênticos. Implementação em branch dependente `feat/field-exes-combat-call`, sem merge automático.
 
 ## Fronteiras de responsabilidade
 
 | Responsabilidade | Implementação |
 | --- | --- |
 | Identidade/conteúdo | APKData permanece espécie/forma; SpawnEntry referencia a espécie e herda perfis, com overrides autorais opcionais. Não há scripts por espécie. |
-| Estado individual | Os descritores da população existente são as Population Units desta fase. ID, resolução, HP/stability e movimento persistem em CampaignState. |
+| Estado individual | Descritores existentes persistem IDs de campo, resolução, HP/stability e movimento em CampaignState. Não são o contador finito de Population Units ecológicas. |
 | Apresentação | FieldPresentationData define Field Idle/Step, origem, escala, orientação e efeito digital. FieldEXEPresentation consome os dados com fallback substituível. |
 | Física | FieldEXEMotor é um CharacterBody2D composto com a Area2D de interação. O sensor existente continua funcionando; o corpo físico não é um StaticBody2D deslocado. |
 | Navegação | FieldNavigationGrid mantém uma grade amostrada por área; caminhos usam AStarGrid2D e a física continua impedindo atravessamento. Geometria inválida é tratada antes de apresentar unidades. |
@@ -22,11 +22,11 @@ Nenhum autoload, registro de espécies, calendário, gerenciador de combate ou e
 
 Akiba projeta quatro indivíduos de Rattildus, com patrulha, agressividade, cautela e comportamento de grupo. Seus pontos são separados de obstáculos e dos pontos de NPC/incidente. O Player pode observar movimento, evitar aproximação e interagir deliberadamente. Uma criatura agressiva só emite intenção automática após contato válido. O coordenador impede duplicatas e a confirmação/recusa possui cleanup.
 
-O principal fica sempre no slot 0; até três respondedores entram. Regras individuais consideram distância/linha livre, identidade da espécie, comportamento, Variant Node autoral, Infestation real e Danger opcional de uma chave existente de GameState. Não é sorteada uma formação independente da fauna visível. JOIN, IGNORE, HESITATE, FLEE, INTERCEPT e OBSERVE possuem respostas distintas; uma hesitação pode entrar após atraso quando autorada dessa forma.
+O principal fica sempre no slot 0; até três respondedores entram. Regras individuais consideram distância/linha livre, identidade da espécie, comportamento, Variant Node autoral, Infestation real e Danger opcional de uma chave existente de GameState. Não é sorteada uma formação independente da fauna visível. JOIN, IGNORE, HESITATE, FLEE, INTERCEPT e OBSERVE possuem respostas distintas; HESITATE aproxima-se parcialmente e desiste sem integrar a formação. JOIN e INTERCEPT aproximam-se fisicamente durante a chamada.
 
 As formações fechadas autorais continuam registradas. O novo encontro não modifica seu Resource fonte. Slots dinâmicos usam APKCombatLoadoutFactory e carregam `field_unit_id`, HP/stability individuais e o perfil de recompensas. A resolução comum e a subclasse de campanha compartilham a extração dos resultados por unidade; assim, Partner/Operator Loss, SCAN, PURGE, TAME e Social não são contornados.
 
-Resultado é aplicado somente aos IDs participantes. Unidades neutralizadas/tamadas são gastas; sobreviventes mantêm seu estado. Não participantes permanecem no mapa. Run Away não concede recompensas permanentes, libera a reserva e aplica graça/separação aos sobreviventes próximos. O código não converte um único derrotado em remoção de toda a fauna.
+Resultado é aplicado somente aos IDs participantes. Projeções neutralizadas/tamadas são reconciliadas individualmente; sobreviventes mantêm seu estado. Não participantes permanecem no mapa. Run Away não concede recompensas permanentes, descarta resoluções inimigas/alterações ecológicas pendentes, libera a reserva e aplica graça/separação aos sobreviventes próximos. O código não converte um único derrotado em remoção de toda a fauna.
 
 ## Custo e compatibilidade
 
@@ -52,4 +52,8 @@ As verificações nativas usam Godot 4.6 stable Windows, OpenGL/NVIDIA RTX 3050.
 
 O workflow Field EXEs Validation executa os seis testes novos e integrações existentes de combate, Navigator, Leads, Social, save e janela. Navigator Validation permanece independente, incluindo a ferramenta de autoria real. CI usa Godot 4.6.3 Linux com o preparo de assets substitutos já usado pelo projeto; renderização nativa é evidência separada.
 
-Persistem warnings de ObjectDB/resources no encerramento e falhas antigas em outras áreas, incluindo o scan de teste de onboarding e jobs já vermelhos da base. A entrega não declara o projeto inteiro verde. GDD v5 completo não estava no checkout; a implementação segue as decisões canônicas fornecidas no pedido e documenta explicitamente as dimensões ainda sem autoridade global.
+Persistem warnings de ObjectDB/resources no encerramento e falhas antigas em outras áreas, incluindo o scan de teste de onboarding e jobs já vermelhos da base. A entrega não declara o projeto inteiro verde. O GDD v5 completo foi incorporado pela base atualizada e os contratos de campo foram auditados contra seus capítulos relevantes. O pedido preserva os contratos de Player Actions já implementados; a ecologia global finita e novas Interaction Sequences do GDD permanecem autoridades futuras, sem implementação paralela nesta fase.
+
+### Fronteira da ecologia finita
+
+Projeções visíveis não equivalem às Population Units finitas do capítulo 9. Normal defeat, SCAN e TAME não debitam um contador ecológico fictício. Na resolução formal, cada alvo PURGE derrotado produz um pedido de delta -1 por espécie/zona, com receipt idempotente em `world_state.persistent_objects` e sinal `ecology_effects_requested`. Uma autoridade ecológica futura pode consumir esse pedido; esta fase não inventa populações-base semanais. Run Away não emite nem persiste esse pedido. Atores físicos podem sair da apresentação atual sem significar extinção ecológica. Os contratos de recompensas/Player Actions existentes foram preservados conforme o pedido; o balanceamento e novas Interaction Sequences do GDD são fronteiras distintas.
