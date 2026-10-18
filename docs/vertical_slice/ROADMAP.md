@@ -107,6 +107,8 @@ Combates já incluídos em uma etapa paga de Lead, Incidente, Data Center ou eve
 
 Uma mesma unidade narrativa nunca pode cobrar tempo duas vezes.
 
+Na Fase 03 (DVS-039), combate voluntário reserva os 2 blocos na confirmação e liquida o custo ao concluir um resultado pago. Run Away bem-sucedido libera a reserva com custo 0 e sem recompensas permanentes. A viagem liquida seu custo após carregar a área de destino. Incidentes pagos preservam a cobrança única na confirmação. `ActivityDefinitionData.commit_time_on_completion` é opt-in; os demais Resources mantêm o comportamento anterior.
+
 Toda atividade paga deverá mostrar antes da confirmação:
 
 ```text
@@ -639,7 +641,7 @@ do Navigator e encaminhar tudo pelo `ActivityManager`.
 ## Gate
 
 * Viajar custa exatamente uma vez.
-* Combate voluntário custa dois blocos na confirmação.
+* Combate voluntário reserva dois blocos na confirmação e cobra ao concluir um resultado pago; fuga bem-sucedida custa zero (DVS-039).
 * Combate interno de Incidente custa zero adicional.
 * Ação de dois blocos pode atravessar DAY para NIGHT.
 * Ação não ultrapassa o fim do dia.

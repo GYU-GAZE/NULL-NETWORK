@@ -7,7 +7,7 @@ This log records canonical decisions that implementation must preserve. Change a
 | DVS-001 | A day contains 12 DAY blocks and 12 NIGHT blocks. | Time conditions use `days_passed`, `current_period` and `current_action_block` with block range `0–11`. | GDD: Time and Actions |
 | DVS-002 | Morning, noon, afternoon, evening and madrugada are presentation text only. | No new gameplay condition or save field may use those concepts. | Roadmap §2.1 |
 | DVS-003 | Free activities cost 0; simple activities normally cost 1; complex activities normally cost 2 or more. | Cost belongs to data, not to UI-specific branches. | GDD: Action Costs |
-| DVS-004 | A voluntary combat costs 2 blocks at confirmation. | The cost is committed before the encounter opens, never after its result. | GDD: Player-initiated Combat |
+| DVS-004 | **Superseded by DVS-039.** A voluntary combat previously cost 2 blocks at confirmation. | Historical rule: the cost was committed before the encounter opened. | GDD: Player-initiated Combat; superseded by Phase 03 request |
 | DVS-005 | A combat embedded in a paid Lead, Incident, Data Center or event costs 0 additional blocks. | Parent and child share one `activity_transaction_id`. | GDD: Event-imposed Combat |
 | DVS-006 | One narrative unit never charges twice for the same time interval. | Nested activities reuse the owning transaction instead of advancing time again. | Roadmap §2.2 |
 | DVS-007 | Activities may cross DAY→NIGHT when allowed, but may not cross the absolute day boundary unless content explicitly permits it. | Preview calculates the final day, period and block before confirmation. | GDD: DAY and NIGHT Transition |
@@ -42,6 +42,8 @@ This log records canonical decisions that implementation must preserve. Change a
 | DVS-036 | Operator Loss creates a persistent Legacy Site at the exact loss location. | The broken KubuOS Handtop seals potentially recoverable material/log data by stable IDs, but never restores the dead APK/TURD, affinity, friend list, ranking, reputation, tendencies or personal identity. | GDD: Legacy Site and Legacy Recovery |
 | DVS-037 | The successor receives a clean device lifecycle. | Default apps reinstall through `AppInstallationManager`; Navigator is reinstalled only after the successor selects a starter and returns to `MAIN_CAMPAIGN`. | Phase 14.2 implementation |
 | DVS-038 | Infestation consequences are authored in `CombatResolutionData`. | Partner Loss and Operator Loss increases may vary by encounter without hardcoded encounter IDs; Operator Loss cannot be configured lower than Partner Loss. | GDD: Area consequences; Phase 14.2 implementation |
+| DVS-039 | Voluntary combat reserves its 2-block cost at confirmation and commits it on paid completion; successful Run Away costs 0 and grants no permanent rewards. Travel commits after successful area loading. | `commit_time_on_completion` is opt-in; existing paid Incidents retain their confirmation charge and included combat adds no cost. Old saves without activity reservations are not charged retroactively. | Explicit Phase 03 request; replaces DVS-004 |
+| DVS-040 | SpawnTable may select PERIOD, DAY, ACTION_BLOCK or CAMPAIGN renewal; PERIOD remains the default described in DVS-026. | Eligibility changes reconcile stable actors without rerolling spent slots before their authored generation boundary. Population v1 descriptors migrate to v2. | Explicit Phase 03 request; extends DVS-026 |
 
 ## Change protocol
 
