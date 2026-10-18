@@ -453,6 +453,7 @@ func _test_navigator_travel_and_voluntary_combat() -> void:
 		travel_request_id,
 		true
 	)
+	await _wait_for_navigator(navigator, NavigatorApp.NavigatorMode.LOCAL_AREA)
 	var navigator_state: Dictionary = (
 		navigator.get_app_session_state()
 	)
@@ -503,6 +504,7 @@ func _test_navigator_travel_and_voluntary_combat() -> void:
 		combat_request_id,
 		true
 	)
+	await _wait_for_navigator(navigator, NavigatorApp.NavigatorMode.ENCOUNTER)
 	var combat_event: Dictionary = _find_started_event(
 		combat_request_id
 	)
@@ -510,9 +512,8 @@ func _test_navigator_travel_and_voluntary_combat() -> void:
 		combat_event.get("transaction_id", "")
 	)
 	_check(
-		TimeManager.current_action_block == 3,
-		"Voluntary combat did not charge exactly two blocks "
-		+ "at confirmation."
+		TimeManager.current_action_block == 1,
+		"Phase 03 voluntary combat must reserve its two-block cost until a paid resolution."
 	)
 	_check(
 		navigator.combat_app.is_encounter_active()
@@ -543,9 +544,10 @@ func _test_navigator_travel_and_voluntary_combat() -> void:
 		"Voluntary combat escape resolution failed: %s" % resolution_errors
 	)
 	navigator.combat_app._finish_encounter(CombatResult.Outcome.ESCAPED)
+	await _wait_for_navigator(navigator, NavigatorApp.NavigatorMode.LOCAL_AREA)
 	_check(
-		TimeManager.current_action_block == 3,
-		"Combat resolution charged time a second time."
+		TimeManager.current_action_block == 1,
+		"Successful Run Away must release voluntary combat time without charge."
 	)
 	_check(
 		not ActivityManager.has_active_transaction(
@@ -686,3 +688,12 @@ func _on_activity_rejected(
 func _check(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
+
+
+func _wait_for_navigator(navigator: NavigatorApp, mode: int) -> void:
+	var deadline := Time.get_ticks_msec() + 5000
+	while Time.get_ticks_msec() < deadline:
+		if navigator._current_mode == mode and navigator.can_save_now() and not navigator._travel_pending:
+			return
+		await get_tree().process_frame
+	_check(false, "Navigator did not reach the stable presentation boundary.")

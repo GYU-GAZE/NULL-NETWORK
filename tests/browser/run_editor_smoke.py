@@ -11,6 +11,8 @@ parser.add_argument("--workspace", required=True)
 parser.add_argument("--output", required=True)
 parser.add_argument("--headless", action="store_true")
 parser.add_argument("--capture", help="Optional native Editor screenshot path")
+parser.add_argument("--smoke-plugin", default="res://tests/browser/editor_smoke/plugin.cfg")
+parser.add_argument("--marker", default="WEBSITE_AUTHORING_EDITOR_SMOKE: PASS")
 args = parser.parse_args()
 source = pathlib.Path(__file__).resolve().parents[2]
 workspace = pathlib.Path(args.workspace).resolve()
@@ -35,9 +37,8 @@ if imported.returncode:
     print("Editor import failed; see", output.with_suffix(".import.log"))
     sys.exit(1)
 settings = settings.replace(
-    'enabled=PackedStringArray("res://addons/website_authoring/plugin.cfg")',
-    'enabled=PackedStringArray("res://addons/website_authoring/plugin.cfg", '
-    '"res://tests/browser/editor_smoke/plugin.cfg")')
+    '"res://addons/website_authoring/plugin.cfg"',
+    '"res://addons/website_authoring/plugin.cfg", "' + args.smoke_plugin + '"', 1)
 project.write_text(settings, encoding="utf-8")
 command = [engine, "--editor", "--path", str(workspace)]
 if args.headless:
@@ -51,7 +52,7 @@ except subprocess.TimeoutExpired:
     print("Editor smoke timed out; see", output)
     sys.exit(1)
 content = output.read_text(encoding="utf-8", errors="replace")
-if result.returncode or "WEBSITE_AUTHORING_EDITOR_SMOKE: PASS" not in content:
+if result.returncode or args.marker not in content:
     print(content)
     sys.exit(1)
-print("WEBSITE_AUTHORING_EDITOR_SMOKE: PASS")
+print(args.marker)
