@@ -335,3 +335,62 @@ func consume_pending_receipts() -> void:
 			var applied := apply_operation(operation)
 			if applied or ensure_zone(zone).applied_effect_receipts.has(operation.operation_id): request["application_status"] = "APPLIED"
 			else: request["application_status"] = "PENDING_PROTECTED"
+func reserve_battle_identity(encounter: CombatEncounter) -> String:
+	if not encounter.field_formation.is_empty(): return encounter.encounter_id
+	var route := CampaignState.world_state.ecology_route
+	var sequence := int(route.get("battle_sequence", 0)) + 1
+	route["battle_sequence"] = sequence
+	return "ecology.battle.%s.%s.%d" % [CampaignState.campaign_id, encounter.encounter_id, sequence]
+
+func combat_operations(encounter: CombatEncounter, records: Array[Dictionary]) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var zone := definition(encounter.ecology_zone_id)
+	if zone == null or not str(encounter.field_formation.get("predator_id", "")).is_empty(): return result
+	for record: Dictionary in records:
+		var apk_id := ""
+		var target_id := str(record.get("field_unit_id", str(record.get("uid", -1))))
+		for member: Dictionary in encounter.field_formation.get("members", []):
+			if str(member.get("unit_id", "")) == target_id: apk_id = str(member.get("apk_id", ""))
+		if apk_id.is_empty():
+			var slot_index := int(record.get("encounter_slot_index", -1))
+			for slot: CombatSlotData in encounter.enemy_slots:
+				if slot.slot_index == slot_index: apk_id = slot.apk_id
+		var apk := ContentRegistry.get_apk(apk_id)
+		if apk == null or zone.get_species(apk.species_line_id) == null: continue
+		var operation := ""
+		if bool(record.get("purged", false)) and bool(record.get("defeated", false)): operation = "PURGE"
+		elif bool(record.get("purified", false)): operation = "PURIFY"
+		if not operation.is_empty(): result.append({"operation": operation, "target_id": target_id, "field_unit_id": target_id, "species_line_id": apk.species_line_id, "population_delta": -1 if operation == "PURGE" else 0, "resonance_delta": 1 if operation == "PURIFY" else 0})
+	return result
+
+func collapse_warning(encounter: CombatEncounter, records: Array[Dictionary], outcome: CombatResult.Outcome, authorization: Dictionary = {}) -> String:
+	if outcome in [CombatResult.Outcome.ESCAPED, CombatResult.Outcome.CANCELLED]: return ""
+	var zone := definition(encounter.ecology_zone_id)
+	if zone == null: return ""
+	var state := ensure_zone(zone)
+	var targets: Array[String] = []
+	for operation: Dictionary in combat_operations(encounter, records):
+		if operation.operation == "PURGE": targets.append(str(operation.target_id))
+	targets.sort()
+	if targets.is_empty() or total(state) > targets.size() or bool(state.collapsed): return ""
+	if str(authorization.get("zone_id", "")) == zone.ecology_zone_id and int(authorization.get("revision", -1)) == int(state.revision) and authorization.get("target_ids", []) == targets: return ""
+	return zone.presentation.collapse_warning
+
+func authorize_collapse(encounter: CombatEncounter, records: Array[Dictionary]) -> Dictionary:
+	var state := ensure_zone(definition(encounter.ecology_zone_id))
+	var targets: Array[String] = []
+	for operation: Dictionary in combat_operations(encounter, records):
+		if operation.operation == "PURGE": targets.append(str(operation.target_id))
+	targets.sort()
+	return {"zone_id": encounter.ecology_zone_id, "revision": int(state.get("revision", -1)), "target_ids": targets, "confirmed_action_index": TimeManager.get_total_action_index()}
+
+func commit_combat(encounter: CombatEncounter, records: Array[Dictionary], outcome: CombatResult.Outcome, battle_id: String, authorization: Dictionary) -> String:
+	if outcome in [CombatResult.Outcome.ESCAPED, CombatResult.Outcome.CANCELLED] or encounter.ecology_zone_id.is_empty(): return ""
+	if not collapse_warning(encounter, records, outcome, authorization).is_empty(): return ""
+	var key := "field_resolution." + battle_id
+	if not CampaignState.world_state.persistent_objects.has(key):
+		var operations := combat_operations(encounter, records)
+		for operation: Dictionary in operations: operation["operation_id"] = "%s.%s.%s" % [battle_id, operation.target_id, operation.operation]
+		CampaignState.world_state.persistent_objects[key] = {"version": 2, "call_id": battle_id, "zone_id": encounter.ecology_zone_id, "location_id": str(encounter.field_formation.get("location_id", CampaignState.current_location_id)), "outcome": int(outcome), "ecology_requests": operations, "collapse_authorized": not authorization.is_empty(), "consent_provenance": authorization.duplicate(true), "submitted_at": TimeManager.get_total_action_index()}
+	consume_pending_receipts()
+	return key

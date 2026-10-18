@@ -48,6 +48,8 @@ var actor_nodes: Dictionary = {}
 @onready var evolution_overlay: EvolutionOverlay = %EvolutionOverlay
 
 
+var ecology_confirmation_dialog: ConfirmationDialog
+
 var _current_encounter: CombatEncounter
 var _pending_outcome: CombatResult.Outcome = (
 	CombatResult.Outcome.CANCELLED
@@ -200,6 +202,8 @@ func resume_saved_encounter() -> bool:
 
 
 func _connect_manager_signals() -> void:
+	if not CombatManager.ecology_confirmation_requested.is_connected(_on_ecology_confirmation):
+		CombatManager.ecology_confirmation_requested.connect(_on_ecology_confirmation)
 	if not CombatManager.timeline_generated.is_connected(
 		_on_timeline_generated
 	):
@@ -765,6 +769,7 @@ func _resolve_and_show(outcome: CombatResult.Outcome) -> void:
 	var errors: PackedStringArray = CombatManager.resolve_encounter(outcome)
 
 	if not errors.is_empty():
+		if errors.has("ECOLOGY_CONFIRMATION_REQUIRED"): return
 		for error: String in errors:
 			push_error("Combat resolution: %s" % error)
 		return
@@ -874,3 +879,21 @@ func _read_string_array(value: Variant) -> PackedStringArray:
 			result.append(clean_value)
 
 	return result
+
+
+func _on_ecology_confirmation(message: String) -> void:
+	if not _encounter_active or not is_visible_in_tree(): return
+	if not is_instance_valid(ecology_confirmation_dialog):
+		ecology_confirmation_dialog = ConfirmationDialog.new()
+		ecology_confirmation_dialog.title = "LAST ACTIVE EXE SIGNATURE"
+		ecology_confirmation_dialog.ok_button_text = "CONFIRM PURGE"
+		ecology_confirmation_dialog.cancel_button_text = "CANCEL PURGE"
+		add_child(ecology_confirmation_dialog)
+		ecology_confirmation_dialog.confirmed.connect(func() -> void:
+			CombatManager.confirm_ecological_purge(true)
+			_resolve_and_show(_pending_outcome))
+		ecology_confirmation_dialog.canceled.connect(func() -> void:
+			CombatManager.confirm_ecological_purge(false)
+			_resolve_and_show(_pending_outcome))
+	ecology_confirmation_dialog.dialog_text = message
+	ecology_confirmation_dialog.popup_centered(Vector2i(560, 200))

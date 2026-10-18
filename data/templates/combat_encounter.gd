@@ -23,6 +23,7 @@ class_name CombatEncounter
 ## Empty for authored fixed formations; runtime field recipe contains plain
 ## IDs/resource references only and is saved with the existing combat section.
 @export var field_formation: Dictionary = {}
+@export var ecology_zone_id: String = ""
 
 
 func validate_data() -> PackedStringArray:

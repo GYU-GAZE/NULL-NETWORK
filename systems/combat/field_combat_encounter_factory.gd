@@ -18,6 +18,7 @@ static func create(data: Dictionary) -> CombatEncounter:
 	encounter.base_escape_chance = profile.base_escape_chance
 	encounter.resolution = profile.resolution
 	encounter.field_formation = data.duplicate(true)
+	encounter.ecology_zone_id = str(data.get("ecology_zone_id", ""))
 	var ally := CombatSlotData.new()
 	ally.participant_source = CombatSlotData.ParticipantSource.PLAYER_PARTNER
 	encounter.ally_slots.append(ally)

@@ -106,7 +106,7 @@ func _test_actions(actor: LocalAreaExeActor) -> void:
 		if action == "scan":
 			check(CampaignState.known_module_ids.has("heavy_attack"), "Field SCAN did not grant the selected Module")
 		elif action == "purge":
-			check(bool(units[0].purged) and int(metadata.get("experience", 0)) >= 30, "Field PURGE lost its extraction/EXP contract")
+			check(bool(units[0].purged) and int(metadata.get("experience", 0)) == 12, "Field PURGE must grant 20 * 0.2 * 3 = 12 EXP after the authored weak-enemy penalty")
 		else:
 			check(bool(units[0].tamed) and CampaignState.partner.apk_id == actor.environmental_apk.apk_id, "Field TAME did not adopt the actual catalog APK")
 		var inventory := CampaignState.inventory.to_save_data()

@@ -157,13 +157,11 @@ func _test_purge() -> void:
 	_check(errors.is_empty(), "PURGE resolution failed: %s" % errors)
 	var extracted_modules: Array = metadata.get("module_ids", []) as Array
 	_check(
-		int(metadata.get("experience", 0)) in [30, 40]
-		and (
-			not extracted_modules.is_empty()
-			or int(metadata.get("experience", 0)) == 40
-		)
+		int(metadata.get("experience", 0)) == 60
+		and extracted_modules.is_empty()
+		and (metadata.get("items", []) as Array).is_empty()
 		and CampaignState.tendencies.self_value == 1,
-		"PURGE did not grant increased EXP, active extraction/duplicate EXP and permanent SELF."
+		"PURGE must grant exactly 3x adjusted EXP and SELF without Modules/items."
 	)
 	CombatManager.finalize_resolved_encounter()
 

@@ -8,6 +8,7 @@ enum TimelineActionKind {
 }
 
 
+signal ecology_confirmation_requested(message: String)
 signal lifecycle_changed
 
 signal encounter_started(encounter: CombatEncounter)
@@ -79,6 +80,9 @@ var _partner_state_committed: bool = false
 var _resolved_enemy_records: Array[Dictionary] = []
 var _player_resolution_record: Dictionary = {}
 var _pending_player_action_choice: Dictionary = {}
+var _ecology_authorization: Dictionary = {}
+var _ecology_battle_id: String = ""
+var _resolution_in_progress: bool = false
 var _pending_evolution_branch_id: String = ""
 var _completed_evolution_branch_ids: PackedStringArray = PackedStringArray()
 var _awaiting_resolution: bool = false
@@ -162,6 +166,9 @@ func reset_encounter() -> void:
 	_resolved_enemy_records.clear()
 	_player_resolution_record.clear()
 	_pending_player_action_choice.clear()
+	_ecology_authorization.clear()
+	_ecology_battle_id = ""
+	_resolution_in_progress = false
 	_pending_evolution_branch_id = ""
 	_completed_evolution_branch_ids.clear()
 	_awaiting_resolution = false
@@ -220,7 +227,7 @@ func get_save_section_id() -> String:
 
 
 func can_save_now() -> bool:
-	return not _is_executing_cycle
+	return not _is_executing_cycle and not _resolution_in_progress
 
 
 func export_save_data() -> Dictionary:
@@ -246,6 +253,8 @@ func export_save_data() -> Dictionary:
 		"resolution_applied": _resolution_applied,
 		"resolution_metadata": _plain_copy(_resolution_metadata),
 		"player_action_progress": PlayerActionService.serialize_states(player_action_progress),
+		"ecology_authorization": _ecology_authorization.duplicate(true),
+		"ecology_battle_id": _ecology_battle_id,
 		"combat_tendency_log": combat_tendency_log.to_save_data(),
 		"resolved_enemy_records": _serialize_team_records(_resolved_enemy_records),
 		"player_resolution_record": (
@@ -315,6 +324,8 @@ func import_save_data(data: Dictionary) -> void:
 	)
 	_resolution_applied = bool(data.get("resolution_applied", false))
 	_resolution_metadata = _read_dictionary(data.get("resolution_metadata", {}))
+	_ecology_authorization = _read_dictionary(data.get("ecology_authorization", {}))
+	_ecology_battle_id = str(data.get("ecology_battle_id", ""))
 	player_action_progress = PlayerActionService.deserialize_states(
 		data.get("player_action_progress", [])
 	)
@@ -568,21 +579,29 @@ func resolve_encounter(outcome: CombatResult.Outcome) -> PackedStringArray:
 		errors.append("Combat has no player actor to resolve.")
 		return errors
 
+	errors.append_array(_ecology_preflight(outcome))
+	if not errors.is_empty(): return errors
+	_resolution_in_progress = true
 	var result: Dictionary = CombatResolutionService.resolve(
 		outcome,
 		_current_encounter,
 		player as Dictionary,
 		_get_enemy_resolution_records(),
 		player_action_progress,
-		combat_tendency_log
+		combat_tendency_log,
+		[],
+		_ecology_authorization,
+		_ecology_battle_id
 	)
 	errors.append_array(result.get("errors", PackedStringArray()))
 
 	if not errors.is_empty():
+		_resolution_in_progress = false
 		return errors
 
 	_resolution_metadata = result.get("metadata", {}).duplicate(true)
 	_append_field_resolution_metadata()
+	_resolution_in_progress = false
 	_resolution_applied = true
 	_partner_state_committed = true
 	_awaiting_resolution = false
@@ -5092,3 +5111,29 @@ func _runtime_slot_snapshot() -> Array[Dictionary]:
 		})
 
 	return snapshot
+
+
+func _ecology_preflight(outcome: CombatResult.Outcome) -> PackedStringArray:
+	if _resolution_in_progress: return PackedStringArray(["Combat resolution is already committing."])
+	var warning := EcologyService.collapse_warning(_current_encounter, _get_enemy_resolution_records(), outcome, _ecology_authorization)
+	if not warning.is_empty():
+		ecology_confirmation_requested.emit(warning)
+		return PackedStringArray(["ECOLOGY_CONFIRMATION_REQUIRED"])
+	if _ecology_battle_id.is_empty(): _ecology_battle_id = EcologyService.reserve_battle_identity(_current_encounter)
+	return PackedStringArray()
+
+func confirm_ecological_purge(confirmed: bool) -> void:
+	if _current_encounter == null or not _awaiting_resolution or _resolution_applied: return
+	if confirmed:
+		_ecology_authorization = EcologyService.authorize_collapse(_current_encounter, _get_enemy_resolution_records())
+	else:
+		# Cancel the pending destructive extraction, preserving the completed battle.
+		for record: Dictionary in _resolved_enemy_records: record["purged"] = false
+		for actor: Variant in enemy_team:
+			if actor is Dictionary: actor["purged"] = false
+		var retained: Array[PlayerActionProgressData] = []
+		for state: PlayerActionProgressData in player_action_progress:
+			var action := _get_player_action(state.action_id)
+			if action == null or action.action_kind != PlayerActionData.ActionKind.PURGE: retained.append(state)
+		player_action_progress = retained
+		_ecology_authorization.clear()
