@@ -1,6 +1,6 @@
 # Inventário da Fase 04
 
-Base: `bb22b8eecfa8d2fd6cd85c9fde645005122b4f84`. Arquivos adicionados ou alterados nesta fase, incluindo documentação e seus metadados UID.
+Base: `c0d139f26a14a782eed92ac5c3a7ba4073f97f93`. Arquivos adicionados ou alterados nesta fase, incluindo documentação e seus metadados UID.
 
 - `.github/workflows/field-exe-validation.yml`
 - `apps/combat/combat_manager.gd`
@@ -25,6 +25,8 @@ Base: `bb22b8eecfa8d2fd6cd85c9fde645005122b4f84`. Arquivos adicionados ou altera
 - `core/autoloads/time_manager.gd`
 - `data/assets/field/field_exe_fallback.svg`
 - `data/assets/field/field_exe_fallback.svg.import`
+- `data/assets/field/field_exe_step_fallback.svg`
+- `data/assets/field/field_exe_step_fallback.svg.import`
 - `data/assets/field/ganbarekun_placeholder.svg`
 - `data/assets/field/ganbarekun_placeholder.svg.import`
 - `data/content/activities/fight_rattildus.tres`
