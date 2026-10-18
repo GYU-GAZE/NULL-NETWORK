@@ -1,3 +1,4 @@
+@tool
 extends Resource
 class_name ActivityDefinitionData
 
@@ -10,6 +11,9 @@ class_name ActivityDefinitionData
 @export_category("Time")
 @export_range(0, 24, 1, "or_greater")
 var action_cost: int = 0
+## Reserve at confirmation; commit once on completion. Failure/escape may
+## release the reservation without rewinding global time.
+@export var commit_time_on_completion: bool = false
 @export var allow_cross_period: bool = true
 @export var allow_cross_day: bool = false
 

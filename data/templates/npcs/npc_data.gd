@@ -181,3 +181,12 @@ func validate_data() -> PackedStringArray:
 			errors.append("Party loadout: %s" % error)
 
 	return errors
+
+
+func is_physically_present_at(location_id: String, context: Dictionary = {}) -> bool:
+	if not is_discoverable(context):
+		return false
+	var routine := get_active_routine(-1, -1, context)
+	if routine != null:
+		return routine.physically_present and routine.location_id.strip_edges() == location_id
+	return routines.is_empty() and not default_location_id.is_empty() and default_location_id == location_id

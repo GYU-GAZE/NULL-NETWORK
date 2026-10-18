@@ -659,13 +659,13 @@ func set_browser_url(url: String) -> void:
 
 
 func _extract_thread_id_from_url(url: String) -> String:
-	var clean_url: String = SimulatedDNS.normalize_url(url)
-	var clean_prefix: String = SimulatedDNS.normalize_url(thread_url_prefix)
-
-	if clean_url.begins_with(clean_prefix):
-		return clean_url.trim_prefix(clean_prefix).strip_edges()
-
-	return ""
+	var clean_url := BrowserRoute.normalize(url)
+	var prefix := BrowserRoute.normalize(thread_url_prefix)
+	if not BrowserRoute.matches_prefix(clean_url, prefix) or clean_url == prefix:
+		return ""
+	var identifier := clean_url.substr(prefix.length() + 1)
+	# Content IDs are one path segment; never accept a lookalike or nested route.
+	return identifier if not "/" in identifier else ""
 
 
 func handle_browser_back() -> bool:

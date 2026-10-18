@@ -158,6 +158,7 @@ func complete_activity(
 
 	if completed_activity_id == root_activity_id:
 		_active_transactions.erase(clean_transaction_id)
+		_commit_reserved_time(transaction)
 	else:
 		var completed_children: Array = transaction.get(
 			"completed_activity_ids",
@@ -366,6 +367,11 @@ func _build_preview(
 		preview.can_start = true
 		return preview
 
+	if definition.action_cost > 0:
+		for value: Dictionary in _active_transactions.values():
+			if bool(value.get("deferred_cost", false)) and not bool(value.get("charged", false)):
+				preview.denial_reason = "Finish the active activity before starting another paid activity."
+				return preview
 	preview.charged_action_cost = definition.action_cost
 	preview.available_blocks_in_period = (
 		TimeManager.get_actions_left_in_period()
@@ -597,6 +603,8 @@ func _start_pending_request(request_id: String) -> void:
 			"root_activity_id": definition.get_display_id(),
 			"source_id": source_id,
 			"action_cost": preview.charged_action_cost,
+			"deferred_cost": definition.commit_time_on_completion,
+			"charged": not definition.commit_time_on_completion,
 			"initial_day": preview.initial_day,
 			"initial_period": preview.initial_period,
 			"initial_action_block": (
@@ -626,15 +634,8 @@ func _start_pending_request(request_id: String) -> void:
 		)
 		_active_transactions[transaction_id] = transaction
 
-	if preview.charged_action_cost > 0:
-		if source_id == StoryEventManager.SOURCE_ID:
-			# Mandatory routines own their own authored time sequence. Do not apply
-			# occupation fast-forward while that routine itself is executing.
-			TimeManager.advance_action(preview.charged_action_cost)
-		else:
-			OperatorService.advance_player_action_time(
-				preview.charged_action_cost
-			)
+	if preview.charged_action_cost > 0 and not definition.commit_time_on_completion:
+		_advance_time(preview.charged_action_cost, source_id)
 
 	activity_started.emit(
 		transaction_id,
@@ -732,3 +733,48 @@ func _make_transaction_id() -> String:
 	]
 	_next_transaction_number += 1
 	return transaction_id
+
+
+func _advance_time(cost: int, source_id: String) -> void:
+	if source_id == StoryEventManager.SOURCE_ID:
+		TimeManager.advance_action(cost)
+	else:
+		OperatorService.advance_player_action_time(cost)
+
+
+func _commit_reserved_time(transaction: Dictionary) -> void:
+	if bool(transaction.get("deferred_cost", false)) and not bool(transaction.get("charged", false)):
+		var cost := int(transaction.get("action_cost", 0))
+		if cost > 0:
+			_advance_time(cost, str(transaction.get("source_id", "")))
+
+
+func get_save_section_id() -> String:
+	return "activity_transactions"
+
+
+func export_save_data() -> Dictionary:
+	return {"version": 1, "transactions": _active_transactions.duplicate(true), "next_transaction": _next_transaction_number, "next_request": _next_request_number}
+
+
+func import_save_data(data: Dictionary) -> void:
+	reset_runtime_state()
+	var raw: Variant = data.get("transactions", {})
+	_active_transactions = raw.duplicate(true) if raw is Dictionary else {}
+	_next_transaction_number = maxi(1, int(data.get("next_transaction", 1)))
+	_next_request_number = maxi(1, int(data.get("next_request", 1)))
+
+
+func reset_save_data() -> void:
+	reset_runtime_state()
+
+
+func validate_save_data(data: Dictionary) -> PackedStringArray:
+	var errors := PackedStringArray()
+	if int(data.get("version", 1)) != 1 or data.get("transactions", {}) is not Dictionary:
+		errors.append("Invalid activity transaction save data.")
+		return errors
+	for value: Variant in data.get("transactions", {}).values():
+		if value is not Dictionary or str(value.get("root_activity_id", "")).is_empty() or int(value.get("action_cost", -1)) < 0:
+			errors.append("Invalid activity transaction.")
+	return errors

@@ -167,6 +167,16 @@ func validate_data() -> PackedStringArray:
 			known_apk_ids
 		)
 
+	var location_ids := {}
+	for location: MapLocation in locations:
+		if location == null:
+			errors.append("Null location in content catalog.")
+			continue
+		if location_ids.has(location.get_display_id()):
+			errors.append("Duplicate location: %s" % location.get_display_id())
+		location_ids[location.get_display_id()] = true
+		errors.append_array(location.validate_data())
+
 	return errors
 
 

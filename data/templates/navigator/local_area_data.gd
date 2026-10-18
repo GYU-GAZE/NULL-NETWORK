@@ -1,3 +1,4 @@
+@tool
 extends Resource
 class_name LocalAreaData
 
@@ -32,4 +33,8 @@ func get_display_id() -> String:
 
 
 func is_valid() -> bool:
-	return area_scene != null
+	return validate_data().is_empty()
+
+
+func validate_data() -> PackedStringArray:
+	return NavigatorContentValidator.validate_area(self)

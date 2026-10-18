@@ -8,6 +8,7 @@ activity_id = "travel.akihabara"
 display_name = "Travel to Akiba District"
 description = "Travel from the current district to Akiba District."
 action_cost = 1
+commit_time_on_completion = true
 allow_cross_period = true
 allow_cross_day = false
 requires_confirmation = true

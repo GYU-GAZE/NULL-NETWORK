@@ -168,6 +168,10 @@ static func _build_plan(
 	progress_states: Array[PlayerActionProgressData],
 	log: CombatTendencyLog
 ) -> Dictionary:
+	# Successful escape commits health/state but never turns partial kills or
+	# completed extraction progress into permanent rewards.
+	if outcome == CombatResult.Outcome.ESCAPED:
+		return {"errors": PackedStringArray(), "experience": 0, "module_ids": PackedStringArray(), "passive_module_id": "", "items": [], "encyclopedia_entries": [], "tendency_gains": [], "combat_style": {}, "tamed_partner": null, "outcome": int(outcome)}
 	var errors := PackedStringArray()
 	var experience: int = 0
 	var module_ids := PackedStringArray()

@@ -9,6 +9,7 @@
 
 [resource]
 script = ExtResource("1_pl7wp")
+initially_discovered = true
 location_id = "akihabara"
 location_name = "Akiba District"
 location_subtitle = "EXE Zone"

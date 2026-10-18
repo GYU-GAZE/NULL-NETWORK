@@ -35,14 +35,16 @@ static func resolve(
 	state.is_available_now = (
 		state.is_progression_unlocked
 		and period_available
+		and (location.availability_conditions == null or location.availability_conditions.is_met({"location_id": location.get_display_id()}))
 	)
 
 	state.should_show = (
-		state.is_progression_unlocked
-		or location.show_when_locked
+		location.show_when_locked
+		or location.initially_discovered
+		or LocationDiscoveryService.is_discovered(location.get_display_id())
 	)
 
-	state.is_discovered = LocationDiscoveryService.is_discovered(
+	state.is_discovered = location.initially_discovered or LocationDiscoveryService.is_discovered(
 		location.get_display_id()
 	)
 
@@ -62,17 +64,24 @@ static func resolve(
 	)
 
 	state.needs_discovery_announcement = (
-		state.is_discovered
+		LocationDiscoveryService.is_discovered(location.get_display_id())
 		and not state.is_announced
 	)
 
 	if not state.is_progression_unlocked:
-		state.availability_message = "LOCKED"
+		state.availability_message = location.locked_message
 	elif not period_available:
 		state.availability_message = (
 			_get_period_message(location)
 		)
 
+	elif not state.is_available_now:
+		state.availability_message = location.unavailable_message
+	if state.is_available_now and location.local_area == null:
+		state.availability_message = location.no_area_message
+
+	if state.is_available_now and location.local_area != null and (not location.local_area.is_valid() or location.travel_activity == null):
+		state.availability_message = "AREA UNAVAILABLE"
 	return state
 
 
@@ -139,10 +148,9 @@ static func get_viewed_flag(
 static func _is_progression_unlocked(
 	location: MapLocation
 ) -> bool:
-	if LocationDiscoveryService.is_discovered(
-		location.get_display_id()
-	):
-		return true
+	# Discovery never bypasses an explicit progression restriction.
+	if location.unlock_conditions != null and not location.unlock_conditions.is_met({"location_id": location.get_display_id()}):
+		return false
 
 	if location.unlocked_by_default:
 		return true
@@ -162,7 +170,7 @@ static func _is_progression_unlocked(
 		if not GameState.get_flag(clean_flag, false):
 			return false
 
-	return has_valid_flag
+	return has_valid_flag or (location.unlock_conditions != null) or LocationDiscoveryService.is_discovered(location.get_display_id())
 
 
 static func _is_current_period_allowed(

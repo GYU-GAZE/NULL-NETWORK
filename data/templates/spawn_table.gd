@@ -1,6 +1,9 @@
+@tool
 extends Resource
 class_name SpawnTable
 
+enum RefreshPolicy { PERIOD, DAY, ACTION_BLOCK, CAMPAIGN }
+@export var refresh_policy: RefreshPolicy = RefreshPolicy.PERIOD
 @export var table_id: String = ""
 @export_range(0, 16, 1, "or_greater")
 var rolls_per_population: int = 1
@@ -26,7 +29,7 @@ func get_available_entries(context: Dictionary = {}) -> Array[SpawnEntry]:
 
 	for entry: SpawnEntry in entries:
 		if entry != null \
-			and entry.encounter != null \
+			and (entry.encounter != null or entry.environmental_apk != null) \
 			and entry.weight > 0 \
 			and entry.is_available(context):
 			result.append(entry)

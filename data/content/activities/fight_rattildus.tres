@@ -8,6 +8,7 @@ activity_id = "combat.voluntary.rattildus"
 display_name = "Fight Rattildus.exe"
 description = "Voluntarily engage Rattildus.exe in combat."
 action_cost = 2
+commit_time_on_completion = true
 allow_cross_period = true
 allow_cross_day = false
 requires_confirmation = true

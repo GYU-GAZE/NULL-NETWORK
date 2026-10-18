@@ -16,8 +16,13 @@ enum PendingActivityKind {
 }
 
 
-const SESSION_STATE_VERSION: int = 5
+const SESSION_STATE_VERSION: int = 6
 const APP_ID: String = "navigator"
+signal location_entry_completed(location_id: String, succeeded: bool)
+var _area_history := NavigatorAreaHistory.new()
+var _transition_depth: int = 0
+var _travel_transaction_id: String = ""
+var _travel_pending: bool = false
 
 
 @onready var world_map_view: NavigatorWorldMapView = (
@@ -62,7 +67,16 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	ActivityManager.cancel_requests_for_source(APP_ID, "Navigator closed.")
+	if not _travel_transaction_id.is_empty():
+		ActivityManager.fail_activity(_travel_transaction_id, "Navigator closed during travel.")
+	if not _active_combat_transaction_id.is_empty() and not CombatManager.is_encounter_active():
+		ActivityManager.fail_activity(_active_combat_transaction_id, "Encounter presentation closed before start.", _active_combat_activity_id)
 	SaveManager.unregister_save_section(self)
+
+
+func can_save_now() -> bool:
+	return _transition_depth == 0
 
 
 func get_save_section_id() -> String:
@@ -79,6 +93,8 @@ func import_save_data(data: Dictionary) -> void:
 
 func reset_save_data() -> void:
 	_pending_activity_requests.clear()
+	_area_history.restore({})
+	_travel_pending = false
 	_pending_exe_actor = null
 	_pending_incident_id = ""
 	_active_combat_transaction_id = ""
@@ -253,6 +269,7 @@ func show_dialogue() -> void:
 
 
 func get_app_session_state() -> Dictionary:
+	_area_history.remember(_current_location_id, local_area_view)
 	var selected_location_id: String = ""
 	var selected_location: MapLocation = (
 		world_map_view.get_selected_location()
@@ -287,6 +304,8 @@ func get_app_session_state() -> Dictionary:
 
 	return {
 		"version": SESSION_STATE_VERSION,
+		"areas": _area_history.to_data(),
+		"mode_before_dialogue": int(_mode_before_dialogue),
 		"mode": int(saved_mode),
 		"selected_location_id": selected_location_id,
 		"current_location_id": _current_location_id,
@@ -327,6 +346,9 @@ func restore_app_session_state(
 		)
 		return
 
+	var saved_areas: Variant = state.get("areas", {})
+	_area_history.restore(saved_areas if saved_areas is Dictionary else {})
+	_mode_before_dialogue = clampi(int(state.get("mode_before_dialogue", NavigatorMode.LOCAL_AREA)), NavigatorMode.WORLD_MAP, NavigatorMode.LOCAL_AREA) as NavigatorMode
 	var selected_location_id: String = str(
 		state.get("selected_location_id", "")
 	).strip_edges()
@@ -475,7 +497,7 @@ func restore_app_session_state(
 			_set_mode(NavigatorMode.ENCOUNTER)
 		else:
 			_set_mode(NavigatorMode.LOCAL_AREA)
-	elif saved_mode == NavigatorMode.LOCAL_AREA:
+	elif saved_mode == NavigatorMode.LOCAL_AREA or (saved_mode == NavigatorMode.DIALOGUE and _mode_before_dialogue == NavigatorMode.LOCAL_AREA):
 		_set_mode(NavigatorMode.LOCAL_AREA)
 	else:
 		_set_mode(NavigatorMode.WORLD_MAP)
@@ -494,7 +516,8 @@ func _on_world_map_enter_area_requested(
 		NavigatorLocationStateResolver.resolve(location)
 	)
 
-	if not runtime_state.can_select():
+	if not runtime_state.can_enter():
+		local_area_view.show_interaction_message(runtime_state.availability_message)
 		return
 
 	var local_area: LocalAreaData = location.local_area
@@ -511,12 +534,16 @@ func _on_world_map_enter_area_requested(
 	)
 
 	var is_current_area: bool = (
-		requested_location_id == _current_location_id
-		and local_area_view.is_area_loaded(local_area)
+		requested_location_id == CampaignState.current_location_id
 	)
 
 	if is_current_area:
-		await _transition_to_mode(NavigatorMode.LOCAL_AREA)
+		if local_area_view.is_area_loaded(local_area):
+			await _transition_to_mode(NavigatorMode.LOCAL_AREA)
+		else:
+			await _enter_location_with_transition(location)
+		return
+	if _travel_pending or _transition_depth > 0:
 		return
 
 	if location.travel_activity == null:
@@ -526,6 +553,7 @@ func _on_world_map_enter_area_requested(
 		)
 		return
 
+	_travel_pending = true
 	_request_activity(
 		location.travel_activity,
 		PendingActivityKind.TRAVEL,
@@ -672,13 +700,16 @@ func _enter_location(
 	if location == null or location.local_area == null:
 		return false
 
+	_area_history.remember(_current_location_id, local_area_view)
+	var previous := _area_history.get_area(location.get_display_id())
+	var saved_position: Dictionary = previous.get("position", {})
 	var opened_successfully: bool = (
 		local_area_view.open_area(
 			location.local_area,
-			location.local_area.default_entry_id,
-			Vector2.ZERO,
-			false,
-			{},
+			str(previous.get("entry_id", location.local_area.default_entry_id)),
+			Vector2(float(saved_position.get("x", 0)), float(saved_position.get("y", 0))),
+			not saved_position.is_empty(),
+			previous.get("runtime", {}),
 			location
 		)
 	)
@@ -694,10 +725,13 @@ func _enter_location(
 
 
 func _enter_location_with_transition(location: MapLocation) -> bool:
+	_transition_depth += 1
 	await KubuTransitionManager.cover_screen()
 	var opened_successfully: bool = _enter_location(location)
 	await get_tree().process_frame
 	await KubuTransitionManager.uncover_screen()
+	_finish_presentation_transition()
+	location_entry_completed.emit(location.get_display_id(), opened_successfully)
 	return opened_successfully
 
 
@@ -705,10 +739,12 @@ func _transition_to_mode(mode: NavigatorMode) -> void:
 	if _current_mode == mode:
 		return
 
+	_transition_depth += 1
 	await KubuTransitionManager.cover_screen()
 	_set_mode(mode)
 	await get_tree().process_frame
 	await KubuTransitionManager.uncover_screen()
+	_finish_presentation_transition()
 
 
 func _start_exe_encounter(
@@ -723,10 +759,11 @@ func _start_exe_encounter(
 		)
 		return
 
-	await KubuTransitionManager.cover_screen()
+	_transition_depth += 1
 	_pending_exe_actor = exe_actor
 	_active_combat_transaction_id = transaction_id
 	_active_combat_activity_id = activity_id
+	await KubuTransitionManager.cover_screen()
 	_set_mode(NavigatorMode.ENCOUNTER)
 
 	if combat_app.start_encounter(exe_actor.encounter):
@@ -736,6 +773,7 @@ func _start_exe_encounter(
 		)
 		await get_tree().process_frame
 		await KubuTransitionManager.uncover_screen()
+		_finish_presentation_transition()
 		return
 
 	_pending_exe_actor = null
@@ -749,6 +787,7 @@ func _start_exe_encounter(
 	_set_mode(NavigatorMode.LOCAL_AREA)
 	await get_tree().process_frame
 	await KubuTransitionManager.uncover_screen()
+	_finish_presentation_transition()
 
 
 func _start_incident_encounter(
@@ -764,11 +803,12 @@ func _start_incident_encounter(
 		)
 		return
 
-	await KubuTransitionManager.cover_screen()
+	_transition_depth += 1
 	_pending_exe_actor = null
 	_pending_incident_id = incident_id.strip_edges()
 	_active_combat_transaction_id = transaction_id.strip_edges()
 	_active_combat_activity_id = activity_id.strip_edges()
+	await KubuTransitionManager.cover_screen()
 	_set_mode(NavigatorMode.ENCOUNTER)
 
 	if combat_app.start_encounter(encounter):
@@ -778,6 +818,7 @@ func _start_incident_encounter(
 		)
 		await get_tree().process_frame
 		await KubuTransitionManager.uncover_screen()
+		_finish_presentation_transition()
 		return
 
 	var failed_incident_id: String = _pending_incident_id
@@ -791,6 +832,7 @@ func _start_incident_encounter(
 	_set_mode(NavigatorMode.LOCAL_AREA)
 	await get_tree().process_frame
 	await KubuTransitionManager.uncover_screen()
+	_finish_presentation_transition()
 
 
 func _on_activity_started(
@@ -820,11 +862,12 @@ func _on_activity_started(
 
 	match kind:
 		PendingActivityKind.TRAVEL:
+			_travel_transaction_id = transaction_id
 			var location := (
 				payload.get("location") as MapLocation
 			)
 
-			if await _enter_location_with_transition(location):
+			if location != null and NavigatorLocationStateResolver.resolve(location).can_enter() and await _enter_location_with_transition(location):
 				ActivityManager.complete_activity(
 					transaction_id,
 					activity_id
@@ -835,6 +878,9 @@ func _on_activity_started(
 					"Destination failed to load.",
 					activity_id
 				)
+
+			_travel_pending = false
+			_travel_transaction_id = ""
 
 		PendingActivityKind.EXAMINE:
 			var data := (
@@ -883,6 +929,7 @@ func _on_activity_rejected(
 		return
 
 	_pending_activity_requests.erase(request_id)
+	_travel_pending = false
 	UniversalAlerts.show_alert(
 		"ACTIVITY UNAVAILABLE",
 		reason
@@ -899,11 +946,13 @@ func _on_activity_cancelled(
 		return
 
 	_pending_activity_requests.erase(request_id)
+	_travel_pending = false
 
 
 func _on_combat_finished(
 	result: CombatResult
 ) -> void:
+	_transition_depth += 1
 	await KubuTransitionManager.cover_screen()
 
 	if not _pending_incident_id.is_empty():
@@ -917,6 +966,7 @@ func _on_combat_finished(
 		local_area_view.refresh_population()
 		await get_tree().process_frame
 		await KubuTransitionManager.uncover_screen()
+		_finish_presentation_transition()
 		return
 
 	var resolved_actor: LocalAreaExeActor = (
@@ -930,16 +980,20 @@ func _on_combat_finished(
 	_set_mode(NavigatorMode.LOCAL_AREA)
 
 	if not _active_combat_transaction_id.is_empty():
-		ActivityManager.complete_activity(
-			_active_combat_transaction_id,
-			_active_combat_activity_id
-		)
+		if result != null and result.outcome in [CombatResult.Outcome.ESCAPED, CombatResult.Outcome.CANCELLED]:
+			ActivityManager.fail_activity(_active_combat_transaction_id, "Encounter ended without a paid resolution.", _active_combat_activity_id)
+		else:
+			ActivityManager.complete_activity(
+				_active_combat_transaction_id,
+				_active_combat_activity_id
+			)
 
 	_active_combat_transaction_id = ""
 	_active_combat_activity_id = ""
 	local_area_view.refresh_population()
 	await get_tree().process_frame
 	await KubuTransitionManager.uncover_screen()
+	_finish_presentation_transition()
 
 
 func _on_incident_encounter_requested(
@@ -1013,3 +1067,9 @@ func _on_dialogue_completed(_dialogue_id: String) -> void:
 		_set_mode(NavigatorMode.LOCAL_AREA)
 	else:
 		_set_mode(NavigatorMode.WORLD_MAP)
+
+
+func _finish_presentation_transition() -> void:
+	_transition_depth = maxi(0, _transition_depth - 1)
+	if _transition_depth == 0 and is_inside_tree() and CampaignState.has_campaign():
+		SaveManager.request_checkpoint(&"navigator_settled")

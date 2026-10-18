@@ -1,0 +1,118 @@
+name: Navigator Validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-navigator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare CI-only asset placeholders
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp project.godot /tmp/project.godot.original
+
+          while IFS= read -r -d '' import_file; do
+            source_file="${import_file%.import}"
+
+            if [ ! -f "$source_file" ]; then
+              extension="${source_file##*.}"
+
+              case "$extension" in
+                png)
+                  printf '%s' 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4////fwAJ+wP9KobjigAAAABJRU5ErkJggg==' \
+                    | base64 --decode > "$source_file"
+                  ;;
+                ttf)
+                  cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf "$source_file"
+                  ;;
+                *)
+                  echo "Unsupported missing asset type: $source_file"
+                  exit 1
+                  ;;
+              esac
+            fi
+
+            rm -f "$import_file"
+          done < <(find data -type f -name '*.import' -print0)
+
+          sed -i '/^theme\/custom=/d' project.godot
+
+      - name: Download Godot 4.6.3
+        run: |
+          curl --fail --location --retry 3 \
+            --output godot.zip \
+            https://godot-releases.nbg1.your-objectstorage.com/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip
+          unzip -q godot.zip
+          chmod +x Godot_v4.6.3-stable_linux.x86_64
+
+      - name: Import project
+        shell: bash
+        run: |
+          set -o pipefail
+          ./Godot_v4.6.3-stable_linux.x86_64 \
+            --headless --editor --path . --import --verbose \
+            2>&1 | tee godot-navigator-import.log
+
+      - name: Run Navigator and integration contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          scenes=(
+            "navigator/browser_forum_focus_test:BROWSER_FORUM_FOCUS_TEST"
+            "navigator/navigator_authoring_test:NAVIGATOR_AUTHORING_TEST"
+            "navigator/navigator_map_contract_test:NAVIGATOR_MAP_CONTRACT_TEST"
+            "navigator/navigator_population_test:NAVIGATOR_POPULATION_TEST"
+            "navigator/navigator_activity_contract_test:NAVIGATOR_ACTIVITY_CONTRACT_TEST"
+            "navigator/navigator_exploration_flow_test:NAVIGATOR_EXPLORATION_FLOW_TEST"
+            "activity/activity_manager_test:ACTIVITY_MANAGER_TEST"
+            "leads/lead_incident_population_test:LEAD_INCIDENT_POPULATION_TEST"
+            "social/npc_social_foundation_test:NPC_SOCIAL_FOUNDATION_TEST"
+            "conditions/conditions_effects_test:CONDITIONS_EFFECTS_TEST"
+            "save/save_manager_test:SAVE_MANAGER_TEST"
+            "combat/combat_campaign_resolution_test:COMBAT_CAMPAIGN_RESOLUTION_TEST"
+            "window_manager/window_contract_test:WINDOW_CONTRACT_TEST"
+          )
+          for entry in "${scenes[@]}"; do
+            scene="${entry%%:*}"
+            marker="${entry#*:}"
+            logfile="$(basename "$scene").log"
+            timeout 120s ./Godot_v4.6.3-stable_linux.x86_64 --headless --path . "tests/$scene.tscn" 2>&1 | tee "$logfile"
+            grep -q "$marker: PASS" "$logfile"
+            if grep -E 'SCRIPT ERROR|Failed to load script|Parse Error|Cannot get class' "$logfile"; then exit 1; fi
+          done
+
+      - name: Exercise production Location EditorPlugin
+        shell: bash
+        run: |
+          python3 tests/browser/run_editor_smoke.py \
+            --godot ./Godot_v4.6.3-stable_linux.x86_64 \
+            --workspace "$RUNNER_TEMP/nnw-location-editor" \
+            --output "$GITHUB_WORKSPACE/location-editor.log" \
+            --smoke-plugin res://tests/navigator/editor_smoke/plugin.cfg \
+            --marker 'LOCATION_AUTHORING_EDITOR_SMOKE: PASS' --headless
+
+      - name: Restore project settings
+        if: always()
+        run: cp /tmp/project.godot.original project.godot
+
+      - name: Upload Navigator validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: navigator-validation-logs
+          path: '*.log'
+          if-no-files-found: ignore

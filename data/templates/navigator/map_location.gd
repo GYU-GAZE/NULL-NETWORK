@@ -1,3 +1,4 @@
+@tool
 extends Resource
 class_name MapLocation
 
@@ -44,6 +45,13 @@ enum LocationCategory {
 
 
 @export_category("Availability")
+@export var initially_discovered: bool = false
+@export var unlock_conditions: ConditionRuleData
+@export var availability_conditions: ConditionRuleData
+@export var locked_message: String = "LOCKED"
+@export var unavailable_message: String = "TEMPORARILY UNAVAILABLE"
+@export var no_area_message: String = "REFERENCE LOCATION"
+
 ## Quando true, a localização não precisa de flags para ser desbloqueada.
 @export var unlocked_by_default: bool = true
 
@@ -77,3 +85,7 @@ func get_marker_title() -> String:
 
 func get_marker_subtitle() -> String:
 	return location_subtitle
+
+
+func validate_data() -> PackedStringArray:
+	return NavigatorContentValidator.validate_location(self)

@@ -100,4 +100,4 @@ renderer/rendering_method.mobile="gl_compatibility"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/website_authoring/plugin.cfg")
+enabled=PackedStringArray("res://addons/website_authoring/plugin.cfg", "res://addons/location_authoring/plugin.cfg")

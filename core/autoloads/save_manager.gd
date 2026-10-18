@@ -33,6 +33,7 @@ func _ready() -> void:
 	register_save_section(CampaignState)
 	register_save_section(GameState)
 	register_save_section(AppSessionStore)
+	register_save_section(ActivityManager)
 	register_save_section(CombatManager)
 	_last_observed_day = TimeManager.days_passed
 	_last_observed_period = int(TimeManager.current_period)

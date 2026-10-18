@@ -3,6 +3,7 @@ class_name LocalAreaExeActor
 
 
 @export_category("Encounter")
+@export var environmental_apk: APKData
 @export var encounter: CombatEncounter
 
 @export_category("Resolution Policy")
@@ -23,11 +24,12 @@ func configure_population_actor(
 	new_actor_id: String,
 	spawn_entry: SpawnEntry
 ) -> bool:
-	if spawn_entry == null or spawn_entry.encounter == null:
+	if spawn_entry == null or (spawn_entry.encounter == null and spawn_entry.environmental_apk == null):
 		return false
 
 	population_actor_id = new_actor_id.strip_edges()
 	encounter = spawn_entry.encounter
+	environmental_apk = spawn_entry.environmental_apk
 	persistence_scope = PersistenceScope.WORLD_POPULATION
 
 	var data := LocalAreaInteractionData.new()
@@ -37,8 +39,9 @@ func configure_population_actor(
 		if not spawn_entry.display_name.strip_edges().is_empty()
 		else spawn_entry.get_display_id()
 	)
-	data.kind = LocalAreaInteractionData.InteractionKind.ENCOUNTER
-	data.prompt_verb = "FIGHT"
+	data.kind = LocalAreaInteractionData.InteractionKind.ENCOUNTER if encounter != null else LocalAreaInteractionData.InteractionKind.EXAMINE
+	data.prompt_verb = "FIGHT" if encounter != null else "OBSERVE"
+	data.response_text = spawn_entry.environmental_description
 	data.activity = spawn_entry.activity
 	interaction_data = data
 	return not population_actor_id.is_empty()
@@ -47,7 +50,7 @@ func configure_population_actor(
 func can_interact() -> bool:
 	return (
 		not _resolved
-		and encounter != null
+		and (encounter != null or environmental_apk != null)
 		and super.can_interact()
 	)
 
