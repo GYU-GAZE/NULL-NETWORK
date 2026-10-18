@@ -2,8 +2,8 @@ extends Node2D
 class_name FieldCombatCallCoordinator
 
 signal call_presented(formation: Dictionary)
-## Future finite-ecology authority can consume these committed requests using
-## the receipt ID. Field projection counts are NOT ecological Population Units.
+## Compatibility intent signal; durable receipts are consumed by EcologyService.
+## Field projection counts are NOT ecological Population Units.
 signal ecology_effects_requested(receipt_id: String, location_id: String, effects: Array[Dictionary])
 var area: NavigatorLocalAreaScene
 var busy: bool = false
@@ -24,6 +24,8 @@ func begin(actor: LocalAreaExeActor, involuntary: bool = false) -> bool:
 	if not area.field_navigation.line_clear(area.to_local(actor.global_position), area.to_local(area.player.global_position)):
 		return false
 	if involuntary and (actor.motor.grace_seconds > 0 or actor.motor.needs_separation):
+		return false
+	if actor.persistent_ecology_actor_id.is_empty() and area.map_location.ecology_zone != null and EcologyService.population(area.map_location.ecology_zone.ecology_zone_id, actor.environmental_apk.species_line_id) <= 0:
 		return false
 	busy = true
 	main = actor
@@ -46,7 +48,7 @@ func build_encounter() -> CombatEncounter:
 	var responders: Array[Dictionary] = []
 	var delay := profile.signal_seconds
 	for candidate: LocalAreaExeActor in candidates:
-		if candidate == main or candidate.call_locked or candidate.encounter_profile == null or candidate.behavior_profile == null:
+		if candidate == main or not main.persistent_ecology_actor_id.is_empty() or not candidate.persistent_ecology_actor_id.is_empty() or candidate.call_locked or candidate.encounter_profile == null or candidate.behavior_profile == null:
 			continue
 		var distance := candidate.global_position.distance_to(main.global_position)
 		if distance > profile.call_radius or not area.field_navigation.line_clear(area.to_local(candidate.global_position), area.to_local(main.global_position)):
@@ -69,17 +71,22 @@ func build_encounter() -> CombatEncounter:
 	responders.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a.response.response == FieldCallResponseRule.Response.INTERCEPT) > int(b.response.response == FieldCallResponseRule.Response.INTERCEPT))
 	var members: Array[Dictionary] = [_member(main)]
+	var ecological_counts := {main.environmental_apk.species_line_id: 1}
 	for value: Dictionary in responders:
 		if members.size() >= 4:
 			break
 		var actor := value.actor as LocalAreaExeActor
+		var zone := area.map_location.ecology_zone
+		var species_id := actor.environmental_apk.species_line_id
+		if zone != null and int(ecological_counts.get(species_id, 0)) >= EcologyService.population(zone.ecology_zone_id, species_id): continue
+		ecological_counts[species_id] = int(ecological_counts.get(species_id, 0)) + 1
 		actor.set_call_locked(true, FieldCallResponseRule.Response.keys()[int(value.response.response)])
 		var target := area.player.global_position if int(value.response.response) == FieldCallResponseRule.Response.INTERCEPT else main.global_position
 		target += target.direction_to(actor.global_position) * 30.0
 		actor.motor.begin_call_motion(area.to_local(target), delay)
 		delay = maxf(delay, float(value.response.delay))
 		members.append(_member(actor))
-	formation = {"version": 1, "call_id": call_id, "location_id": area.map_location.get_display_id(), "profile_path": profile.resource_path, "members": members, "decisions": decisions.duplicate(true)}
+	formation = {"version": 1, "call_id": call_id, "location_id": area.map_location.get_display_id(), "ecology_zone_id": area.map_location.ecology_zone.ecology_zone_id if area.map_location.ecology_zone != null and main.persistent_ecology_actor_id.is_empty() else "", "predator_id": main.persistent_ecology_actor_id, "profile_path": profile.resource_path, "members": members, "decisions": decisions.duplicate(true)}
 	presenting = true
 	set_process(true)
 	call_presented.emit(formation.duplicate(true))
@@ -90,11 +97,23 @@ func build_encounter() -> CombatEncounter:
 	presenting = false
 	set_process(false)
 	queue_redraw()
+	if not busy: return null
+	var counts := {}
+	for member: Dictionary in formation.get("members", []):
+		var actor := area.find_interactable_by_id(str(member.unit_id)) as LocalAreaExeActor
+		if actor == null or not actor.available:
+			cancel(true)
+			return null
+		var species := actor.environmental_apk.species_line_id
+		counts[species] = int(counts.get(species, 0)) + 1
+		if main.persistent_ecology_actor_id.is_empty() and area.map_location.ecology_zone != null and int(counts[species]) > EcologyService.population(area.map_location.ecology_zone.ecology_zone_id, species):
+			cancel(true)
+			return null
 	return FieldCombatEncounterFactory.create(formation)
 
 func _member(actor: LocalAreaExeActor) -> Dictionary:
 	var reward := actor.encounter_profile.reward_profile
-	return {"unit_id": actor.field_unit_id, "apk_id": actor.environmental_apk.apk_id, "variant_node_id": actor.spawn_entry.variant_node_id, "level": actor.spawn_entry.field_level, "hp_fraction": actor.hp_fraction, "stability_fraction": actor.stability_fraction, "reward_path": reward.resource_path if reward != null else ""}
+	return {"unit_id": actor.field_unit_id, "apk_id": actor.environmental_apk.apk_id, "variant_node_id": actor.spawn_entry.variant_node_id, "level": actor.spawn_entry.field_level, "hp_fraction": actor.hp_fraction, "stability_fraction": actor.stability_fraction, "reward_path": reward.resource_path if reward != null else "", "module_ids": CampaignState.world_state.ecology_route.get("predator", {}).get("assimilated_module_ids", []) if not actor.persistent_ecology_actor_id.is_empty() else []}
 
 func restore(data: Dictionary) -> void:
 	formation = data.duplicate(true)
@@ -129,6 +148,7 @@ func apply_result(result: CombatResult) -> void:
 			CampaignState.campaign_changed.emit(&"field_resolutions")
 			if not effects.is_empty():
 				ecology_effects_requested.emit(receipt_id, area.map_location.get_display_id(), effects)
+	EcologyService.consume_pending_receipts()
 	# All nearby survivors get grace; an unselected aggressive neighbor must not
 	# immediately reopen combat at the return position after escape.
 	cancel(result.outcome in [CombatResult.Outcome.ESCAPED, CombatResult.Outcome.CANCELLED])

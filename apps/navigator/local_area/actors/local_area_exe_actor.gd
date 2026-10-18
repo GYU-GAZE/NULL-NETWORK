@@ -11,6 +11,7 @@ class_name LocalAreaExeActor
 @onready var contact_sensor: Area2D = %ContactSensor
 @onready var presentation: FieldEXEPresentation = %Presentation
 var population_actor_id: String = ""
+var persistent_ecology_actor_id: String = ""
 var field_unit_id: String = ""
 var spawn_entry: SpawnEntry
 var behavior_profile: FieldBehaviorProfileData
@@ -57,6 +58,10 @@ func bind_field(area: NavigatorLocalAreaScene, seed_value: int) -> void:
 	if environmental_apk == null or behavior_profile == null or not is_node_ready():
 		return
 	field_area = area
+	presentation.variant_label = spawn_entry.variant_node_id
+	if area.map_location.ecology_zone != null:
+		for variant: EcologyVariantData in EcologyService.eligible_variants(area.map_location.ecology_zone, environmental_apk.species_line_id):
+			if variant.node_id == spawn_entry.variant_node_id: presentation.tint = variant.field_tint
 	presentation.configure(spawn_entry.presentation_override if spawn_entry.presentation_override != null else environmental_apk.field_presentation)
 	motor.bind(area, seed_value)
 	motor.restore(_pending_motor_data)
@@ -146,7 +151,7 @@ func apply_combat_result(result: CombatResult) -> void:
 
 func get_persistent_state() -> Dictionary:
 	var state := super.get_persistent_state()
-	state.merge({"resolved": _resolved, "field_unit_id": field_unit_id, "hp_fraction": hp_fraction, "stability_fraction": stability_fraction}, true)
+	state.merge({"resolved": _resolved, "persistent_ecology_actor_id": persistent_ecology_actor_id, "field_unit_id": field_unit_id, "hp_fraction": hp_fraction, "stability_fraction": stability_fraction, "variant_node_id": spawn_entry.variant_node_id if spawn_entry != null else ""}, true)
 	if is_instance_valid(presentation):
 		state["facing_left"] = presentation.facing_left
 	if is_instance_valid(motor) and field_area != null:
@@ -155,6 +160,7 @@ func get_persistent_state() -> Dictionary:
 
 func apply_persistent_state(state: Dictionary) -> void:
 	super.apply_persistent_state(state)
+	persistent_ecology_actor_id = str(state.get("persistent_ecology_actor_id", persistent_ecology_actor_id))
 	field_unit_id = str(state.get("field_unit_id", state.get("population_unit_id", population_actor_id)))
 	hp_fraction = clampf(float(state.get("hp_fraction", 1)), 0, 1)
 	stability_fraction = clampf(float(state.get("stability_fraction", 1)), 0, 1)

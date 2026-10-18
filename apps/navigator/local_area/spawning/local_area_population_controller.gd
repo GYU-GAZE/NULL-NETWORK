@@ -29,6 +29,7 @@ func _ready() -> void:
 	add_child(_subscription)
 	_subscription.changed.connect(_queue_population_refresh)
 	ContentRegistry.registry_rebuilt.connect(_on_registry_rebuilt)
+	EcologyService.zone_changed.connect(_on_ecology_changed)
 	if not LeadIncidentManager.incident_completed.is_connected(
 		_on_incident_completed
 	):
@@ -91,6 +92,7 @@ func populate(location: MapLocation) -> bool:
 	_save_population_state()
 	_instantiate_population()
 	if area != null:
+		if area.ecology_projection != null: area.ecology_projection.refresh()
 		area.queue_field_geometry_refresh()
 	return true
 
@@ -143,12 +145,7 @@ func _create_population_state(generation_key: String) -> Dictionary:
 	var actors: Array[Dictionary] = []
 
 	if _location.spawn_table != null:
-		var context := {
-			"location_id": _location.get_display_id(),
-			"days_passed": TimeManager.days_passed,
-			"current_period": int(TimeManager.current_period),
-			"current_action_block": TimeManager.current_action_block
-		}
+		var context := _context()
 		var rolled_entries: Array[SpawnEntry] = (
 			_location.spawn_table.roll_entries(seed_value, context)
 		)
@@ -278,6 +275,11 @@ func _instantiate_actor(
 				return
 
 			var entry: SpawnEntry = _location.spawn_table.get_entry(content_id)
+			if entry != null and entry.environmental_apk != null and _location.ecology_zone != null:
+				if not descriptor.has("variant_node_id"):
+					descriptor["variant_node_id"] = entry.variant_node_id if not entry.variant_node_id.is_empty() else EcologyService.select_variant(_location.ecology_zone, entry.environmental_apk.species_line_id, hash(actor_id))
+				entry = entry.duplicate() as SpawnEntry
+				entry.variant_node_id = str(descriptor.variant_node_id)
 			var exe_actor := COMMON_ACTOR_SCENE.instantiate() as LocalAreaExeActor
 
 			if exe_actor == null \
@@ -464,19 +466,25 @@ func _build_actor_id(kind: String, content_id: String, index: int) -> String:
 
 
 func _get_generation_key() -> String:
+	var epoch := int(EcologyService.ensure_zone(_location.ecology_zone).get("projection_epoch", 0)) if _location.ecology_zone != null else 0
+	var prefix := "eco%d:" % epoch if epoch > 0 else ""
 	var policy := _location.spawn_table.refresh_policy if _location.spawn_table != null else SpawnTable.RefreshPolicy.PERIOD
 	match policy:
 		SpawnTable.RefreshPolicy.DAY:
-			return "%d" % TimeManager.days_passed
+			return prefix + "%d" % TimeManager.days_passed
 		SpawnTable.RefreshPolicy.ACTION_BLOCK:
-			return "%d:%d:%d" % [TimeManager.days_passed, TimeManager.current_period, TimeManager.current_action_block]
+			return prefix + "%d:%d:%d" % [TimeManager.days_passed, TimeManager.current_period, TimeManager.current_action_block]
 		SpawnTable.RefreshPolicy.CAMPAIGN:
-			return "campaign"
-	return "%d:%d" % [TimeManager.days_passed, TimeManager.current_period]
+			return prefix + "campaign"
+	return prefix + "%d:%d" % [TimeManager.days_passed, TimeManager.current_period]
 
 
 func _context() -> Dictionary:
-	return {"location_id": _location.get_display_id(), "days_passed": TimeManager.days_passed, "current_period": int(TimeManager.current_period), "current_action_block": TimeManager.current_action_block}
+	var result := {"location_id": _location.get_display_id(), "days_passed": TimeManager.days_passed, "current_period": int(TimeManager.current_period), "current_action_block": TimeManager.current_action_block}
+	if _location.ecology_zone != null:
+		var desired := _location.spawn_table.rolls_per_population if _location.spawn_table != null else 0
+		result.merge(EcologyService.projection_context(_location.ecology_zone, desired), true)
+	return result
 
 
 func _descriptor_available(descriptor: Dictionary) -> bool:
@@ -488,7 +496,7 @@ func _descriptor_available(descriptor: Dictionary) -> bool:
 			var rules := _location.spawn_table.field_population.conditions
 			if rules != null and not rules.is_met(_context()):
 				return false
-		return _entry_can_remain(entry) and str(descriptor.get("actor_id", "")) in _population_state.get("common_slots", [])
+		return _entry_can_remain(entry) and _ecological_descriptor_available(descriptor, entry) and str(descriptor.get("actor_id", "")) in _population_state.get("common_slots", [])
 	if kind == LocalAreaSpawnPoint.SpawnKind.NPC:
 		var npc := ContentRegistry.get_npc(content)
 		return npc != null and npc.is_physically_present_at(_location.get_display_id(), _context())
@@ -604,3 +612,28 @@ func _entry_can_remain(entry: SpawnEntry) -> bool:
 		var active := CombatManager.get_current_encounter()
 		return CombatManager.is_encounter_active() and active != null and entry.encounter != null and active.encounter_id == entry.encounter.encounter_id
 	return true
+
+
+func _on_ecology_changed(zone_id: String, _species: PackedStringArray, _reason: String) -> void:
+	if _location != null and _location.ecology_zone != null and _location.ecology_zone.ecology_zone_id == zone_id:
+		_queue_population_refresh()
+
+func _ecological_descriptor_available(descriptor: Dictionary, entry: SpawnEntry) -> bool:
+	if _location.ecology_zone == null or entry == null or entry.environmental_apk == null or entry in _location.spawn_table.retired_entries: return true
+	var species := entry.environmental_apk.species_line_id
+	var node := str(descriptor.get("variant_node_id", entry.variant_node_id))
+	if not node.is_empty():
+		var eligible := false
+		for variant: EcologyVariantData in EcologyService.eligible_variants(_location.ecology_zone, species):
+			eligible = eligible or variant.node_id == node
+		if not eligible: return false
+	var limit := int(_context().get("ecology_limits", {}).get(species, 0))
+	var rank := 0
+	for id: Variant in _population_state.get("common_slots", []):
+		for value: Dictionary in _population_state.get("actors", []):
+			if str(value.get("actor_id", "")) != str(id) or bool(value.get("resolved", false)): continue
+			var other := _location.spawn_table.get_entry(str(value.get("content_id", "")))
+			if other == null or other.environmental_apk == null or other.environmental_apk.species_line_id != species: continue
+			if str(id) == str(descriptor.get("actor_id", "")): return rank < limit
+			rank += 1
+	return false

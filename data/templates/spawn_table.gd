@@ -48,27 +48,38 @@ func roll_entries(
 	var available: Array[SpawnEntry] = get_available_entries(context)
 	var desired := rolls_per_population
 	if field_population != null:
-		if field_population.conditions != null and not field_population.conditions.is_met(context):
-			return result
+		if field_population.conditions != null and not field_population.conditions.is_met(context): return result
 		desired = clampi(desired, field_population.minimum_units, field_population.maximum_units)
+	var used := {}
+	if field_population != null:
 		for id: String in field_population.guaranteed_spawn_ids:
 			var entry := get_entry(id)
-			if entry != null and entry in available and result.size() < desired:
+			if entry != null and entry in available and result.size() < desired and _ecology_allows(entry, used, context):
 				result.append(entry)
-
-	if available.is_empty() or rolls_per_population <= 0:
-		return result
-
+				_count_species(entry, used)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
-
-	for _roll_index: int in range(maxi(0, desired - result.size())):
-		var selected: SpawnEntry = _roll_one(available, rng)
-
-		if selected != null:
-			result.append(selected)
-
+	while result.size() < desired and rolls_per_population > 0:
+		var eligible: Array[SpawnEntry] = []
+		for entry: SpawnEntry in available:
+			if _ecology_allows(entry, used, context): eligible.append(entry)
+		if eligible.is_empty(): break
+		var selected := _roll_one(eligible, rng, context)
+		if selected == null: break
+		result.append(selected)
+		_count_species(selected, used)
 	return result
+
+func _count_species(entry: SpawnEntry, used: Dictionary) -> void:
+	if entry.environmental_apk != null:
+		var id := entry.environmental_apk.species_line_id
+		used[id] = int(used.get(id, 0)) + 1
+
+func _ecology_allows(entry: SpawnEntry, used: Dictionary, context: Dictionary) -> bool:
+	if entry.environmental_apk == null or not context.has("ecology_limits"): return true
+	var id := entry.environmental_apk.species_line_id
+	return int(used.get(id, 0)) < int(context.ecology_limits.get(id, 0))
+
 
 
 func roll_encounter() -> CombatEncounter:
@@ -113,24 +124,18 @@ func validate_data() -> PackedStringArray:
 	return errors
 
 
-func _roll_one(
-	available: Array[SpawnEntry],
-	rng: RandomNumberGenerator
-) -> SpawnEntry:
-	var total_weight: int = 0
-
+func _roll_one(available: Array[SpawnEntry], rng: RandomNumberGenerator, context: Dictionary = {}) -> SpawnEntry:
+	var total_weight := 0.0
+	for entry: SpawnEntry in available: total_weight += _weight(entry, context)
+	if total_weight <= 0: return null
+	var roll := rng.randf() * total_weight
 	for entry: SpawnEntry in available:
-		total_weight += entry.weight
+		roll -= _weight(entry, context)
+		if roll < 0: return entry
+	return available.back()
 
-	if total_weight <= 0:
-		return null
-
-	var roll: int = rng.randi_range(1, total_weight)
-
-	for entry: SpawnEntry in available:
-		roll -= entry.weight
-
-		if roll <= 0:
-			return entry
-
-	return available[available.size() - 1]
+func _weight(entry: SpawnEntry, context: Dictionary) -> float:
+	var factor := 1.0
+	if entry.environmental_apk != null and context.has("ecology_weights"):
+		factor = float(context.ecology_weights.get(entry.environmental_apk.species_line_id, 0))
+	return entry.weight * factor
