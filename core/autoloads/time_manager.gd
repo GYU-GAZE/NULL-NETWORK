@@ -19,12 +19,16 @@ func is_development_advancing() -> bool:
 	return _development_advancing
 
 func development_time_denial_reason() -> String:
+	if not OS.is_debug_build():
+		return "QA time is available only in development builds."
 	if _development_advancing:
 		return "A development time operation is already running."
 	if not CampaignState.has_campaign():
 		return "Load a campaign before advancing development time."
-	if CampaignState.campaign_phase != CampaignState.CampaignPhase.MAIN_CAMPAIGN:
-		return "Development time controls require the main campaign."
+	if CampaignState.campaign_phase not in [CampaignState.CampaignPhase.PROLOGUE, CampaignState.CampaignPhase.MAIN_CAMPAIGN]:
+		return "Protected campaign phase: %s." % CampaignState.CampaignPhase.keys()[CampaignState.campaign_phase]
+	if not CampaignState.active_story_event_id.is_empty() or not CampaignState.queued_story_event_ids.is_empty():
+		return "Protected narrative boundary: finish the active/queued StoryEvent."
 	if CombatManager.is_encounter_active():
 		return "Finish combat before advancing development time."
 	if DialogueManager.is_dialogue_active():
@@ -44,7 +48,7 @@ func advance_development_hours(hours: int) -> Dictionary:
 	var advanced := 0
 	var interrupted := ""
 	for _hour: int in range(hours):
-		if CombatManager.is_encounter_active() or DialogueManager.is_dialogue_active() or ActivityManager.has_pending_requests() or ActivityManager.has_any_active_transaction():
+		if not CampaignState.active_story_event_id.is_empty() or not CampaignState.queued_story_event_ids.is_empty() or CombatManager.is_encounter_active() or DialogueManager.is_dialogue_active() or ActivityManager.has_pending_requests() or ActivityManager.has_any_active_transaction() or SaveManager.is_runtime_busy():
 			interrupted = "Stopped at an authored event/activity boundary."
 			break
 		# The actual temporal authority processes every intermediate hour. This
@@ -93,6 +97,25 @@ const WEEKDAY_NAMES: Array[String] = [
 
 func _ready() -> void:
 	_sync_calendar_from_days_passed()
+	_connect_development_state.call_deferred()
+
+func _notify_development_state() -> void:
+	development_time_state_changed.emit()
+
+func _connect_development_state() -> void:
+	for binding: Array in [
+		[CampaignState.campaign_changed, 1], [CampaignState.campaign_reset, 0],
+		[CampaignState.story_event_state_changed, 2],
+		[ActivityManager.runtime_state_changed, 0], [SaveManager.busy_state_changed, 0],
+		[DialogueManager.dialogue_started, 2], [DialogueManager.dialogue_completed, 1],
+		[DialogueManager.dialogue_failed, 3], [CombatManager.lifecycle_changed, 0],
+		[StoryEventManager.event_queued, 1], [StoryEventManager.event_completed, 1],
+		[StoryEventManager.event_failed, 3]
+	]:
+		var callback := _notify_development_state
+		if int(binding[1]) > 0:
+			callback = callback.unbind(int(binding[1]))
+		(binding[0] as Signal).connect(callback)
 
 
 func get_save_section_id() -> String:

@@ -1,5 +1,7 @@
 # Field EXEs e Combat Call — autoria da Fase 04
 
+A Fase 05 implementa a autoridade finita e substitui a fronteira futura descrita nesta documentação histórica. Consulte [Ecologia e QA Time](ECOLOGY_AUTHORING.md) para o contrato atual de Population Units, receipts, recompensas e colapso.
+
 ## Contrato e autoridades
 
 Esta fase segue as decisões fechadas do pedido e o [GDD canônico v5](../gdd/NULL_NETWORK_GDD_CANONICO_v5.md), incorporado pela atualização da PR #43. Os capítulos 1, 7 e 9 orientam custo reservado, fuga, projeções individuais e Combat Call. Dimensões ainda sem autoridade implementada usam contexto extensível, sem criar sistemas paralelos.

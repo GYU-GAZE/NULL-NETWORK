@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EcologyNPCActivityData" format=3]
+[ext_resource type="Script" path="res://data/templates/ecology/ecology_npc_activity_data.gd" id="s"]
+[ext_resource type="Script" path="res://data/templates/conditions/flag_condition_data.gd" id="flag"]
+[sub_resource type="Resource" id="enabled"]
+script = ExtResource("flag")
+flag_name = "ecology.akiba.community_stewardship"
+[resource]
+script = ExtResource("s")
+activity_id = "ganbarekun.stewardship"
+npc_id = "ganbarekun"
+species_line_id = "rattildus"
+operation = 1
+interval_blocks = 168
+conditions = SubResource("enabled")

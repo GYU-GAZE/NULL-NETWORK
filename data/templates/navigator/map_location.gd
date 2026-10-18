@@ -70,6 +70,7 @@ enum LocationCategory {
 
 @export_category("Encounters")
 @export var spawn_table: SpawnTable
+@export var ecology_zone: EcologyZoneData
 
 
 func get_display_id() -> String:

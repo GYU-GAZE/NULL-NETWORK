@@ -56,9 +56,13 @@
 [ext_resource type="Resource" path="res://data/content/apks/system/turd_init.tres" id="56_turd"]
 [ext_resource type="Resource" path="res://data/content/navigator/areas/operator_safehouse/operator_safehouse_location.tres" id="57_safehouse"]
 
+[ext_resource type="Script" path="res://data/templates/ecology/ecology_zone_data.gd" id="ecology_type"]
+[ext_resource type="Resource" path="res://data/content/ecology/akiba_electric_town.tres" id="akiba_ecology"]
+[ext_resource type="Resource" path="res://data/content/ecology/null_predator_apk.tres" id="null_predator_apk"]
+
 [resource]
 script = ExtResource("1_catalog")
-apks = Array[ExtResource("38_apk_type")]([ExtResource("39_novire"), ExtResource("44_rattildus"), ExtResource("45_novire_valour"), ExtResource("56_turd")])
+apks = Array[ExtResource("38_apk_type")]([ExtResource("39_novire"), ExtResource("44_rattildus"), ExtResource("45_novire_valour"), ExtResource("56_turd"), ExtResource("null_predator_apk")])
 modules = Array[ExtResource("2_module_type")]([ExtResource("3_basic_attack"), ExtResource("4_basic_defense"), ExtResource("5_basic_dodge"), ExtResource("6_basic_heal"), ExtResource("7_dummy_turret"), ExtResource("8_heavy_attack"), ExtResource("9_idle"), ExtResource("10_new_attack"), ExtResource("42_rattildus_signature"), ExtResource("43_rattildus_guard")])
 items = Array[ExtResource("40_item_type")]([ExtResource("41_healing_patch")])
 combat_encounters = Array[ExtResource("24_encounter_type")]([ExtResource("16_encounter_1v1"), ExtResource("17_encounter_3v1")])
@@ -76,3 +80,5 @@ dialogues = Array[ExtResource("30_dialogue_type")]([ExtResource("29_welcome_dial
 story_event_catalog = ExtResource("28_story_events")
 lead_catalog = ExtResource("46_lead_catalog")
 incidents = Array[ExtResource("47_incident_type")]([ExtResource("48_aquarium_incident")])
+
+ecology_zones = Array[ExtResource("ecology_type")]([ExtResource("akiba_ecology")])

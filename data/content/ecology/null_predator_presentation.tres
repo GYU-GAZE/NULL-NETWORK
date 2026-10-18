@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="FieldPresentationData" format=3]
+[ext_resource type="Script" path="res://data/templates/field/field_presentation_data.gd" id="s"]
+[resource]
+script = ExtResource("s")
+tint = Color(0.8, 0.25, 1, 1)
+visual_scale = 1.5

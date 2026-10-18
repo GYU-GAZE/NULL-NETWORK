@@ -50,6 +50,7 @@ SocialService="*res://systems/social/social_runtime_service.gd"
 StoryEventManager="*res://core/autoloads/story_event_manager.gd"
 DialogueManager="*res://core/autoloads/dialogue_manager.gd"
 LeadIncidentManager="*res://systems/leads/lead_incident_runtime_manager.gd"
+EcologyService="*res://systems/ecology/ecology_service.gd"
 
 [display]
 

@@ -6,7 +6,9 @@
 script = ExtResource("1_reward")
 reward_id = "reward.rattildus"
 base_experience = 20
-purge_experience_multiplier = 1.5
+purge_experience_multiplier = 3.0
+weak_enemy_level_gap = 10
+weak_enemy_experience_ratio = 0.2
 duplicate_module_experience = 10
 common_item_ids = PackedStringArray("healing_patch")
 common_item_amounts = Array[int]([1])

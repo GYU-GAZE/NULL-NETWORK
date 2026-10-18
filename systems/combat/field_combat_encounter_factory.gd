@@ -18,6 +18,7 @@ static func create(data: Dictionary) -> CombatEncounter:
 	encounter.base_escape_chance = profile.base_escape_chance
 	encounter.resolution = profile.resolution
 	encounter.field_formation = data.duplicate(true)
+	encounter.ecology_zone_id = str(data.get("ecology_zone_id", ""))
 	var ally := CombatSlotData.new()
 	ally.participant_source = CombatSlotData.ParticipantSource.PLAYER_PARTNER
 	encounter.ally_slots.append(ally)
@@ -40,6 +41,11 @@ static func create(data: Dictionary) -> CombatEncounter:
 			return null
 		slot.field_unit_id = id
 		slot.field_variant_node_id = str(member.get("variant_node_id", ""))
+		if not str(data.get("predator_id", "")).is_empty():
+			for module_id: Variant in member.get("module_ids", []):
+				var module := ContentRegistry.get_module(str(module_id))
+				if module == null or module.module_kind != ModuleData.ModuleKind.ACTIVE: return null
+				slot.field_module_ids.append(str(module_id))
 		slot.initial_hp_fraction = clampf(float(member.get("hp_fraction", 1)), 0, 1)
 		slot.initial_stability_fraction = clampf(float(member.get("stability_fraction", 1)), 0, 1)
 		var reward_path := str(member.get("reward_path", ""))

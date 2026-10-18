@@ -9,7 +9,9 @@ static func resolve(
 	resolved_enemies: Array[Dictionary],
 	progress_states: Array[PlayerActionProgressData],
 	tendency_log: CombatTendencyLog,
-	resolved_allies: Array[Dictionary] = []
+	resolved_allies: Array[Dictionary] = [],
+	ecology_authorization: Dictionary = {},
+	ecology_battle_id: String = ""
 ) -> Dictionary:
 	var errors := PackedStringArray()
 
@@ -20,6 +22,9 @@ static func resolve(
 	if player_actor.is_empty():
 		errors.append("Combat resolution has no player snapshot.")
 		return {"errors": errors}
+
+	if not EcologyService.collapse_warning(encounter, resolved_enemies, outcome, ecology_authorization).is_empty():
+		return {"errors": PackedStringArray(["ECOLOGY_CONFIRMATION_REQUIRED"])}
 
 	var plan: Dictionary = _build_plan(
 		outcome,
@@ -64,6 +69,8 @@ static func resolve(
 	for module_id: String in plan.get("module_ids", PackedStringArray()):
 		CampaignState.learn_module(module_id)
 
+	for id: String in plan.get("passive_module_ids", PackedStringArray()):
+		CampaignState.learn_module(id, false)
 	var passive_id: String = str(plan.get("passive_module_id", ""))
 
 	if not passive_id.is_empty():
@@ -125,9 +132,24 @@ static func resolve(
 			% ", ".join(failed_effects)
 		)
 
+	EcologyService.commit_predator_result(str(encounter.field_formation.get("predator_id", "")), outcome)
+	var ecology_receipt := EcologyService.commit_combat(encounter, resolved_enemies, outcome, ecology_battle_id if not ecology_battle_id.is_empty() else encounter.encounter_id, ecology_authorization)
+	if outcome not in [CombatResult.Outcome.ESCAPED, CombatResult.Outcome.CANCELLED] and not encounter.ecology_zone_id.is_empty():
+		for state: PlayerActionProgressData in progress_states:
+			var action := encounter.resolution.get_player_action(state.action_id)
+			if state.completed and action != null and action.action_kind == PlayerActionData.ActionKind.SCAN:
+				GameState.set_flag("ecology.%s.surveyed" % encounter.ecology_zone_id, true)
+	var action_targets: Array[Dictionary] = []
+	for record: Dictionary in resolved_enemies:
+		if outcome not in [CombatResult.Outcome.ESCAPED, CombatResult.Outcome.CANCELLED] and (bool(record.get("purged", false)) or bool(record.get("purified", false))):
+			action_targets.append({"target_uid": int(record.get("uid", -1)), "field_unit_id": str(record.get("field_unit_id", "")), "purged": bool(record.get("purged", false)), "purified": bool(record.get("purified", false)), "defeated": bool(record.get("defeated", false))})
+
 	return {
 		"errors": errors,
 		"metadata": {
+			"ecology_receipt_id": ecology_receipt,
+			"irreversible": not ecology_receipt.is_empty() and action_targets.any(func(target: Dictionary) -> bool: return bool(target.purged) and bool(target.defeated)),
+			"action_targets": action_targets,
 			"experience": experience,
 			"experience_assigned": int(
 				experience_result.get("assigned", 0)
@@ -170,12 +192,13 @@ static func _build_plan(
 ) -> Dictionary:
 	# Successful escape commits health/state but never turns partial kills or
 	# completed extraction progress into permanent rewards.
-	if outcome == CombatResult.Outcome.ESCAPED:
+	if outcome in [CombatResult.Outcome.ESCAPED, CombatResult.Outcome.CANCELLED]:
 		return {"errors": PackedStringArray(), "experience": 0, "module_ids": PackedStringArray(), "passive_module_id": "", "items": [], "encyclopedia_entries": [], "tendency_gains": [], "combat_style": {}, "tamed_partner": null, "outcome": int(outcome)}
 	var errors := PackedStringArray()
 	var experience: int = 0
 	var module_ids := PackedStringArray()
 	var passive_module_id: String = ""
+	var passive_module_ids := PackedStringArray()
 	var items: Array[Dictionary] = []
 	var entries: Array[Dictionary] = []
 	var tendency_gains: Array[Dictionary] = []
@@ -190,31 +213,14 @@ static func _build_plan(
 			continue
 
 		if bool(enemy.get("defeated", false)):
-			var enemy_exp: int = reward.base_experience
-
+			var enemy_exp := reward.adjusted_experience(int(enemy.get("level", 1)), CampaignState.partner.level)
 			if bool(enemy.get("purged", false)):
-				enemy_exp = roundi(
-					enemy_exp * reward.purge_experience_multiplier
-				)
-				var purge_module: String = _deterministic_module(
-					reward.active_module_ids,
-					encounter.encounter_id,
-					int(enemy.get("uid", -1))
-				)
-
-				if not purge_module.is_empty():
-					if CampaignState.known_module_ids.has(purge_module):
-						enemy_exp += reward.duplicate_module_experience
-					else:
-						_add_unique(module_ids, purge_module)
-
+				# Canonical order: level penalty first, then exactly 3x. No drops.
+				enemy_exp *= 3
+			else:
+				for index: int in range(reward.common_item_ids.size()):
+					items.append({"item_id": reward.common_item_ids[index], "amount": reward.common_item_amounts[index]})
 			experience += enemy_exp
-
-			for index: int in range(reward.common_item_ids.size()):
-				items.append({
-					"item_id": reward.common_item_ids[index],
-					"amount": reward.common_item_amounts[index]
-				})
 
 		if not reward.encyclopedia_entry_id.strip_edges().is_empty():
 			var enemy_uid: int = int(enemy.get("uid", -1))
@@ -282,6 +288,7 @@ static func _build_plan(
 			)
 			continue
 
+		if bool(enemy.get("purged", false)) and action.action_kind in [PlayerActionData.ActionKind.PURIFY, PlayerActionData.ActionKind.TAME]: continue
 		for gain: CombatTendencyGainData in action.permanent_tendency_gains:
 			if gain != null and gain.is_available():
 				tendency_gains.append({
@@ -308,15 +315,18 @@ static func _build_plan(
 				else:
 					_add_unique(module_ids, state.selected_reward_id)
 			PlayerActionData.ActionKind.PURIFY:
-				for candidate_id: String in (
-					reward.purification_passive_module_ids
-				):
-					if not CampaignState.known_module_ids.has(candidate_id):
-						passive_module_id = candidate_id
-						break
+				var selected := ""
+				if not bool(enemy.get("purged", false)):
+					for candidate_id: String in reward.purification_passive_module_ids:
+						var candidate := ContentRegistry.get_module(candidate_id)
+						if candidate != null and candidate.module_kind == ModuleData.ModuleKind.PASSIVE and not CampaignState.known_module_ids.has(candidate_id) and candidate_id not in passive_module_ids:
+							selected = candidate_id
+							break
+				if selected.is_empty(): experience += reward.duplicate_module_experience
+				else:
+					passive_module_id = selected
+					passive_module_ids.append(selected)
 
-				if passive_module_id.is_empty():
-					experience += reward.duplicate_module_experience
 			PlayerActionData.ActionKind.TAME:
 				var integrity := (
 					PartnerStateData.IntegrityState.PURIFIED
@@ -343,6 +353,7 @@ static func _build_plan(
 		"experience": experience,
 		"module_ids": module_ids,
 		"passive_module_id": passive_module_id,
+		"passive_module_ids": passive_module_ids,
 		"items": items,
 		"encyclopedia_entries": entries,
 		"tendency_gains": tendency_gains,

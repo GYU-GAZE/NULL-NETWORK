@@ -116,6 +116,7 @@ func open_area(
 		return false
 
 	_clear_current_area(local_area_instance)
+	local_area_instance.ecology_projection.attach_hud(self)
 	error_label.hide()
 
 	_current_area_data = data

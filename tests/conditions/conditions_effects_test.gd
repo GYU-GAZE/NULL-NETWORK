@@ -62,27 +62,14 @@ func _test_empty_set_semantics() -> void:
 
 func _configure_fixture_catalog() -> void:
 	var source: GameContentCatalog = _saved_catalog
-	var fixture_catalog := GameContentCatalog.new()
-
-	fixture_catalog.apks.append_array(source.apks)
-	fixture_catalog.modules.append_array(source.modules)
-	fixture_catalog.items.append_array(source.items)
+	# Keep the source catalog's inherited groups and cross-references intact.
+	var fixture_catalog := source.duplicate() as GameContentCatalog
 	fixture_catalog.items.append(TEST_ITEM)
-	fixture_catalog.combat_encounters.append_array(source.combat_encounters)
-	fixture_catalog.character_loadouts.append_array(source.character_loadouts)
-	fixture_catalog.status_effects.append_array(source.status_effects)
-	fixture_catalog.dummies.append_array(source.dummies)
-	fixture_catalog.occupations.append_array(source.occupations)
-	fixture_catalog.app_catalog = source.app_catalog
-	fixture_catalog.locations.append_array(source.locations)
-	fixture_catalog.dialogues.append_array(source.dialogues)
-	fixture_catalog.story_event_catalog = source.story_event_catalog
 	fixture_catalog.lead_catalog = LeadCatalog.new()
 	fixture_catalog.lead_catalog.leads.append_array(
 		source.lead_catalog.leads
 	)
 	fixture_catalog.lead_catalog.leads.append(TEST_LEAD)
-	fixture_catalog.incidents.append_array(source.incidents)
 
 	var errors: PackedStringArray = ContentRegistry.configure_catalog(
 		fixture_catalog

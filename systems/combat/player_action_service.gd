@@ -76,8 +76,6 @@ static func validate_assignment(
 		PlayerActionData.ActionKind.PURIFY:
 			if purge_state != null or bool(target.get("purged", false)):
 				errors.append("PURIFY is blocked after PURGE.")
-			elif reward.purification_passive_module_ids.is_empty():
-				errors.append("This target exposes no purification passive.")
 		PlayerActionData.ActionKind.TAME:
 			if purge_state != null or bool(target.get("purged", false)):
 				errors.append("TAME is blocked after PURGE.")

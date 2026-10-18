@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ThreadButtonData" format=3]
+[ext_resource type="Script" path="res://data/templates/thread_button_data.gd" id="button"]
+[ext_resource type="Script" path="res://data/templates/forum_thread.gd" id="thread"]
+[ext_resource type="Script" path="res://data/templates/forum_post.gd" id="post"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_set_data.gd" id="set"]
+[ext_resource type="Script" path="res://data/templates/conditions/flag_condition_data.gd" id="flag"]
+[ext_resource type="Script" path="res://data/templates/conditions/condition_rule_data.gd" id="rule"]
+[sub_resource type="Resource" id="flag"]
+script = ExtResource("flag")
+flag_name = "ecology.akiba.electric_town.rattildus.absent"
+[sub_resource type="Resource" id="conditions"]
+script = ExtResource("set")
+rules = Array[ExtResource("rule")]([SubResource("flag")])
+[sub_resource type="Resource" id="post"]
+script = ExtResource("post")
+post_id = "ecology.akiba.absence.001"
+text_content = "Walked the same route twice. Nothing answered. If you need a Rattildus Module, look outside this zone. An ordinary weekly absence can recover, but a collapsed zone cannot."
+is_op = true
+[sub_resource type="Resource" id="thread"]
+script = ExtResource("thread")
+thread_id = "ecology_akiba_absence"
+thread_title = "Akiba field report // no Rattildus signatures"
+thread_label = "ECOLOGY"
+thread_preview = "Walked the same route twice. Nothing answered. If you need a Rattildus Module, look outside this zone. An ordinary weekly absence can recover, but a collapsed zone cannot."
+posts = Array[ExtResource("post")]([SubResource("post")])
+[resource]
+script = ExtResource("button")
+thread_ref = SubResource("thread")
+availability_conditions = SubResource("conditions")

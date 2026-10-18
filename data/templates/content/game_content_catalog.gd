@@ -19,6 +19,7 @@ class_name GameContentCatalog
 
 @export_category("World and Narrative")
 @export var locations: Array[MapLocation] = []
+@export var ecology_zones: Array[EcologyZoneData] = []
 @export var dialogues: Array[DialogueData] = []
 @export var story_event_catalog: StoryEventCatalog
 @export var lead_catalog: LeadCatalog
@@ -62,6 +63,7 @@ func get_content_groups() -> Array[Dictionary]:
 		_create_group(&"occupations", &"occupation_id", occupations),
 		_create_group(&"apps", &"app_id", registered_apps),
 		_create_group(&"locations", &"location_id", locations),
+		_create_group(&"ecology_zones", &"ecology_zone_id", ecology_zones),
 		_create_group(&"dialogues", &"dialogue_id", dialogues),
 		_create_group(
 			&"story_events",
@@ -167,6 +169,9 @@ func validate_data() -> PackedStringArray:
 			known_apk_ids
 		)
 
+	for zone: EcologyZoneData in ecology_zones:
+		if zone == null: errors.append("Null ecological zone.")
+		else: errors.append_array(zone.validate_data())
 	var location_ids := {}
 	for location: MapLocation in locations:
 		if location == null:

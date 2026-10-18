@@ -56,6 +56,9 @@ func resolve_encounter(
 		errors.append("Combat has no player actor to resolve.")
 		return errors
 
+	errors.append_array(_ecology_preflight(outcome))
+	if not errors.is_empty(): return errors
+	_resolution_in_progress = true
 	var result: Dictionary = CombatResolutionService.resolve(
 		outcome,
 		_current_encounter,
@@ -63,11 +66,14 @@ func resolve_encounter(
 		_get_enemy_resolution_records(),
 		player_action_progress,
 		combat_tendency_log,
-		_get_ally_resolution_records()
+		_get_ally_resolution_records(),
+		_ecology_authorization,
+		_ecology_battle_id
 	)
 	errors.append_array(result.get("errors", PackedStringArray()))
 
 	if not errors.is_empty():
+		_resolution_in_progress = false
 		return errors
 
 	_resolution_metadata = result.get("metadata", {}).duplicate(true)
@@ -114,8 +120,10 @@ func resolve_encounter(
 		)
 
 	if not errors.is_empty():
+		_resolution_in_progress = false
 		return errors
 
+	_resolution_in_progress = false
 	_resolution_applied = true
 	_partner_state_committed = true
 	_awaiting_resolution = false
@@ -260,6 +268,11 @@ func _resolve_slot_loadout(
 				slot_data.apk_level,
 				slot_data.apk_integrity_state
 			)
+			if loadout != null and not slot_data.field_module_ids.is_empty():
+				for index: int in range(mini(4, slot_data.field_module_ids.size())):
+					var module := ContentRegistry.get_module(slot_data.field_module_ids[index])
+					loadout.equipped_modules[index] = module
+					if module not in loadout.module_pool: loadout.module_pool.append(module)
 			if loadout != null and not slot_data.field_unit_id.is_empty():
 				loadout.starting_hp = maxi(1, roundi(loadout.max_hp * slot_data.initial_hp_fraction))
 				loadout.starting_stability = roundi(loadout.max_stability * slot_data.initial_stability_fraction)

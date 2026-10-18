@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EcologyPredatorData" format=3]
+[ext_resource type="Script" path="res://data/templates/ecology/ecology_predator_data.gd" id="s"]
+[ext_resource type="Script" path="res://data/templates/ecology/ecology_predator_stage_data.gd" id="stage"]
+[ext_resource type="Resource" path="res://data/content/ecology/null_predator_encounter.tres" id="encounter"]
+[ext_resource type="Resource" path="res://data/content/ecology/null_predator_behavior.tres" id="behavior"]
+[sub_resource type="Resource" id="assimilation"]
+script = ExtResource("stage")
+minimum_collapses = 2
+active_module_ids = PackedStringArray("heavy_attack")
+assimilate_destroyed_modules = true
+unresolved_design_notes = "Node-specific battle effects, exact phase/evolution curves and extra pursuit scaling remain unresolved. No fabricated numeric formula."
+[resource]
+script = ExtResource("s")
+predator_id = "null.predator"
+apk_id = "null_predator"
+level = 2
+encounter_profile = ExtResource("encounter")
+behavior_profile = ExtResource("behavior")
+stages = Array[ExtResource("stage")]([SubResource("assimilation")])

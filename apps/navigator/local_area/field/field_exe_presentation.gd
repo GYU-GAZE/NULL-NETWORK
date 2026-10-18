@@ -8,6 +8,7 @@ var definition: FieldPresentationData
 var moving: bool = false
 var facing_left: bool = false
 var signal_text: String = ""
+var variant_label: String = ""
 var tint: Color = Color.WHITE
 var _clock: float = 0.0
 
@@ -58,5 +59,7 @@ func _draw() -> void:
 		draw_line(Vector2(-8, 4), Vector2(8, 4), Color(0.3, 0.85, 1.0, 0.35), 1)
 		rect.position.y += bob
 	draw_texture_rect(texture, rect, false, color)
+	if not variant_label.is_empty():
+		draw_string(ThemeDB.fallback_font, Vector2(-28, 17), variant_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.7, 1, 1))
 	if not signal_text.is_empty():
 		draw_string(ThemeDB.fallback_font, Vector2(-28, -28), signal_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(1, 0.85, 0.25))

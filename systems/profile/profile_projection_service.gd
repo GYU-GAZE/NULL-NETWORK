@@ -29,7 +29,8 @@ static func build_snapshot() -> Dictionary:
 		"equipped_modules": _build_equipped_modules(),
 		"known_modules": _build_known_modules(),
 		"inventory": _build_inventory_snapshot(),
-		"money": CampaignState.money
+		"money": CampaignState.money,
+		"ecology_status": EcologyService.status_text(EcologyService.zone_for_location(CampaignState.current_location_id))
 	}
 
 
