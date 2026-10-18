@@ -16,13 +16,14 @@ enum PendingActivityKind {
 }
 
 
-const SESSION_STATE_VERSION: int = 6
+const SESSION_STATE_VERSION: int = 7
 const APP_ID: String = "navigator"
 signal location_entry_completed(location_id: String, succeeded: bool)
 var _area_history := NavigatorAreaHistory.new()
 var _transition_depth: int = 0
 var _travel_transaction_id: String = ""
 var _travel_pending: bool = false
+var _active_field_formation: Dictionary = {}
 
 
 @onready var world_map_view: NavigatorWorldMapView = (
@@ -76,7 +77,8 @@ func _exit_tree() -> void:
 
 
 func can_save_now() -> bool:
-	return _transition_depth == 0
+	var area := local_area_view.get_current_area_instance()
+	return _transition_depth == 0 and not (area != null and area.field_calls.busy and not CombatManager.is_encounter_active())
 
 
 func get_save_section_id() -> String:
@@ -94,6 +96,7 @@ func import_save_data(data: Dictionary) -> void:
 func reset_save_data() -> void:
 	_pending_activity_requests.clear()
 	_area_history.restore({})
+	_active_field_formation.clear()
 	_travel_pending = false
 	_pending_exe_actor = null
 	_pending_incident_id = ""
@@ -123,6 +126,7 @@ func validate_save_data(data: Dictionary) -> PackedStringArray:
 
 
 func _connect_signals() -> void:
+	local_area_view.field_contact_requested.connect(_on_field_contact_requested)
 	if not world_map_view.enter_area_requested.is_connected(
 		_on_world_map_enter_area_requested
 	):
@@ -305,6 +309,7 @@ func get_app_session_state() -> Dictionary:
 	return {
 		"version": SESSION_STATE_VERSION,
 		"areas": _area_history.to_data(),
+		"field_formation": _active_field_formation.duplicate(true),
 		"mode_before_dialogue": int(_mode_before_dialogue),
 		"mode": int(saved_mode),
 		"selected_location_id": selected_location_id,
@@ -492,8 +497,13 @@ func restore_app_session_state(
 			"activity_id",
 			state.get("activity_id", "")
 		)).strip_edges()
+		if is_instance_valid(_pending_exe_actor) and _pending_exe_actor.interaction_data != null:
+			ActivityManager.reconcile_reserved_cost(_active_combat_transaction_id, _pending_exe_actor.interaction_data.activity)
 
 		if combat_app.resume_saved_encounter():
+			_active_field_formation = CombatManager.get_current_encounter().field_formation.duplicate(true)
+			if not _active_field_formation.is_empty():
+				local_area_view.get_current_area_instance().field_calls.restore(_active_field_formation)
 			_set_mode(NavigatorMode.ENCOUNTER)
 		else:
 			_set_mode(NavigatorMode.LOCAL_AREA)
@@ -665,14 +675,22 @@ func _request_activity(
 func _request_exe_encounter(
 	exe_actor: LocalAreaExeActor,
 	activity: ActivityDefinitionData,
-	parent_transaction_id: String = ""
+	parent_transaction_id: String = "",
+	involuntary: bool = false
 ) -> String:
-	if exe_actor == null or exe_actor.encounter == null:
+	if exe_actor == null or (exe_actor.encounter == null and exe_actor.encounter_profile == null):
 		push_error(
 			"NavigatorApp: cannot request an encounter "
 			+ "without a valid EXE and CombatEncounter."
 		)
 		return ""
+	if exe_actor.environmental_apk != null and exe_actor.encounter_profile != null:
+		var area := local_area_view.get_current_area_instance()
+		if area == null or not area.field_calls.begin(exe_actor, involuntary):
+			return ""
+		if parent_transaction_id.is_empty():
+			var profile := exe_actor.encounter_profile
+			activity = profile.forced_activity if involuntary and profile.aggro_policy == FieldEncounterProfileData.AggroPolicy.FORCED_FREE else profile.voluntary_activity
 
 	return _request_activity(
 		activity,
@@ -680,6 +698,12 @@ func _request_exe_encounter(
 		{"exe_actor": exe_actor},
 		parent_transaction_id
 	)
+
+func _on_field_contact_requested(actor: LocalAreaExeActor) -> void:
+	if _current_mode != NavigatorMode.LOCAL_AREA or not _is_app_active or _transition_depth > 0:
+		actor.release_call(true)
+		return
+	_request_exe_encounter(actor, actor.interaction_data.activity, "", true)
 
 
 func start_included_exe_encounter(
@@ -752,7 +776,7 @@ func _start_exe_encounter(
 	transaction_id: String,
 	activity_id: String
 ) -> void:
-	if exe_actor.encounter == null:
+	if exe_actor.encounter == null and exe_actor.encounter_profile == null:
 		push_error(
 			"NavigatorApp: EXE '%s' has no encounter."
 			% exe_actor.get_interaction_id()
@@ -763,10 +787,24 @@ func _start_exe_encounter(
 	_pending_exe_actor = exe_actor
 	_active_combat_transaction_id = transaction_id
 	_active_combat_activity_id = activity_id
+	var resolved_encounter := exe_actor.encounter
+	if exe_actor.environmental_apk != null and exe_actor.encounter_profile != null:
+		local_area_view.set_interaction_enabled(false)
+		var area := local_area_view.get_current_area_instance()
+		resolved_encounter = await area.field_calls.build_encounter()
+		if resolved_encounter == null:
+			area.field_calls.cancel(true)
+			ActivityManager.fail_activity(transaction_id, "Field formation became unavailable.", activity_id)
+			_active_combat_transaction_id = ""
+			_active_combat_activity_id = ""
+			_set_mode(NavigatorMode.LOCAL_AREA)
+			_finish_presentation_transition()
+			return
+		_active_field_formation = resolved_encounter.field_formation.duplicate(true)
 	await KubuTransitionManager.cover_screen()
 	_set_mode(NavigatorMode.ENCOUNTER)
 
-	if combat_app.start_encounter(exe_actor.encounter):
+	if combat_app.start_encounter(resolved_encounter):
 		CombatManager.set_session_activity_context(
 			transaction_id,
 			activity_id
@@ -779,6 +817,10 @@ func _start_exe_encounter(
 	_pending_exe_actor = null
 	_active_combat_transaction_id = ""
 	_active_combat_activity_id = ""
+	_active_field_formation.clear()
+	var area := local_area_view.get_current_area_instance()
+	if area != null:
+		area.field_calls.cancel(true)
 	ActivityManager.fail_activity(
 		transaction_id,
 		"Combat encounter failed to start.",
@@ -930,6 +972,7 @@ func _on_activity_rejected(
 
 	_pending_activity_requests.erase(request_id)
 	_travel_pending = false
+	_release_pending_field_call()
 	UniversalAlerts.show_alert(
 		"ACTIVITY UNAVAILABLE",
 		reason
@@ -947,6 +990,7 @@ func _on_activity_cancelled(
 
 	_pending_activity_requests.erase(request_id)
 	_travel_pending = false
+	_release_pending_field_call()
 
 
 func _on_combat_finished(
@@ -974,7 +1018,13 @@ func _on_combat_finished(
 	)
 	_pending_exe_actor = null
 
-	if is_instance_valid(resolved_actor):
+	if not _active_field_formation.is_empty():
+		var area := local_area_view.get_current_area_instance()
+		if area != null:
+			area.field_calls.restore(_active_field_formation)
+			area.field_calls.apply_result(result)
+		_active_field_formation.clear()
+	elif is_instance_valid(resolved_actor):
 		resolved_actor.apply_combat_result(result)
 
 	_set_mode(NavigatorMode.LOCAL_AREA)
@@ -1073,3 +1123,8 @@ func _finish_presentation_transition() -> void:
 	_transition_depth = maxi(0, _transition_depth - 1)
 	if _transition_depth == 0 and is_inside_tree() and CampaignState.has_campaign():
 		SaveManager.request_checkpoint(&"navigator_settled")
+
+func _release_pending_field_call() -> void:
+	var area := local_area_view.get_current_area_instance()
+	if area != null and not CombatManager.is_encounter_active():
+		area.field_calls.cancel(true)

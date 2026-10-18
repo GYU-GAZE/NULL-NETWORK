@@ -1,0 +1,129 @@
+extends Node2D
+class_name FieldCombatCallCoordinator
+
+signal call_presented(formation: Dictionary)
+var area: NavigatorLocalAreaScene
+var busy: bool = false
+var presenting: bool = false
+var main: LocalAreaExeActor
+var formation: Dictionary = {}
+var decisions: Array[Dictionary] = []
+var _clock: float = 0.0
+
+func _ready() -> void:
+	set_process(false)
+
+func begin(actor: LocalAreaExeActor, involuntary: bool = false) -> bool:
+	if busy or actor == null or actor.encounter_profile == null or not actor.can_interact() or not area.is_field_active():
+		return false
+	if actor.global_position.distance_to(area.player.global_position) > 56 or not area.field_navigation.ready:
+		return false
+	if not area.field_navigation.line_clear(area.to_local(actor.global_position), area.to_local(area.player.global_position)):
+		return false
+	if involuntary and (actor.motor.grace_seconds > 0 or actor.motor.needs_separation):
+		return false
+	busy = true
+	main = actor
+	formation.clear()
+	decisions.clear()
+	main.set_call_locked(true, "CALL!")
+	return true
+
+func build_encounter() -> CombatEncounter:
+	if not busy or not is_instance_valid(main) or not main.available:
+		cancel(true)
+		return null
+	var profile := main.encounter_profile
+	var call_id := area.population_controller.reserve_field_call_id()
+	var candidates: Array[LocalAreaExeActor] = area.get_field_exes()
+	candidates.sort_custom(func(a: LocalAreaExeActor, b: LocalAreaExeActor) -> bool:
+		var da := a.global_position.distance_squared_to(main.global_position)
+		var db := b.global_position.distance_squared_to(main.global_position)
+		return a.population_unit_id < b.population_unit_id if is_equal_approx(da, db) else da < db)
+	var responders: Array[Dictionary] = []
+	var delay := profile.signal_seconds
+	for candidate: LocalAreaExeActor in candidates:
+		if candidate == main or candidate.call_locked or candidate.encounter_profile == null or candidate.behavior_profile == null:
+			continue
+		var distance := candidate.global_position.distance_to(main.global_position)
+		if distance > profile.call_radius or not area.field_navigation.line_clear(area.to_local(candidate.global_position), area.to_local(main.global_position)):
+			continue
+		candidate.refresh_field_context()
+		var context := candidate.field_context.duplicate()
+		context.merge({"distance": distance, "same_species": candidate.environmental_apk.species_line_id == main.environmental_apk.species_line_id, "caller_in_territory": area.to_local(main.global_position).distance_to(candidate.motor.home) <= candidate.behavior_profile.territory_radius, "caller_variant_node_id": main.spawn_entry.variant_node_id}, true)
+		var response := FieldResponseEvaluator.evaluate(candidate.behavior_profile, candidate.effective_behavior if candidate.behavior_enabled else FieldBehaviorProfileData.Behavior.DORMANT, context, hash(call_id + candidate.population_unit_id))
+		response["unit_id"] = candidate.population_unit_id
+		decisions.append(response.duplicate(true))
+		candidate.presentation.signal_text = FieldCallResponseRule.Response.keys()[int(response.response)]
+		if bool(response.join):
+			responders.append({"actor": candidate, "response": response})
+		elif int(response.response) == FieldCallResponseRule.Response.FLEE:
+			candidate.motor.disengage()
+	responders.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a.response.response == FieldCallResponseRule.Response.INTERCEPT) > int(b.response.response == FieldCallResponseRule.Response.INTERCEPT))
+	var members: Array[Dictionary] = [_member(main)]
+	for value: Dictionary in responders:
+		if members.size() >= 4:
+			break
+		var actor := value.actor as LocalAreaExeActor
+		actor.set_call_locked(true, FieldCallResponseRule.Response.keys()[int(value.response.response)])
+		delay = maxf(delay, float(value.response.delay))
+		members.append(_member(actor))
+	formation = {"version": 1, "call_id": call_id, "location_id": area.map_location.get_display_id(), "profile_path": profile.resource_path, "members": members, "decisions": decisions.duplicate(true)}
+	presenting = true
+	set_process(true)
+	call_presented.emit(formation.duplicate(true))
+	await get_tree().create_timer(delay).timeout
+	presenting = false
+	set_process(false)
+	queue_redraw()
+	return FieldCombatEncounterFactory.create(formation)
+
+func _member(actor: LocalAreaExeActor) -> Dictionary:
+	var reward := actor.encounter_profile.reward_profile
+	return {"unit_id": actor.population_unit_id, "apk_id": actor.environmental_apk.apk_id, "level": actor.spawn_entry.field_level, "hp_fraction": actor.hp_fraction, "stability_fraction": actor.stability_fraction, "reward_path": reward.resource_path if reward != null else ""}
+
+func restore(data: Dictionary) -> void:
+	formation = data.duplicate(true)
+	busy = not formation.is_empty()
+	for value: Dictionary in formation.get("members", []):
+		var actor := area.find_interactable_by_id(str(value.get("unit_id", ""))) as LocalAreaExeActor
+		if actor != null:
+			actor.set_call_locked(true)
+
+func apply_result(result: CombatResult) -> void:
+	if result == null:
+		cancel(true)
+		return
+	var records := {}
+	for record: Dictionary in result.metadata.get("field_units", []):
+		records[str(record.get("unit_id", ""))] = record
+	for member: Dictionary in formation.get("members", []):
+		var id := str(member.get("unit_id", ""))
+		var actor := area.find_interactable_by_id(id) as LocalAreaExeActor
+		if actor != null:
+			actor.apply_unit_result(records.get(id, {}), result.outcome)
+	# All nearby survivors get grace; an unselected aggressive neighbor must not
+	# immediately reopen combat at the return position after escape.
+	cancel(result.outcome in [CombatResult.Outcome.ESCAPED, CombatResult.Outcome.CANCELLED])
+	area.population_controller.sync_population_state()
+
+func cancel(grace: bool = false) -> void:
+	for actor: LocalAreaExeActor in area.get_field_exes():
+		actor.release_call(grace)
+	busy = false
+	presenting = false
+	main = null
+	formation.clear()
+	set_process(false)
+	queue_redraw()
+
+func _process(delta: float) -> void:
+	_clock += delta
+	queue_redraw()
+
+func _draw() -> void:
+	if presenting and is_instance_valid(main):
+		var center := to_local(main.global_position)
+		var radius := 18.0 + fmod(_clock * 70.0, 45.0)
+		draw_arc(center.round(), radius, 0, TAU, 32, Color(1, 0.7, 0.2), 1)

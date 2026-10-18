@@ -31,6 +31,10 @@ enum FormType {
 @export var sprites: Array[Texture2D] = []
 @export var portraits: Array[Texture2D] = []
 @export var combat_icon: Texture2D
+## Explicit field presentation/behavior, separate from generic art arrays.
+@export var field_presentation: FieldPresentationData
+@export var field_behavior: FieldBehaviorProfileData
+@export var field_encounter: FieldEncounterProfileData
 
 @export_category("Natural Growth")
 @export var level_100_stats: APKGrowthProfileData
@@ -52,6 +56,9 @@ enum FormType {
 
 func validate_data() -> PackedStringArray:
 	var errors := PackedStringArray()
+	for field: Resource in [field_presentation, field_behavior, field_encounter]:
+		if field != null:
+			errors.append_array(field.validate_data())
 	if apk_id.strip_edges().is_empty():
 		errors.append("APKData has an empty apk_id.")
 	if display_name.strip_edges().is_empty():

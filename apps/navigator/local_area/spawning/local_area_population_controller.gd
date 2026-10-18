@@ -2,7 +2,7 @@ extends Node
 class_name LocalAreaPopulationController
 
 
-const POPULATION_VERSION: int = 2
+const POPULATION_VERSION: int = 3
 const COMMON_ACTOR_SCENE: PackedScene = preload(
 	"res://apps/navigator/local_area/actors/local_area_exe_actor.tscn"
 )
@@ -73,7 +73,7 @@ func populate(location: MapLocation) -> bool:
 	var generation_key: String = _get_generation_key()
 	_generation_changed = str(_population_state.get("generation_key", "")) != generation_key
 
-	if int(_population_state.get("version", -1)) not in [1, POPULATION_VERSION] \
+	if int(_population_state.get("version", -1)) not in [1, 2, POPULATION_VERSION] \
 		or str(_population_state.get("generation_key", "")) != generation_key:
 		_population_state = _create_population_state(generation_key)
 	else:
@@ -84,6 +84,9 @@ func populate(location: MapLocation) -> bool:
 	_ensure_npcs()
 	_save_population_state()
 	_instantiate_population()
+	var area := get_parent() as NavigatorLocalAreaScene
+	if area != null:
+		area.queue_field_geometry_refresh()
 	return true
 
 
@@ -299,7 +302,11 @@ func _instantiate_actor(
 
 	_population_actors_root.add_child(actor)
 	actor.global_position = point.global_position.round()
+	if actor is LocalAreaExeActor:
+		actor.motor.global_position = actor.global_position
 	actor.apply_persistent_state(descriptor)
+	if actor is LocalAreaExeActor:
+		actor.bind_field(get_parent() as NavigatorLocalAreaScene, hash("%s:%s" % [_population_state.get("seed", 0), actor_id]))
 	actor.persistent_state_changed.connect(_on_actor_state_changed)
 
 
@@ -438,12 +445,17 @@ func _clear_runtime_actors() -> void:
 
 
 func _build_actor_id(kind: String, content_id: String, index: int) -> String:
-	return "%s.%s.%s.%d" % [
+	var id := "%s.%s.%s.%d" % [
 		_location.get_display_id(),
 		kind,
 		content_id.strip_edges(),
 		index
 	]
+	if kind == "common" and _location.spawn_table != null:
+		var entry := _location.spawn_table.get_entry(content_id)
+		if entry != null and entry.environmental_apk != null:
+			id += ".%d" % hash(_get_generation_key())
+	return id
 
 
 func _get_generation_key() -> String:
@@ -467,7 +479,11 @@ func _descriptor_available(descriptor: Dictionary) -> bool:
 	var content := str(descriptor.get("content_id", ""))
 	if kind == LocalAreaSpawnPoint.SpawnKind.COMMON_ENCOUNTER:
 		var entry := _location.spawn_table.get_entry(content) if _location.spawn_table != null else null
-		return entry != null and entry.is_available(_context()) and str(descriptor.get("actor_id", "")) in _population_state.get("common_slots", [])
+		if _location.spawn_table != null and _location.spawn_table.field_population != null:
+			var rules := _location.spawn_table.field_population.conditions
+			if rules != null and not rules.is_met(_context()):
+				return false
+		return _entry_can_remain(entry) and str(descriptor.get("actor_id", "")) in _population_state.get("common_slots", [])
 	if kind == LocalAreaSpawnPoint.SpawnKind.NPC:
 		var npc := ContentRegistry.get_npc(content)
 		return npc != null and npc.is_physically_present_at(_location.get_display_id(), _context())
@@ -490,7 +506,7 @@ func _ensure_common_slots() -> void:
 			if value is Dictionary and int(value.get("kind", -1)) == LocalAreaSpawnPoint.SpawnKind.COMMON_ENCOUNTER:
 				slots.append(str(value.get("actor_id", "")))
 	var rolled := _location.spawn_table.roll_entries(int(_population_state.get("seed", 0)), _context())
-	for index: int in range(_location.spawn_table.rolls_per_population):
+	for index: int in range(maxi(_location.spawn_table.rolls_per_population, rolled.size())):
 		if index >= slots.size():
 			slots.append("")
 		var current: Dictionary = {}
@@ -501,7 +517,7 @@ func _ensure_common_slots() -> void:
 		# A resolved roll stays spent until the authored refresh policy changes.
 		if not current.is_empty():
 			var entry := _location.spawn_table.get_entry(str(current.get("content_id", "")))
-			if bool(current.get("resolved", false)) or (entry != null and entry.is_available(_context())):
+			if bool(current.get("resolved", false)) or _entry_can_remain(entry):
 				continue
 		if index >= rolled.size():
 			continue
@@ -540,6 +556,8 @@ func _configure_subscription() -> void:
 		for entry: SpawnEntry in _location.spawn_table.entries:
 			if entry != null:
 				conditions.append(entry.conditions)
+		if _location.spawn_table.field_population != null:
+			conditions.append(_location.spawn_table.field_population.conditions)
 	for resource: Resource in ContentRegistry.get_all(ContentRegistry.CATEGORY_NPCS):
 		var npc := resource as NPCData
 		if npc != null:
@@ -567,3 +585,17 @@ func _refresh_population() -> void:
 	_refresh_queued = false
 	if _location != null:
 		populate(_location)
+
+func reserve_field_call_id() -> String:
+	var sequence := int(_population_state.get("next_field_call", 0)) + 1
+	_population_state["next_field_call"] = sequence
+	_save_population_state()
+	return "field.%s.%s.%s.%d" % [CampaignState.campaign_id, _location.get_display_id(), _get_generation_key(), sequence]
+
+func _entry_can_remain(entry: SpawnEntry) -> bool:
+	if entry == null or not entry.is_available(_context()):
+		return false
+	if entry in _location.spawn_table.retired_entries:
+		var active := CombatManager.get_current_encounter()
+		return CombatManager.is_encounter_active() and active != null and entry.encounter != null and active.encounter_id == entry.encounter.encounter_id
+	return true

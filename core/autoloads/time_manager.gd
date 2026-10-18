@@ -9,6 +9,54 @@ const ACTION_BLOCKS_PER_PERIOD: int = 12
 const TOTAL_ACTION_BLOCKS_PER_DAY: int = ACTION_BLOCKS_PER_PERIOD * 2
 const SECONDS_PER_DAY: int = 86400
 const SAVE_DATA_VERSION: int = 1
+signal development_time_state_changed
+var _development_advancing: bool = false
+
+func can_save_now() -> bool:
+	return not _development_advancing
+
+func is_development_advancing() -> bool:
+	return _development_advancing
+
+func development_time_denial_reason() -> String:
+	if _development_advancing:
+		return "A development time operation is already running."
+	if not CampaignState.has_campaign():
+		return "Load a campaign before advancing development time."
+	if CampaignState.campaign_phase != CampaignState.CampaignPhase.MAIN_CAMPAIGN:
+		return "Development time controls require the main campaign."
+	if CombatManager.is_encounter_active():
+		return "Finish combat before advancing development time."
+	if DialogueManager.is_dialogue_active():
+		return "Finish the dialogue before advancing development time."
+	if ActivityManager.has_pending_requests() or ActivityManager.has_any_active_transaction():
+		return "Finish or cancel the pending activity first."
+	if SaveManager.is_runtime_busy():
+		return "Wait for save/load to finish."
+	return ""
+
+func advance_development_hours(hours: int) -> Dictionary:
+	var denial := development_time_denial_reason()
+	if not denial.is_empty() or hours not in [1, 24]:
+		return {"ok": false, "advanced": 0, "reason": denial if not denial.is_empty() else "QA controls support 1 or 24 hours."}
+	_development_advancing = true
+	development_time_state_changed.emit()
+	var advanced := 0
+	var interrupted := ""
+	for _hour: int in range(hours):
+		if CombatManager.is_encounter_active() or DialogueManager.is_dialogue_active() or ActivityManager.has_pending_requests() or ActivityManager.has_any_active_transaction():
+			interrupted = "Stopped at an authored event/activity boundary."
+			break
+		# The actual temporal authority processes every intermediate hour. This
+		# intentionally bypasses reward/occupation shortcuts, not schedules.
+		advance_action(1)
+		advanced += 1
+		await get_tree().process_frame
+		await get_tree().physics_frame
+	_development_advancing = false
+	development_time_state_changed.emit()
+	SaveManager.request_checkpoint(&"development_time_settled")
+	return {"ok": interrupted.is_empty(), "advanced": advanced, "reason": interrupted}
 
 @export_category("Game Start Date")
 @export var start_year: int = 2026

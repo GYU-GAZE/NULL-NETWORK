@@ -1,6 +1,9 @@
 [gd_resource type="Resource" script_class="APKData" format=3 uid="uid://dqcpt0j40amvs"]
 
 [ext_resource type="Script" uid="uid://dwvuhtqbtihl5" path="res://data/templates/apk/apk_data.gd" id="1_apk"]
+[ext_resource type="Resource" path="res://data/content/field/rattildus_field_presentation.tres" id="field_art"]
+[ext_resource type="Resource" path="res://data/content/field/behaviors/pack.tres" id="field_behavior"]
+[ext_resource type="Resource" path="res://data/content/field/rattildus_field_encounter.tres" id="field_encounter"]
 [ext_resource type="Script" uid="uid://c2ihiqrxhbaw1" path="res://data/templates/apk/apk_growth_profile_data.gd" id="2_growth"]
 [ext_resource type="Script" uid="uid://cwgjxk5rvp3u3" path="res://data/templates/apk/apk_personality_data.gd" id="3_personality"]
 [ext_resource type="Script" uid="uid://ch2qg0x863c8p" path="res://data/templates/apk/address_term_data.gd" id="4_address"]
@@ -47,6 +50,9 @@ mdef = 40
 [resource]
 script = ExtResource("1_apk")
 apk_id = "rattildus_init"
+field_presentation = ExtResource("field_art")
+field_behavior = ExtResource("field_behavior")
+field_encounter = ExtResource("field_encounter")
 display_name = "RATTILDUS"
 species_line_id = "rattildus"
 form_id = "rattildus.init"

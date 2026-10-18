@@ -1,31 +1,71 @@
 [gd_resource type="Resource" script_class="SpawnTable" format=3 uid="uid://d2c5qbnpgb6xw"]
+[ext_resource type="Script" path="res://data/templates/spawn_table.gd" id="table"]
+[ext_resource type="Script" path="res://data/templates/spawn_entry.gd" id="entry"]
+[ext_resource type="Script" path="res://data/templates/field/field_population_data.gd" id="ecology"]
+[ext_resource type="Resource" path="res://data/content/apks/common/rattildus_init.tres" id="species"]
+[ext_resource type="Resource" path="res://data/content/field/behaviors/passive.tres" id="passive"]
+[ext_resource type="Resource" path="res://data/content/field/behaviors/aggressive.tres" id="aggressive"]
+[ext_resource type="Resource" path="res://data/content/field/behaviors/cautious.tres" id="cautious"]
+[ext_resource type="Resource" path="res://data/content/combat/1v1.tres" id="old_solo"]
+[ext_resource type="Resource" path="res://data/content/combat/3v1.tres" id="old_swarm"]
+[ext_resource type="Resource" path="res://data/content/activities/fight_rattildus.tres" id="old_activity"]
 
-[ext_resource type="Script" uid="uid://dwrqagfrtf3or" path="res://data/templates/spawn_entry.gd" id="1_nt00n"]
-[ext_resource type="Resource" uid="uid://cdxjje47qsri2" path="res://data/content/combat/1v1.tres" id="2_a5olv"]
-[ext_resource type="Script" uid="uid://so6qxui71jiq" path="res://data/templates/spawn_table.gd" id="2_ycvl3"]
-[ext_resource type="Resource" uid="uid://i24s2c766jts" path="res://data/content/combat/3v1.tres" id="3_6mr0l"]
-[ext_resource type="Resource" path="res://data/content/activities/fight_rattildus.tres" id="4_activity"]
+[sub_resource type="Resource" id="passive"]
+script = ExtResource("entry")
+spawn_id = "akihabara.field.passive"
+display_name = "Rattildus // Patrol"
+environmental_apk = ExtResource("species")
+field_level = 2
+behavior_override = ExtResource("passive")
 
-[sub_resource type="Resource" id="Resource_ye60b"]
-script = ExtResource("1_nt00n")
+[sub_resource type="Resource" id="aggressive"]
+script = ExtResource("entry")
+spawn_id = "akihabara.field.aggressive"
+display_name = "Rattildus // Aggressive"
+environmental_apk = ExtResource("species")
+field_level = 2
+behavior_override = ExtResource("aggressive")
+
+[sub_resource type="Resource" id="cautious"]
+script = ExtResource("entry")
+spawn_id = "akihabara.field.cautious"
+display_name = "Rattildus // Cautious"
+environmental_apk = ExtResource("species")
+field_level = 2
+behavior_override = ExtResource("cautious")
+
+[sub_resource type="Resource" id="pack"]
+script = ExtResource("entry")
+spawn_id = "akihabara.field.pack"
+display_name = "Rattildus // Pack"
+environmental_apk = ExtResource("species")
+field_level = 2
+
+[sub_resource type="Resource" id="budget"]
+script = ExtResource("ecology")
+minimum_units = 2
+maximum_units = 5
+guaranteed_spawn_ids = PackedStringArray("akihabara.field.passive", "akihabara.field.aggressive", "akihabara.field.cautious", "akihabara.field.pack")
+spawn_separation = 44.0
+
+[sub_resource type="Resource" id="retired_solo"]
+script = ExtResource("entry")
 spawn_id = "akihabara.rattildus.1v1"
 display_name = "Rattildus.exe"
-encounter = ExtResource("2_a5olv")
-activity = ExtResource("4_activity")
-weight = 70
-metadata/_custom_type_script = "uid://dwrqagfrtf3or"
+encounter = ExtResource("old_solo")
+activity = ExtResource("old_activity")
 
-[sub_resource type="Resource" id="Resource_4ae75"]
-script = ExtResource("1_nt00n")
+[sub_resource type="Resource" id="retired_swarm"]
+script = ExtResource("entry")
 spawn_id = "akihabara.rattildus.3v1"
 display_name = "Rattildus Swarm"
-encounter = ExtResource("3_6mr0l")
-activity = ExtResource("4_activity")
-weight = 30
-metadata/_custom_type_script = "uid://dwrqagfrtf3or"
+encounter = ExtResource("old_swarm")
+activity = ExtResource("old_activity")
 
 [resource]
-script = ExtResource("2_ycvl3")
+script = ExtResource("table")
 table_id = "spawn.akihabara.default"
-entries = Array[ExtResource("1_nt00n")]([SubResource("Resource_ye60b"), SubResource("Resource_4ae75")])
-metadata/_custom_type_script = "uid://so6qxui71jiq"
+rolls_per_population = 4
+field_population = SubResource("budget")
+entries = Array[ExtResource("entry")]([SubResource("passive"), SubResource("aggressive"), SubResource("cautious"), SubResource("pack")])
+retired_entries = Array[ExtResource("entry")]([SubResource("retired_solo"), SubResource("retired_swarm")])

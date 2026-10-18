@@ -20,6 +20,9 @@ class_name CombatEncounter
 
 @export_category("Campaign Resolution")
 @export var resolution: CombatResolutionData
+## Empty for authored fixed formations; runtime field recipe contains plain
+## IDs/resource references only and is saved with the existing combat section.
+@export var field_formation: Dictionary = {}
 
 
 func validate_data() -> PackedStringArray:

@@ -151,6 +151,9 @@ func can_save_now() -> Variant:
 func is_dialogue_active() -> bool:
 	return not active_dialogue_id.is_empty()
 
+func is_choice_pending() -> bool:
+	return not _pending_choice_id.is_empty() or _is_resolving
+
 
 func get_active_dialogue() -> DialogueData:
 	return ContentRegistry.get_dialogue(active_dialogue_id)

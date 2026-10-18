@@ -3,6 +3,7 @@ class_name NavigatorLocalAreaView
 
 
 signal back_requested
+signal field_contact_requested(actor: LocalAreaExeActor)
 signal interaction_requested(
 	target: LocalAreaInteractable
 )
@@ -234,6 +235,7 @@ func _connect_area_signals(
 		area_instance.interaction_target_changed.connect(
 			_on_interaction_target_changed
 		)
+	area_instance.field_contact_requested.connect(field_contact_requested.emit)
 
 	if not area_instance.interaction_requested.is_connected(
 		_on_interaction_requested

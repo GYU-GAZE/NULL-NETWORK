@@ -47,7 +47,7 @@ signal combat_resolution_applied(outcome: CombatResult.Outcome, metadata: Dictio
 
 const TEAM_SIZE: int = 4
 const MAX_EVENT_DEPTH: int = 16
-const SAVE_DATA_VERSION: int = 2
+const SAVE_DATA_VERSION: int = 3
 const MIN_SAVE_DATA_VERSION: int = 1
 const UNSTABILITY_STATUS: StatusEffectData = preload(
 	"res://data/content/combat/status_effects/unstability.tres"
@@ -230,6 +230,7 @@ func export_save_data() -> Dictionary:
 		"version": SAVE_DATA_VERSION,
 		"active": true,
 		"encounter_id": _current_encounter.encounter_id,
+		"field_formation": _current_encounter.field_formation.duplicate(true),
 		"activity_transaction_id": _session_activity_transaction_id,
 		"activity_id": _session_activity_id,
 		"cycle_index": current_cycle,
@@ -272,6 +273,8 @@ func import_save_data(data: Dictionary) -> void:
 	var encounter: CombatEncounter = ContentRegistry.get_combat_encounter(
 		encounter_id
 	)
+	if not (data.get("field_formation", {}) as Dictionary).is_empty():
+		encounter = FieldCombatEncounterFactory.create(data.field_formation)
 
 	if encounter == null or not load_encounter(encounter):
 		push_error(
@@ -371,7 +374,14 @@ func validate_save_data(data: Dictionary) -> PackedStringArray:
 
 	var encounter_id: String = str(data.get("encounter_id", "")).strip_edges()
 
-	if ContentRegistry.get_combat_encounter(encounter_id) == null:
+	var formation: Variant = data.get("field_formation", {})
+	if formation is not Dictionary:
+		errors.append("Invalid field formation data.")
+	elif not formation.is_empty():
+		var runtime := FieldCombatEncounterFactory.create(formation)
+		if runtime == null or runtime.encounter_id != encounter_id:
+			errors.append("Invalid runtime field encounter recipe.")
+	elif ContentRegistry.get_combat_encounter(encounter_id) == null:
 		errors.append("CombatSession encounter_id is not registered.")
 
 	for team_key: String in ["ally_team", "enemy_team"]:
@@ -567,6 +577,7 @@ func resolve_encounter(outcome: CombatResult.Outcome) -> PackedStringArray:
 		return errors
 
 	_resolution_metadata = result.get("metadata", {}).duplicate(true)
+	_append_field_resolution_metadata()
 	_resolution_applied = true
 	_partner_state_committed = true
 	_awaiting_resolution = false
@@ -577,6 +588,17 @@ func resolve_encounter(outcome: CombatResult.Outcome) -> PackedStringArray:
 	)
 	combat_resolution_applied.emit(outcome, _resolution_metadata.duplicate(true))
 	return errors
+
+
+func _append_field_resolution_metadata() -> void:
+	if _current_encounter == null or _current_encounter.field_formation.is_empty():
+		return
+	var units: Array[Dictionary] = []
+	for record: Dictionary in _get_enemy_resolution_records():
+		if not str(record.get("field_unit_id", "")).is_empty():
+			units.append({"unit_id": str(record.field_unit_id), "hp": record.get("hp", 0), "max_hp": record.get("max_hp", 1), "stability": record.get("stability", 0), "max_stability": record.get("max_stability", 100), "defeated": bool(record.get("defeated", false)), "tamed": bool(record.get("tamed", false)), "purged": bool(record.get("purged", false)), "purified": bool(record.get("purified", false))})
+	_resolution_metadata["field_units"] = units
+	_resolution_metadata["field_call_id"] = _current_encounter.encounter_id
 
 
 func finalize_resolved_encounter() -> bool:
@@ -1419,6 +1441,7 @@ func _load_team_from_slots(
 			slot_data.slot_index,
 			slot_data.reward_profile
 		)
+		target_team[index]["field_unit_id"] = slot_data.field_unit_id
 
 
 func _resolve_slot_loadout(slot_data: CombatSlotData) -> CharacterLoadout:
@@ -4397,6 +4420,7 @@ func _serialize_actor(actor: Dictionary) -> Dictionary:
 	return {
 		"uid": int(actor.get("uid", -1)),
 		"character_id": str(actor.get("character_id", "")),
+		"field_unit_id": str(actor.get("field_unit_id", "")),
 		"source_kind": int(actor.get("source_kind", CombatSlotData.ParticipantSource.FIXED_LOADOUT)),
 		"encounter_slot_index": int(actor.get("encounter_slot_index", -1)),
 		"name": str(actor.get("name", "Entity")),
@@ -4470,7 +4494,7 @@ func _deserialize_actor(data: Dictionary) -> Dictionary:
 
 	if dummy != null:
 		actor_icon = dummy.combat_icon
-	elif source_kind == CombatSlotData.ParticipantSource.PLAYER_PARTNER:
+	elif source_kind in [CombatSlotData.ParticipantSource.PLAYER_PARTNER, CombatSlotData.ParticipantSource.CATALOG_APK]:
 		var apk: APKData = ContentRegistry.get_apk(character_id)
 
 		if apk != null:
@@ -4481,6 +4505,7 @@ func _deserialize_actor(data: Dictionary) -> Dictionary:
 	return {
 		"uid": int(data.get("uid", -1)),
 		"character_id": character_id,
+		"field_unit_id": str(data.get("field_unit_id", "")),
 		"source_kind": source_kind,
 		"encounter_slot_index": encounter_slot_index,
 		"reward_profile": _reward_profile_for_actor(bool(data.get("is_ally", false)), encounter_slot_index),

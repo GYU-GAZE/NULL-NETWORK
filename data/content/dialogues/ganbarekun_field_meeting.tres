@@ -1,0 +1,73 @@
+[gd_resource type="Resource" script_class="DialogueData" format=3]
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_data.gd" id="dialogue"]
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_speaker_data.gd" id="speaker"]
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_node_data.gd" id="node"]
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_choice_data.gd" id="choice"]
+[ext_resource type="Script" path="res://data/templates/dialogue/dialogue_portrait_state.gd" id="portrait"]
+[ext_resource type="Texture2D" path="res://data/assets/field/ganbarekun_placeholder.svg" id="art"]
+
+[sub_resource type="Resource" id="hero"]
+script = ExtResource("speaker")
+speaker_id = "ganbarekun"
+display_name = "GANBAREkun"
+
+[sub_resource type="Resource" id="hero_portrait"]
+script = ExtResource("portrait")
+speaker_id = "ganbarekun"
+portrait = ExtResource("art")
+
+[sub_resource type="Resource" id="ask_field"]
+script = ExtResource("choice")
+choice_id = "field"
+text = "Those EXEs are watching us."
+next_node_id = "field"
+
+[sub_resource type="Resource" id="ask_hero"]
+script = ExtResource("choice")
+choice_id = "hero"
+text = "Do you always wait around for strangers?"
+next_node_id = "hero"
+
+[sub_resource type="Resource" id="leave"]
+script = ExtResource("choice")
+choice_id = "leave"
+text = "I'll be careful. See you around."
+next_node_id = "goodbye"
+
+[sub_resource type="Resource" id="arrival"]
+script = ExtResource("node")
+node_id = "arrival"
+speaker_id = "ganbarekun"
+text = "Hey! You made it out here. Keep an eye on the street, okay? Some of these little guys are braver when their friends are watching."
+portrait_states = Array[ExtResource("portrait")]([SubResource("hero_portrait")])
+choices = Array[ExtResource("choice")]([SubResource("ask_field"), SubResource("ask_hero"), SubResource("leave")])
+
+[sub_resource type="Resource" id="field"]
+script = ExtResource("node")
+node_id = "field"
+speaker_id = "ganbarekun"
+text = "Watch what they do before you move. One might chase you. Another will run. If a call goes out, the ones nearby can answer it. You can walk away before making contact."
+portrait_states = Array[ExtResource("portrait")]([SubResource("hero_portrait")])
+next_node_id = "goodbye"
+
+[sub_resource type="Resource" id="hero_node"]
+script = ExtResource("node")
+node_id = "hero"
+speaker_id = "ganbarekun"
+text = "Strangers? That's just people I haven't cheered for yet! ...Look, the ranking is nice. But being useful to somebody standing right here feels better."
+portrait_states = Array[ExtResource("portrait")]([SubResource("hero_portrait")])
+next_node_id = "goodbye"
+
+[sub_resource type="Resource" id="goodbye"]
+script = ExtResource("node")
+node_id = "goodbye"
+speaker_id = "ganbarekun"
+text = "Go at your own pace. I'll be here while it's light. GANBARE!"
+portrait_states = Array[ExtResource("portrait")]([SubResource("hero_portrait")])
+
+[resource]
+script = ExtResource("dialogue")
+dialogue_id = "npc.ganbarekun.field_meeting"
+initial_node_id = "arrival"
+speakers = Array[ExtResource("speaker")]([SubResource("hero")])
+nodes = Array[ExtResource("node")]([SubResource("arrival"), SubResource("field"), SubResource("hero_node"), SubResource("goodbye")])
