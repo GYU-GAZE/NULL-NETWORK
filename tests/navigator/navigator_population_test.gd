@@ -49,6 +49,10 @@ func run() -> void:
 	conditional.location_id = "population_conditions"
 	conditional.spawn_table = location.spawn_table.duplicate() as SpawnTable
 	conditional.spawn_table.entries = []
+	# This fixture tests a single eligible slot, independently of Akiba's new
+	# four-unit ecological roster.
+	conditional.spawn_table.field_population = null
+	conditional.spawn_table.rolls_per_population = 1
 	var entry := location.spawn_table.entries[0].duplicate() as SpawnEntry
 	var flag := FlagConditionData.new()
 	flag.flag_name = "test.navigator.spawn_eligible"

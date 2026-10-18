@@ -1,0 +1,4 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://tests/field/field_legacy_save_test.gd" id="test"]
+[node name="FieldLegacySaveTest" type="Node"]
+script = ExtResource("test")
