@@ -1,8 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://bptitsuqumy4e"]
-
-[ext_resource type="Script" uid="uid://1xdf2ppqaxl7" path="res://core/autoloads/simulated_dns.gd" id="1_dns"]
-[ext_resource type="Resource" path="res://data/content/sites/website_catalog.tres" id="2_catalog"]
-
-[node name="SimulatedDNS" type="Node" unique_id=1524678864]
-script = ExtResource("1_dns")
-website_catalog = ExtResource("2_catalog")

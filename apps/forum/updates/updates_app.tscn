@@ -1,7 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://nq56sk3ukffg"]
-
-[ext_resource type="PackedScene" uid="uid://d2wc20x3ldl5k" path="res://apps/forum/forum_app.tscn" id="1_forum"]
-
-[node name="UpdatesApp" instance=ExtResource("1_forum")]
-visible_categories = Array[int]([4])
-show_filter_bar = false
